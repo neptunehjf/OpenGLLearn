@@ -1,0 +1,53 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "E:\\MyProject\\OpenGLLearn\\001CreateWindow\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{E61C97C6-F591-44A0-9FF3-5A6F2F18F6F7}|001CreateWindow.vcxproj|E:\\MyProject\\OpenGLLearn\\001CreateWindow\\CreateWindow.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{E61C97C6-F591-44A0-9FF3-5A6F2F18F6F7}|001CreateWindow.vcxproj|solutionrelative:CreateWindow.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61C97C6-F591-44A0-9FF3-5A6F2F18F6F7}|001CreateWindow.vcxproj|E:\\MyProject\\OpenGLLearn\\Dependency\\Src\\glad\\src\\glad.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "glad.c",
+              "DocumentMoniker": "E:\\MyProject\\OpenGLLearn\\Dependency\\Src\\glad\\src\\glad.c",
+              "RelativeDocumentMoniker": "..\\Dependency\\Src\\glad\\src\\glad.c",
+              "ToolTip": "E:\\MyProject\\OpenGLLearn\\Dependency\\Src\\glad\\src\\glad.c",
+              "RelativeToolTip": "..\\Dependency\\Src\\glad\\src\\glad.c",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAgAAAAPAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2024-07-08T23:46:18.832Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "CreateWindow.cpp",
+              "DocumentMoniker": "E:\\MyProject\\OpenGLLearn\\001CreateWindow\\CreateWindow.cpp",
+              "RelativeDocumentMoniker": "CreateWindow.cpp",
+              "ToolTip": "E:\\MyProject\\OpenGLLearn\\001CreateWindow\\CreateWindow.cpp",
+              "RelativeToolTip": "CreateWindow.cpp",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAoAAAAVAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2024-07-08T23:19:38.869Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
