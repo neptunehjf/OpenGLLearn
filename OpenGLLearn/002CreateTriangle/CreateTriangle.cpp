@@ -1,5 +1,5 @@
-// 为什么顶点数据是float型
-// 绘制是基于窗口的，要先设置上下文到窗口才能调用gladLoadGLLoader
+// Q1为什么顶点数据是float型
+// Q2绘制是基于窗口的，要先设置上下文到窗口才能调用gladLoadGLLoader
 
 
 
@@ -142,13 +142,13 @@ int main()
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	//レンダリング　ループ
+	//渲染循环
 	while (!glfwWindowShouldClose(window))
 	{
-		//入力
+		//输入
 		processInput(window);
 
-		//clear
+		//渲染之前清空窗口
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
@@ -157,7 +157,7 @@ int main()
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 
-		//バッファ交換　と　イベントポーリング
+		//缓冲区交换 轮询事件
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
