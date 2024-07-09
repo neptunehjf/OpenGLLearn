@@ -44,17 +44,17 @@ int main()
 
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-	//レンダリング　ループ
+	// 渲染循环
 	while (!glfwWindowShouldClose(window))
 	{
-		//入力
+		//输入
 		processInput(window);
 
-		//レンダリング
+		//渲染之前清空窗口
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		//バッファ交換　と　イベントポーリング
+		//缓冲区交换 轮询事件
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
