@@ -72,7 +72,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>..\Dependency\Includes;$(IncludePath)</IncludePath>
-    <LibraryPath>E:\GitHub\OpenGLLearn\OpenGLLearn\Dependency\Libs;$(LibraryPath)</LibraryPath>
+    <LibraryPath>..\Dependency\Libs;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

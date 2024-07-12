@@ -42,8 +42,7 @@
               "RelativeToolTip": "VertexData.h",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAA0AAAACAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2024-07-09T23:17:30.631Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-07-09T23:17:30.631Z"
             },
             {
               "$type": "Document",
@@ -53,7 +52,7 @@
               "RelativeDocumentMoniker": "Shader.h",
               "ToolTip": "E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\003Shader\\Shader.h",
               "RelativeToolTip": "Shader.h",
-              "ViewState": "AQIAAIEAAAAAAAAAAAAAAIkAAAAAAAAA",
+              "ViewState": "AQIAAEsAAAAAAAAAAAAAAFQAAAAxAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
               "WhenOpened": "2024-07-09T23:17:10.051Z",
               "EditorCaption": ""
@@ -80,8 +79,7 @@
               "RelativeToolTip": "x64\\Debug\\shader.vs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAsAAAAPAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2024-07-10T04:58:57.617Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-07-10T04:58:57.617Z"
             },
             {
               "$type": "Document",
@@ -93,8 +91,7 @@
               "RelativeToolTip": "Shader.cpp",
               "ViewState": "AQIAAB4AAAAAAAAAAAAAADIAAAAsAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2024-07-09T23:16:51.636Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-07-09T23:16:51.636Z"
             }
           ]
         }
