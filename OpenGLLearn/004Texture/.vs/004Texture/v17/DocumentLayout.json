@@ -1,0 +1,104 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\004Texture\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{F97A3D2F-D857-4FD3-99FC-1B21E7D5A8E1}|004Texture\\004Texture.vcxproj|E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\004Texture\\Texture.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{F97A3D2F-D857-4FD3-99FC-1B21E7D5A8E1}|004Texture\\004Texture.vcxproj|solutionrelative:Texture.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F97A3D2F-D857-4FD3-99FC-1B21E7D5A8E1}|004Texture\\004Texture.vcxproj|E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\004Texture\\Shader.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{F97A3D2F-D857-4FD3-99FC-1B21E7D5A8E1}|004Texture\\004Texture.vcxproj|solutionrelative:Shader.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F97A3D2F-D857-4FD3-99FC-1B21E7D5A8E1}|004Texture\\004Texture.vcxproj|E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\004Texture\\004Texture\\shader.fs||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{F97A3D2F-D857-4FD3-99FC-1B21E7D5A8E1}|004Texture\\004Texture.vcxproj|solutionrelative:004Texture\\shader.fs||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F97A3D2F-D857-4FD3-99FC-1B21E7D5A8E1}|004Texture\\004Texture.vcxproj|E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\004Texture\\004Texture\\shader.vs||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{F97A3D2F-D857-4FD3-99FC-1B21E7D5A8E1}|004Texture\\004Texture.vcxproj|solutionrelative:004Texture\\shader.vs||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F97A3D2F-D857-4FD3-99FC-1B21E7D5A8E1}|004Texture\\004Texture.vcxproj|E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\004Texture\\VertexData.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{F97A3D2F-D857-4FD3-99FC-1B21E7D5A8E1}|004Texture\\004Texture.vcxproj|solutionrelative:VertexData.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 4,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "VertexData.h",
+              "DocumentMoniker": "E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\004Texture\\VertexData.h",
+              "RelativeDocumentMoniker": "VertexData.h",
+              "ToolTip": "E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\004Texture\\VertexData.h",
+              "RelativeToolTip": "VertexData.h",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAQAAAASAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2024-07-14T03:02:03.577Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Shader.h",
+              "DocumentMoniker": "E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\004Texture\\Shader.h",
+              "RelativeDocumentMoniker": "Shader.h",
+              "ToolTip": "E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\004Texture\\Shader.h",
+              "RelativeToolTip": "Shader.h",
+              "ViewState": "AQIAAIUAAAAAAAAAAAAEwJQAAAATAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2024-07-14T02:44:52.27Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "shader.vs",
+              "DocumentMoniker": "E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\004Texture\\004Texture\\shader.vs",
+              "RelativeDocumentMoniker": "004Texture\\shader.vs",
+              "ToolTip": "E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\004Texture\\004Texture\\shader.vs",
+              "RelativeToolTip": "004Texture\\shader.vs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA0AAAAKAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2024-07-14T01:49:38.337Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "shader.fs",
+              "DocumentMoniker": "E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\004Texture\\004Texture\\shader.fs",
+              "RelativeDocumentMoniker": "004Texture\\shader.fs",
+              "ToolTip": "E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\004Texture\\004Texture\\shader.fs",
+              "RelativeToolTip": "004Texture\\shader.fs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAwAAABWAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2024-07-14T01:49:35.599Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Texture.cpp",
+              "DocumentMoniker": "E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\004Texture\\Texture.cpp",
+              "RelativeDocumentMoniker": "Texture.cpp",
+              "ToolTip": "E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\004Texture\\Texture.cpp",
+              "RelativeToolTip": "Texture.cpp",
+              "ViewState": "AQIAAKgAAAAAAAAAAAAAAL0AAAARAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2024-07-14T01:46:27.731Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
