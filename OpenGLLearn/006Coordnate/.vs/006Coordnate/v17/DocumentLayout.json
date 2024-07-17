@@ -1,0 +1,105 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\006Coordnate\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{78339810-420C-40F6-B841-D1EE59ADB561}|006Coordnate\\006Coordnate.vcxproj|E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\006Coordnate\\Coordnate.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{78339810-420C-40F6-B841-D1EE59ADB561}|006Coordnate\\006Coordnate.vcxproj|solutionrelative:Coordnate.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{78339810-420C-40F6-B841-D1EE59ADB561}|006Coordnate\\006Coordnate.vcxproj|E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\006Coordnate\\Shader.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{78339810-420C-40F6-B841-D1EE59ADB561}|006Coordnate\\006Coordnate.vcxproj|solutionrelative:Shader.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{78339810-420C-40F6-B841-D1EE59ADB561}|006Coordnate\\006Coordnate.vcxproj|E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\006Coordnate\\VertexData.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{78339810-420C-40F6-B841-D1EE59ADB561}|006Coordnate\\006Coordnate.vcxproj|solutionrelative:VertexData.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{78339810-420C-40F6-B841-D1EE59ADB561}|006Coordnate\\006Coordnate.vcxproj|E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\006Coordnate\\006Coordnate\\shader.fs||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{78339810-420C-40F6-B841-D1EE59ADB561}|006Coordnate\\006Coordnate.vcxproj|solutionrelative:006Coordnate\\shader.fs||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{78339810-420C-40F6-B841-D1EE59ADB561}|006Coordnate\\006Coordnate.vcxproj|E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\006Coordnate\\006Coordnate\\shader.vs||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{78339810-420C-40F6-B841-D1EE59ADB561}|006Coordnate\\006Coordnate.vcxproj|solutionrelative:006Coordnate\\shader.vs||{8B382828-6202-11D1-8870-0000F87579D2}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 3,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Shader.h",
+              "DocumentMoniker": "E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\006Coordnate\\Shader.h",
+              "RelativeDocumentMoniker": "Shader.h",
+              "ToolTip": "E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\006Coordnate\\Shader.h",
+              "RelativeToolTip": "Shader.h",
+              "ViewState": "AQIAAJwAAAAAAAAAAAAAAK4AAAA7AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2024-07-17T04:27:45.823Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "shader.fs",
+              "DocumentMoniker": "E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\006Coordnate\\006Coordnate\\shader.fs",
+              "RelativeDocumentMoniker": "006Coordnate\\shader.fs",
+              "ToolTip": "E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\006Coordnate\\006Coordnate\\shader.fs",
+              "RelativeToolTip": "006Coordnate\\shader.fs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAIAAAACAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2024-07-17T03:51:57.716Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "VertexData.h",
+              "DocumentMoniker": "E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\006Coordnate\\VertexData.h",
+              "RelativeDocumentMoniker": "VertexData.h",
+              "ToolTip": "E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\006Coordnate\\VertexData.h",
+              "RelativeToolTip": "VertexData.h",
+              "ViewState": "AQIAAEIAAAAAAAAAAAAAAAoAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2024-07-17T03:36:41.419Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Coordnate.cpp",
+              "DocumentMoniker": "E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\006Coordnate\\Coordnate.cpp",
+              "RelativeDocumentMoniker": "Coordnate.cpp",
+              "ToolTip": "E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\006Coordnate\\Coordnate.cpp",
+              "RelativeToolTip": "Coordnate.cpp",
+              "ViewState": "AQIAAK0AAAAAAAAAAAAAALcAAAAlAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2024-07-17T03:02:00.496Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "shader.vs",
+              "DocumentMoniker": "E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\006Coordnate\\006Coordnate\\shader.vs",
+              "RelativeDocumentMoniker": "006Coordnate\\shader.vs",
+              "ToolTip": "E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\006Coordnate\\006Coordnate\\shader.vs",
+              "RelativeToolTip": "006Coordnate\\shader.vs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAoAAAARAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2024-07-17T03:03:05.208Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
