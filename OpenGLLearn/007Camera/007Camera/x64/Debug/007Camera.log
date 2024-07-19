@@ -1,0 +1,10 @@
+﻿  Camera.cpp
+E:\GitHub\OpenGLLearn\OpenGLLearn\007Camera\Camera.cpp(249,28): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+E:\GitHub\OpenGLLearn\OpenGLLearn\007Camera\Camera.cpp(277,11): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+E:\GitHub\OpenGLLearn\OpenGLLearn\007Camera\Camera.cpp(278,11): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+E:\GitHub\OpenGLLearn\OpenGLLearn\007Camera\Camera.cpp(282,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+E:\GitHub\OpenGLLearn\OpenGLLearn\007Camera\Camera.cpp(283,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+E:\GitHub\OpenGLLearn\OpenGLLearn\007Camera\Camera.cpp(284,10): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+E:\GitHub\OpenGLLearn\OpenGLLearn\007Camera\Camera.cpp(285,10): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+E:\GitHub\OpenGLLearn\OpenGLLearn\007Camera\Camera.cpp(310,10): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
+  007Camera.vcxproj -> E:\GitHub\OpenGLLearn\OpenGLLearn\007Camera\x64\Debug\007Camera.exe
