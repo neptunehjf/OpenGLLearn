@@ -5,6 +5,7 @@
 
 #include "VertexData.h"
 #include "Shader.h"
+#include "Camera.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb/stb_image.h"
@@ -19,27 +20,12 @@ using namespace glm;
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
 
-float camSpeed = 5.0f;
-vec3 camPos = vec3(0.0f, 0.0f, 3.0f);
-vec3 camFront = vec3(0.0f, 0.0f, -1.0f);
-vec3 camUp = vec3(0.0f, 1.0f, 0.0f);
-
-float deltaTime = 0.0f; // 当前帧与上一帧的时间差
-float lastFrame = 0.0f; // 上一帧的时间
-float currentFrame = 0.0f; //当前帧时间
-
-float lastX = 0.0f;
-float lastY = 0.0f;
-bool  isFirst = true;
-float pitchValue = 0.0f;
-float yawValue = -90.0f; // 默认镜头朝向X正方向，所以向左转90度校正
-
-float fov = 45.0f;
-
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 void mouse_callback(GLFWwindow* window, double posX, double posY);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+
+Camera myCam(vec3(0.0f, 0.0f, 3.0f), vec3(0.0f, 0.0f, -0.1f), vec3(0.0f, 0.1f, 0.0f));
 
 int main()
 {
@@ -202,10 +188,12 @@ int main()
 		/* 生成变换矩阵 */
 		// view矩阵
 		mat4 view;
-		view = lookAt(camPos, camPos + camFront, camUp);
+		myCam.setCamView();
+		view = myCam.getCamView();
 		myShader.SetMat4("uni_view", view);
 		// 投影矩阵
 		mat4 projection;
+		float fov = myCam.getCamFov();
 		projection = perspective(radians(fov), (float)(WINDOW_WIDTH / WINDOW_HEIGHT), 0.1f, 100.0f);
 		myShader.SetMat4("uni_projection", projection);
 
@@ -246,70 +234,70 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 void processInput(GLFWwindow* window)
 {
-	currentFrame = glfwGetTime();
-	deltaTime = currentFrame - lastFrame;
-	lastFrame = currentFrame;
+	myCam.currentFrame = glfwGetTime();
+	myCam.deltaTime = myCam.currentFrame - myCam.lastFrame;
+	myCam.lastFrame = myCam.currentFrame;
 
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 	{
-		camPos += normalize(camFront) * camSpeed * deltaTime;
+		myCam.camPos += normalize(myCam.camFront) * myCam.camSpeed * myCam.deltaTime;
 	}
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 	{
-		camPos -= normalize(camFront) * camSpeed * deltaTime;
+		myCam.camPos -= normalize(myCam.camFront) * myCam.camSpeed * myCam.deltaTime;
 	}
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 	{
-		camPos -= normalize(cross(camFront, camUp)) * camSpeed * deltaTime;
+		myCam.camPos -= normalize(cross(myCam.camFront, myCam.camUp)) * myCam.camSpeed * myCam.deltaTime;
 	}
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 	{
-		camPos += normalize(cross(camFront, camUp)) * camSpeed * deltaTime;
+		myCam.camPos += normalize(cross(myCam.camFront, myCam.camUp)) * myCam.camSpeed * myCam.deltaTime;
 	}
 }
 
 void mouse_callback(GLFWwindow* window, double posX, double posY)
 {
-	if (isFirst)
+	if (myCam.isFirst)
 	{
-		lastX = posX;
-		lastY = posY;
-		isFirst = false;
+		myCam.lastX = posX;
+		myCam.lastY = posY;
+		myCam.isFirst = false;
 	}
 
-	float offsetX = posX - lastX;
-	float offsetY = lastY - posY;
-	lastX = posX;
-	lastY = posY;
+	float offsetX = posX - myCam.lastX;
+	float offsetY = myCam.lastY - posY;
+	myCam.lastX = posX;
+	myCam.lastY = posY;
 
-	yawValue += offsetX;
-	pitchValue += offsetY;
+	myCam.yawValue += offsetX;
+	myCam.pitchValue += offsetY;
 	float speed = 1.0f;
-	yawValue *= speed;
-	pitchValue *= speed;
+	myCam.yawValue *= speed;
+	myCam.pitchValue *= speed;
 
-	if (pitchValue > 89.0f)
-		pitchValue = 89.0f;
-	if (pitchValue < -89.0f)
-		pitchValue = -89.0f;
+	if (myCam.pitchValue > 89.0f)
+		myCam.pitchValue = 89.0f;
+	if (myCam.pitchValue < -89.0f)
+		myCam.pitchValue = -89.0f;
 
 	
 	vec3 front;
-	front.x = cos(radians(yawValue)) * cos(radians(pitchValue)); // 因为视角默认朝向X轴正方向，所以应该用与X轴正方向的角度计算偏移
-	front.y = sin(radians(pitchValue));
-	front.z = sin(radians(yawValue)) * cos(radians(pitchValue)); // 因为视角默认朝向X轴正方向，所以应该用与X轴正方向的角度计算偏移
+	front.x = cos(radians(myCam.yawValue)) * cos(radians(myCam.pitchValue)); // 因为视角默认朝向X轴正方向，所以应该用与X轴正方向的角度计算偏移
+	front.y = sin(radians(myCam.pitchValue));
+	front.z = sin(radians(myCam.yawValue)) * cos(radians(myCam.pitchValue)); // 因为视角默认朝向X轴正方向，所以应该用与X轴正方向的角度计算偏移
 	
-	camFront = normalize(front);
+	myCam.camFront = normalize(front);
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	if (fov >= 1.0f && fov <= 95.0f)
-		fov -= yoffset;
-	if (fov <= 1.0f)
-		fov = 1.0f;
-	if (fov >= 95.0f)
-		fov = 95.0f;
+	if (myCam.fov >= 1.0f && myCam.fov <= 95.0f)
+		myCam.fov -= yoffset;
+	if (myCam.fov <= 1.0f)
+		myCam.fov = 1.0f;
+	if (myCam.fov >= 95.0f)
+		myCam.fov = 95.0f;
 }

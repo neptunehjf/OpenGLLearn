@@ -1,10 +1,14 @@
 ﻿  Camera.cpp
-E:\GitHub\OpenGLLearn\OpenGLLearn\007Camera\Camera.cpp(249,28): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-E:\GitHub\OpenGLLearn\OpenGLLearn\007Camera\Camera.cpp(277,11): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-E:\GitHub\OpenGLLearn\OpenGLLearn\007Camera\Camera.cpp(278,11): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-E:\GitHub\OpenGLLearn\OpenGLLearn\007Camera\Camera.cpp(282,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-E:\GitHub\OpenGLLearn\OpenGLLearn\007Camera\Camera.cpp(283,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-E:\GitHub\OpenGLLearn\OpenGLLearn\007Camera\Camera.cpp(284,10): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-E:\GitHub\OpenGLLearn\OpenGLLearn\007Camera\Camera.cpp(285,10): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-E:\GitHub\OpenGLLearn\OpenGLLearn\007Camera\Camera.cpp(310,10): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
+E:\GitHub\OpenGLLearn\OpenGLLearn\007Camera\Camera.cpp(237,34): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+E:\GitHub\OpenGLLearn\OpenGLLearn\007Camera\Camera.cpp(265,17): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+E:\GitHub\OpenGLLearn\OpenGLLearn\007Camera\Camera.cpp(266,17): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+E:\GitHub\OpenGLLearn\OpenGLLearn\007Camera\Camera.cpp(270,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+E:\GitHub\OpenGLLearn\OpenGLLearn\007Camera\Camera.cpp(271,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+E:\GitHub\OpenGLLearn\OpenGLLearn\007Camera\Camera.cpp(272,16): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+E:\GitHub\OpenGLLearn\OpenGLLearn\007Camera\Camera.cpp(273,16): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+E:\GitHub\OpenGLLearn\OpenGLLearn\007Camera\Camera.cpp(298,16): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
+glfw3.lib(input.obj) : warning LNK4099: PDB '' was not found with 'glfw3.lib(input.obj)' or at ''; linking object as if no debug info
+glfw3.lib(monitor.obj) : warning LNK4099: PDB '' was not found with 'glfw3.lib(monitor.obj)' or at ''; linking object as if no debug info
+glfw3.lib(null_monitor.obj) : warning LNK4099: PDB '' was not found with 'glfw3.lib(null_monitor.obj)' or at ''; linking object as if no debug info
+glfw3.lib(win32_window.obj) : warning LNK4099: PDB '' was not found with 'glfw3.lib(win32_window.obj)' or at ''; linking object as if no debug info
   007Camera.vcxproj -> E:\GitHub\OpenGLLearn\OpenGLLearn\007Camera\x64\Debug\007Camera.exe

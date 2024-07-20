@@ -5,6 +5,10 @@
     {
       "AbsoluteMoniker": "D:0:0:{1EA4B2BB-95A3-4AB4-90C7-F883AC5D6AD5}|007Camera\\007Camera.vcxproj|E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\007Camera\\Camera.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{1EA4B2BB-95A3-4AB4-90C7-F883AC5D6AD5}|007Camera\\007Camera.vcxproj|solutionrelative:Camera.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1EA4B2BB-95A3-4AB4-90C7-F883AC5D6AD5}|007Camera\\007Camera.vcxproj|E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\007Camera\\Camera.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{1EA4B2BB-95A3-4AB4-90C7-F883AC5D6AD5}|007Camera\\007Camera.vcxproj|solutionrelative:Camera.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
   "DocumentGroupContainers": [
@@ -14,8 +18,21 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 1,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Camera.h",
+              "DocumentMoniker": "E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\007Camera\\Camera.h",
+              "RelativeDocumentMoniker": "Camera.h",
+              "ToolTip": "E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\007Camera\\Camera.h",
+              "RelativeToolTip": "Camera.h",
+              "ViewState": "AQIAACEAAAAAAAAAAAAAADwAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2024-07-20T00:33:41.305Z",
+              "EditorCaption": ""
+            },
             {
               "$type": "Document",
               "DocumentIndex": 0,
@@ -24,7 +41,7 @@
               "RelativeDocumentMoniker": "Camera.cpp",
               "ToolTip": "E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\007Camera\\Camera.cpp",
               "RelativeToolTip": "Camera.cpp",
-              "ViewState": "AQIAACQBAAAAAAAAAAAAADMBAAABAAAA",
+              "ViewState": "AQIAAAMAAAAAAAAAAAAYwA0AAAAoAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2024-07-18T04:14:30.665Z",
               "EditorCaption": ""
