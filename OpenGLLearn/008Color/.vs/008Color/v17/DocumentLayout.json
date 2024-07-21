@@ -46,8 +46,7 @@
               "RelativeToolTip": "lightShader.fs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAGAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2024-07-21T03:18:48.251Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-07-21T03:18:48.251Z"
             },
             {
               "$type": "Document",
@@ -59,8 +58,7 @@
               "RelativeToolTip": "Shader.h",
               "ViewState": "AQIAAFoAAAAAAAAAAAAmwBQAAAAMAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2024-07-21T02:49:29.886Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-07-21T02:49:29.886Z"
             },
             {
               "$type": "Document",
@@ -72,8 +70,7 @@
               "RelativeToolTip": "shader.fs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAQAAAAsAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2024-07-21T02:32:34.526Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-07-21T02:32:34.526Z"
             },
             {
               "$type": "Document",
@@ -85,8 +82,7 @@
               "RelativeToolTip": "shader.vs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAoAAABbAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2024-07-21T02:32:33.729Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-07-21T02:32:33.729Z"
             },
             {
               "$type": "Document",
@@ -98,8 +94,7 @@
               "RelativeToolTip": "VertexData.h",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAcAAAAXAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2024-07-21T02:25:39.537Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-07-21T02:25:39.537Z"
             },
             {
               "$type": "Document",
@@ -109,7 +104,7 @@
               "RelativeDocumentMoniker": "Camera.cpp",
               "ToolTip": "E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\008Color\\Camera.cpp",
               "RelativeToolTip": "Camera.cpp",
-              "ViewState": "AQIAAFgAAAAAAAAAAAAAAMkAAAAAAAAA",
+              "ViewState": "AQIAAH4AAAAAAAAAAAAAAIYAAAANAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2024-07-21T02:21:53.693Z",
               "EditorCaption": ""
