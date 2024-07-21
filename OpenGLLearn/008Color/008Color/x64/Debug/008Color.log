@@ -1,0 +1,10 @@
+﻿  Camera.cpp
+E:\GitHub\OpenGLLearn\OpenGLLearn\008Color\Camera.cpp(214,34): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+E:\GitHub\OpenGLLearn\OpenGLLearn\008Color\Camera.cpp(243,17): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+E:\GitHub\OpenGLLearn\OpenGLLearn\008Color\Camera.cpp(244,17): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+E:\GitHub\OpenGLLearn\OpenGLLearn\008Color\Camera.cpp(248,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+E:\GitHub\OpenGLLearn\OpenGLLearn\008Color\Camera.cpp(249,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+E:\GitHub\OpenGLLearn\OpenGLLearn\008Color\Camera.cpp(250,16): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+E:\GitHub\OpenGLLearn\OpenGLLearn\008Color\Camera.cpp(251,16): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+E:\GitHub\OpenGLLearn\OpenGLLearn\008Color\Camera.cpp(277,16): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
+  008Color.vcxproj -> E:\GitHub\OpenGLLearn\OpenGLLearn\008Color\x64\Debug\008Color.exe
