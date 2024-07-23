@@ -18,16 +18,15 @@ void main()
 	vec3 ambient = ambientStrength * uni_lightColor;
 	
 	// 漫反射光照diffuse
-	vec3 nm = normalize(normalModel);
+	vec3 norm = normalize(normalModel);
 	vec3 lightDir = normalize(uni_lightPos - fragPos);
-	float diff = max(dot(nm, lightDir), 0.0);
+	float diff = max(dot(norm, lightDir), 0.0);
 	vec3 diffuse = diff * uni_lightColor;
 	
 	// 镜面光照specular
-	float specularStrength = 0.5;
-	vec3 nv = normalize(normalView);
+	float specularStrength = 0.8;
 	vec3 viewDir = normalize(uni_viewPos - fragPos);
-	vec3 reflectDir = normalize(reflect(-lightDir, nv));
+	vec3 reflectDir = normalize(reflect(-lightDir, norm));
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
 	vec3 specular = specularStrength * spec * uni_lightColor;
 

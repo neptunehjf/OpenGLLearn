@@ -9,7 +9,6 @@ uniform mat4 uni_projection;
 
 out vec3 fragPos;
 out vec3 normalModel;
-out vec3 normalView;
 
 void main()
 {
@@ -17,5 +16,4 @@ void main()
 
   fragPos = vec3(uni_model * vec4(aPos, 1.0));
   normalModel = mat3(transpose(inverse(uni_model))) * aNormal;
-  normalView = mat3(transpose(inverse(uni_view))) * aNormal;
 }

@@ -1,10 +1,10 @@
 ﻿  Camera.cpp
-E:\GitHub\OpenGLLearn\OpenGLLearn\009BasicLighting\Camera.cpp(216,34): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-E:\GitHub\OpenGLLearn\OpenGLLearn\009BasicLighting\Camera.cpp(245,17): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-E:\GitHub\OpenGLLearn\OpenGLLearn\009BasicLighting\Camera.cpp(246,17): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-E:\GitHub\OpenGLLearn\OpenGLLearn\009BasicLighting\Camera.cpp(250,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-E:\GitHub\OpenGLLearn\OpenGLLearn\009BasicLighting\Camera.cpp(251,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-E:\GitHub\OpenGLLearn\OpenGLLearn\009BasicLighting\Camera.cpp(252,16): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-E:\GitHub\OpenGLLearn\OpenGLLearn\009BasicLighting\Camera.cpp(253,16): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-E:\GitHub\OpenGLLearn\OpenGLLearn\009BasicLighting\Camera.cpp(279,16): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
+E:\GitHub\OpenGLLearn\OpenGLLearn\009BasicLighting\Camera.cpp(220,34): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+E:\GitHub\OpenGLLearn\OpenGLLearn\009BasicLighting\Camera.cpp(249,17): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+E:\GitHub\OpenGLLearn\OpenGLLearn\009BasicLighting\Camera.cpp(250,17): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+E:\GitHub\OpenGLLearn\OpenGLLearn\009BasicLighting\Camera.cpp(254,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+E:\GitHub\OpenGLLearn\OpenGLLearn\009BasicLighting\Camera.cpp(255,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+E:\GitHub\OpenGLLearn\OpenGLLearn\009BasicLighting\Camera.cpp(256,16): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+E:\GitHub\OpenGLLearn\OpenGLLearn\009BasicLighting\Camera.cpp(257,16): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+E:\GitHub\OpenGLLearn\OpenGLLearn\009BasicLighting\Camera.cpp(283,16): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
   009BasicLighting.vcxproj -> E:\GitHub\OpenGLLearn\OpenGLLearn\009BasicLighting\x64\Debug\009BasicLighting.exe

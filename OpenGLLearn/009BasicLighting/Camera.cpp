@@ -126,7 +126,6 @@ int main()
 
 	vec3 lightPos = vec3(3.0f, 5.0f, 5.0f);
 	myShader.SetVec3("uni_lightPos", lightPos);
-	myShader.SetVec3("uni_viewPos", myCam.camPos);
 
 	// 开启深度测试
 	glEnable(GL_DEPTH_TEST);
@@ -138,10 +137,13 @@ int main()
 		processInput(window);
 
 		// 清空buffer
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
 		//激活myShader程序 这里涉及两个shader程序的切换，所以每次loop里都要在对应的位置调用，不能只在开始调用一次
 		myShader.Use();
+
+		myShader.SetVec3("uni_viewPos", myCam.camPos); //摄影机位置是实时更新的
 
 		/* 生成变换矩阵 */
 		// view矩阵 world -> view
@@ -159,6 +161,7 @@ int main()
 		// model矩阵 local -> world
 		// 物体
 		mat4 model = mat4(1.0f); // mat4初始化最好显示调用初始化为单位矩阵，因为新版本mat4 model可能是全0矩阵
+		model = scale(model, vec3(4.0f));
 		model = translate(model, vec3(-1.0f, 0.0f, -2.0f));
 		model = rotate(model, radians(45.0f), vec3(0.0f, 1.0f, 0.0f));
 		myShader.SetMat4("uni_model", model);
