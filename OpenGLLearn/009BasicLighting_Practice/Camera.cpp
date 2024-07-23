@@ -14,6 +14,10 @@
 #include "glm//gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+
 using namespace std;
 using namespace glm;
 
@@ -25,7 +29,7 @@ void processInput(GLFWwindow* window);
 void mouse_callback(GLFWwindow* window, double posX, double posY);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
-Camera myCam(vec3(0.0f, 1.0f, 7.0f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
+Camera myCam(vec3(2.0f, 7.0f, 6.0f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
 
 int main()
 {
@@ -40,18 +44,17 @@ int main()
 
 	// 绘制窗口
 	GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "OpenglWindow", NULL, NULL);
-
 	if (window == NULL)
 	{
 		cout << "Failed to create window." << endl;
-		glfwTerminate();
+		glfwTerminate();  
 		return -1;
 	}
 	glfwMakeContextCurrent(window);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
 	// 捕获鼠标
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
 
@@ -61,6 +64,17 @@ int main()
 		glfwTerminate();
 		return -1;
 	}
+
+	// Setup Dear ImGui context
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+	// Setup Platform/Renderer backends
+	ImGui_ImplGlfw_InitForOpenGL(window, true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
+	ImGui_ImplOpenGL3_Init();
 
 	// 创建Shader程序
 	Shader myShader("shader.vs", "shader.fs");
@@ -132,10 +146,44 @@ int main()
 	{
 		//输入
 		processInput(window);
+		glfwPollEvents();
 
 		// 清空buffer
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+
+		// Start the Dear ImGui frame
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
+		//Imgui
+		static float f1 = 0.0f;
+		static float f2 = 0.2f;
+		static float f3 = 1.0f;
+		static float f4 = 0.2f;
+		static int i1 = 32;
+		static int counter = 0;
+		static vec3 object_color = vec3(1.0f, 0.5f, 0.31f);
+		static vec3 light_color = vec3(1.0f);
+
+		ImGui::Begin("Test Parameter");
+
+		ImGui::Text("CameraX %f | CameraY %f | CameraZ %f | CameraPitch %f | CameraYaw %f | CameraFov",
+			myCam.camPos.x, myCam.camPos.y, myCam.camPos.z, myCam.pitchValue, myCam.yawValue, myCam.fov);
+
+		ImGui::SliderFloat("ligth position", &f1, 0.0f, 10.0f);            // Edit 1 float using a slider from 0.0f to 100.0f
+
+		ImGui::ColorEdit3("object color", (float*)&object_color); // Edit 3 floats representing a color
+		ImGui::ColorEdit3("light color", (float*)&light_color);
+
+		ImGui::SliderFloat("ambientStrength", &f2, 0.0f, 1.0f);
+		ImGui::SliderFloat("diffuseStrength", &f3, 0.0f, 1.0f);
+		ImGui::SliderFloat("specularStrength", &f4, 0.0f, 1.0f);
+		ImGui::SliderInt("specularFactor", &i1, 0, 256);
+
+		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+		ImGui::End();
 
 		//激活myShader程序 这里涉及两个shader程序的切换，所以每次loop里都要在对应的位置调用，不能只在开始调用一次
 		myShader.Use();
@@ -145,6 +193,7 @@ int main()
 		/* 生成变换矩阵 */
 		// view矩阵 world -> view
 		mat4 view;
+
 		myCam.setCamView();
 		view = myCam.getCamView();
 		myShader.SetMat4("uni_view", view);
@@ -162,27 +211,33 @@ int main()
 		model = translate(model, vec3(0.0f, 0.0f, -0.0f));
 		model = rotate(model, radians(45.0f), vec3(0.0f, 1.0f, 0.0f));
 		myShader.SetMat4("uni_model", model);
-		myShader.SetVec3("uni_objectColor", vec3(1.0f, 0.5f, 0.31f));
-		myShader.SetVec3("uni_lightColor", vec3(1.0f));
+		myShader.SetVec3("uni_objectColor", object_color);
+		myShader.SetVec3("uni_lightColor", light_color);
+		myShader.SetFloat("uni_ambientStrength", f2);
+		myShader.SetFloat("uni_diffuseStrength", f3);
+		myShader.SetFloat("uni_specularStrength", f4);
+		myShader.SetInt("uni_specularFactor", i1);
 
 		glBindVertexArray(VAO); // draw操作从VAO上下文读    可代替VBO EBO attrpoint的绑定操作，方便管理
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 		// 解绑
 		glBindVertexArray(0);
 
-		vec3 lightPos = vec3(5 * cos(glfwGetTime()), 10.0f, 5 * sin(glfwGetTime()));
+		vec3 lightPos = vec3(5 * cos(f1), 10.0f, 5 * sin(f1));
 		myShader.SetVec3("uni_lightPos", lightPos);
 		// 光源模型，一个白色的发光体
 		// 激活lampShader程序 这里涉及两个shader程序的切换，所以每次loop里都要在对应的位置调用，不能只在开始调用一次
 		lampShader.Use();
 
-		lampShader.SetMat4("uni_view", view);
-		lampShader.SetMat4("uni_projection", projection);
 		model = mat4(1.0f); // 初始化为单位矩阵，清空
 		model = scale(model, vec3(0.5f));
 		model = translate(model, lightPos);
 		model = rotate(model, radians(45.0f), vec3(1.0f, 1.0f, 0.0f));
+
+		lampShader.SetMat4("uni_view", view);
+		lampShader.SetMat4("uni_projection", projection);
 		lampShader.SetMat4("uni_model", model);
+		lampShader.SetVec3("uni_lightColor", light_color);
 
 		glBindVertexArray(lightVAO);
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
@@ -190,9 +245,12 @@ int main()
 		// 解绑
 		glBindVertexArray(0);
 
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
 		// 缓冲区交换 轮询事件
 		glfwSwapBuffers(window);
-		glfwPollEvents();
+
 	}
 
 	glDeleteVertexArrays(1, &VAO);
@@ -201,6 +259,9 @@ int main()
 	glDeleteBuffers(1, &EBO);
 	myShader.Remove();
 	lampShader.Remove();
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
 
 	glfwTerminate();
 
@@ -242,17 +303,17 @@ void processInput(GLFWwindow* window)
 void mouse_callback(GLFWwindow* window, double posX, double posY)
 {
 	/* 相机视角 */
-	if (myCam.isFirst)
-	{
-		myCam.lastX = posX;
-		myCam.lastY = posY;
-		myCam.isFirst = false;
-	}
 
 	float offsetX = posX - myCam.lastX;
 	float offsetY = myCam.lastY - posY;
 	myCam.lastX = posX;
 	myCam.lastY = posY;
+
+	// 鼠标右键不按就不处理，因为鼠标要用来点Imgui
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) != GLFW_PRESS)
+	{
+		return;
+	}
 
 	myCam.yawValue += offsetX;
 	myCam.pitchValue += offsetY;
@@ -264,14 +325,6 @@ void mouse_callback(GLFWwindow* window, double posX, double posY)
 		myCam.pitchValue = 89.0f;
 	if (myCam.pitchValue < -89.0f)
 		myCam.pitchValue = -89.0f;
-
-	
-	vec3 front;
-	front.x = cos(radians(myCam.yawValue)) * cos(radians(myCam.pitchValue)); // 因为视角默认朝向X轴正方向，所以应该用与X轴正方向的角度计算偏移
-	front.y = sin(radians(myCam.pitchValue));
-	front.z = sin(radians(myCam.yawValue)) * cos(radians(myCam.pitchValue)); // 因为视角默认朝向X轴正方向，所以应该用与X轴正方向的角度计算偏移
-	
-	myCam.camFront = normalize(front);
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)

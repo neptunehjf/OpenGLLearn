@@ -26,7 +26,6 @@ public:
 
 	float lastX;
 	float lastY;
-	bool  isFirst;
 	float pitchValue;
 	float yawValue;
 
@@ -37,6 +36,8 @@ public:
 
 	void setCamFov(float fov);
 	float getCamFov();
+
+	void setCamFront();
 
 private:
 	mat4 view;
@@ -52,9 +53,8 @@ Camera::Camera(const vec3& camPos, const vec3& camFront, const vec3& camUp)
 
 	lastX = 0.0f;
 	lastY = 0.0f;
-	isFirst = true;
-	pitchValue = 0.0f;
-	yawValue = -90.0f; // 默认镜头朝向X正方向，所以向左转90度校正
+	pitchValue = -35.0f;
+	yawValue = -110.0f; // 默认镜头朝向X正方向，所以向左转90度校正
 
 	fov = 45.0f;
 
@@ -65,6 +65,7 @@ Camera::Camera(const vec3& camPos, const vec3& camFront, const vec3& camUp)
 
 void Camera::setCamView()
 {
+	setCamFront();
 	view = lookAt(camPos, camPos + camFront, camUp);
 }
 
@@ -81,6 +82,16 @@ void Camera::setCamFov(float fov)
 float Camera::getCamFov()
 {
 	return fov;
+}
+
+void Camera::setCamFront()
+{
+	vec3 front;
+	front.x = cos(radians(yawValue)) * cos(radians(pitchValue)); // 因为视角默认朝向X轴正方向，所以应该用与X轴正方向的角度计算偏移
+	front.y = sin(radians(pitchValue));
+	front.z = sin(radians(yawValue)) * cos(radians(pitchValue)); // 因为视角默认朝向X轴正方向，所以应该用与X轴正方向的角度计算偏移
+
+	camFront = normalize(front);
 }
 
 #endif // !CAMERA_H
