@@ -21,8 +21,8 @@
 using namespace std;
 using namespace glm;
 
-#define WINDOW_WIDTH 800
-#define WINDOW_HEIGHT 600
+#define WINDOW_WIDTH 1280
+#define WINDOW_HEIGHT 720
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
@@ -161,7 +161,7 @@ int main()
 		static float f1 = 0.0f;
 		static float f2 = 0.2f;
 		static float f3 = 1.0f;
-		static float f4 = 0.2f;
+		static float f4 = 0.5f;
 		static int i1 = 32;
 		static int counter = 0;
 		static vec3 object_color = vec3(1.0f, 0.5f, 0.31f);
@@ -169,7 +169,7 @@ int main()
 
 		ImGui::Begin("Test Parameter");
 
-		ImGui::Text("CameraX %f | CameraY %f | CameraZ %f | CameraPitch %f | CameraYaw %f | CameraFov",
+		ImGui::Text("CameraX %f | CameraY %f | CameraZ %f | CameraPitch %f | CameraYaw %f | CameraFov %f",
 			myCam.camPos.x, myCam.camPos.y, myCam.camPos.z, myCam.pitchValue, myCam.yawValue, myCam.fov);
 
 		ImGui::SliderFloat("ligth position", &f1, 0.0f, 10.0f);            // Edit 1 float using a slider from 0.0f to 100.0f
@@ -201,13 +201,14 @@ int main()
 		// 投影矩阵 view -> clip
 		mat4 projection;
 		float fov = myCam.getCamFov();
-		projection = perspective(radians(fov), (float)(WINDOW_WIDTH / WINDOW_HEIGHT), 0.1f, 100.0f);
+
+		projection = perspective(radians(fov), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f); // 之前写成(float)(WINDOW_WIDTH / WINDOW_HEIGHT)了，精度丢失，导致结果是1
 		myShader.SetMat4("uni_projection", projection);
 
 		// model矩阵 local -> world
 		// 物体
 		mat4 model = mat4(1.0f); // mat4初始化最好显示调用初始化为单位矩阵，因为新版本mat4 model可能是全0矩阵
-		model = scale(model, vec3(3.0f));
+		model = scale(model, vec3(2.5f));
 		model = translate(model, vec3(0.0f, 0.0f, -0.0f));
 		model = rotate(model, radians(45.0f), vec3(0.0f, 1.0f, 0.0f));
 		myShader.SetMat4("uni_model", model);
