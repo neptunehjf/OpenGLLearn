@@ -1,8 +1,8 @@
 #version 330 core
 
+// fragment shader的输入变量都是经过光栅化插值的
 in vec3 fragPos;
 in vec3 normalModel;
-in vec3 normalView;
 
 uniform vec3 uni_objectColor;
 uniform vec3 uni_lightColor;
