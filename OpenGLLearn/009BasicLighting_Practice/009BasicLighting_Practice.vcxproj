@@ -71,7 +71,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>..\Dependency\Includes;$(IncludePath)</IncludePath>
+    <IncludePath>..\Dependency\Includes\imgui;..\Dependency\Includes;$(IncludePath)</IncludePath>
     <LibraryPath>..\Dependency\Libs;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -144,6 +144,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Dependency\Src\glad\src\glad.c" />
+    <ClCompile Include="..\Dependency\Src\imgui\imgui.cpp" />
+    <ClCompile Include="..\Dependency\Src\imgui\imgui_demo.cpp" />
+    <ClCompile Include="..\Dependency\Src\imgui\imgui_draw.cpp" />
+    <ClCompile Include="..\Dependency\Src\imgui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="..\Dependency\Src\imgui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="..\Dependency\Src\imgui\imgui_tables.cpp" />
+    <ClCompile Include="..\Dependency\Src\imgui\imgui_widgets.cpp" />
     <ClCompile Include="Camera.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
