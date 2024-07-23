@@ -1,4 +1,0 @@
-﻿  Texture.cpp
-E:\GitHub\OpenGLLearn\OpenGLLearn\004Texture_P1\Texture.cpp(217,19): warning C4305: '+=': truncation from 'double' to 'float'
-E:\GitHub\OpenGLLearn\OpenGLLearn\004Texture_P1\Texture.cpp(224,19): warning C4305: '-=': truncation from 'double' to 'float'
-  004Texture_P1.vcxproj -> E:\GitHub\OpenGLLearn\OpenGLLearn\004Texture_P1\x64\Debug\004Texture_P1.exe
