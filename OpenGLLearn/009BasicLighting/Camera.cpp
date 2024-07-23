@@ -64,7 +64,7 @@ int main()
 
 	// 创建Shader程序
 	Shader myShader("shader.vs", "shader.fs");
-	Shader lampShader("shader.vs", "lampShader.fs"); // 灯本身shader，一个白色的发光体
+	Shader lampShader("lampShader.vs", "lampShader.fs"); // 灯本身shader，一个白色的发光体
 
 	// 用显存VAO来管理 shader的顶点属性
 	GLuint VAO = 0;

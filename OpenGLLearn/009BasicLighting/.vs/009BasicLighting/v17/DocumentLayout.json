@@ -1,33 +1,22 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\009BasicLighting\\",
+  "WorkspaceRootPath": "C:\\HUA\\GitHub\\OpenGLLearn\\OpenGLLearn\\009BasicLighting\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{C2A288B1-B47E-4E53-B316-E8CFA6FABCC8}|009BasicLighting.vcxproj|E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\009BasicLighting\\Camera.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{C2A288B1-B47E-4E53-B316-E8CFA6FABCC8}|009BasicLighting.vcxproj|solutionrelative:Camera.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C2A288B1-B47E-4E53-B316-E8CFA6FABCC8}|009BasicLighting.vcxproj|E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\009BasicLighting\\shader.fs||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "AbsoluteMoniker": "D:0:0:{C2A288B1-B47E-4E53-B316-E8CFA6FABCC8}|009BasicLighting.vcxproj|C:\\HUA\\GitHub\\OpenGLLearn\\OpenGLLearn\\009BasicLighting\\shader.fs||{3B902123-F8A7-4915-9F01-361F908088D0}",
       "RelativeMoniker": "D:0:0:{C2A288B1-B47E-4E53-B316-E8CFA6FABCC8}|009BasicLighting.vcxproj|solutionrelative:shader.fs||{3B902123-F8A7-4915-9F01-361F908088D0}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{C2A288B1-B47E-4E53-B316-E8CFA6FABCC8}|009BasicLighting.vcxproj|E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\009BasicLighting\\shader.vs||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "AbsoluteMoniker": "D:0:0:{C2A288B1-B47E-4E53-B316-E8CFA6FABCC8}|009BasicLighting.vcxproj|C:\\HUA\\GitHub\\OpenGLLearn\\OpenGLLearn\\009BasicLighting\\Camera.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{C2A288B1-B47E-4E53-B316-E8CFA6FABCC8}|009BasicLighting.vcxproj|solutionrelative:Camera.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C2A288B1-B47E-4E53-B316-E8CFA6FABCC8}|009BasicLighting.vcxproj|C:\\HUA\\GitHub\\OpenGLLearn\\OpenGLLearn\\009BasicLighting\\lampShader.vs||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{C2A288B1-B47E-4E53-B316-E8CFA6FABCC8}|009BasicLighting.vcxproj|solutionrelative:lampShader.vs||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C2A288B1-B47E-4E53-B316-E8CFA6FABCC8}|009BasicLighting.vcxproj|C:\\HUA\\GitHub\\OpenGLLearn\\OpenGLLearn\\009BasicLighting\\shader.vs||{8B382828-6202-11D1-8870-0000F87579D2}",
       "RelativeMoniker": "D:0:0:{C2A288B1-B47E-4E53-B316-E8CFA6FABCC8}|009BasicLighting.vcxproj|solutionrelative:shader.vs||{8B382828-6202-11D1-8870-0000F87579D2}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C2A288B1-B47E-4E53-B316-E8CFA6FABCC8}|009BasicLighting.vcxproj|E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\009BasicLighting\\VertexData.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{C2A288B1-B47E-4E53-B316-E8CFA6FABCC8}|009BasicLighting.vcxproj|solutionrelative:VertexData.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C2A288B1-B47E-4E53-B316-E8CFA6FABCC8}|009BasicLighting.vcxproj|E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\009BasicLighting\\Camera.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{C2A288B1-B47E-4E53-B316-E8CFA6FABCC8}|009BasicLighting.vcxproj|solutionrelative:Camera.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C2A288B1-B47E-4E53-B316-E8CFA6FABCC8}|009BasicLighting.vcxproj|E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\009BasicLighting\\Shader.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{C2A288B1-B47E-4E53-B316-E8CFA6FABCC8}|009BasicLighting.vcxproj|solutionrelative:Shader.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C2A288B1-B47E-4E53-B316-E8CFA6FABCC8}|009BasicLighting.vcxproj|E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\Dependency\\Src\\glad\\src\\glad.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
   "DocumentGroupContainers": [
@@ -37,91 +26,56 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 6,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "glad.c",
-              "DocumentMoniker": "E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\Dependency\\Src\\glad\\src\\glad.c",
-              "RelativeDocumentMoniker": "..\\Dependency\\Src\\glad\\src\\glad.c",
-              "ToolTip": "E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\Dependency\\Src\\glad\\src\\glad.c",
-              "RelativeToolTip": "..\\Dependency\\Src\\glad\\src\\glad.c",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
-              "WhenOpened": "2024-07-22T11:01:39.453Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "Camera.h",
-              "DocumentMoniker": "E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\009BasicLighting\\Camera.h",
-              "RelativeDocumentMoniker": "Camera.h",
-              "ToolTip": "E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\009BasicLighting\\Camera.h",
-              "RelativeToolTip": "Camera.h",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAABcAAAAbAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2024-07-22T11:01:32.629Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "Shader.h",
-              "DocumentMoniker": "E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\009BasicLighting\\Shader.h",
-              "RelativeDocumentMoniker": "Shader.h",
-              "ToolTip": "E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\009BasicLighting\\Shader.h",
-              "RelativeToolTip": "Shader.h",
-              "ViewState": "AQIAAKUAAAAAAAAAAAAmwLMAAAAUAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2024-07-22T10:50:47.245Z"
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 2,
+              "Title": "lampShader.vs",
+              "DocumentMoniker": "C:\\HUA\\GitHub\\OpenGLLearn\\OpenGLLearn\\009BasicLighting\\lampShader.vs",
+              "RelativeDocumentMoniker": "lampShader.vs",
+              "ToolTip": "C:\\HUA\\GitHub\\OpenGLLearn\\OpenGLLearn\\009BasicLighting\\lampShader.vs",
+              "RelativeToolTip": "lampShader.vs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAsAAABbAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2024-07-23T02:42:27.282Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
               "Title": "shader.vs",
-              "DocumentMoniker": "E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\009BasicLighting\\shader.vs",
+              "DocumentMoniker": "C:\\HUA\\GitHub\\OpenGLLearn\\OpenGLLearn\\009BasicLighting\\shader.vs",
               "RelativeDocumentMoniker": "shader.vs",
-              "ToolTip": "E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\009BasicLighting\\shader.vs",
+              "ToolTip": "C:\\HUA\\GitHub\\OpenGLLearn\\OpenGLLearn\\009BasicLighting\\shader.vs",
               "RelativeToolTip": "shader.vs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAABIAAAABAAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
               "WhenOpened": "2024-07-22T07:34:07.447Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "VertexData.h",
-              "DocumentMoniker": "E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\009BasicLighting\\VertexData.h",
-              "RelativeDocumentMoniker": "VertexData.h",
-              "ToolTip": "E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\009BasicLighting\\VertexData.h",
-              "RelativeToolTip": "VertexData.h",
-              "ViewState": "AQIAACQAAAAAAAAAAAAAAAcAAAAXAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2024-07-22T07:32:32.341Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "shader.fs",
-              "DocumentMoniker": "E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\009BasicLighting\\shader.fs",
+              "DocumentMoniker": "C:\\HUA\\GitHub\\OpenGLLearn\\OpenGLLearn\\009BasicLighting\\shader.fs",
               "RelativeDocumentMoniker": "shader.fs",
-              "ToolTip": "E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\009BasicLighting\\shader.fs",
+              "ToolTip": "C:\\HUA\\GitHub\\OpenGLLearn\\OpenGLLearn\\009BasicLighting\\shader.fs",
               "RelativeToolTip": "shader.fs",
-              "ViewState": "AQIAAAMAAAAAAAAAAAAAABgAAAABAAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAIAAAAPAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
               "WhenOpened": "2024-07-22T07:25:26.221Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "Camera.cpp",
-              "DocumentMoniker": "E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\009BasicLighting\\Camera.cpp",
+              "DocumentMoniker": "C:\\HUA\\GitHub\\OpenGLLearn\\OpenGLLearn\\009BasicLighting\\Camera.cpp",
               "RelativeDocumentMoniker": "Camera.cpp",
-              "ToolTip": "E:\\GitHub\\OpenGLLearn\\OpenGLLearn\\009BasicLighting\\Camera.cpp",
+              "ToolTip": "C:\\HUA\\GitHub\\OpenGLLearn\\OpenGLLearn\\009BasicLighting\\Camera.cpp",
               "RelativeToolTip": "Camera.cpp",
-              "ViewState": "AQIAAHUAAAAAAAAAAAAYwH8AAAAsAAAA",
+              "ViewState": "AQIAAFYAAAAAAAAAAAAYwLwAAAA3AAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2024-07-22T07:20:40.616Z",
               "EditorCaption": ""

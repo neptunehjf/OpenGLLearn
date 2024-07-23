@@ -1,17 +1,17 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "E:\\MyProject\\OpenGLLearn\\002CreateTriangle\\",
+  "WorkspaceRootPath": "C:\\HUA\\GitHub\\OpenGLLearn\\OpenGLLearn\\002CreateTriangle\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{F49D18B6-49A2-4173-A7AB-08118560A9C0}|002CreateTriangle.vcxproj|E:\\MyProject\\OpenGLLearn\\002CreateTriangle\\CreateTriangle.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "AbsoluteMoniker": "D:0:0:{F49D18B6-49A2-4173-A7AB-08118560A9C0}|002CreateTriangle.vcxproj|C:\\HUA\\GitHub\\OpenGLLearn\\OpenGLLearn\\002CreateTriangle\\CreateTriangle.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{F49D18B6-49A2-4173-A7AB-08118560A9C0}|002CreateTriangle.vcxproj|solutionrelative:CreateTriangle.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F49D18B6-49A2-4173-A7AB-08118560A9C0}|002CreateTriangle.vcxproj|E:\\MyProject\\OpenGLLearn\\002CreateTriangle\\Shader.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "AbsoluteMoniker": "D:0:0:{F49D18B6-49A2-4173-A7AB-08118560A9C0}|002CreateTriangle.vcxproj|C:\\HUA\\GitHub\\OpenGLLearn\\OpenGLLearn\\002CreateTriangle\\Shader.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{F49D18B6-49A2-4173-A7AB-08118560A9C0}|002CreateTriangle.vcxproj|solutionrelative:Shader.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F49D18B6-49A2-4173-A7AB-08118560A9C0}|002CreateTriangle.vcxproj|E:\\MyProject\\OpenGLLearn\\002CreateTriangle\\VertextData.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "AbsoluteMoniker": "D:0:0:{F49D18B6-49A2-4173-A7AB-08118560A9C0}|002CreateTriangle.vcxproj|C:\\HUA\\GitHub\\OpenGLLearn\\OpenGLLearn\\002CreateTriangle\\VertextData.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{F49D18B6-49A2-4173-A7AB-08118560A9C0}|002CreateTriangle.vcxproj|solutionrelative:VertextData.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
@@ -28,37 +28,35 @@
               "$type": "Document",
               "DocumentIndex": 1,
               "Title": "Shader.h",
-              "DocumentMoniker": "E:\\MyProject\\OpenGLLearn\\002CreateTriangle\\Shader.h",
+              "DocumentMoniker": "C:\\HUA\\GitHub\\OpenGLLearn\\OpenGLLearn\\002CreateTriangle\\Shader.h",
               "RelativeDocumentMoniker": "Shader.h",
-              "ToolTip": "E:\\MyProject\\OpenGLLearn\\002CreateTriangle\\Shader.h",
+              "ToolTip": "C:\\HUA\\GitHub\\OpenGLLearn\\OpenGLLearn\\002CreateTriangle\\Shader.h",
               "RelativeToolTip": "Shader.h",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAYAAAATAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2024-07-07T02:58:20.448Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-07-07T02:58:20.448Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 2,
               "Title": "VertextData.h",
-              "DocumentMoniker": "E:\\MyProject\\OpenGLLearn\\002CreateTriangle\\VertextData.h",
+              "DocumentMoniker": "C:\\HUA\\GitHub\\OpenGLLearn\\OpenGLLearn\\002CreateTriangle\\VertextData.h",
               "RelativeDocumentMoniker": "VertextData.h",
-              "ToolTip": "E:\\MyProject\\OpenGLLearn\\002CreateTriangle\\VertextData.h",
+              "ToolTip": "C:\\HUA\\GitHub\\OpenGLLearn\\OpenGLLearn\\002CreateTriangle\\VertextData.h",
               "RelativeToolTip": "VertextData.h",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAA0AAAABAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2024-07-07T02:25:55.035Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-07-07T02:25:55.035Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 0,
               "Title": "CreateTriangle.cpp",
-              "DocumentMoniker": "E:\\MyProject\\OpenGLLearn\\002CreateTriangle\\CreateTriangle.cpp",
+              "DocumentMoniker": "C:\\HUA\\GitHub\\OpenGLLearn\\OpenGLLearn\\002CreateTriangle\\CreateTriangle.cpp",
               "RelativeDocumentMoniker": "CreateTriangle.cpp",
-              "ToolTip": "E:\\MyProject\\OpenGLLearn\\002CreateTriangle\\CreateTriangle.cpp",
+              "ToolTip": "C:\\HUA\\GitHub\\OpenGLLearn\\OpenGLLearn\\002CreateTriangle\\CreateTriangle.cpp",
               "RelativeToolTip": "CreateTriangle.cpp",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAUAAAAWAAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAYAAAAXAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2024-07-07T02:15:23.594Z",
               "EditorCaption": ""
