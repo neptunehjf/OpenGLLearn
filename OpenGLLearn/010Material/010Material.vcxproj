@@ -18,11 +18,34 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="Shader.h" />
+    <ClInclude Include="VertexData.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Dependency\Src\glad\src\glad.c" />
+    <ClCompile Include="..\Dependency\Src\imgui\imgui.cpp" />
+    <ClCompile Include="..\Dependency\Src\imgui\imgui_demo.cpp" />
+    <ClCompile Include="..\Dependency\Src\imgui\imgui_draw.cpp" />
+    <ClCompile Include="..\Dependency\Src\imgui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="..\Dependency\Src\imgui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="..\Dependency\Src\imgui\imgui_tables.cpp" />
+    <ClCompile Include="..\Dependency\Src\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="Camera.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="imgui.ini" />
+    <None Include="lampShader.fs" />
+    <None Include="lampShader.vs" />
+    <None Include="shader.fs" />
+    <None Include="shader.vs" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{134e679b-9210-4a68-b2e5-91ff924553ff}</ProjectGuid>
-    <RootNamespace>Material</RootNamespace>
+    <ProjectGuid>{5910751b-406e-4dac-9c3c-9e1f65764a7e}</ProjectGuid>
+    <RootNamespace>My010Material</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -131,28 +154,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <None Include="lampShader.fs" />
-    <None Include="lampShader.vs" />
-    <None Include="shader.fs" />
-    <None Include="shader.vs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Camera.h" />
-    <ClInclude Include="Shader.h" />
-    <ClInclude Include="VertexData.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\Dependency\Src\glad\src\glad.c" />
-    <ClCompile Include="..\Dependency\Src\imgui\imgui.cpp" />
-    <ClCompile Include="..\Dependency\Src\imgui\imgui_demo.cpp" />
-    <ClCompile Include="..\Dependency\Src\imgui\imgui_draw.cpp" />
-    <ClCompile Include="..\Dependency\Src\imgui\imgui_impl_glfw.cpp" />
-    <ClCompile Include="..\Dependency\Src\imgui\imgui_impl_opengl3.cpp" />
-    <ClCompile Include="..\Dependency\Src\imgui\imgui_tables.cpp" />
-    <ClCompile Include="..\Dependency\Src\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="Camera.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
