@@ -158,30 +158,36 @@ int main()
 		ImGui::NewFrame();
 
 		//Imgui
-		static float f1 = 0.0f;
-		static float f2 = 0.2f;
-		static float f3 = 1.0f;
-		static float f4 = 0.5f;
-		static int i1 = 32;
-		static int counter = 0;
-		static vec3 object_color = vec3(1.0f, 0.5f, 0.31f);
-		static vec3 light_color = vec3(1.0f);
+		static float ligthPos = 0.0f;
+		static vec3 light_ambient = vec3(1.0f);
+		static vec3 light_diffuse = vec3(1.0f);
+		static vec3 light_specular = vec3(1.0f);
+
+		static vec3 material_ambient = vec3(0.0215f, 0.1745f, 0.0215f);
+		static vec3 material_diffuse = vec3(0.07568f, 0.61424f, 0.07568f);
+		static vec3 material_specular = vec3(0.633f, 0.727811f, 0.633f);
+		static int material_shininess = 0.6 * 128;
+
 
 		ImGui::Begin("Test Parameter");
 
+		//camera
 		ImGui::Text("CameraX %f | CameraY %f | CameraZ %f | CameraPitch %f | CameraYaw %f | CameraFov %f",
 			myCam.camPos.x, myCam.camPos.y, myCam.camPos.z, myCam.pitchValue, myCam.yawValue, myCam.fov);
 
-		ImGui::SliderFloat("ligth position", &f1, 0.0f, 10.0f);            // Edit 1 float using a slider from 0.0f to 100.0f
+		//light
+		ImGui::SliderFloat("light position", &ligthPos, 0.0f, 10.0f);
+		ImGui::ColorEdit3("light ambient", (float*)&light_ambient);
+		ImGui::ColorEdit3("light diffuse", (float*)&light_diffuse);
+		ImGui::ColorEdit3("light specular", (float*)&light_specular);
 
-		ImGui::ColorEdit3("object color", (float*)&object_color); // Edit 3 floats representing a color
-		ImGui::ColorEdit3("light color", (float*)&light_color);
+		//material
+		ImGui::ColorEdit3("material ambient", (float *)&material_ambient);
+		ImGui::ColorEdit3("material diffuse", (float*)&material_diffuse);
+		ImGui::ColorEdit3("material specular", (float*)&material_specular);
+		ImGui::SliderInt("material shininess", &material_shininess, 0, 256);
 
-		ImGui::SliderFloat("ambientStrength", &f2, 0.0f, 1.0f);
-		ImGui::SliderFloat("diffuseStrength", &f3, 0.0f, 1.0f);
-		ImGui::SliderFloat("specularStrength", &f4, 0.0f, 1.0f);
-		ImGui::SliderInt("specularFactor", &i1, 0, 256);
-
+		//other
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
 		ImGui::End();
 
@@ -212,19 +218,22 @@ int main()
 		model = translate(model, vec3(0.0f, 0.0f, -0.0f));
 		model = rotate(model, radians(45.0f), vec3(0.0f, 1.0f, 0.0f));
 		myShader.SetMat4("uni_model", model);
-		myShader.SetVec3("uni_objectColor", object_color);
-		myShader.SetVec3("uni_lightColor", light_color);
-		myShader.SetFloat("uni_ambientStrength", f2);
-		myShader.SetFloat("uni_diffuseStrength", f3);
-		myShader.SetFloat("uni_specularStrength", f4);
-		myShader.SetInt("uni_specularFactor", i1);
+
+		myShader.SetVec3("light.ambient", light_ambient);
+		myShader.SetVec3("light.diffuse", light_diffuse);
+		myShader.SetVec3("light.specular", light_specular);
+
+		myShader.SetVec3("material.ambient", material_ambient);
+		myShader.SetVec3("material.diffuse", material_diffuse);
+		myShader.SetVec3("material.specular", material_specular);
+		myShader.SetInt("material.shininess", material_shininess);
 
 		glBindVertexArray(VAO); // draw操作从VAO上下文读    可代替VBO EBO attrpoint的绑定操作，方便管理
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 		// 解绑
 		glBindVertexArray(0);
 
-		vec3 lightPos = vec3(5 * cos(f1), 10.0f, 5 * sin(f1));
+		vec3 lightPos = vec3(5 * cos(ligthPos), 10.0f, 5 * sin(ligthPos));
 		myShader.SetVec3("uni_lightPos", lightPos);
 		// 光源模型，一个白色的发光体
 		// 激活lampShader程序 这里涉及两个shader程序的切换，所以每次loop里都要在对应的位置调用，不能只在开始调用一次
@@ -238,7 +247,7 @@ int main()
 		lampShader.SetMat4("uni_view", view);
 		lampShader.SetMat4("uni_projection", projection);
 		lampShader.SetMat4("uni_model", model);
-		lampShader.SetVec3("uni_lightColor", light_color);
+		lampShader.SetVec3("uni_lightColor", vec3(1.0f));
 
 		glBindVertexArray(lightVAO);
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
