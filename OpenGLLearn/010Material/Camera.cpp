@@ -158,7 +158,7 @@ int main()
 		ImGui::NewFrame();
 
 		//Imgui
-		static float ligthPos = 0.0f;
+		static float ligthShift = 0.0f;
 		static vec3 light_ambient = vec3(1.0f);
 		static vec3 light_diffuse = vec3(1.0f);
 		static vec3 light_specular = vec3(1.0f);
@@ -176,7 +176,7 @@ int main()
 			myCam.camPos.x, myCam.camPos.y, myCam.camPos.z, myCam.pitchValue, myCam.yawValue, myCam.fov);
 
 		//light
-		ImGui::SliderFloat("light position", &ligthPos, 0.0f, 10.0f);
+		ImGui::SliderFloat("light position", &ligthShift, 0.0f, 10.0f);
 		ImGui::ColorEdit3("light ambient", (float*)&light_ambient);
 		ImGui::ColorEdit3("light diffuse", (float*)&light_diffuse);
 		ImGui::ColorEdit3("light specular", (float*)&light_specular);
@@ -233,8 +233,8 @@ int main()
 		// 解绑
 		glBindVertexArray(0);
 
-		vec3 lightPos = vec3(5 * cos(ligthPos), 10.0f, 5 * sin(ligthPos));
-		myShader.SetVec3("uni_lightPos", lightPos);
+		vec3 lightPos = vec3(5 * cos(ligthShift), 10.0f, 5 * sin(ligthShift));
+		myShader.SetVec3("light.lightPos", lightPos);
 		// 光源模型，一个白色的发光体
 		// 激活lampShader程序 这里涉及两个shader程序的切换，所以每次loop里都要在对应的位置调用，不能只在开始调用一次
 		lampShader.Use();
