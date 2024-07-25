@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{46e8655c-359d-4f8b-8ffe-e30951c0a394}</ProjectGuid>
-    <RootNamespace>My008Color</RootNamespace>
+    <ProjectGuid>{22476dbf-661f-42e0-8fa3-33d55c1bbb8b}</ProjectGuid>
+    <RootNamespace>My011LightingMap</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -71,7 +71,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>..\Dependency\Includes;$(IncludePath)</IncludePath>
+    <IncludePath>..\Dependency\Includes;..\Dependency\Includes\imgui;$(IncludePath)</IncludePath>
     <LibraryPath>..\Dependency\Libs;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -133,7 +133,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Dependency\Src\glad\src\glad.c" />
-    <ClCompile Include="Color.cpp" />
+    <ClCompile Include="..\Dependency\Src\imgui\imgui.cpp" />
+    <ClCompile Include="..\Dependency\Src\imgui\imgui_demo.cpp" />
+    <ClCompile Include="..\Dependency\Src\imgui\imgui_draw.cpp" />
+    <ClCompile Include="..\Dependency\Src\imgui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="..\Dependency\Src\imgui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="..\Dependency\Src\imgui\imgui_tables.cpp" />
+    <ClCompile Include="..\Dependency\Src\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="LightingMap.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
@@ -141,7 +148,9 @@
     <ClInclude Include="VertexData.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="lightShader.fs" />
+    <None Include="imgui.ini" />
+    <None Include="lampShader.fs" />
+    <None Include="lampShader.vs" />
     <None Include="shader.fs" />
     <None Include="shader.vs" />
   </ItemGroup>
