@@ -71,4 +71,12 @@
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="container_diffuse.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="container_specular.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
 </Project>

@@ -2,6 +2,7 @@
 #include "glfw/glfw3.h"
 
 #include <iostream>
+#include <cstdio>
 
 #include "VertexData.h"
 #include "Shader.h"
@@ -28,7 +29,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 void mouse_callback(GLFWwindow* window, double posX, double posY);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-bool LoadTexure(const string&& filePath, GLuint& texture);
+bool LoadTexture(const string&& filePath, GLuint& texture);
 
 Camera myCam(vec3(2.0f, 7.0f, 6.0f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
 
@@ -81,6 +82,19 @@ int main()
 	Shader myShader("shader.vs", "shader.fs");
 	Shader lampShader("lampShader.vs", "lampShader.fs"); // 灯本身shader，一个白色的发光体
 
+	/* 加载贴图 */
+    // 翻转y轴，使图片和opengl坐标一致
+	stbi_set_flip_vertically_on_load(true);
+
+	// 加载贴图
+	GLuint texture_diffuse = 0;
+	GLuint texture_specular = 0;
+	bool ret1, ret2;
+	ret1 = LoadTexture("container_diffuse.png", texture_diffuse);
+	ret2 = LoadTexture("container_specular.png", texture_specular);
+	if (ret1 == false || ret2 == false)
+		return -1;
+
 	// 用显存VAO来管理 shader的顶点属性
 	GLuint VAO = 0;
 	glGenVertexArrays(1, &VAO);
@@ -98,6 +112,8 @@ int main()
 	//3 忘记加sizeof(GL_FLOAT)了，排查了半天。。。以后0也写成0 * sizeof(GL_FLOAT)的形式吧。。以免误导别的代码
 	glVertexAttribPointer(1, NORMAL_SIZE, GL_FLOAT, GL_FALSE, STRIDE_SIZE * sizeof(GL_FLOAT), (void*)(3 * sizeof(GL_FLOAT))); 
 	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(2, TEXCOORD_SIZE, GL_FLOAT, GL_FALSE, STRIDE_SIZE * sizeof(GL_FLOAT), (void*)(6 * sizeof(GL_FLOAT)));
+	glEnableVertexAttribArray(2);
 
 	// 存储下标数据到显存EBO
 	GLuint EBO = 0;
@@ -160,15 +176,14 @@ int main()
 
 		//Imgui
 		static float ligthShift = 0.0f;
-		static vec3 light_ambient = vec3(1.0f);
-		static vec3 light_diffuse = vec3(1.0f);
+		static vec3 light_ambient = vec3(0.2f);
+		static vec3 light_diffuse = vec3(0.8f);
 		static vec3 light_specular = vec3(1.0f);
 
-		static vec3 material_ambient = vec3(0.0215f, 0.1745f, 0.0215f);
-		static vec3 material_diffuse = vec3(0.07568f, 0.61424f, 0.07568f);
-		static vec3 material_specular = vec3(0.633f, 0.727811f, 0.633f);
-		static int material_shininess = 0.6 * 128;
-
+		//static vec3 material_ambient = vec3(0.0215f, 0.1745f, 0.0215f);
+		//static vec3 material_diffuse = vec3(0.07568f, 0.61424f, 0.07568f);
+		//static vec3 material_specular = vec3(0.633f, 0.727811f, 0.633f);
+		static int material_shininess = 32;
 
 		ImGui::Begin("Test Parameter");
 
@@ -183,9 +198,9 @@ int main()
 		ImGui::ColorEdit3("light specular", (float*)&light_specular);
 
 		//material
-		ImGui::ColorEdit3("material ambient", (float *)&material_ambient);
-		ImGui::ColorEdit3("material diffuse", (float*)&material_diffuse);
-		ImGui::ColorEdit3("material specular", (float*)&material_specular);
+		//ImGui::ColorEdit3("material ambient", (float *)&material_ambient);
+		//ImGui::ColorEdit3("material diffuse", (float*)&material_diffuse);
+		//ImGui::ColorEdit3("material specular", (float*)&material_specular);
 		ImGui::SliderInt("material shininess", &material_shininess, 0, 256);
 
 		//other
@@ -195,12 +210,17 @@ int main()
 		//激活myShader程序 这里涉及两个shader程序的切换，所以每次loop里都要在对应的位置调用，不能只在开始调用一次
 		myShader.Use();
 
-		myShader.SetVec3("uni_viewPos", myCam.camPos); //相机位置是实时更新的
+		// 设置纹理单元 任何uniform设置操作一定要放到《对应的shader》启动之后！  --》不同的shader切换运行，另一个shader会关掉，写的数据会丢失数据
+        //也就是说启动了shader1之后又启动了shader2，之前在shader1设置的就无效了！这种情况只能放到渲染循环里，不能放循环外面
+		myShader.SetInt("material.diffuse", 0);
+		myShader.SetInt("material.specular", 1);
+
+		//相机位置是要实时更新的，而且启动了shader1之后又启动了shader2，shader1的设置会无效化
+		myShader.SetVec3("uni_viewPos", myCam.camPos); 
 
 		/* 生成变换矩阵 */
 		// view矩阵 world -> view
 		mat4 view;
-
 		myCam.setCamView();
 		view = myCam.getCamView();
 		myShader.SetMat4("uni_view", view);
@@ -224,13 +244,21 @@ int main()
 		myShader.SetVec3("light.diffuse", light_diffuse);
 		myShader.SetVec3("light.specular", light_specular);
 
-		myShader.SetVec3("material.ambient", material_ambient);
-		myShader.SetVec3("material.diffuse", material_diffuse);
-		myShader.SetVec3("material.specular", material_specular);
+		//myShader.SetVec3("material.ambient", material_ambient);
+		//myShader.SetVec3("material.diffuse", material_diffuse);
+		//myShader.SetVec3("material.specular", material_specular);
 		myShader.SetInt("material.shininess", material_shininess);
 
 		glBindVertexArray(VAO); // draw操作从VAO上下文读    可代替VBO EBO attrpoint的绑定操作，方便管理
+
+		// 绑定显存,就可以进行独写操作，但是要读独写两块显存的时候，没办法同时绑定同一个GL_TEXTURE_2D，只能用纹理单元来区分
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture_diffuse);  //片段着色器会根据GL_TEXTURE0读取texture_diffuse的贴图数据
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, texture_specular); //片段着色器会根据GL_TEXTURE1读取texture_specular的贴图数据
+
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
 		// 解绑
 		glBindVertexArray(0);
 
@@ -268,6 +296,8 @@ int main()
 	glDeleteVertexArrays(1, &lightVAO);
 	glDeleteBuffers(1, &VBO);
 	glDeleteBuffers(1, &EBO);
+	glDeleteTextures(1, &texture_diffuse);
+	glDeleteTextures(1, &texture_specular);
 	myShader.Remove();
 	lampShader.Remove();
 	ImGui_ImplOpenGL3_Shutdown();
@@ -349,13 +379,10 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 		myCam.fov = 95.0f;
 }
 
-// 翻转y轴，使图片和opengl坐标一致
-stbi_set_flip_vertically_on_load(true);
-
-bool LoadTexure(const string&& filePath, GLuint& texture)
+bool LoadTexture(const string&& filePath, GLuint& texture)
 {
 	// 申请显存空间并绑定GL_TEXTURE_2D对象
-	glGenTextures(1, &texture); //texture是引用的话，这里用直接用texture就行了吧？
+	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture); // 绑定操作要么是读要么是写，这里是要写
 	// 设置GL_TEXTURE_2D的环绕，过滤方式
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -365,15 +392,35 @@ bool LoadTexure(const string&& filePath, GLuint& texture)
 	// 加载贴图，转换为像素数据
 	int width, height, channel;
 	unsigned char* data = stbi_load(filePath.c_str(), &width, &height, &channel, 0);
+
+	GLenum format = 0;
+	if (channel == 1)
+		format = GL_RED;
+	else if (channel == 3)
+		format = GL_RGB;
+	else if (channel == 4)
+		format = GL_RGBA;
+
+
+	//printf("**********************************************************\n");
+	//for (int i = 1; i <= width * height; i++)
+	//{
+	//	printf("%02x ", data[i]);
+	//	if (i % width == 0)
+	//		printf("\n");
+	//}
+	//printf("**********************************************************\n");
+
 	if (data)
 	{
-		// 显存生成贴图数据
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		// 贴图数据 内存 -> 显存
+		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+		// 生成多级渐进贴图
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else
 	{
-		cout << "Failed to load texture0！" << endl;
+		cout << "Failed to load texture！" << endl;
 		return false;
 	}
 	// 像素数据已经传给显存了，删除内存中的像素数据
