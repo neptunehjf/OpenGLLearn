@@ -25,6 +25,19 @@ using namespace glm;
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
 
+glm::vec3 cubePosition[] = {
+	glm::vec3(0.0f,  0.0f,  0.0f),
+	glm::vec3(2.0f,  5.0f, -15.0f),
+	glm::vec3(-1.5f, -2.2f, -2.5f),
+	glm::vec3(-3.8f, -2.0f, -12.3f),
+	glm::vec3(2.4f, -0.4f, -3.5f),
+	glm::vec3(-1.7f,  3.0f, -7.5f),
+	glm::vec3(1.3f, -2.0f, -2.5f),
+	glm::vec3(1.5f,  2.0f, -2.5f),
+	glm::vec3(1.5f,  0.2f, -1.5f),
+	glm::vec3(-1.3f,  1.0f, -1.5f)
+};
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 void mouse_callback(GLFWwindow* window, double posX, double posY);
@@ -180,9 +193,6 @@ int main()
 		static vec3 light_diffuse = vec3(0.8f);
 		static vec3 light_specular = vec3(1.0f);
 
-		//static vec3 material_ambient = vec3(0.0215f, 0.1745f, 0.0215f);
-		//static vec3 material_diffuse = vec3(0.07568f, 0.61424f, 0.07568f);
-		//static vec3 material_specular = vec3(0.633f, 0.727811f, 0.633f);
 		static int material_shininess = 32;
 
 		ImGui::Begin("Test Parameter");
@@ -197,10 +207,51 @@ int main()
 		ImGui::ColorEdit3("light diffuse", (float*)&light_diffuse);
 		ImGui::ColorEdit3("light specular", (float*)&light_specular);
 
+		float constant = 1.0f; // 通常保持1就行了
+		float linear = 0.09f;
+		float quadratic = 0.032f;
+		const char* itemArray[] = { "										50", 
+									"										100", 
+									"										200", 
+									"										600" };
+		static int item = 0;
+		ImGui::Combo("Light Fade Distance", &item, itemArray, IM_ARRAYSIZE(itemArray));
+
+		switch (item)
+		{
+			case 0:
+			{
+				linear = 0.09f;
+				quadratic = 0.032f;
+				break;
+			}
+			case 1:
+			{
+				linear = 0.045f;
+				quadratic = 0.0075f;
+				break;
+			}
+			case 2:
+			{
+				linear = 0.022f;
+				quadratic = 0.0019f;
+				break;
+			}
+			case 3:
+			{
+				linear = 0.007f;
+				quadratic = 0.0002f;
+				break;
+			}
+			default:
+			{
+				cout << "Light Fade Distance Error!" << endl;
+				break;
+			}
+				
+		}
+
 		//material
-		//ImGui::ColorEdit3("material ambient", (float *)&material_ambient);
-		//ImGui::ColorEdit3("material diffuse", (float*)&material_diffuse);
-		//ImGui::ColorEdit3("material specular", (float*)&material_specular);
 		ImGui::SliderInt("material shininess", &material_shininess, 0, 256);
 
 		//other
@@ -218,7 +269,23 @@ int main()
 		//相机位置是要实时更新的，而且启动了shader1之后又启动了shader2，shader1的设置会无效化
 		myShader.SetVec3("uni_viewPos", myCam.camPos); 
 
-		/* 生成变换矩阵 */
+		myShader.SetVec3("light.ambient", light_ambient);
+		myShader.SetVec3("light.diffuse", light_diffuse);
+		myShader.SetVec3("light.specular", light_specular);
+		myShader.SetFloat("light.constant", 1.0f);
+		myShader.SetFloat("light.linear", linear);
+		myShader.SetFloat("light.quadratic", quadratic);
+
+		myShader.SetInt("material.shininess", material_shininess);
+
+		glBindVertexArray(VAO); // draw操作从VAO上下文读    可代替VBO EBO attrpoint的绑定操作，方便管理
+
+		// 绑定显存,就可以进行独写操作，但是要读独写两块显存的时候，没办法同时绑定同一个GL_TEXTURE_2D，只能用纹理单元来区分
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture_diffuse);  //片段着色器会根据GL_TEXTURE0读取texture_diffuse的贴图数据
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, texture_specular); //片段着色器会根据GL_TEXTURE1读取texture_specular的贴图数据
+
 		// view矩阵 world -> view
 		mat4 view;
 		myCam.setCamView();
@@ -233,42 +300,27 @@ int main()
 		myShader.SetMat4("uni_projection", projection);
 
 		// model矩阵 local -> world
-		// 物体
-		mat4 model = mat4(1.0f); // mat4初始化最好显示调用初始化为单位矩阵，因为新版本mat4 model可能是全0矩阵
-		model = scale(model, vec3(2.5f));
-		model = translate(model, vec3(0.0f, 0.0f, -0.0f));
-		model = rotate(model, radians(45.0f), vec3(0.0f, 1.0f, 0.0f));
-		myShader.SetMat4("uni_model", model);
-
-		myShader.SetVec3("light.ambient", light_ambient);
-		myShader.SetVec3("light.diffuse", light_diffuse);
-		myShader.SetVec3("light.specular", light_specular);
-
-		//myShader.SetVec3("material.ambient", material_ambient);
-		//myShader.SetVec3("material.diffuse", material_diffuse);
-		//myShader.SetVec3("material.specular", material_specular);
-		myShader.SetInt("material.shininess", material_shininess);
-
-		glBindVertexArray(VAO); // draw操作从VAO上下文读    可代替VBO EBO attrpoint的绑定操作，方便管理
-
-		// 绑定显存,就可以进行独写操作，但是要读独写两块显存的时候，没办法同时绑定同一个GL_TEXTURE_2D，只能用纹理单元来区分
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture_diffuse);  //片段着色器会根据GL_TEXTURE0读取texture_diffuse的贴图数据
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, texture_specular); //片段着色器会根据GL_TEXTURE1读取texture_specular的贴图数据
-
-		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+		for (unsigned int i = 0; i < 10; i++)
+		{
+			mat4 model = mat4(1.0f); // mat4初始化最好显示调用初始化为单位矩阵，因为新版本mat4 model可能是全0矩阵
+			model = translate(model, cubePosition[i]);
+			float angle = 20.0f * i;
+			model = rotate(model, radians(angle), vec3(1.0f, 0.3f, 0.5f));
+			myShader.SetMat4("uni_model", model);
+			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+		}
 
 		// 解绑
 		glBindVertexArray(0);
 
 		vec3 lightPos = vec3(5 * cos(ligthShift), 10.0f, 5 * sin(ligthShift));
 		myShader.SetVec3("light.lightPos", lightPos);
+		//myShader.SetVec3("light.direction", vec3(-1.0, -1.0, -1.0));
 		// 光源模型，一个白色的发光体
 		// 激活lampShader程序 这里涉及两个shader程序的切换，所以每次loop里都要在对应的位置调用，不能只在开始调用一次
 		lampShader.Use();
 
-		model = mat4(1.0f); // 初始化为单位矩阵，清空
+		mat4 model = mat4(1.0f); // 初始化为单位矩阵，清空
 		model = scale(model, vec3(0.5f));
 		model = translate(model, lightPos);
 		model = rotate(model, radians(45.0f), vec3(1.0f, 1.0f, 0.0f));
