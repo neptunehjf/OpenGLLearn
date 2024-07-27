@@ -188,10 +188,12 @@ int main()
 		ImGui::NewFrame();
 
 		//Imgui
-		static float ligthShift = 0.0f;
+		//static float ligthShift = 0.0f;
 		static vec3 light_ambient = vec3(0.2f);
 		static vec3 light_diffuse = vec3(0.8f);
 		static vec3 light_specular = vec3(1.0f);
+		static float light_innerCos = 5.0f;
+		static float light_outerCos = 8.0f;
 
 		static int material_shininess = 32;
 
@@ -202,54 +204,56 @@ int main()
 			myCam.camPos.x, myCam.camPos.y, myCam.camPos.z, myCam.pitchValue, myCam.yawValue, myCam.fov);
 
 		//light
-		ImGui::SliderFloat("light position", &ligthShift, 0.0f, 10.0f);
+		//ImGui::SliderFloat("light position", &ligthShift, 0.0f, 10.0f);
 		ImGui::ColorEdit3("light ambient", (float*)&light_ambient);
 		ImGui::ColorEdit3("light diffuse", (float*)&light_diffuse);
 		ImGui::ColorEdit3("light specular", (float*)&light_specular);
+		ImGui::SliderFloat("light innerCos", &light_innerCos, 0.0f, 90.0f);
+		ImGui::SliderFloat("light outerCos", &light_outerCos, 0.0f, 90.0f);
 
-		float constant = 1.0f; // 通常保持1就行了
-		float linear = 0.09f;
-		float quadratic = 0.032f;
-		const char* itemArray[] = { "										50", 
-									"										100", 
-									"										200", 
-									"										600" };
-		static int item = 0;
-		ImGui::Combo("Light Fade Distance", &item, itemArray, IM_ARRAYSIZE(itemArray));
+		//float constant = 1.0f; // 通常保持1就行了
+		//float linear = 0.09f;
+		//float quadratic = 0.032f;
+		//const char* itemArray[] = { "										50", 
+		//							"										100", 
+		//							"										200", 
+		//							"										600" };
+		//static int item = 0;
+		//ImGui::Combo("Light Fade Distance", &item, itemArray, IM_ARRAYSIZE(itemArray));
 
-		switch (item)
-		{
-			case 0:
-			{
-				linear = 0.09f;
-				quadratic = 0.032f;
-				break;
-			}
-			case 1:
-			{
-				linear = 0.045f;
-				quadratic = 0.0075f;
-				break;
-			}
-			case 2:
-			{
-				linear = 0.022f;
-				quadratic = 0.0019f;
-				break;
-			}
-			case 3:
-			{
-				linear = 0.007f;
-				quadratic = 0.0002f;
-				break;
-			}
-			default:
-			{
-				cout << "Light Fade Distance Error!" << endl;
-				break;
-			}
-				
-		}
+		//switch (item)
+		//{
+		//	case 0:
+		//	{
+		//		linear = 0.09f;
+		//		quadratic = 0.032f;
+		//		break;
+		//	}
+		//	case 1:
+		//	{
+		//		linear = 0.045f;
+		//		quadratic = 0.0075f;
+		//		break;
+		//	}
+		//	case 2:
+		//	{
+		//		linear = 0.022f;
+		//		quadratic = 0.0019f;
+		//		break;
+		//	}
+		//	case 3:
+		//	{
+		//		linear = 0.007f;
+		//		quadratic = 0.0002f;
+		//		break;
+		//	}
+		//	default:
+		//	{
+		//		cout << "Light Fade Distance Error!" << endl;
+		//		break;
+		//	}
+		//		
+		//}
 
 		//material
 		ImGui::SliderInt("material shininess", &material_shininess, 0, 256);
@@ -269,12 +273,16 @@ int main()
 		//相机位置是要实时更新的，而且启动了shader1之后又启动了shader2，shader1的设置会无效化
 		myShader.SetVec3("uni_viewPos", myCam.camPos); 
 
+		myShader.SetVec3("light.lightPos", myCam.camPos);
+		myShader.SetVec3("light.direction", myCam.camFront);
 		myShader.SetVec3("light.ambient", light_ambient);
 		myShader.SetVec3("light.diffuse", light_diffuse);
 		myShader.SetVec3("light.specular", light_specular);
-		myShader.SetFloat("light.constant", 1.0f);
-		myShader.SetFloat("light.linear", linear);
-		myShader.SetFloat("light.quadratic", quadratic);
+		myShader.SetFloat("light.innerCos", cos(radians(light_innerCos)));
+		myShader.SetFloat("light.outerCos", cos(radians(light_outerCos)));
+		//myShader.SetFloat("light.constant", 1.0f);
+		//myShader.SetFloat("light.linear", linear);
+		//myShader.SetFloat("light.quadratic", quadratic);
 
 		myShader.SetInt("material.shininess", material_shininess);
 
@@ -313,28 +321,28 @@ int main()
 		// 解绑
 		glBindVertexArray(0);
 
-		vec3 lightPos = vec3(5 * cos(ligthShift), 10.0f, 5 * sin(ligthShift));
-		myShader.SetVec3("light.lightPos", lightPos);
+		//vec3 lightPos = vec3(5 * cos(ligthShift), 10.0f, 5 * sin(ligthShift));
+
 		//myShader.SetVec3("light.direction", vec3(-1.0, -1.0, -1.0));
 		// 光源模型，一个白色的发光体
 		// 激活lampShader程序 这里涉及两个shader程序的切换，所以每次loop里都要在对应的位置调用，不能只在开始调用一次
-		lampShader.Use();
+		//lampShader.Use();
 
-		mat4 model = mat4(1.0f); // 初始化为单位矩阵，清空
-		model = scale(model, vec3(0.5f));
-		model = translate(model, lightPos);
-		model = rotate(model, radians(45.0f), vec3(1.0f, 1.0f, 0.0f));
+		//mat4 model = mat4(1.0f); // 初始化为单位矩阵，清空
+		//model = scale(model, vec3(0.5f));
+		//model = translate(model, lightPos);
+		//model = rotate(model, radians(45.0f), vec3(1.0f, 1.0f, 0.0f));
 
-		lampShader.SetMat4("uni_view", view);
-		lampShader.SetMat4("uni_projection", projection);
-		lampShader.SetMat4("uni_model", model);
-		lampShader.SetVec3("uni_lightColor", vec3(1.0f));
+		//lampShader.SetMat4("uni_view", view);
+		//lampShader.SetMat4("uni_projection", projection);
+		//lampShader.SetMat4("uni_model", model);
+		//lampShader.SetVec3("uni_lightColor", vec3(1.0f));
 
-		glBindVertexArray(lightVAO);
-		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+		//glBindVertexArray(lightVAO);
+		//glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
-		// 解绑
-		glBindVertexArray(0);
+		//// 解绑
+		//glBindVertexArray(0);
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
