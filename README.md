@@ -8,6 +8,10 @@ directory
 
 lib
 glfw3.lib
+assimp-vc143-mt.lib
+
+dll
+assimp-vc143-mt.dll
 
 source
 ..\Dependency\src
