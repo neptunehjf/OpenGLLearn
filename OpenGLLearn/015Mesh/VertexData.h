@@ -1,52 +1,45 @@
 #pragma once
 
-#include "glm/glm.hpp"
-#include "glm//gtc/matrix_transform.hpp"
-#include "glm/gtc/type_ptr.hpp"
+#include "Mesh.h"
 
+const std::vector<Vertex> g_vertices = 
+{
+	//位置                              //法线                          //纹理坐标
+	{glm::vec3(-0.5f, -0.5f, -0.5f),   glm::vec3(0.0f,  0.0f, -1.0f),  glm::vec2(0.0f, 0.0f)},
+	{glm::vec3(0.5f, -0.5f, -0.5f),    glm::vec3(0.0f,  0.0f, -1.0f),  glm::vec2(1.0f, 0.0f)},
+	{glm::vec3(0.5f,  0.5f, -0.5f),    glm::vec3(0.0f,  0.0f, -1.0f),  glm::vec2(1.0f, 1.0f)},
+	{glm::vec3(-0.5f,  0.5f, -0.5f),   glm::vec3(0.0f,  0.0f, -1.0f),  glm::vec2(0.0f, 1.0f)},
 
-#define POSITION_SIZE 3
-#define NORMAL_SIZE 3
-#define TEXCOORD_SIZE 2
-#define STRIDE_SIZE (POSITION_SIZE + POSITION_SIZE + TEXCOORD_SIZE)
+	{glm::vec3(-0.5f, -0.5f,  0.5f),   glm::vec3(0.0f,  0.0f, 1.0f),   glm::vec2(0.0f, 0.0f)},
+	{glm::vec3(0.5f, -0.5f,  0.5f),    glm::vec3(0.0f,  0.0f, 1.0f),   glm::vec2(1.0f, 0.0f)},
+	{glm::vec3(0.5f,  0.5f,  0.5f),    glm::vec3(0.0f,  0.0f, 1.0f),   glm::vec2(1.0f, 1.0f)},
+	{glm::vec3(-0.5f,  0.5f,  0.5f),   glm::vec3(0.0f,  0.0f, 1.0f),   glm::vec2(0.0f, 1.0f)},
 
-float vertex[] = {
-    //位置                 //法线               //纹理坐标 
-    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
-     0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f,
+	{glm::vec3(-0.5f,  0.5f,  0.5f),   glm::vec3(-1.0f,  0.0f, 0.0f),  glm::vec2(1.0f, 0.0f)},
+	{glm::vec3(-0.5f,  0.5f, -0.5f),   glm::vec3(-1.0f,  0.0f, 0.0f),  glm::vec2(1.0f, 1.0f)},
+	{glm::vec3(-0.5f, -0.5f, -0.5f),   glm::vec3(-1.0f,  0.0f, 0.0f),  glm::vec2(0.0f, 1.0f)},
+	{glm::vec3(-0.5f, -0.5f,  0.5f),   glm::vec3(-1.0f,  0.0f, 0.0f),  glm::vec2(0.0f, 0.0f)},
 
-    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
-     0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 1.0f,
+	{glm::vec3(0.5f,  0.5f,  0.5f),    glm::vec3(1.0f,  0.0f, 0.0f),   glm::vec2(1.0f, 0.0f)},
+	{glm::vec3(0.5f,  0.5f, -0.5f),    glm::vec3(1.0f,  0.0f, 0.0f),   glm::vec2(1.0f, 1.0f)},
+	{glm::vec3(0.5f, -0.5f, -0.5f),    glm::vec3(1.0f,  0.0f, 0.0f),   glm::vec2(0.0f, 1.0f)},
+	{glm::vec3(0.5f, -0.5f,  0.5f),    glm::vec3(1.0f,  0.0f, 0.0f),   glm::vec2(0.0f, 0.0f)},
 
-    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
+	{glm::vec3(-0.5f, -0.5f, -0.5f),   glm::vec3(0.0f, -1.0f, 0.0f),   glm::vec2(0.0f, 1.0f)},
+	{glm::vec3(0.5f, -0.5f, -0.5f),    glm::vec3(0.0f, -1.0f, 0.0f),   glm::vec2(1.0f, 1.0f)},
+	{glm::vec3(0.5f, -0.5f,  0.5f),    glm::vec3(0.0f, -1.0f, 0.0f),   glm::vec2(1.0f, 0.0f)},
+	{glm::vec3(-0.5f, -0.5f,  0.5f),   glm::vec3(0.0f, -1.0f, 0.0f),   glm::vec2(0.0f, 0.0f)},
 
-     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-     0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
-
-    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 1.0f,
-     0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
-
-    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,
-     0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f
+	{glm::vec3(-0.5f,  0.5f, -0.5f),   glm::vec3(0.0f,  1.0f,  0.0f),  glm::vec2(0.0f, 1.0f)},
+	{glm::vec3(0.5f,  0.5f, -0.5f),    glm::vec3(0.0f,  1.0f,  0.0f),  glm::vec2(1.0f, 1.0f)},
+	{glm::vec3(0.5f,  0.5f,  0.5f),    glm::vec3(0.0f,  1.0f,  0.0f),  glm::vec2(1.0f, 0.0f)},
+	{glm::vec3(-0.5f,  0.5f,  0.5f),   glm::vec3(0.0f,  1.0f,  0.0f),  glm::vec2(0.0f, 0.0f)}
 };
 
-unsigned int index[] =
+const std::vector<GLuint> g_indices =
 {
-	0, 1, 2,
-	0, 2, 3,
+    0, 1, 2,
+    0, 2, 3,
     4, 5, 6,
     4, 6, 7,
     8, 9, 10,

@@ -4,7 +4,7 @@
 #include <iostream>
 #include <cstdio>
 
-#include "VertexData.h"
+
 #include "Shader.h"
 #include "Camera.h"
 
@@ -12,7 +12,7 @@
 #include "stb/stb_image.h"
 
 #include "glm/glm.hpp"
-#include "glm//gtc/matrix_transform.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
 #include "imgui.h"
@@ -26,8 +26,9 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-#define WINDOW_WIDTH 2560
-#define WINDOW_HEIGHT 1440
+#include "Mesh.h"
+#include "VertexData.h"
+#include "TextureData.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
@@ -35,8 +36,28 @@ void mouse_callback(GLFWwindow* window, double posX, double posY);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 bool LoadTexture(const std::string&& filePath, GLuint& texture);
 void loadModel(std::string path);
+void GetImguiValue();
+void SetUniformValue(Shader& shader, Shader& shader_lamp);
 
 Camera myCam(glm::vec3(2.0f, 7.0f, 6.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+//Shader test("shader.vs", "shader.fs");  不能声明全局变量，因为shader的相关操作必须在glfw初始化完成后
+
+static float posValue = 0.0f;
+static glm::vec3 bkgColor = glm::vec3(0.0f, 0.0f, 0.0f);
+static glm::vec3 dirLight_direction = glm::vec3(-1.0f, -1.0f, -1.0f);
+static glm::vec3 dirLight_ambient = glm::vec3(0.2f);
+static glm::vec3 dirLight_diffuse = glm::vec3(0.8f);
+static glm::vec3 dirLight_specular = glm::vec3(1.0f);
+static glm::vec3 pointLight_ambient = glm::vec3(0.2f);
+static glm::vec3 pointLight_diffuse = glm::vec3(0.8f);
+static glm::vec3 pointLight_specular = glm::vec3(1.0f);
+static glm::vec3 spotLight_ambient = glm::vec3(0.2f);
+static glm::vec3 spotLight_diffuse = glm::vec3(0.8f);
+static glm::vec3 spotLight_specular = glm::vec3(1.0f);
+static float spotLight_innerCos = 5.0f;
+static float spotLight_outerCos = 8.0f;
+static int item = 0;
+static int material_shininess = 32;
 
 int main()
 {
@@ -83,7 +104,6 @@ int main()
 	ImGui_ImplGlfw_InitForOpenGL(window, true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
 	ImGui_ImplOpenGL3_Init();
 
-	// 创建Shader程序
 	Shader myShader("shader.vs", "shader.fs");
 	Shader lampShader("lampShader.vs", "lampShader.fs"); // 灯本身shader，一个白色的发光体
 
@@ -92,59 +112,22 @@ int main()
 	stbi_set_flip_vertically_on_load(true);
 
 	// 加载贴图
-	GLuint texture_diffuse = 0;
-	GLuint texture_specular = 0;
+	GLuint container_diffuse = 0;
+	GLuint container_specular = 0;
 	bool ret1, ret2;
-	ret1 = LoadTexture("container_diffuse.png", texture_diffuse);
-	ret2 = LoadTexture("container_specular.png", texture_specular);
+	ret1 = LoadTexture("container_diffuse.png", container_diffuse);
+	ret2 = LoadTexture("container_specular.png", container_specular);
 	if (ret1 == false || ret2 == false)
 		return -1;
 
-	// 用显存VAO来管理 shader的顶点属性
-	GLuint VAO = 0;
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO); // VBO glVertexAttribPointer 操作向VAO上下文写
+	const std::vector<Texture> textures =
+	{
+		{container_diffuse, "texture_diffuse"},
+		{container_specular, "texture_specular"}
+	};
 
-	// 存储顶点数据到显存VBO
-	GLuint VBO = 0;
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex), vertex, GL_STATIC_DRAW);
-
-	// 定义顶点属性的解析方式
-	glVertexAttribPointer(0, POSITION_SIZE, GL_FLOAT, GL_FALSE, STRIDE_SIZE * sizeof(GL_FLOAT), (void*)(0 * sizeof(GL_FLOAT)));
-	glEnableVertexAttribArray(0);
-	//3 忘记加sizeof(GL_FLOAT)了，排查了半天。。。以后0也写成0 * sizeof(GL_FLOAT)的形式吧。。以免误导别的代码
-	glVertexAttribPointer(1, NORMAL_SIZE, GL_FLOAT, GL_FALSE, STRIDE_SIZE * sizeof(GL_FLOAT), (void*)(3 * sizeof(GL_FLOAT))); 
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(2, TEXCOORD_SIZE, GL_FLOAT, GL_FALSE, STRIDE_SIZE * sizeof(GL_FLOAT), (void*)(6 * sizeof(GL_FLOAT)));
-	glEnableVertexAttribArray(2);
-
-	// 存储下标数据到显存EBO
-	GLuint EBO = 0;
-	glGenBuffers(1, &EBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(index), index, GL_STATIC_DRAW);
-
-	// 解绑
-	glBindVertexArray(0);// 关闭VAO上下文
-
-	// 专门为光源定义了一个VAO，方便后续操作
-	GLuint lightVAO = 0;
-	glGenVertexArrays(1, &lightVAO);
-	glBindVertexArray(lightVAO); // VBO glVertexAttribPointer 操作向VAO上下文写
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glVertexAttribPointer(0, POSITION_SIZE, GL_FLOAT, GL_FALSE, STRIDE_SIZE * sizeof(GL_FLOAT), (void*)(0 * sizeof(GL_FLOAT)));
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-
-	// 解绑
-	glBindVertexArray(0);// 关闭VAO上下文
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	//当目标是GL_ELEMENT_ARRAY_BUFFER的时候，VAO会储存glBindBuffer的函数调用。这也意味着它也会储存解绑调用，所以确保你没有在解绑VAO之前解绑索引数组缓冲，否则它就没有这个EBO配置了
-	// remember: do NOT unbind the EBO while a VAO is active as the bound element buffer object IS stored in the VAO; keep the EBO bound.
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	Mesh mesh(g_vertices, g_indices, textures);
+	mesh.SetupMesh();
 
 	// 检查myShader程序有效性
 	if (myShader.Use() == false)
@@ -170,8 +153,6 @@ int main()
 		processInput(window);
 		glfwPollEvents();
 
-
-
 		// Start the Dear ImGui frame
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -179,203 +160,23 @@ int main()
 
 		ImGui::Begin("Test Parameter");
 
-		//camera
+		//camera info
 		ImGui::Text("CameraX %f | CameraY %f | CameraZ %f | CameraPitch %f | CameraYaw %f | CameraFov %f",
 			myCam.camPos.x, myCam.camPos.y, myCam.camPos.z, myCam.pitchValue, myCam.yawValue, myCam.fov);
 
-		// clear color
-		static glm::vec3 bkgColor = glm::vec3(0.0f, 0.0f, 0.0f);
-		ImGui::ColorEdit3("background", (float*)&bkgColor);
-		glClearColor(bkgColor.r, bkgColor.g, bkgColor.b, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		// direction light
-		static glm::vec3 dirLight_direction = glm::vec3(-1.0f, -1.0f, -1.0f);
-		static glm::vec3 dirLight_ambient = glm::vec3(0.2f);
-		static glm::vec3 dirLight_diffuse = glm::vec3(0.8f);
-		static glm::vec3 dirLight_specular = glm::vec3(1.0f);
-		ImGui::ColorEdit3("dirLight direction", (float*)&dirLight_direction);
-		ImGui::ColorEdit3("dirLight ambient", (float*)&dirLight_ambient);
-		ImGui::ColorEdit3("dirLight diffuse", (float*)&dirLight_diffuse);
-		ImGui::ColorEdit3("dirLight specular", (float*)&dirLight_specular);
-
-		// point light
-		static float posValue = 0.0f;
-		static glm::vec3 pointLight_ambient = glm::vec3(0.2f);
-		static glm::vec3 pointLight_diffuse = glm::vec3(0.8f);
-		static glm::vec3 pointLight_specular = glm::vec3(1.0f);
-		float constant = 1.0f; // 通常保持1就行了
-		float linear = 0.09f;
-		float quadratic = 0.032f;
-		const char* itemArray[] = { "										50", 
-									"										100", 
-									"										200", 
-									"										600" };
-		static int item = 0;
-		ImGui::SliderFloat("pointLight position", &posValue, 0.0f, 10.0f);
-		ImGui::ColorEdit3("pointLight ambient", (float*)&pointLight_ambient);
-		ImGui::ColorEdit3("pointLight diffuse", (float*)&pointLight_diffuse);
-		ImGui::ColorEdit3("pointLight specular", (float*)&pointLight_specular);
-		ImGui::Combo("Light Fade Distance", &item, itemArray, IM_ARRAYSIZE(itemArray));
-
-		switch (item)
-		{
-			case 0:
-			{
-				linear = 0.09f;
-				quadratic = 0.032f;
-				break;
-			}
-			case 1:
-			{
-				linear = 0.045f;
-				quadratic = 0.0075f;
-				break;
-			}
-			case 2:
-			{
-				linear = 0.022f;
-				quadratic = 0.0019f;
-				break;
-			}
-			case 3:
-			{
-				linear = 0.007f;
-				quadratic = 0.0002f;
-				break;
-			}
-			default:
-			{
-				std::cout << "Light Fade Distance Error!" << std::endl;
-				break;
-			}
-				
-		}
-
-		// spotLight
-		static glm::vec3 spotLight_ambient = glm::vec3(0.2f);
-		static glm::vec3 spotLight_diffuse = glm::vec3(0.8f);
-		static glm::vec3 spotLight_specular = glm::vec3(1.0f);
-		static float spotLight_innerCos = 5.0f;
-		static float spotLight_outerCos = 8.0f;
-		ImGui::ColorEdit3("spotLight ambient", (float*)&spotLight_ambient);
-		ImGui::ColorEdit3("spotLight diffuse", (float*)&spotLight_diffuse);
-		ImGui::ColorEdit3("spotLight specular", (float*)&spotLight_specular);
-		ImGui::SliderFloat("spotLight innerCos", &spotLight_innerCos, 0.0f, 90.0f);
-		ImGui::SliderFloat("spotLight outerCos", &spotLight_outerCos, 0.0f, 90.0f);
-
-		//material
-		static int material_shininess = 32;
-		ImGui::SliderInt("material shininess", &material_shininess, 0, 256);
+		GetImguiValue();
 
 		//other
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
 		ImGui::End();
 
-		//激活myShader程序 这里涉及两个shader程序的切换，所以每次loop里都要在对应的位置调用，不能只在开始调用一次
-		myShader.Use();
+		// clear color
+		glClearColor(bkgColor.r, bkgColor.g, bkgColor.b, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		
+		SetUniformValue(myShader, lampShader);
 
-		// 设置纹理单元 任何uniform设置操作一定要放到《对应的shader》启动之后！  --》不同的shader切换运行，另一个shader会关掉，写的数据会丢失数据
-        //也就是说启动了shader1之后又启动了shader2，之前在shader1设置的就无效了！这种情况只能放到渲染循环里，不能放循环外面
-		myShader.SetInt("material.diffuse", 0);
-		myShader.SetInt("material.specular", 1);
-
-		//相机位置是要实时更新的，而且启动了shader1之后又启动了shader2，shader1的设置会无效化
-		myShader.SetVec3("uni_viewPos", myCam.camPos); 
-
-		myShader.SetVec3("dirLight.direction", glm::vec3(-1.0f, -1.0f, -1.0f));
-		myShader.SetVec3("dirLight.ambient", dirLight_ambient);
-		myShader.SetVec3("dirLight.diffuse", dirLight_diffuse);
-		myShader.SetVec3("dirLight.specular", dirLight_specular);
-		myShader.SetVec3("spotLight.lightPos", myCam.camPos);
-		myShader.SetVec3("spotLight.direction", myCam.camFront);
-		myShader.SetVec3("spotLight.ambient", spotLight_ambient);
-		myShader.SetVec3("spotLight.diffuse", spotLight_diffuse);
-		myShader.SetVec3("spotLight.specular", spotLight_specular);
-		myShader.SetFloat("spotLight.innerCos", cos(glm::radians(spotLight_innerCos)));
-		myShader.SetFloat("spotLight.outerCos", cos(glm::radians(spotLight_outerCos)));
-
-		for (int i = 0; i < 4; i++)
-		{
-			std::stringstream ss;
-			ss << "pointLight[" << i << "].";
-			std::string prefix = ss.str();
-
-			glm::vec3 lightPos = glm::vec3(5 * cos(posValue + i * 10), 10.0f, 5 * sin(posValue + i * 10));
-			myShader.SetVec3(prefix + "lightPos", lightPos);
-			myShader.SetVec3(prefix + "ambient", pointLight_ambient);
-			myShader.SetVec3(prefix + "diffuse", pointLight_diffuse);
-			myShader.SetVec3(prefix + "specular", pointLight_specular);
-			myShader.SetFloat(prefix + "constant", 1.0f);
-			myShader.SetFloat(prefix + "linear", linear);
-			myShader.SetFloat(prefix + "quadratic", quadratic);
-		}
-
-		myShader.SetInt("material.shininess", material_shininess);
-
-		glBindVertexArray(VAO); // draw操作从VAO上下文读    可代替VBO EBO attrpoint的绑定操作，方便管理
-
-		// 绑定显存,就可以进行独写操作，但是要读独写两块显存的时候，没办法同时绑定同一个GL_TEXTURE_2D，只能用纹理单元来区分
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture_diffuse);  //片段着色器会根据GL_TEXTURE0读取texture_diffuse的贴图数据
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, texture_specular); //片段着色器会根据GL_TEXTURE1读取texture_specular的贴图数据
-
-		// view矩阵 world -> view
-		glm::mat4 view;
-		myCam.setCamView();
-		view = myCam.getCamView();
-		myShader.SetMat4("uni_view", view);
-
-		// 投影矩阵 view -> clip
-		glm::mat4 projection;
-		float fov = myCam.getCamFov();
-
-		projection = glm::perspective(glm::radians(fov), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f); // 之前写成(float)(WINDOW_WIDTH / WINDOW_HEIGHT)了，精度丢失，导致结果是1
-		myShader.SetMat4("uni_projection", projection);
-
-		// model矩阵 local -> world
-
-		glm::mat4 model = glm::mat4(1.0f); // glm::mat4初始化最好显示调用初始化为单位矩阵，因为新版本glm::mat4 model可能是全0矩阵
-		myShader.SetMat4("uni_model", model);
-		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-
-
-		// 解绑
-		glBindVertexArray(0);
-
-		//光源模型，一个白色的发光体
-		//激活lampShader程序 这里涉及两个shader程序的切换，所以每次loop里都要在对应的位置调用，不能只在开始调用一次
-		lampShader.Use();
-
-		glBindVertexArray(lightVAO);
-
-		lampShader.SetMat4("uni_view", view);
-		lampShader.SetMat4("uni_projection", projection);
-		lampShader.SetVec3("uni_lightColor", glm::vec3(1.0f));
-
-		for (int i = 0; i < 4; i++)
-		{
-			std::stringstream ss;
-			ss << "pointLight[" << i << "].";
-			std::string prefix = ss.str();
-
-			glm::vec3 lightPos = glm::vec3(5 * cos(posValue + i * 10), 10.0f, 5 * sin(posValue + i * 10));
-
-			glm::mat4 model = glm::mat4(1.0f); // 初始化为单位矩阵，清空
-			model = scale(model, glm::vec3(0.5f));
-			model = translate(model, lightPos);
-			model = rotate(model, glm::radians(45.0f + i * 10), glm::vec3(1.0f, 1.0f, 0.0f));
-
-			lampShader.SetMat4("uni_model", model);
-
-			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-		}
-
-		// 解绑
-		glBindVertexArray(0);
+		mesh.DrawMesh(myShader, lampShader, posValue);
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -385,12 +186,7 @@ int main()
 
 	}
 
-	glDeleteVertexArrays(1, &VAO);
-	glDeleteVertexArrays(1, &lightVAO);
-	glDeleteBuffers(1, &VBO);
-	glDeleteBuffers(1, &EBO);
-	glDeleteTextures(1, &texture_diffuse);
-	glDeleteTextures(1, &texture_specular);
+	mesh.DeleteMesh();
 	myShader.Remove();
 	lampShader.Remove();
 	ImGui_ImplOpenGL3_Shutdown();
@@ -535,4 +331,131 @@ void loadModel(std::string path)
 	//directory = path.substr(0, path.find_last_of('/'));
 
 	//processNode(scene->mRootNode, scene);
+}
+
+void GetImguiValue()
+{
+	// clear color
+	ImGui::ColorEdit3("background", (float*)&bkgColor);
+
+	// direction light
+	ImGui::ColorEdit3("dirLight direction", (float*)&dirLight_direction);
+	ImGui::ColorEdit3("dirLight ambient", (float*)&dirLight_ambient);
+	ImGui::ColorEdit3("dirLight diffuse", (float*)&dirLight_diffuse);
+	ImGui::ColorEdit3("dirLight specular", (float*)&dirLight_specular);
+
+	// point light
+	const char* itemArray[] = { "50", "100", "200","600" };
+	ImGui::SliderFloat("pointLight position", &posValue, 0.0f, 10.0f);
+	ImGui::ColorEdit3("pointLight ambient", (float*)&pointLight_ambient);
+	ImGui::ColorEdit3("pointLight diffuse", (float*)&pointLight_diffuse);
+	ImGui::ColorEdit3("pointLight specular", (float*)&pointLight_specular);
+	ImGui::Combo("Light Fade Distance", &item, itemArray, IM_ARRAYSIZE(itemArray));
+
+	// spotLight
+	ImGui::ColorEdit3("spotLight ambient", (float*)&spotLight_ambient);
+	ImGui::ColorEdit3("spotLight diffuse", (float*)&spotLight_diffuse);
+	ImGui::ColorEdit3("spotLight specular", (float*)&spotLight_specular);
+	ImGui::SliderFloat("spotLight innerCos", &spotLight_innerCos, 0.0f, 90.0f);
+	ImGui::SliderFloat("spotLight outerCos", &spotLight_outerCos, 0.0f, 90.0f);
+
+	//material
+	ImGui::SliderInt("material shininess", &material_shininess, 0, 256);
+}
+
+void SetUniformValue(Shader& shader, Shader& shader_lamp)
+{
+	//激活myShader程序 这里涉及两个shader程序的切换，所以每次loop里都要在对应的位置调用，不能只在开始调用一次
+	shader.Use();
+
+	float constant = 1.0f; // 通常保持1就行了
+	float linear = 0.09f;
+	float quadratic = 0.032f;
+	switch (item)
+	{
+	case 0:
+	{
+		linear = 0.09f;
+		quadratic = 0.032f;
+		break;
+	}
+	case 1:
+	{
+		linear = 0.045f;
+		quadratic = 0.0075f;
+		break;
+	}
+	case 2:
+	{
+		linear = 0.022f;
+		quadratic = 0.0019f;
+		break;
+	}
+	case 3:
+	{
+		linear = 0.007f;
+		quadratic = 0.0002f;
+		break;
+	}
+	default:
+	{
+		std::cout << "Light Fade Distance Error!" << std::endl;
+		break;
+	}
+
+	}
+
+	//相机位置是要实时更新的，而且启动了shader1之后又启动了shader2，shader1的设置会无效化
+	shader.SetVec3("uni_viewPos", myCam.camPos);
+	shader.SetVec3("dirLight.direction", glm::vec3(-1.0f, -1.0f, -1.0f));
+	shader.SetVec3("dirLight.ambient", dirLight_ambient);
+	shader.SetVec3("dirLight.diffuse", dirLight_diffuse);
+	shader.SetVec3("dirLight.specular", dirLight_specular);
+	shader.SetVec3("spotLight.lightPos", myCam.camPos);
+	shader.SetVec3("spotLight.direction", myCam.camFront);
+	shader.SetVec3("spotLight.ambient", spotLight_ambient);
+	shader.SetVec3("spotLight.diffuse", spotLight_diffuse);
+	shader.SetVec3("spotLight.specular", spotLight_specular);
+	shader.SetFloat("spotLight.innerCos", cos(glm::radians(spotLight_innerCos)));
+	shader.SetFloat("spotLight.outerCos", cos(glm::radians(spotLight_outerCos)));
+	shader.SetInt("material.shininess", material_shininess);
+	for (int i = 0; i < 4; i++)
+	{
+		std::stringstream ss;
+		ss << "pointLight[" << i << "].";
+		std::string prefix = ss.str();
+
+		glm::vec3 lightPos = glm::vec3(5 * cos(posValue + i * 10), 10.0f, 5 * sin(posValue + i * 10));
+		shader.SetVec3(prefix + "lightPos", lightPos);
+		shader.SetVec3(prefix + "ambient", pointLight_ambient);
+		shader.SetVec3(prefix + "diffuse", pointLight_diffuse);
+		shader.SetVec3(prefix + "specular", pointLight_specular);
+		shader.SetFloat(prefix + "constant", 1.0f);
+		shader.SetFloat(prefix + "linear", linear);
+		shader.SetFloat(prefix + "quadratic", quadratic);
+	}
+
+	// view矩阵 world -> view
+	glm::mat4 view;
+	myCam.setCamView();
+	view = myCam.getCamView();
+	shader.SetMat4("uni_view", view);
+
+	// 投影矩阵 view -> clip
+	glm::mat4 projection;
+	float fov = myCam.getCamFov();
+
+	projection = glm::perspective(glm::radians(fov), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f); // 之前写成(float)(WINDOW_WIDTH / WINDOW_HEIGHT)了，精度丢失，导致结果是1
+	shader.SetMat4("uni_projection", projection);
+
+	// model矩阵 local -> world
+
+	glm::mat4 model = glm::mat4(1.0f); // glm::mat4初始化最好显示调用初始化为单位矩阵，因为新版本glm::mat4 model可能是全0矩阵
+	shader.SetMat4("uni_model", model);
+
+	shader_lamp.Use();
+
+	shader_lamp.SetMat4("uni_view", view);
+	shader_lamp.SetMat4("uni_projection", projection);
+	shader_lamp.SetVec3("uni_lightColor", glm::vec3(1.0f));
 }

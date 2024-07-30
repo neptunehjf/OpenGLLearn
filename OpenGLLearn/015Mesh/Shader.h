@@ -1,11 +1,10 @@
-// Shader构造失败时，只打印信息是不够的 --> 根据着色器程序ID的值来判断 ，ID是0表示无效
-// 封装的set函数设置颜色失败 --> API用错了
-
-#ifndef SHADER_H  
-#define SHADER_H
+#pragma once
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
 #include <string>
 #include <fstream>
@@ -178,5 +177,4 @@ void Shader::SetVec3(const std::string& name, glm::vec3 vector) const
 	glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1, value_ptr(vector));
 }
 
-#endif // !SHADER_H
 
