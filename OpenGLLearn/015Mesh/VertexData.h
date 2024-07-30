@@ -10,8 +10,6 @@
 #define TEXCOORD_SIZE 2
 #define STRIDE_SIZE (POSITION_SIZE + POSITION_SIZE + TEXCOORD_SIZE)
 
-using namespace glm;
-
 float vertex[] = {
     //位置                 //法线               //纹理坐标 
     -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,

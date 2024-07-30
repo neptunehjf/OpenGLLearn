@@ -12,10 +12,6 @@
 #include <sstream>
 #include <iostream>
 
-
-using namespace std;
-using namespace glm;
-
 #define LOG_LENGTH 512
 
 class Shader
@@ -33,31 +29,31 @@ public:
 	void Remove();
 
 	//uniform工具函数
-	void SetBool(const string &name, bool value) const;
-	void SetInt(const string& name, int value) const;
-	void SetFloat(const string& name, float value) const;
-	void Set4F(const string& name, float value0, float value1, float value2, float value3) const;
-	void SetMat4(const string& name, mat4 matrix) const;
-	void SetVec3(const string& name, vec3 vector) const;
+	void SetBool(const std::string &name, bool value) const;
+	void SetInt(const std::string& name, int value) const;
+	void SetFloat(const std::string& name, float value) const;
+	void Set4F(const std::string& name, float value0, float value1, float value2, float value3) const;
+	void SetMat4(const std::string& name, glm::mat4 matrix) const;
+	void SetVec3(const std::string& name, glm::vec3 vector) const;
 };
 
 Shader::Shader(const char* vertexShaderPath, const char* fragmentShaderPath)
 {
 	// 1.从硬盘读取shader源码
-	string vertexCode;
-	string fragmentCode;
-	ifstream vShaderFile;
-	ifstream fShaderFile;
+	std::string vertexCode;
+	std::string fragmentCode;
+	std::ifstream vShaderFile;
+	std::ifstream fShaderFile;
 	// 设置抛出异常类型
-	vShaderFile.exceptions(ifstream::failbit | ifstream::badbit);
-	fShaderFile.exceptions(ifstream::failbit | ifstream::badbit);
+	vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+	fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 	try
 	{
 		// 打开文件
 		vShaderFile.open(vertexShaderPath);
 		fShaderFile.open(fragmentShaderPath);
 		// 读取到数据流
-		stringstream vShaderStream, fShaderStream;
+		std::stringstream vShaderStream, fShaderStream;
 		vShaderStream << vShaderFile.rdbuf();
 		fShaderStream << fShaderFile.rdbuf();
 		// 关闭文件流
@@ -67,11 +63,11 @@ Shader::Shader(const char* vertexShaderPath, const char* fragmentShaderPath)
 		vertexCode = vShaderStream.str();
 		fragmentCode = fShaderStream.str();
 	}
-	catch(ifstream::failure e)
+	catch(std::ifstream::failure e)
 	{
-		cout << "Read shader file: exception occur!" << endl;
-		cerr << "Error reading file: " << e.what() << endl;
-		cerr << "Error code: " << e.code() << endl;
+		std::cout << "Read shader file: exception occur!" << std::endl;
+		std::cerr << "Error reading file: " << e.what() << std::endl;
+		std::cerr << "Error code: " << e.code() << std::endl;
 	}
 
 	// 获取shader源码
@@ -93,7 +89,7 @@ Shader::Shader(const char* vertexShaderPath, const char* fragmentShaderPath)
 		memset(infoLog, 0, sizeof(infoLog));
 
 		glGetShaderInfoLog(vertexShader, sizeof(infoLog), NULL, infoLog);
-		cout << "Vertex shader compile failed!\n" << infoLog << endl; 
+		std::cout << "Vertex shader compile failed!\n" << infoLog << std::endl; 
 	}
 
 	GLuint fragmentShader = 0;
@@ -107,14 +103,14 @@ Shader::Shader(const char* vertexShaderPath, const char* fragmentShaderPath)
 		memset(infoLog, 0, sizeof(infoLog));
 
 		glGetShaderInfoLog(fragmentShader, sizeof(infoLog), NULL, infoLog);
-		cout << "Fragment shader compile failed!\n" << infoLog << endl;
+		std::cout << "Fragment shader compile failed!\n" << infoLog << std::endl;
 	}
 
 	// 链接着色器程序
 	ID = glCreateProgram();
 	if (ID == 0)
 	{
-		cout << "Shader program create failed!\n" << endl;
+		std::cout << "Shader program create failed!\n" << std::endl;
 	}
 
 	glAttachShader(ID, vertexShader);
@@ -127,7 +123,7 @@ Shader::Shader(const char* vertexShaderPath, const char* fragmentShaderPath)
 		memset(infoLog, 0, sizeof(infoLog));
 
 		glGetProgramInfoLog(ID, sizeof(infoLog), NULL, infoLog);
-		cout << "Shader program link failed!\n" << infoLog << endl;
+		std::cout << "Shader program link failed!\n" << infoLog << std::endl;
 
 		// 连接失败，shader程序应该置为不可用
 		ID = 0;
@@ -152,32 +148,32 @@ void Shader::Remove()
 	glDeleteProgram(ID);
 }
 
-void Shader::SetBool(const string& name, bool value) const
+void Shader::SetBool(const std::string& name, bool value) const
 {
 	glUniform1i(glGetUniformLocation(ID, name.c_str()), (GLint)value);
 }
 
-void Shader::SetInt(const string& name, int value) const
+void Shader::SetInt(const std::string& name, int value) const
 {
 	glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
 }
 
-void Shader::SetFloat(const string& name, float value) const
+void Shader::SetFloat(const std::string& name, float value) const
 {
 	glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
 }
 
-void Shader::Set4F(const string& name, float value0, float value1, float value2, float value3) const
+void Shader::Set4F(const std::string& name, float value0, float value1, float value2, float value3) const
 {
 	glUniform4f(glGetUniformLocation(ID, name.c_str()), value0, value1, value2, value3);  
 }
 
-void Shader::SetMat4(const string& name, mat4 matrix) const
+void Shader::SetMat4(const std::string& name, glm::mat4 matrix) const
 {
 	glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, value_ptr(matrix));
 }
 
-void Shader::SetVec3(const string& name, vec3 vector) const
+void Shader::SetVec3(const std::string& name, glm::vec3 vector) const
 {
 	glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1, value_ptr(vector));
 }

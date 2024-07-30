@@ -6,19 +6,16 @@
 #include "glm/gtc/type_ptr.hpp"
 
 
-using namespace std;
-using namespace glm;
-
 class Camera
 {
 public:
 
-	Camera(const vec3& camPos, const vec3& camFront, const vec3& camUp);
+	Camera(const glm::vec3& camPos, const glm::vec3& camFront, const glm::vec3& camUp);
 
 	float camSpeed;
-	vec3 camPos;
-	vec3 camFront;
-	vec3 camUp;
+	glm::vec3 camPos;
+	glm::vec3 camFront;
+	glm::vec3 camUp;
 
 	float deltaTime; // 当前帧与上一帧的时间差
 	float lastFrame; // 上一帧的时间
@@ -32,7 +29,7 @@ public:
 	float fov;
 
 	void setCamView();
-	mat4 getCamView();
+	glm::mat4 getCamView();
 
 	void setCamFov(float fov);
 	float getCamFov();
@@ -40,10 +37,10 @@ public:
 	void setCamFront();
 
 private:
-	mat4 view;
+	glm::mat4 view;
 };
 
-Camera::Camera(const vec3& camPos, const vec3& camFront, const vec3& camUp)
+Camera::Camera(const glm::vec3& camPos, const glm::vec3& camFront, const glm::vec3& camUp)
 {
 	camSpeed = 5.0f;
 
@@ -69,7 +66,7 @@ void Camera::setCamView()
 	view = lookAt(camPos, camPos + camFront, camUp);
 }
 
-mat4 Camera::getCamView()
+glm::mat4 Camera::getCamView()
 {
 	return view;
 }
@@ -86,10 +83,10 @@ float Camera::getCamFov()
 
 void Camera::setCamFront()
 {
-	vec3 front;
-	front.x = cos(radians(yawValue)) * cos(radians(pitchValue)); // 因为视角默认朝向X轴正方向，所以应该用与X轴正方向的角度计算偏移
-	front.y = sin(radians(pitchValue));
-	front.z = sin(radians(yawValue)) * cos(radians(pitchValue)); // 因为视角默认朝向X轴正方向，所以应该用与X轴正方向的角度计算偏移
+	glm::vec3 front;
+	front.x = cos(glm::radians(yawValue)) * cos(glm::radians(pitchValue)); // 因为视角默认朝向X轴正方向，所以应该用与X轴正方向的角度计算偏移
+	front.y = sin(glm::radians(pitchValue));
+	front.z = sin(glm::radians(yawValue)) * cos(glm::radians(pitchValue)); // 因为视角默认朝向X轴正方向，所以应该用与X轴正方向的角度计算偏移
 
 	camFront = normalize(front);
 }

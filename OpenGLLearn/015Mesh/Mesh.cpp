@@ -26,9 +26,6 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-using namespace std;
-using namespace glm;
-
 #define WINDOW_WIDTH 2560
 #define WINDOW_HEIGHT 1440
 
@@ -36,10 +33,10 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 void mouse_callback(GLFWwindow* window, double posX, double posY);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-bool LoadTexture(const string&& filePath, GLuint& texture);
-void loadModel(string path);
+bool LoadTexture(const std::string&& filePath, GLuint& texture);
+void loadModel(std::string path);
 
-Camera myCam(vec3(2.0f, 7.0f, 6.0f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
+Camera myCam(glm::vec3(2.0f, 7.0f, 6.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
 int main()
 {
@@ -56,7 +53,7 @@ int main()
 	GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "OpenglWindow", NULL, NULL);
 	if (window == NULL)
 	{
-		cout << "Failed to create window." << endl;
+		std::cout << "Failed to create window." << std::endl;
 		glfwTerminate();  
 		return -1;
 	}
@@ -70,7 +67,7 @@ int main()
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
-		cout << "Failed to initialze GLAD." << endl;
+		std::cout << "Failed to initialze GLAD." << std::endl;
 		glfwTerminate();
 		return -1;
 	}
@@ -152,14 +149,14 @@ int main()
 	// 检查myShader程序有效性
 	if (myShader.Use() == false)
 	{
-		cout << "myShader program invalid!" << endl;
+		std::cout << "myShader program invalid!" << std::endl;
 		return -1;
 	}
 
 	// 检查lampShader程序有效性
 	if (lampShader.Use() == false)
 	{
-		cout << "lampShader program invalid!" << endl;
+		std::cout << "lampShader program invalid!" << std::endl;
 		return -1;
 	}
 
@@ -187,16 +184,16 @@ int main()
 			myCam.camPos.x, myCam.camPos.y, myCam.camPos.z, myCam.pitchValue, myCam.yawValue, myCam.fov);
 
 		// clear color
-		static vec3 bkgColor = vec3(0.0f, 0.0f, 0.0f);
+		static glm::vec3 bkgColor = glm::vec3(0.0f, 0.0f, 0.0f);
 		ImGui::ColorEdit3("background", (float*)&bkgColor);
 		glClearColor(bkgColor.r, bkgColor.g, bkgColor.b, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// direction light
-		static vec3 dirLight_direction = vec3(-1.0f, -1.0f, -1.0f);
-		static vec3 dirLight_ambient = vec3(0.2f);
-		static vec3 dirLight_diffuse = vec3(0.8f);
-		static vec3 dirLight_specular = vec3(1.0f);
+		static glm::vec3 dirLight_direction = glm::vec3(-1.0f, -1.0f, -1.0f);
+		static glm::vec3 dirLight_ambient = glm::vec3(0.2f);
+		static glm::vec3 dirLight_diffuse = glm::vec3(0.8f);
+		static glm::vec3 dirLight_specular = glm::vec3(1.0f);
 		ImGui::ColorEdit3("dirLight direction", (float*)&dirLight_direction);
 		ImGui::ColorEdit3("dirLight ambient", (float*)&dirLight_ambient);
 		ImGui::ColorEdit3("dirLight diffuse", (float*)&dirLight_diffuse);
@@ -204,9 +201,9 @@ int main()
 
 		// point light
 		static float posValue = 0.0f;
-		static vec3 pointLight_ambient = vec3(0.2f);
-		static vec3 pointLight_diffuse = vec3(0.8f);
-		static vec3 pointLight_specular = vec3(1.0f);
+		static glm::vec3 pointLight_ambient = glm::vec3(0.2f);
+		static glm::vec3 pointLight_diffuse = glm::vec3(0.8f);
+		static glm::vec3 pointLight_specular = glm::vec3(1.0f);
 		float constant = 1.0f; // 通常保持1就行了
 		float linear = 0.09f;
 		float quadratic = 0.032f;
@@ -249,16 +246,16 @@ int main()
 			}
 			default:
 			{
-				cout << "Light Fade Distance Error!" << endl;
+				std::cout << "Light Fade Distance Error!" << std::endl;
 				break;
 			}
 				
 		}
 
 		// spotLight
-		static vec3 spotLight_ambient = vec3(0.2f);
-		static vec3 spotLight_diffuse = vec3(0.8f);
-		static vec3 spotLight_specular = vec3(1.0f);
+		static glm::vec3 spotLight_ambient = glm::vec3(0.2f);
+		static glm::vec3 spotLight_diffuse = glm::vec3(0.8f);
+		static glm::vec3 spotLight_specular = glm::vec3(1.0f);
 		static float spotLight_innerCos = 5.0f;
 		static float spotLight_outerCos = 8.0f;
 		ImGui::ColorEdit3("spotLight ambient", (float*)&spotLight_ambient);
@@ -288,7 +285,7 @@ int main()
 		//相机位置是要实时更新的，而且启动了shader1之后又启动了shader2，shader1的设置会无效化
 		myShader.SetVec3("uni_viewPos", myCam.camPos); 
 
-		myShader.SetVec3("dirLight.direction", vec3(-1.0f, -1.0f, -1.0f));
+		myShader.SetVec3("dirLight.direction", glm::vec3(-1.0f, -1.0f, -1.0f));
 		myShader.SetVec3("dirLight.ambient", dirLight_ambient);
 		myShader.SetVec3("dirLight.diffuse", dirLight_diffuse);
 		myShader.SetVec3("dirLight.specular", dirLight_specular);
@@ -297,8 +294,8 @@ int main()
 		myShader.SetVec3("spotLight.ambient", spotLight_ambient);
 		myShader.SetVec3("spotLight.diffuse", spotLight_diffuse);
 		myShader.SetVec3("spotLight.specular", spotLight_specular);
-		myShader.SetFloat("spotLight.innerCos", cos(radians(spotLight_innerCos)));
-		myShader.SetFloat("spotLight.outerCos", cos(radians(spotLight_outerCos)));
+		myShader.SetFloat("spotLight.innerCos", cos(glm::radians(spotLight_innerCos)));
+		myShader.SetFloat("spotLight.outerCos", cos(glm::radians(spotLight_outerCos)));
 
 		for (int i = 0; i < 4; i++)
 		{
@@ -306,7 +303,7 @@ int main()
 			ss << "pointLight[" << i << "].";
 			std::string prefix = ss.str();
 
-			vec3 lightPos = vec3(5 * cos(posValue + i * 10), 10.0f, 5 * sin(posValue + i * 10));
+			glm::vec3 lightPos = glm::vec3(5 * cos(posValue + i * 10), 10.0f, 5 * sin(posValue + i * 10));
 			myShader.SetVec3(prefix + "lightPos", lightPos);
 			myShader.SetVec3(prefix + "ambient", pointLight_ambient);
 			myShader.SetVec3(prefix + "diffuse", pointLight_diffuse);
@@ -327,21 +324,21 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, texture_specular); //片段着色器会根据GL_TEXTURE1读取texture_specular的贴图数据
 
 		// view矩阵 world -> view
-		mat4 view;
+		glm::mat4 view;
 		myCam.setCamView();
 		view = myCam.getCamView();
 		myShader.SetMat4("uni_view", view);
 
 		// 投影矩阵 view -> clip
-		mat4 projection;
+		glm::mat4 projection;
 		float fov = myCam.getCamFov();
 
-		projection = perspective(radians(fov), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f); // 之前写成(float)(WINDOW_WIDTH / WINDOW_HEIGHT)了，精度丢失，导致结果是1
+		projection = glm::perspective(glm::radians(fov), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f); // 之前写成(float)(WINDOW_WIDTH / WINDOW_HEIGHT)了，精度丢失，导致结果是1
 		myShader.SetMat4("uni_projection", projection);
 
 		// model矩阵 local -> world
 
-		mat4 model = mat4(1.0f); // mat4初始化最好显示调用初始化为单位矩阵，因为新版本mat4 model可能是全0矩阵
+		glm::mat4 model = glm::mat4(1.0f); // glm::mat4初始化最好显示调用初始化为单位矩阵，因为新版本glm::mat4 model可能是全0矩阵
 		myShader.SetMat4("uni_model", model);
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
@@ -357,7 +354,7 @@ int main()
 
 		lampShader.SetMat4("uni_view", view);
 		lampShader.SetMat4("uni_projection", projection);
-		lampShader.SetVec3("uni_lightColor", vec3(1.0f));
+		lampShader.SetVec3("uni_lightColor", glm::vec3(1.0f));
 
 		for (int i = 0; i < 4; i++)
 		{
@@ -365,12 +362,12 @@ int main()
 			ss << "pointLight[" << i << "].";
 			std::string prefix = ss.str();
 
-			vec3 lightPos = vec3(5 * cos(posValue + i * 10), 10.0f, 5 * sin(posValue + i * 10));
+			glm::vec3 lightPos = glm::vec3(5 * cos(posValue + i * 10), 10.0f, 5 * sin(posValue + i * 10));
 
-			mat4 model = mat4(1.0f); // 初始化为单位矩阵，清空
-			model = scale(model, vec3(0.5f));
+			glm::mat4 model = glm::mat4(1.0f); // 初始化为单位矩阵，清空
+			model = scale(model, glm::vec3(0.5f));
 			model = translate(model, lightPos);
-			model = rotate(model, radians(45.0f + i * 10), vec3(1.0f, 1.0f, 0.0f));
+			model = rotate(model, glm::radians(45.0f + i * 10), glm::vec3(1.0f, 1.0f, 0.0f));
 
 			lampShader.SetMat4("uni_model", model);
 
@@ -475,7 +472,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 		myCam.fov = 95.0f;
 }
 
-bool LoadTexture(const string&& filePath, GLuint& texture)
+bool LoadTexture(const std::string&& filePath, GLuint& texture)
 {
 	// 申请显存空间并绑定GL_TEXTURE_2D对象
 	glGenTextures(1, &texture);
@@ -516,7 +513,7 @@ bool LoadTexture(const string&& filePath, GLuint& texture)
 	}
 	else
 	{
-		cout << "Failed to load texture！" << endl;
+		std::cout << "Failed to load texture！" << std::endl;
 		return false;
 	}
 	// 像素数据已经传给显存了，删除内存中的像素数据
@@ -525,14 +522,14 @@ bool LoadTexture(const string&& filePath, GLuint& texture)
 	return true;
 }
 
-void loadModel(string path)
+void loadModel(std::string path)
 {
 	Assimp::Importer import;
 	const aiScene * scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
-		cout << "ERROR::ASSIMP::" << import.GetErrorString() << endl;
+		std::cout << "ERROR::ASSIMP::" << import.GetErrorString() << std::endl;
 		return;
 	}
 	//directory = path.substr(0, path.find_last_of('/'));
