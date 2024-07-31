@@ -22,7 +22,7 @@ public:
 	Shader(const char* vertexShaderPath, const char* fragmentShaderPath);
 
 	//使用/激活程序
-	bool Use();
+	bool Use() const;
 
 	//删除Shader程序
 	void Remove();
@@ -132,7 +132,7 @@ Shader::Shader(const char* vertexShaderPath, const char* fragmentShaderPath)
 	glDeleteShader(fragmentShader);
 }
 
-bool Shader::Use()
+bool Shader::Use() const
 {
 	if (ID == 0)
 		return false;

@@ -38,7 +38,7 @@ public:
 	~Mesh();
 
 	void SetupMesh();
-	void DrawMesh(Shader shader, Shader shader_lamp, float posValue);
+	void DrawMesh(const Shader& shader, const Shader& shader_lamp, float posValue);
 	void DeleteMesh() const;
 
 private:
@@ -118,7 +118,7 @@ void Mesh::SetupMesh()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void Mesh::DrawMesh(Shader shader, Shader shader_lamp, float posValue)
+void Mesh::DrawMesh(const Shader& shader, const Shader& shader_lamp, float posValue)
 {
 	// 设置纹理单元 任何uniform设置操作一定要放到《对应的shader》启动之后！  --》不同的shader切换运行，另一个shader会关掉，写的数据会丢失数据
     // 也就是说启动了shader之后又启动了shader_lamp，之前在shader设置的就无效了！这种情况只能放到渲染循环里，不能放循环外面
