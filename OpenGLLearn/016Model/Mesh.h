@@ -147,6 +147,10 @@ void Mesh::DrawMesh(const Shader& shader, const Shader& shader_lamp, float posVa
 		glBindTexture(GL_TEXTURE_2D, textures[i].id);  //片段着色器会根据对应的纹理单元读取texture_diffuse的贴图数据
 	}
 
+	mat4 model = mat4(1.0f);           
+	model = scale(model, vec3(0.3f));
+	shader.SetMat4("uni_model", model);
+
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 
 	// 解绑
@@ -182,6 +186,8 @@ void Mesh::DeleteMesh() const
 	glDeleteBuffers(1, &VBO);
 	glDeleteBuffers(1, &EBO); 
 	glDeleteBuffers(1, &lampVAO);
-	glDeleteTextures(1, &textures[0].id);
-	glDeleteTextures(1, &textures[1].id);
+	for (int i = 0; i < textures.size(); i++)
+	{
+		glDeleteTextures(1, &textures[i].id);
+	}
 }
