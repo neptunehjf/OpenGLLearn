@@ -56,6 +56,15 @@ vec3 calcDirLight();
 vec3 calcPointLight();
 vec3 calcSpotLight();
 
+float near = 0.1; 
+float far  = 100.0; 
+
+float LinearizeDepth(float depth) 
+{
+    float z = depth * 2.0 - 1.0; // back to NDC 
+    return (2.0 * near * far) / (far + near - z * (far - near));    
+}
+
 void main()
 {
     vec3 color = vec3(0.0);
@@ -65,7 +74,9 @@ void main()
 	color += calcSpotLight();
 
 	// 各分量颜色混合
-	fragColor = vec4(color, 1.0);
+	float depth = LinearizeDepth(gl_FragCoord.z) / far; // 为了演示除以 far
+	fragColor = vec4(vec3(gl_FragCoord.z), 1.0);
+	//fragColor = vec4(color, 1.0);
 }
 
 vec3 calcDirLight()

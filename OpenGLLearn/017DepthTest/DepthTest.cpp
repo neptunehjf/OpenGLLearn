@@ -138,6 +138,8 @@ int main()
 
 	// 开启深度测试
 	glEnable(GL_DEPTH_TEST);
+	//glDepthMask(GL_FALSE);
+	glDepthFunc(GL_LESS);
 
 	//渲染循环
 	while (!glfwWindowShouldClose(window))
