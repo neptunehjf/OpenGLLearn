@@ -13,7 +13,6 @@
 #define WINDOW_WIDTH 1920
 #define WINDOW_HEIGHT 1080
 
-
 //顶点数据
 #pragma pack(1)
 struct Vertex
@@ -130,23 +129,29 @@ void Mesh::DrawMesh(const Shader& shader, const Shader& shader_lamp, float posVa
 	GLuint diffuseN = 0;
 	GLuint specularN = 0;
 	string type;
+
+	cout << textures.size() << endl;
 	for (int i = 0; i < textures.size(); i++)
 	{
 		type = textures[i].type;
 		if (type == "texture_diffuse")
 		{
 			diffuseN++;
+			string str1 = "material." + type + to_string(diffuseN);
+			cout << str1 << endl;
 			shader.SetInt("material." + type + to_string(diffuseN), i);
 		}
 		else if (type == "texture_specular")
 		{
+			specularN++;
+			string str2 = "material." + type + to_string(specularN);
+			cout << str2 << endl;
 			shader.SetInt("material." + type + to_string(specularN), i);
 		}
-
 		glActiveTexture(GL_TEXTURE0 + i);
 		glBindTexture(GL_TEXTURE_2D, textures[i].id);  //片段着色器会根据对应的纹理单元读取texture_diffuse的贴图数据
 	}
-
+	cout << endl;
 	mat4 model = mat4(1.0f);           
 	model = scale(model, vec3(0.3f));
 	shader.SetMat4("uni_model", model);

@@ -9,25 +9,7 @@ uniform vec3 uni_viewPos;
 struct Material
 {
 	sampler2D texture_diffuse1;
-	sampler2D texture_diffuse2;
-	sampler2D texture_diffuse3;
-	sampler2D texture_diffuse4;
-	sampler2D texture_diffuse5;
-	sampler2D texture_diffuse6;
-	sampler2D texture_diffuse7;
-	sampler2D texture_diffuse8;
-	sampler2D texture_diffuse9;
-	sampler2D texture_diffuse10;
 	sampler2D texture_specular1;
-	sampler2D texture_specular2;
-	sampler2D texture_specular3;
-	sampler2D texture_specular4;
-	sampler2D texture_specular5;
-	sampler2D texture_specular6;
-	sampler2D texture_specular7;
-	sampler2D texture_specular8;
-	sampler2D texture_specular9;
-	sampler2D texture_specular10;
 	int shininess;
 };
 
@@ -61,7 +43,7 @@ struct SpotLight
 	vec3 specular;
 };
 
-#define POINT_LIGHT_NUM 4
+#define POINT_LIGHT_NUM 1
 
 uniform Material material;
 uniform DirectionLight dirLight;
@@ -101,7 +83,7 @@ vec3 calcDirLight()
 	vec3 viewDir = normalize(uni_viewPos - fragPos);
 	vec3 reflectDir = normalize(reflect(-lightDir, norm));
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-	vec3 specular = spec * dirLight.specular * vec3(texture(material.texture_diffuse1, texCoord));
+	vec3 specular = spec * dirLight.specular * vec3(texture(material.texture_specular1, texCoord));
 
 	return (ambient + diffuse + specular);
 }
@@ -125,7 +107,7 @@ vec3 calcPointLight()
 		// 镜面光照specular
 		vec3 reflectDir = normalize(reflect(-lightDir, norm));
 		float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-		vec3 specular = spec * pointLight[i].specular * vec3(texture(material.texture_diffuse1, texCoord));
+		vec3 specular = spec * pointLight[i].specular * vec3(texture(material.texture_specular1, texCoord));
 
 		// 片段离光源的距离
 		float distance = length(pointLight[i].lightPos - fragPos);
@@ -164,7 +146,7 @@ vec3 calcSpotLight()
 	vec3 viewDir = normalize(uni_viewPos - fragPos);
 	vec3 reflectDir = normalize(reflect(-lightDir, norm));
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-	specular = intensity * spec * spotLight.specular * vec3(texture(material.texture_diffuse1, texCoord));
+	specular = intensity * spec * spotLight.specular * vec3(texture(material.texture_specular1, texCoord));
 
 	return (ambient + diffuse + specular);
 }

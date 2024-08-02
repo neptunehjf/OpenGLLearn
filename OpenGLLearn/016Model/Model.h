@@ -22,8 +22,11 @@ public:
     }
     void DrawModel(const Shader& shader, const Shader& shader_lamp, float posValue)
     {
+
         for (unsigned int i = 0; i < meshes.size(); i++)
             meshes[i].DrawMesh(shader, shader_lamp, posValue);
+
+        cout << "texture_loaded " << texture_loaded.size() << endl;
     }
     void DeleteModel()
     {
@@ -133,6 +136,8 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
     vector<Texture> specular = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");;
     textures.insert(textures.end(), specular.begin(), specular.end());
 
+    cout << endl;
+
     return Mesh(vertices, indices, textures);
 }
 
@@ -151,11 +156,11 @@ vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type,
             if (strcmp(texture_loaded[j].path.C_Str(), str.C_Str()) == 0) 
             {
                 // 跳过已经加载的贴图，直接复用texture_loaded的贴图数据就行了，不需要再从硬盘加载了。
+                cout << "skip" << endl;
                 skip = true;
                 textures.push_back(texture_loaded[j]);
                 break;
             }
-
         }
         if (!skip)
         {
@@ -171,6 +176,7 @@ vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type,
         }
 
     }
+    cout << "Load " + typeName + " texture count " << textures.size() << endl;
     return textures;
 }
 

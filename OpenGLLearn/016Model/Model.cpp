@@ -4,7 +4,6 @@
 #include <iostream>
 #include <cstdio>
 
-
 #include "Shader.h"
 #include "Camera.h"
 
@@ -170,7 +169,6 @@ int main()
 
 		SetUniformValue(myShader, lampShader);
 
-		//mesh.DrawMesh(myShader, lampShader, posValue);
 		model.DrawModel(myShader, lampShader, posValue);
 
 		ImGui::Render();
@@ -181,7 +179,6 @@ int main()
 
 	}
 
-	//mesh.DeleteMesh();
 	model.DeleteModel();
 	myShader.Remove();
 	lampShader.Remove();
