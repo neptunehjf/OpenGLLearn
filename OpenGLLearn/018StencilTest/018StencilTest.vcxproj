@@ -148,8 +148,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="imgui.ini" />
-    <None Include="lampShader.fs" />
-    <None Include="lampShader.vs" />
     <None Include="shader.fs" />
     <None Include="shader.vs" />
   </ItemGroup>
@@ -163,6 +161,11 @@
     <ClCompile Include="..\Dependency\Src\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\Dependency\Src\imgui\imgui_widgets.cpp" />
     <ClCompile Include="StencilTest.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="dummy_specular.png" />
+    <Image Include="marble.jpg" />
+    <Image Include="metal.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -13,20 +13,21 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb/stb_image.h"
 
-class Model
+class Model : public Mesh //设置继承到的成员的《最大访问权限》为public,实际权限还是要以父类的权限为准
 {
 public:
     Model(const string&& path)
     {
         loadModel(path);
     }
-    void DrawModel(const Shader& shader, const Shader& shader_lamp, float posValue)
+    void DrawModel(const Shader& shader)
     {
-
         for (unsigned int i = 0; i < meshes.size(); i++)
-            meshes[i].DrawMesh(shader, shader_lamp, posValue);
-
-        cout << "texture_loaded " << texture_loaded.size() << endl;
+        {
+            meshes[i].SetScale(m_scale);
+            meshes[i].SetTranslate(m_translate);
+            meshes[i].DrawMesh(shader);
+        }    
     }
     void DeleteModel()
     {
@@ -54,7 +55,7 @@ private:
 void Model::loadModel(string path)
 {
     Assimp::Importer import;
-    const aiScene * scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+    const aiScene * scene = import.ReadFile(path, aiProcess_Triangulate); //  | aiProcess_FlipUVs
 
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
     {
@@ -136,8 +137,6 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
     vector<Texture> specular = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");;
     textures.insert(textures.end(), specular.begin(), specular.end());
 
-    cout << endl;
-
     return Mesh(vertices, indices, textures);
 }
 
@@ -146,7 +145,6 @@ vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type,
     vector<Texture> textures;
     for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
     {
-
         aiString str;
         mat->GetTexture(type, i, &str);
 
@@ -156,7 +154,6 @@ vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type,
             if (strcmp(texture_loaded[j].path.C_Str(), str.C_Str()) == 0) 
             {
                 // 跳过已经加载的贴图，直接复用texture_loaded的贴图数据就行了，不需要再从硬盘加载了。
-                cout << "skip" << endl;
                 skip = true;
                 textures.push_back(texture_loaded[j]);
                 break;
@@ -176,7 +173,6 @@ vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type,
         }
 
     }
-    cout << "Load " + typeName + " texture count " << textures.size() << endl;
     return textures;
 }
 
@@ -204,17 +200,6 @@ GLuint Model::TextureFromFile(const string&& filePath, const string&& directory)
     else if (channel == 4)
         format = GL_RGBA;
 
-    // debug code
- 
-    //printf("**********************************************************\n");
-    //for (int i = 1; i <= width * height; i++)
-    //{
-    //	printf("%02x ", data[i]);
-    //	if (i % width == 0)
-    //		printf("\n");
-    //}
-    //printf("**********************************************************\n"); 
-
     if (data)
     {
         // 贴图数据 内存 -> 显存
@@ -231,4 +216,3 @@ GLuint Model::TextureFromFile(const string&& filePath, const string&& directory)
 
     return textureID;
 }
-

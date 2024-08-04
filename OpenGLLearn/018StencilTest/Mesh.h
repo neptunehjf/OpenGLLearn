@@ -36,14 +36,23 @@ struct Texture
 class Mesh
 {
 public:
+	Mesh();
 	Mesh(const vector<Vertex>& vertices, const vector<GLuint>& indices, const vector<Texture>& textures);
 	~Mesh();
 
-	void SetupMesh();
-	void DrawMesh(const Shader& shader, const Shader& shader_lamp, float posValue);
-	void DeleteMesh() const;
+	void DrawMesh(const Shader& shader);
+	void DeleteMesh();
+
+	void SetScale(vec3 scale);
+	void SetTranslate(vec3 scale);
+
+protected:  //只允许子类访问
+	vec3 m_scale;
+	vec3 m_translate;
 
 private:
+	void SetupMesh();
+
 	vector<Vertex> vertices;
 	vector<GLuint> indices;
 	vector<Texture> textures;
@@ -53,6 +62,17 @@ private:
 	GLuint EBO;
 	GLuint lampVAO;
 };
+
+Mesh::Mesh()
+{
+	VAO = 0;
+	VBO = 0;
+	EBO = 0;
+	lampVAO = 0;
+
+	m_scale = vec3(1.0f);
+	m_translate = vec3(0.0f);
+}
 
 Mesh::Mesh(const vector<Vertex>& vertices, const vector<GLuint>& indices, const vector<Texture>& textures)
 {
@@ -64,6 +84,9 @@ Mesh::Mesh(const vector<Vertex>& vertices, const vector<GLuint>& indices, const 
 	VBO = 0;
 	EBO = 0;
 	lampVAO = 0;
+
+	m_scale = vec3(1.0f);
+	m_translate = vec3(1.0f);
 
 	SetupMesh();
 }
@@ -120,7 +143,7 @@ void Mesh::SetupMesh()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void Mesh::DrawMesh(const Shader& shader, const Shader& shader_lamp, float posValue)
+void Mesh::DrawMesh(const Shader& shader)
 {
 	// 设置纹理单元 任何uniform设置操作一定要放到《对应的shader》启动之后！  --》不同的shader切换运行，另一个shader会关掉，写的数据会丢失数据
     // 也就是说启动了shader之后又启动了shader_lamp，之前在shader设置的就无效了！这种情况只能放到渲染循环里，不能放循环外面
@@ -130,62 +153,35 @@ void Mesh::DrawMesh(const Shader& shader, const Shader& shader_lamp, float posVa
 	GLuint specularN = 0;
 	string type;
 
-	cout << textures.size() << endl;
 	for (int i = 0; i < textures.size(); i++)
 	{
 		type = textures[i].type;
 		if (type == "texture_diffuse")
 		{
 			diffuseN++;
-			string str1 = "material." + type + to_string(diffuseN);
-			cout << str1 << endl;
-			shader.SetInt("material." + type + to_string(diffuseN), i);
+			shader.SetInt("material." + type + to_string(diffuseN), i);   // 不清楚这里一次draw有多个贴图要怎么搞，这里代码姑且保留
 		}
 		else if (type == "texture_specular")
 		{
 			specularN++;
-			string str2 = "material." + type + to_string(specularN);
-			cout << str2 << endl;
 			shader.SetInt("material." + type + to_string(specularN), i);
 		}
 		glActiveTexture(GL_TEXTURE0 + i);
 		glBindTexture(GL_TEXTURE_2D, textures[i].id);  //片段着色器会根据对应的纹理单元读取texture_diffuse的贴图数据
 	}
-	cout << endl;
+
 	mat4 model = mat4(1.0f);           
-	model = scale(model, vec3(0.3f));
+	model = scale(model, m_scale);
+	model = translate(model, m_translate);
 	shader.SetMat4("uni_model", model);
 
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 
 	// 解绑
 	glBindVertexArray(0);
-
-	//glBindVertexArray(lampVAO);
-	//shader_lamp.Use();
-	//for (int i = 0; i < 4; i++)
-	//{
-	//	stringstream ss;
-	//	ss << "pointLight[" << i << "].";
-	//	string prefix = ss.str();
-
-	//	vec3 lightPos = vec3(5 * cos(posValue + i * 10), 10.0f, 5 * sin(posValue + i * 10));
-
-	//	mat4 model = mat4(1.0f);  // 初始化为单位矩阵，清空
-	//	model = scale(model, vec3(0.5f));
-	//	model = translate(model, lightPos);
-	//	model = rotate(model, radians(45.0f + i * 10), vec3(1.0f, 1.0f, 0.0f));
-
-	//	shader_lamp.SetMat4("uni_model", model);
-
-	//	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-	//}
-
-	//// 解绑
-	//glBindVertexArray(0);
 }
 
-void Mesh::DeleteMesh() const
+void Mesh::DeleteMesh()
 {
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
@@ -195,4 +191,14 @@ void Mesh::DeleteMesh() const
 	{
 		glDeleteTextures(1, &textures[i].id);
 	}
+}
+
+void Mesh::SetScale(vec3 scale)
+{
+	m_scale = scale;
+}
+
+void Mesh::SetTranslate(vec3 translate)
+{
+	m_translate = translate;
 }

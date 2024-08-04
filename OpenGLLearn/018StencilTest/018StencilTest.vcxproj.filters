@@ -38,12 +38,6 @@
     <None Include="imgui.ini">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="lampShader.fs">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="lampShader.vs">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="shader.fs">
       <Filter>Resource Files</Filter>
     </None>
@@ -79,5 +73,16 @@
     <ClCompile Include="..\Dependency\Src\imgui\imgui_tables.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="marble.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="metal.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="dummy_specular.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>
