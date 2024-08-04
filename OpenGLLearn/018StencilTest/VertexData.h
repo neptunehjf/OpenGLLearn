@@ -45,7 +45,7 @@ const vector<Vertex> g_cubeVertices =
 	{vec3(-0.5f,  0.5f,  0.5f),   vec3(0.0f,  1.0f,  0.0f),  vec2(0.0f, 0.0f)}
 };
 
-const vector<GLuint> g_indices =
+const vector<GLuint> g_cubeIndices =
 {
     0, 1, 2,
     0, 2, 3,
@@ -59,4 +59,10 @@ const vector<GLuint> g_indices =
     16, 18, 19,
     20, 21, 22,
     20, 22, 23
+};
+
+const vector<GLuint> g_planeIndices =
+{
+	0, 1, 2,
+	0, 2, 3
 };

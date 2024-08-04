@@ -138,7 +138,7 @@ bool Shader::Use() const
 	if (ID == 0)
 		return false;
 	else
-		glUseProgram(ID);
+		glUseProgram(ID);  // 开销相对较小，至少在我这个项目，重复调用问题也不大
 
 	return true;
 }

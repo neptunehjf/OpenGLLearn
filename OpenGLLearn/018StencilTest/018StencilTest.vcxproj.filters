@@ -38,10 +38,13 @@
     <None Include="imgui.ini">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="shader.fs">
+    <None Include="Shader.fs">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="shader.vs">
+    <None Include="Shader.vs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Shader_Outline.fs">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

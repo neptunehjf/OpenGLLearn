@@ -31,7 +31,6 @@ void GetImguiValue();
 void SetValueToShader(Shader& shader);
 
 Camera myCam(vec3(1.5f, 2.0f, 3.8f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
-//Shader test("shader.vs", "shader.fs");  不能声明全局变量，因为shader的相关操作必须在glfw初始化完成后
 
 static float posValue = 0.0f;
 static vec3 bkgColor = vec3(0.0f, 0.0f, 0.0f);
@@ -62,7 +61,7 @@ int main()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// 绘制窗口
-	GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "OpenglWindow", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "koalahjf", NULL, NULL);
 	if (window == NULL)
 	{
 		cout << "Failed to create window." << endl;
@@ -95,7 +94,9 @@ int main()
 	ImGui_ImplGlfw_InitForOpenGL(window, true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
 	ImGui_ImplOpenGL3_Init();
 
-	Shader myShader("shader.vs", "shader.fs");
+	// 创建shader 不能声明全局变量，因为shader的相关操作必须在glfw初始化完成后
+	Shader myShader("Shader.vs", "Shader.fs");
+	Shader outlineShader("Shader.vs", "Shader_Outline.fs");
 
 	/* 加载贴图 */
     // 翻转y轴，使图片和opengl坐标一致  但是如果assimp 导入模型时设置了aiProcess_FlipUVs，就不能重复设置了
@@ -104,34 +105,33 @@ int main()
 	// 加载贴图
 	GLuint texture1 = 0;
 	GLuint texture2 = 0;
-	GLuint texture3 = 0;
+	GLuint dummy = 0;
 	bool ret1, ret2, ret3;
 	ret1 = LoadTexture("metal.png", texture1);
 	ret2 = LoadTexture("marble.jpg", texture2);
-	ret3 = LoadTexture("dummy_specular.png", texture3);  //自己做的占位贴图，占一个sampler位置，否则会被其他mesh的高光贴图替代
+	ret3 = LoadTexture("dummy_specular.png", dummy);  //自己做的占位贴图，占一个sampler位置，否则会被其他mesh的高光贴图替代
 	if (ret1 == false || ret2 == false || ret3 == false)
 		return -1;
 
 	const vector<Texture> textures1 =
 	{
 		{texture1, "texture_diffuse"},
-		{texture3, "texture_specular"}
+		{dummy, "texture_specular"}
 	};
 
 	const vector<Texture> textures2 =
 	{
 		{texture2, "texture_diffuse"},
-		{texture3, "texture_specular"}
+		{dummy, "texture_specular"}
 	};
 
-	Mesh plane(g_planeVertices, g_indices, textures1);
+	Mesh plane(g_planeVertices, g_planeIndices, textures1);
 	plane.SetScale(vec3(3.0f, 1.0f, 3.0f));           
-	Mesh cube(g_cubeVertices, g_indices, textures2);
-	cube.SetScale(vec3(1.0f));
+	Mesh cube(g_cubeVertices, g_cubeIndices, textures2);
 
 	Model model("nanosuit/nanosuit.obj");
 	model.SetScale(vec3(0.1f));
-	model.SetTranslate(vec3(10.0f, 5.0f, 0.0f));
+	model.SetTranslate(vec3(1.0f, 0.5f, 0.0f));
 
 	// 检查myShader程序有效性
 	if (myShader.Use() == false)
@@ -139,11 +139,12 @@ int main()
 		cout << "myShader program invalid!" << endl;
 		return -1;
 	}
-
-	// 开启深度测试
-	glEnable(GL_DEPTH_TEST);
-	//glDepthMask(GL_FALSE); // GL_FALSE 是 禁止写深度buffer的意思
-	glDepthFunc(GL_LESS);
+	// 检查myShader程序有效性
+	if (outlineShader.Use() == false)
+	{
+		cout << "outlineShader program invalid!" << endl;
+		return -1;
+	}
 
 	//渲染循环
 	while (!glfwWindowShouldClose(window))
@@ -169,25 +170,62 @@ int main()
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
 		ImGui::End();
 
-		// clear color
-		glClearColor(bkgColor.r, bkgColor.g, bkgColor.b, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 		SetValueToShader(myShader);
+		SetValueToShader(outlineShader); // 多个shader真的很容易漏
 
-		model.DrawModel(myShader);
+		// 开启深度测试
+		glEnable(GL_DEPTH_TEST);
+		//glDepthMask(GL_FALSE); // GL_FALSE 是 禁止写深度buffer的意思
+        //glDepthFunc(GL_LESS);
+
+		//开启模板测试
+		glEnable(GL_STENCIL_TEST);
+		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); //深度测试和模板测试都通过时replace buffer with ref
+
+		//打开写操作
+		glStencilMask(0xFF);
+
+		// 清空各个缓冲区
+		glClearColor(bkgColor.r, bkgColor.g, bkgColor.b, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+		// 绘制地板，不需要写入stencil缓冲
+		glStencilMask(0x00);//关闭写操作
 		plane.DrawMesh(myShader);
+
+
+		// 绘制两个立方体，并且在每个像素/片段 写入1到stencil缓冲
+		glStencilMask(0xFF);//打开写操作
+		glStencilFunc(GL_ALWAYS, 1, 0xFF); //所有绘制的像素/片段总是无条件地写1到stencil缓冲
+		cube.SetScale(vec3(1.0f));
 		cube.SetTranslate(vec3(1.0f, 1.0f, 1.0f));
 		cube.DrawMesh(myShader);
 		cube.SetTranslate(vec3(0.0f, 1.0f, -1.0f));
 		cube.DrawMesh(myShader);
+
+		// 绘制人物
+		model.DrawModel(myShader);
+
+		// 缓冲写入之后，再禁止写入缓冲，并且开始真正的Stencil测试
+		glStencilMask(0x00);//关闭写操作
+		glStencilFunc(GL_NOTEQUAL, 1, 0xFF); //所有绘制的像素/片段总是无条件地写1到stencil缓冲
+
+		glDisable(GL_DEPTH_TEST);
+		cube.SetScale(vec3(1.2f));
+		cube.SetTranslate(vec3(1.0f, 1.0f, 1.0f));
+		cube.DrawMesh(outlineShader);
+		cube.SetTranslate(vec3(0.0f, 1.0f, -1.0f));
+		cube.DrawMesh(outlineShader);
+
+		// 绘制人物
+		model.SetScale(vec3(0.13f));
+		model.DrawModel(outlineShader);
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		// 缓冲区交换 轮询事件
 		glfwSwapBuffers(window);
-
 	}
 
 	model.DeleteModel();

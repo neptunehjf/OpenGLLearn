@@ -170,9 +170,9 @@ void Mesh::DrawMesh(const Shader& shader)
 		glBindTexture(GL_TEXTURE_2D, textures[i].id);  //片段着色器会根据对应的纹理单元读取texture_diffuse的贴图数据
 	}
 
-	mat4 model = mat4(1.0f);           
-	model = scale(model, m_scale);
+	mat4 model = mat4(1.0f);  
 	model = translate(model, m_translate);
+	model = scale(model, m_scale);
 	shader.SetMat4("uni_model", model);
 
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);

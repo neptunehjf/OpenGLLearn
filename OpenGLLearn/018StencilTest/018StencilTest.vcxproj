@@ -148,8 +148,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="imgui.ini" />
-    <None Include="shader.fs" />
-    <None Include="shader.vs" />
+    <None Include="Shader.fs" />
+    <None Include="Shader.vs" />
+    <None Include="Shader_Outline.fs" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Dependency\Src\glad\src\glad.c" />
