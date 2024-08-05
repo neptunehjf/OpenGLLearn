@@ -21,6 +21,7 @@
 #include "Model.h"
 #include "VertexData.h"
 #include "namespace.h"
+#include <map>
 
 #define CHARACTRER_SCALE_DEFAULT 0.1f
 #define CHARACTRER_SCALE_OUTLINE 0.103f
@@ -116,7 +117,8 @@ int main()
 	LoadTexture("metal.png", t_metal, GL_REPEAT, GL_REPEAT);
 	LoadTexture("marble.jpg", t_marble, GL_REPEAT, GL_REPEAT);
 	LoadTexture("dummy_specular.png", t_dummy, GL_REPEAT, GL_REPEAT);  //自己做的占位贴图，占一个sampler位置，否则会被其他mesh的高光贴图替代
-	LoadTexture("grass.png", t_grass, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+	//LoadTexture("grass.png", t_grass, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+	LoadTexture("window.png", t_grass, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
 
 	const vector<Texture> planeTexture =
 	{
@@ -163,6 +165,10 @@ int main()
 		return -1;
 	}
 
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	//渲染循环
 	while (!glfwWindowShouldClose(window))
 	{
@@ -190,69 +196,36 @@ int main()
 		SetValueToShader(myShader);
 		SetValueToShader(outlineShader); // 多个shader真的很容易漏
 
-		// 开启深度测试
-		glEnable(GL_DEPTH_TEST);
-		//glDepthMask(GL_FALSE); // GL_FALSE 是 禁止写深度buffer的意思
-        //glDepthFunc(GL_LESS);
-
-		//开启模板测试
-		glEnable(GL_STENCIL_TEST);
-		glStencilOp(GL_KEEP, GL_REPLACE, GL_REPLACE); //深度测试和模板测试都通过时replace buffer with ref
-
-		//打开写操作
-		glStencilMask(0xFF);
-
 		// 清空各个缓冲区
 		glClearColor(bkgColor.r, bkgColor.g, bkgColor.b, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// 绘制地板，不需要写入stencil缓冲
-		glStencilMask(0x00);//关闭写操作
+		// 绘制地板
 		plane.DrawMesh(myShader);
 
-		// 绘制两个立方体，并且在每个像素/片段 写入1到stencil缓冲
-		glStencilMask(0xFF);//打开写操作
-		glStencilFunc(GL_ALWAYS, 1, 0xFF); //所有绘制的像素/片段总是无条件地写1到stencil缓冲
+		// 绘制两个立方体
 		cube.SetScale(vec3(CUBE_SCALE_DEFAULT));
 		cube.SetTranslate(vec3(1.0f, 1.5f, 1.0f));
 		cube.DrawMesh(myShader);
 		cube.SetTranslate(vec3(0.0f, 1.5f, -1.0f));
 		cube.DrawMesh(myShader);
 
-		// 缓冲写入之后，再禁止写入缓冲，并且开始真正的Stencil测试
-		//glClear(GL_DEPTH_BUFFER_BIT); // 清空深度缓存，这样边框可以有透视效果
-		glStencilMask(0x00);//关闭写操作
-		glStencilFunc(GL_NOTEQUAL, 1, 0xFF); //所有绘制的像素/片段总是无条件地写1到stencil缓冲
-		
-		cube.SetScale(vec3(CUBE_SCALE_OUTLINE));
-		cube.SetTranslate(vec3(1.0f, 1.5f, 1.0f));
-		cube.DrawMesh(outlineShader);
-		cube.SetTranslate(vec3(0.0f, 1.5f, -1.0f));
-		cube.DrawMesh(outlineShader);
-
 		// 绘制人物
-		glStencilMask(0xFF);//打开写操作
-		glClear(GL_STENCIL_BUFFER_BIT);
-		glStencilFunc(GL_ALWAYS, 1, 0xFF); //所有绘制的像素/片段总是无条件地写1到stencil缓冲
-		nanosuit.SetScale(vec3(CHARACTRER_SCALE_DEFAULT)); //绘制之前必须要重设，不然就会变成绘制轮廓时设置的值了
+		nanosuit.SetScale(vec3(0.1f));
 		nanosuit.DrawModel(myShader);
 
-		glStencilMask(0x00);//关闭写操作
-		
-		// 绘制人物轮廓
-		//glClear(GL_DEPTH_BUFFER_BIT); // 清空深度缓存，这样边框可以有透视效果
-		glDisable(GL_DEPTH_TEST);       // 关闭深度测试，边框也可以有透视效果，而且不会清空缓存。这种方式比较好
-		glStencilMask(0x00);
-		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-		nanosuit.SetScale(vec3(CHARACTRER_SCALE_OUTLINE));
-		nanosuit.DrawModel(outlineShader);
-
-        // 绘制草
-		glDisable(GL_STENCIL_TEST);
-		glEnable(GL_DEPTH_TEST);
+		// 按窗户离摄像机间的距离排序，map默认是升序排序，也就是从近到远
+		// 必须放在render loop里，因为摄像机是实时改变的
+		map<float, vec3> sorted;
 		for (int i = 0; i < grassPositions.size(); i++)
 		{
-			grass.SetTranslate(grassPositions[i]);
+			float distance = length(myCam.camPos - grassPositions[i]);
+			sorted[distance] = grassPositions[i];
+		}
+		// 透明物体必须最后绘制，并且透明物体之间要从远到近绘制
+		for (map<float, vec3>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); it++)
+		{
+			grass.SetTranslate(it->second);
 			grass.DrawMesh(myShader);
 		}
 
@@ -367,16 +340,6 @@ bool LoadTexture(const string&& filePath, GLuint& texture, const GLint param_s, 
 		format = GL_RGB;
 	else if (channel == 4)
 		format = GL_RGBA;
-
-
-	//printf("**********************************************************\n");
-	//for (int i = 1; i <= width * height; i++)
-	//{
-	//	printf("%02x ", data[i]);
-	//	if (i % width == 0)
-	//		printf("\n");
-	//}
-	//printf("**********************************************************\n");
 
 	if (data)
 	{
