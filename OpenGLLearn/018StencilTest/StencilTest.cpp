@@ -22,6 +22,11 @@
 #include "VertexData.h"
 #include "namespace.h"
 
+#define CHARACTRER_SCALE_DEFAULT 0.1f
+#define CHARACTRER_SCALE_OUTLINE 0.103f
+#define CUBE_SCALE_DEFAULT 1.0f
+#define CUBE_SCALE_OUTLINE 1.05f
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 void mouse_callback(GLFWwindow* window, double posX, double posY);
@@ -125,12 +130,10 @@ int main()
 		{dummy, "texture_specular"}
 	};
 
-	Mesh plane(g_planeVertices, g_planeIndices, textures1);
-	plane.SetScale(vec3(3.0f, 1.0f, 3.0f));           
+	Mesh plane(g_planeVertices, g_planeIndices, textures1); 
+	plane.SetScale(vec3(3.0f, 1.0f, 3.0f));
 	Mesh cube(g_cubeVertices, g_cubeIndices, textures2);
-
 	Model model("nanosuit/nanosuit.obj");
-	model.SetScale(vec3(0.1f));
 	model.SetTranslate(vec3(1.0f, 0.5f, 0.0f));
 
 	// 检查myShader程序有效性
@@ -180,7 +183,7 @@ int main()
 
 		//开启模板测试
 		glEnable(GL_STENCIL_TEST);
-		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); //深度测试和模板测试都通过时replace buffer with ref
+		glStencilOp(GL_KEEP, GL_REPLACE, GL_REPLACE); //深度测试和模板测试都通过时replace buffer with ref
 
 		//打开写操作
 		glStencilMask(0xFF);
@@ -193,32 +196,40 @@ int main()
 		glStencilMask(0x00);//关闭写操作
 		plane.DrawMesh(myShader);
 
-
 		// 绘制两个立方体，并且在每个像素/片段 写入1到stencil缓冲
 		glStencilMask(0xFF);//打开写操作
 		glStencilFunc(GL_ALWAYS, 1, 0xFF); //所有绘制的像素/片段总是无条件地写1到stencil缓冲
-		cube.SetScale(vec3(1.0f));
+		cube.SetScale(vec3(CUBE_SCALE_DEFAULT));
 		cube.SetTranslate(vec3(1.0f, 1.0f, 1.0f));
 		cube.DrawMesh(myShader);
 		cube.SetTranslate(vec3(0.0f, 1.0f, -1.0f));
 		cube.DrawMesh(myShader);
-
-		// 绘制人物
-		model.DrawModel(myShader);
 
 		// 缓冲写入之后，再禁止写入缓冲，并且开始真正的Stencil测试
+		//glClear(GL_DEPTH_BUFFER_BIT); // 清空深度缓存，这样边框可以有透视效果
 		glStencilMask(0x00);//关闭写操作
 		glStencilFunc(GL_NOTEQUAL, 1, 0xFF); //所有绘制的像素/片段总是无条件地写1到stencil缓冲
-
-		glDisable(GL_DEPTH_TEST);
-		cube.SetScale(vec3(1.2f));
+		
+		cube.SetScale(vec3(CUBE_SCALE_OUTLINE));
 		cube.SetTranslate(vec3(1.0f, 1.0f, 1.0f));
 		cube.DrawMesh(outlineShader);
 		cube.SetTranslate(vec3(0.0f, 1.0f, -1.0f));
 		cube.DrawMesh(outlineShader);
 
 		// 绘制人物
-		model.SetScale(vec3(0.13f));
+		glStencilMask(0xFF);//打开写操作
+		glClear(GL_STENCIL_BUFFER_BIT);
+		glStencilFunc(GL_ALWAYS, 1, 0xFF); //所有绘制的像素/片段总是无条件地写1到stencil缓冲
+		model.SetScale(vec3(CHARACTRER_SCALE_DEFAULT)); //绘制之前必须要重设，不然就会变成绘制轮廓时设置的值了
+		model.DrawModel(myShader);
+
+		glStencilMask(0x00);//关闭写操作
+		
+		// 绘制人物轮廓
+		glClear(GL_DEPTH_BUFFER_BIT); // 清空深度缓存，这样边框可以有透视效果
+		glStencilMask(0x00);
+		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+		model.SetScale(vec3(CHARACTRER_SCALE_OUTLINE));
 		model.DrawModel(outlineShader);
 
 		ImGui::Render();
