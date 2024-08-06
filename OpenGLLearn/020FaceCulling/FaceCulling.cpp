@@ -102,7 +102,6 @@ int main()
 
 	// 创建shader 不能声明全局变量，因为shader的相关操作必须在glfw初始化完成后
 	Shader myShader("Shader.vs", "Shader.fs");
-	Shader outlineShader("Shader.vs", "Shader_Outline.fs");
 
 	/* 加载贴图 */
     // 翻转y轴，使图片和opengl坐标一致  但是如果assimp 导入模型时设置了aiProcess_FlipUVs，就不能重复设置了
@@ -112,13 +111,12 @@ int main()
 	GLuint t_metal = 0;
 	GLuint t_marble = 0;
 	GLuint t_dummy = 0;
-	GLuint t_grass = 0;
+	GLuint t_window = 0;
 
 	LoadTexture("metal.png", t_metal, GL_REPEAT, GL_REPEAT);
 	LoadTexture("marble.jpg", t_marble, GL_REPEAT, GL_REPEAT);
 	LoadTexture("dummy_specular.png", t_dummy, GL_REPEAT, GL_REPEAT);  //自己做的占位贴图，占一个sampler位置，否则会被其他mesh的高光贴图替代
-	//LoadTexture("grass.png", t_grass, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
-	LoadTexture("window.png", t_grass, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+	LoadTexture("window.png", t_window, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
 
 	const vector<Texture> planeTexture =
 	{
@@ -132,9 +130,9 @@ int main()
 		{t_dummy, "texture_specular"}
 	};
 
-	const vector<Texture> grassTexture =
+	const vector<Texture> windowTexture =
 	{
-		{t_grass, "texture_diffuse"},
+		{t_window, "texture_diffuse"},
 		{t_dummy, "texture_specular"}
 	};
 
@@ -144,24 +142,18 @@ int main()
 	Model nanosuit("nanosuit/nanosuit.obj");
 	nanosuit.SetTranslate(vec3(1.0f, 1.0f, 0.0f));
 
-	Mesh grass(g_grassVertices, g_grassIndices, grassTexture);
-	vector<vec3> grassPositions;
-	grassPositions.push_back(glm::vec3(-1.5f, 1.0f, -0.48f));
-	grassPositions.push_back(glm::vec3(1.5f, 1.0f, 0.51f));
-	grassPositions.push_back(glm::vec3(0.0f, 1.0f, 0.7f));
-	grassPositions.push_back(glm::vec3(-0.3f, 1.0f, -2.3f));
-	grassPositions.push_back(glm::vec3(0.5f, 1.0f, -0.6f));
+	Mesh square(g_squareVertices, g_squareIndices, windowTexture);
+	vector<vec3> squarePositions;
+	squarePositions.push_back(glm::vec3(-1.5f, 1.0f, -0.48f));
+	squarePositions.push_back(glm::vec3(1.5f, 1.0f, 0.51f));
+	squarePositions.push_back(glm::vec3(0.0f, 1.0f, 0.7f));
+	squarePositions.push_back(glm::vec3(-0.3f, 1.0f, -2.3f));
+	squarePositions.push_back(glm::vec3(0.5f, 1.0f, -0.6f));
 
 	// 检查myShader程序有效性
 	if (myShader.Use() == false)
 	{
 		cout << "myShader program invalid!" << endl;
-		return -1;
-	}
-	// 检查outlineShader程序有效性
-	if (outlineShader.Use() == false)
-	{
-		cout << "outlineShader program invalid!" << endl;
 		return -1;
 	}
 
@@ -194,7 +186,6 @@ int main()
 		ImGui::End();
 
 		SetValueToShader(myShader);
-		SetValueToShader(outlineShader); // 多个shader真的很容易漏
 
 		// 清空各个缓冲区
 		glClearColor(bkgColor.r, bkgColor.g, bkgColor.b, 1.0f);
@@ -203,12 +194,17 @@ int main()
 		// 绘制地板
 		plane.DrawMesh(myShader);
 
+		glEnable(GL_CULL_FACE);
+		//glCullFace(GL_FRONT);
+		//glFrontFace(GL_CW);
+		
 		// 绘制两个立方体
 		cube.SetScale(vec3(CUBE_SCALE_DEFAULT));
 		cube.SetTranslate(vec3(1.0f, 1.5f, 1.0f));
 		cube.DrawMesh(myShader);
 		cube.SetTranslate(vec3(0.0f, 1.5f, -1.0f));
 		cube.DrawMesh(myShader);
+		glDisable(GL_CULL_FACE);
 
 		// 绘制人物
 		nanosuit.SetScale(vec3(0.1f));
@@ -217,16 +213,16 @@ int main()
 		// 按窗户离摄像机间的距离排序，map默认是升序排序，也就是从近到远
 		// 必须放在render loop里，因为摄像机是实时改变的
 		map<float, vec3> sorted;
-		for (int i = 0; i < grassPositions.size(); i++)
+		for (int i = 0; i < squarePositions.size(); i++)
 		{
-			float distance = length(myCam.camPos - grassPositions[i]);
-			sorted[distance] = grassPositions[i];
+			float distance = length(myCam.camPos - squarePositions[i]);
+			sorted[distance] = squarePositions[i];
 		}
 		// 透明物体必须最后绘制，并且透明物体之间要从远到近绘制
 		for (map<float, vec3>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); it++)
 		{
-			grass.SetTranslate(it->second);
-			grass.DrawMesh(myShader);
+			square.SetTranslate(it->second);
+			square.DrawMesh(myShader);
 		}
 
 		ImGui::Render();
@@ -361,32 +357,37 @@ bool LoadTexture(const string&& filePath, GLuint& texture, const GLint param_s, 
 
 void GetImguiValue()
 {
-	// clear color
-	ImGui::ColorEdit3("background", (float*)&bkgColor);
+	if (ImGui::TreeNodeEx("Lighting", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		// clear color
+		ImGui::ColorEdit3("background", (float*)&bkgColor);
 
-	// direction light
-	ImGui::ColorEdit3("dirLight direction", (float*)&dirLight_direction);
-	ImGui::ColorEdit3("dirLight ambient", (float*)&dirLight_ambient);
-	ImGui::ColorEdit3("dirLight diffuse", (float*)&dirLight_diffuse);
-	ImGui::ColorEdit3("dirLight specular", (float*)&dirLight_specular);
+		// direction light
+		ImGui::ColorEdit3("dirLight direction", (float*)&dirLight_direction);
+		ImGui::ColorEdit3("dirLight ambient", (float*)&dirLight_ambient);
+		ImGui::ColorEdit3("dirLight diffuse", (float*)&dirLight_diffuse);
+		ImGui::ColorEdit3("dirLight specular", (float*)&dirLight_specular);
 
-	// point light
-	const char* itemArray[] = { "50", "100", "200","600" };
-	ImGui::SliderFloat("pointLight position", &posValue, 0.0f, 10.0f);
-	ImGui::ColorEdit3("pointLight ambient", (float*)&pointLight_ambient);
-	ImGui::ColorEdit3("pointLight diffuse", (float*)&pointLight_diffuse);
-	ImGui::ColorEdit3("pointLight specular", (float*)&pointLight_specular);
-	ImGui::Combo("Light Fade Distance", &item, itemArray, IM_ARRAYSIZE(itemArray));
+		// point light
+		const char* itemArray[] = { "50", "100", "200","600" };
+		ImGui::SliderFloat("pointLight position", &posValue, 0.0f, 10.0f);
+		ImGui::ColorEdit3("pointLight ambient", (float*)&pointLight_ambient);
+		ImGui::ColorEdit3("pointLight diffuse", (float*)&pointLight_diffuse);
+		ImGui::ColorEdit3("pointLight specular", (float*)&pointLight_specular);
+		ImGui::Combo("Light Fade Distance", &item, itemArray, IM_ARRAYSIZE(itemArray));
 
-	// spotLight
-	ImGui::ColorEdit3("spotLight ambient", (float*)&spotLight_ambient);
-	ImGui::ColorEdit3("spotLight diffuse", (float*)&spotLight_diffuse);
-	ImGui::ColorEdit3("spotLight specular", (float*)&spotLight_specular);
-	ImGui::SliderFloat("spotLight innerCos", &spotLight_innerCos, 0.0f, 90.0f);
-	ImGui::SliderFloat("spotLight outerCos", &spotLight_outerCos, 0.0f, 90.0f);
+		// spotLight
+		ImGui::ColorEdit3("spotLight ambient", (float*)&spotLight_ambient);
+		ImGui::ColorEdit3("spotLight diffuse", (float*)&spotLight_diffuse);
+		ImGui::ColorEdit3("spotLight specular", (float*)&spotLight_specular);
+		ImGui::SliderFloat("spotLight innerCos", &spotLight_innerCos, 0.0f, 90.0f);
+		ImGui::SliderFloat("spotLight outerCos", &spotLight_outerCos, 0.0f, 90.0f);
 
-	//material
-	ImGui::SliderInt("material shininess", &material_shininess, 0, 256);
+		//material
+		ImGui::SliderInt("material shininess", &material_shininess, 0, 256);
+		ImGui::TreePop();
+	}
+
 }
 
 void SetValueToShader(Shader& shader)
