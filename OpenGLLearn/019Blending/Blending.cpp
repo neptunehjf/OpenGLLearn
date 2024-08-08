@@ -102,7 +102,6 @@ int main()
 
 	// 创建shader 不能声明全局变量，因为shader的相关操作必须在glfw初始化完成后
 	Shader myShader("Shader.vs", "Shader.fs");
-	Shader outlineShader("Shader.vs", "Shader_Outline.fs");
 
 	/* 加载贴图 */
     // 翻转y轴，使图片和opengl坐标一致  但是如果assimp 导入模型时设置了aiProcess_FlipUVs，就不能重复设置了
@@ -158,12 +157,6 @@ int main()
 		cout << "myShader program invalid!" << endl;
 		return -1;
 	}
-	// 检查outlineShader程序有效性
-	if (outlineShader.Use() == false)
-	{
-		cout << "outlineShader program invalid!" << endl;
-		return -1;
-	}
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
@@ -194,7 +187,6 @@ int main()
 		ImGui::End();
 
 		SetValueToShader(myShader);
-		SetValueToShader(outlineShader); // 多个shader真的很容易漏
 
 		// 清空各个缓冲区
 		glClearColor(bkgColor.r, bkgColor.g, bkgColor.b, 1.0f);

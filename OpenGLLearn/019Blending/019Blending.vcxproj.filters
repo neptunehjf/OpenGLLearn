@@ -58,9 +58,6 @@
     <None Include="Shader.vs">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="Shader_Outline.fs">
-      <Filter>Resource Files</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Blending.cpp">
