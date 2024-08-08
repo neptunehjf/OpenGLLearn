@@ -70,8 +70,10 @@ void main()
 	color += calcPointLight(diffuseColor, specularColor);
 	color += calcSpotLight(diffuseColor, specularColor);
 
+	// 因为向量相加会使alpha超过1从而失去意义，所以要重新计算
+	color.a = diffuseColor.a;
 	// 各分量颜色混合
-	fragColor = diffuseColor;
+	fragColor = color;
 }
 
 vec4 calcDirLight(vec4 diffuseColor, vec4 specularColor)
@@ -94,9 +96,6 @@ vec4 calcDirLight(vec4 diffuseColor, vec4 specularColor)
 	vec4 specular = spec * vec4(dirLight.specular, 1.0) * specularColor;
 
 	color = ambient + diffuse + specular;
-
-	// 因为向量相加会使alpha超过1从而失去意义，所以要重新计算
-	color.a = diffuseColor.a;
 
 	return color;
 }
@@ -133,9 +132,6 @@ vec4 calcPointLight(vec4 diffuseColor, vec4 specularColor)
 		color += (ambient + diffuse + specular);
 	}
 
-	// 因为向量相加会使alpha超过1从而失去意义，所以要重新计算
-	color.a = diffuseColor.a;
-
 	return color;
 }
 
@@ -168,9 +164,6 @@ vec4 calcSpotLight(vec4 diffuseColor, vec4 specularColor)
 	specular = intensity * spec * vec4(spotLight.specular, 1.0) * specularColor;
 
 	color = ambient + diffuse + specular;
-
-	// 因为向量相加会使alpha超过1从而失去意义，所以要重新计算
-	color.a = diffuseColor.a;
 
 	return color;
 }
