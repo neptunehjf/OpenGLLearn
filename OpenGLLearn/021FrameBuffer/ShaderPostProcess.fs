@@ -4,6 +4,10 @@ out vec4 FragColor;
 in vec2 TexCoords;
 
 uniform sampler2D texture_diffuse1;
+uniform float sample_offset_base; 
+uniform int kernel_type;
+
+float[9] CopyKernel(float src[9]);
 
 void main()
 {   // 原色
@@ -20,19 +24,25 @@ void main()
     //float average = 0.2126 * FragColor.r + 0.7152 * FragColor.g + 0.0722 * FragColor.b;  
     //FragColor = vec4(average, average, average, 1.0); 
 
-    // 
+    float sample_offset = 1.0 / sample_offset_base;
 
-    float offset = 1.0 / 300.0;
-    vec2 offsets[9] = vec2[](
-    vec2(-offset,  offset), // 左上
-    vec2( 0.0f,    offset), // 正上
-    vec2( offset,  offset), // 右上
-    vec2(-offset,  0.0f),   // 左
+    vec2 sample[9] = vec2[](
+    vec2(-sample_offset,  sample_offset), // 左上
+    vec2( 0.0f,    sample_offset), // 正上
+    vec2( sample_offset,  sample_offset), // 右上
+    vec2(-sample_offset,  0.0f),   // 左
     vec2( 0.0f,    0.0f),   // 中
-    vec2( offset,  0.0f),   // 右
-    vec2(-offset, -offset), // 左下
-    vec2( 0.0f,   -offset), // 正下
-    vec2( offset, -offset)  // 右下
+    vec2( sample_offset,  0.0f),   // 右
+    vec2(-sample_offset, -sample_offset), // 左下
+    vec2( 0.0f,   -sample_offset), // 正下
+    vec2( sample_offset, -sample_offset)  // 右下
+    );
+
+    // 初始化核，不起任何作用
+    float kernel[9] = float[](
+        0, 0, 0,
+        0, 1, 0,
+        0, 0, 0
     );
 
     float sharpen[9] = float[](
@@ -54,16 +64,57 @@ void main()
          1.0 / 16.0,  2.0 / 16.0,  1.0 / 16.0
     );
 
+    switch (kernel_type)
+    {
+        case 0:
+        {
+            //用默认核
+            break;
+        }
+        case 1:
+        {
+            kernel = CopyKernel(sharpen);
+            break;
+        }
+        case 2:
+        {
+             kernel = CopyKernel(edgeDetect);
+            break;
+        }
+        case 3:
+        {
+             kernel = CopyKernel(Blur);
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
+
     vec3 sampleTex[9];
     for(int i = 0; i < 9; i++)
     {
-        sampleTex[i] = vec3(texture(texture_diffuse1, TexCoords.st + offsets[i]));
+        sampleTex[i] = vec3(texture(texture_diffuse1, TexCoords.st + sample[i]));
     }
     vec3 color = vec3(0.0);
     for(int i = 0; i < 9; i++)
-        color += sampleTex[i] * Blur[i];
+        color += sampleTex[i] * kernel[i];
 
     FragColor = vec4(color, 1.0);
+}
 
-   
+// 注意GLSL不支持指针操作（在显卡里当然不能访问内存了），只能通过返回值的方式返回数组
+float[9] CopyKernel(float src[9])
+{
+    float dst[9] = float[](
+        0, 0, 0,
+        0, 1, 0,
+        0, 0, 0
+    );
+
+    for(int i = 0; i < 9; i++)
+        dst[i] = src[i];
+
+    return dst;
 }

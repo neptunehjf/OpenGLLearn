@@ -55,6 +55,8 @@ static float spotLight_innerCos = 5.0f;
 static float spotLight_outerCos = 8.0f;
 static int item = 0;
 static int material_shininess = 32;
+static int postProcessType = 1;
+static float sampleOffsetBase = 300;
 
 GLuint fbo = 0;
 GLuint tbo = 0;
@@ -193,6 +195,7 @@ int main()
 		ImGui::End();
 
 		SetValueToShader(myShader);
+		SetValueToShader(screenShader);
 
 		/********************** 先用自定义帧缓冲进行离屏渲染 **********************/ 
 		// 绑定到自定义帧缓冲，默认帧缓冲不再起作用
@@ -239,6 +242,7 @@ int main()
 		}
 
 		/********************** 默认帧缓冲输出前面绘制时写入 **********************/
+
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		glDisable(GL_DEPTH_TEST);
@@ -387,7 +391,7 @@ bool LoadTexture(const string&& filePath, GLuint& texture, const GLint param_s, 
 
 void GetImguiValue()
 {
-	if (ImGui::TreeNodeEx("Lighting", ImGuiTreeNodeFlags_DefaultOpen))
+	if (ImGui::TreeNode("Lighting"))
 	{
 		// clear color
 		ImGui::ColorEdit3("background", (float*)&bkgColor);
@@ -418,6 +422,14 @@ void GetImguiValue()
 		ImGui::TreePop();
 	}
 
+	if (ImGui::TreeNodeEx("PostProcess", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		const char* itemArray[] = {"Default", "Sharpen", "Edge Detection", "Blur"};
+		ImGui::Combo("PostProcess Type", &postProcessType, itemArray, IM_ARRAYSIZE(itemArray));
+
+		ImGui::SliderFloat("PostProcess sample offset", &sampleOffsetBase, 1.0f, 3000.0f);
+		ImGui::TreePop();
+	}
 }
 
 void SetValueToShader(Shader& shader)
@@ -430,36 +442,36 @@ void SetValueToShader(Shader& shader)
 	float quadratic = 0.032f;
 	switch (item)
 	{
-	case 0:
-	{
-		linear = 0.09f;
-		quadratic = 0.032f;
-		break;
+		case 0:
+		{
+			linear = 0.09f;
+			quadratic = 0.032f;
+			break;
+		}
+		case 1:
+		{
+			linear = 0.045f;
+			quadratic = 0.0075f;
+			break;
+		}
+		case 2:
+		{
+			linear = 0.022f;
+			quadratic = 0.0019f;
+			break;
+		}
+		case 3:
+		{
+			linear = 0.007f;
+			quadratic = 0.0002f;
+			break;
+		}
+		default:
+		{
+			cout << "Light Fade Distance Error!" << endl;
+			break;
+		}
 	}
-	case 1:
-	{
-		linear = 0.045f;
-		quadratic = 0.0075f;
-		break;
-	}
-	case 2:
-	{
-		linear = 0.022f;
-		quadratic = 0.0019f;
-		break;
-	}
-	case 3:
-	{
-		linear = 0.007f;
-		quadratic = 0.0002f;
-		break;
-	}
-	default:
-	{
-		cout << "Light Fade Distance Error!" << endl;
-		break;
-	}
-}
 
 	//相机位置是要实时更新的，而且启动了shader1之后又启动了shader2，shader1的设置会无效化
 	shader.SetVec3("uni_viewPos", myCam.camPos);
@@ -475,6 +487,9 @@ void SetValueToShader(Shader& shader)
 	shader.SetFloat("spotLight.innerCos", cos(radians(spotLight_innerCos)));
 	shader.SetFloat("spotLight.outerCos", cos(radians(spotLight_outerCos)));
 	shader.SetInt("material.shininess", material_shininess);
+	shader.SetInt("kernel_type", postProcessType);
+	shader.SetFloat("sample_offset_base", sampleOffsetBase);
+	
 	for (int i = 0; i < 4; i++)
 	{
 		stringstream ss;
