@@ -44,6 +44,7 @@ public:
 
 	void SetScale(vec3 scale);
 	void SetTranslate(vec3 scale);
+	void SetTextures(const vector<Texture>& textures);
 
 protected:  //只允许子类访问
 	vec3 m_scale;
@@ -158,14 +159,13 @@ void Mesh::DrawMesh(const Shader& shader)
 			shader.SetInt(type + to_string(cubemapN), i);
 		}
 
+		glActiveTexture(GL_TEXTURE0 + i);
 		if (type == "cubemap")
 		{
-			glActiveTexture(GL_TEXTURE0 + i);
 			glBindTexture(GL_TEXTURE_CUBE_MAP, textures[i].id);
 		}
 		else
 		{
-			glActiveTexture(GL_TEXTURE0 + i);
 			glBindTexture(GL_TEXTURE_2D, textures[i].id);
 		}	
 	}
@@ -178,6 +178,15 @@ void Mesh::DrawMesh(const Shader& shader)
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 
 	// 解绑
+	if (type == "cubemap")
+	{
+		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+	}
+	else
+	{
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+
 	glBindVertexArray(0);
 }
 
@@ -201,4 +210,9 @@ void Mesh::SetScale(vec3 scale)
 void Mesh::SetTranslate(vec3 translate)
 {
 	m_translate = translate;
+}
+
+void Mesh::SetTextures(const vector<Texture>& textures)
+{
+	this->textures = textures;
 }

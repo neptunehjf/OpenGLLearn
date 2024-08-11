@@ -214,5 +214,8 @@ GLuint Model::TextureFromFile(const string&& filePath, const string&& directory)
     // 像素数据已经传给显存了，删除内存中的像素数据
     stbi_image_free(data);
 
+    // 读写结束之后一定要记得解绑！
+    glBindTexture(GL_TEXTURE_2D, 0);
+
     return textureID;
 }

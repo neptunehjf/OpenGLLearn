@@ -35,7 +35,8 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 bool LoadTexture(const string&& filePath, GLuint& texture, const GLint param_s, const GLint param_t);
 void GetImguiValue();
 void SetValueToShader(Shader& shader);
-void MakeFrameBuffer();
+void CreateFrameBuffer();
+void DeleteFrameBuffer();
 GLuint LoadCubemap(const vector<string>& cubemapFaces);
 
 Camera myCam(vec3(1.5f, 2.0f, 3.8f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
@@ -64,9 +65,9 @@ static float imgui_camNear = 0.1f;
 static float imgui_camFar = 100.0f;
 /************** Imgui变量 **************/
 
-GLuint fbo = 0;
-GLuint tbo = 0;
-GLuint rbo = 0;
+GLuint fbo = 0; // 自定义帧缓冲对象
+GLuint tbo = 0; // 纹理缓冲对象（附件）
+GLuint rbo = 0; // 渲染缓冲对象（附件）
 
 int main()
 {
@@ -181,13 +182,20 @@ int main()
 	squarePositions.push_back(glm::vec3(-0.3f, 1.0f, -2.3f));
 	squarePositions.push_back(glm::vec3(0.5f, 1.0f, -0.6f));
 
-	Mesh skybox(g_skyboxVertices, g_skyboxIndices, cubeTexture);
-	//skybox.SetScale(vec3(50.0f));
+	Mesh skybox(g_skyboxVertices, g_skyboxIndices, skyboxTexture);
+
+	// 实际材质是从自定义缓冲的纹理附件读出来的，因此开始设成dummy只是为了复用代码方便
+	const vector<Texture> screenTexture =
+	{
+		{t_dummy, "texture_diffuse"},
+		{t_dummy, "texture_specular"}
+	};
+	Mesh screen(g_screenVertices, g_screenIndices, screenTexture);
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	MakeFrameBuffer();
+	CreateFrameBuffer();
 
 	//渲染循环
 	while (!glfwWindowShouldClose(window))
@@ -263,7 +271,7 @@ int main()
 		}
 
 		/********************** 默认帧缓冲输出前面绘制时写入 **********************/
-
+		// 关掉自定义缓冲的读写，就切换成了默认缓冲
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		glDisable(GL_DEPTH_TEST);
@@ -277,9 +285,10 @@ int main()
 			{tbo, "texture_diffuse"},
 			{t_dummy, "texture_specular"}
 		};
-		Mesh screen(g_screenVertices, g_screenIndices, screenTexture);
+		screen.SetTextures(screenTexture);
 		screen.DrawMesh(screenShader);
 
+		// imgui在默认缓冲中绘制，因为我不想imgui也有后期处理效果
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
@@ -287,10 +296,17 @@ int main()
 		glfwSwapBuffers(window);
 	}
 
+	// 资源清理
 	nanosuit.DeleteModel();
 	plane.DeleteMesh();
 	cube.DeleteMesh();
+	skybox.DeleteMesh();
+	square.DeleteMesh();
+	screen.DeleteMesh();
 	myShader.Remove();
+	screenShader.Remove();
+	cubemapShader.Remove();
+	DeleteFrameBuffer();
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
@@ -406,6 +422,9 @@ bool LoadTexture(const string&& filePath, GLuint& texture, const GLint param_s, 
 	}
 	// 像素数据已经传给显存了，删除内存中的像素数据
 	stbi_image_free(data);
+
+	// 读写结束后关掉独写权限后是个好习惯，一直开着容易出bug
+	glBindTexture(GL_TEXTURE_2D, 0);
 
 	return true;
 }
@@ -562,7 +581,8 @@ void SetValueToShader(Shader& shader)
 	shader.SetMat4("uni_model", model);
 }
 
-void MakeFrameBuffer()
+//创建自定义帧缓冲
+void CreateFrameBuffer()
 {
 	// 首先创建一个帧缓冲对象 （由color stencil depth组成。默认缓冲区也有。只不过这次自己创建缓冲区，可以实现一些有意思的功能）
 	// 只有默认缓冲才能输出图像，用自建的缓冲不会输出任何图像，因此可以用来离屏渲染
@@ -596,6 +616,14 @@ void MakeFrameBuffer()
 	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+//删除自定义帧缓冲
+void DeleteFrameBuffer()
+{
+	glDeleteFramebuffers(1, &fbo);
+	glDeleteFramebuffers(1, &tbo);
+	glDeleteFramebuffers(1, &rbo);
 }
 
 GLuint LoadCubemap(const vector<string>& cubemapFaces)
@@ -638,5 +666,8 @@ GLuint LoadCubemap(const vector<string>& cubemapFaces)
 		stbi_image_free(data);
 	}
 
+	// 读写结束后关掉独写权限后是个好习惯，一直开着容易出bug
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+	
 	return cmo;
 }
