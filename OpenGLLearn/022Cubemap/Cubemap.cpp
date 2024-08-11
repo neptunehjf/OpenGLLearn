@@ -36,6 +36,7 @@ bool LoadTexture(const string&& filePath, GLuint& texture, const GLint param_s, 
 void GetImguiValue();
 void SetValueToShader(Shader& shader);
 void MakeFrameBuffer();
+GLuint LoadCubemap(const vector<string>& cubemapFaces);
 
 Camera myCam(vec3(1.5f, 2.0f, 3.8f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
 
@@ -57,7 +58,10 @@ static float spotLight_outerCos = 8.0f;
 static int item = 0;
 static int material_shininess = 32;
 static int postProcessType = 0;
-static float sampleOffsetBase = 300;
+static float sampleOffsetBase = 300.0f;
+static float imgui_speed = 5.0f;
+static float imgui_camNear = 0.1f;
+static float imgui_camFar = 100.0f;
 /************** Imgui变量 **************/
 
 GLuint fbo = 0;
@@ -112,6 +116,7 @@ int main()
 	// 创建shader 不能声明全局变量，因为shader的相关操作必须在glfw初始化完成后
 	Shader myShader("Shader.vs", "Shader.fs");
 	Shader screenShader("ShaderPostProcess.vs", "ShaderPostProcess.fs");
+	Shader cubemapShader("ShaderCubemap.vs", "ShaderCubemap.fs");
 
 	/* 加载贴图 */
     // 翻转y轴，使图片和opengl坐标一致  但是如果assimp 导入模型时设置了aiProcess_FlipUVs，就不能重复设置了
@@ -127,6 +132,17 @@ int main()
 	LoadTexture("marble.jpg", t_marble, GL_REPEAT, GL_REPEAT);
 	LoadTexture("dummy_specular.png", t_dummy, GL_REPEAT, GL_REPEAT);  //自己做的占位贴图，占一个sampler位置，否则会被其他mesh的高光贴图替代
 	LoadTexture("window.png", t_window, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+
+	stbi_set_flip_vertically_on_load(false);
+	const vector<string> cubemapFaces = {
+	"Resource/Texture/skybox/left.jpg",
+	"Resource/Texture/skybox/right.jpg",
+	"Resource/Texture/skybox/top.jpg",
+	"Resource/Texture/skybox/bottom.jpg",
+	"Resource/Texture/skybox/back.jpg",
+	"Resource/Texture/skybox/front.jpg"
+	};
+	GLuint t_cubemap = LoadCubemap(cubemapFaces);
 
 	const vector<Texture> planeTexture =
 	{
@@ -146,8 +162,13 @@ int main()
 		{t_dummy, "texture_specular"}
 	};
 
+	const vector<Texture> skyboxTexture =
+	{
+		{t_cubemap, "cubemap"}
+	};
+
 	Mesh plane(g_planeVertices, g_planeIndices, planeTexture);
-	plane.SetScale(vec3(3.0f, 0.0f, 3.0f));
+	plane.SetScale(vec3(100.0f, 0.0f, 100.0f));
 	Mesh cube(g_cubeVertices, g_cubeIndices, cubeTexture);
 	Model nanosuit("nanosuit/nanosuit.obj");
 	nanosuit.SetTranslate(vec3(1.0f, 1.0f, 0.0f));
@@ -160,12 +181,8 @@ int main()
 	squarePositions.push_back(glm::vec3(-0.3f, 1.0f, -2.3f));
 	squarePositions.push_back(glm::vec3(0.5f, 1.0f, -0.6f));
 
-	// 检查myShader程序有效性
-	if (myShader.Use() == false)
-	{
-		cout << "myShader program invalid!" << endl;
-		return -1;
-	}
+	Mesh skybox(g_skyboxVertices, g_skyboxIndices, cubeTexture);
+	//skybox.SetScale(vec3(50.0f));
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -186,10 +203,6 @@ int main()
 
 		ImGui::Begin("Test Parameter");
 
-		//camera info
-		ImGui::Text("CameraX %f | CameraY %f | CameraZ %f | CameraPitch %f | CameraYaw %f | CameraFov %f",
-			myCam.camPos.x, myCam.camPos.y, myCam.camPos.z, myCam.pitchValue, myCam.yawValue, myCam.fov);
-
 		GetImguiValue();
 
 		//other
@@ -198,23 +211,29 @@ int main()
 
 		SetValueToShader(myShader);
 		SetValueToShader(screenShader);
+		SetValueToShader(cubemapShader);
 
 		/********************** 先用自定义帧缓冲进行离屏渲染 **********************/ 
 		// 绑定到自定义帧缓冲，默认帧缓冲不再起作用
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
 		glEnable(GL_DEPTH_TEST);
+		//glDepthFunc(GL_LEQUAL);
 
 		// 清空各个缓冲区
 		glClearColor(bkgColor.r, bkgColor.g, bkgColor.b, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// 绘制地板
-		plane.DrawMesh(myShader);
+		glDepthMask(GL_FALSE);
 
-		glEnable(GL_CULL_FACE);
-		//glCullFace(GL_FRONT);
-		//glFrontFace(GL_CW);
+		// 绘制天空盒
+		skybox.DrawMesh(cubemapShader);
+		glDepthMask(GL_TRUE);
+
+		// 绘制地板
+		//plane.DrawMesh(myShader);
+
+		glEnable(GL_CULL_FACE); 
 		
 		// 绘制两个立方体
 		cube.SetScale(vec3(CUBE_SCALE_DEFAULT));
@@ -393,6 +412,23 @@ bool LoadTexture(const string&& filePath, GLuint& texture, const GLint param_s, 
 
 void GetImguiValue()
 {
+	if (ImGui::TreeNodeEx("Camera", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		ImGui::Text("CameraX %f | CameraY %f | CameraZ %f \n CameraPitch %f | CameraYaw %f | CameraFov %f",
+			myCam.camPos.x, myCam.camPos.y, myCam.camPos.z, myCam.pitchValue, myCam.yawValue, myCam.fov);
+
+		ImGui::SliderFloat("Movement Speed", &imgui_speed, 0.0f, 100.0f);
+		myCam.camSpeed = imgui_speed;
+
+		ImGui::SliderFloat("View Near", &imgui_camNear, 0.1f, 1000.0f);
+		myCam.camNear = imgui_camNear;
+
+		ImGui::SliderFloat("View Far", &imgui_camFar, 0.1f, 1000.0f);
+		myCam.camFar = imgui_camFar;
+
+		ImGui::TreePop();
+	}
+
 	if (ImGui::TreeNode("Lighting"))
 	{
 		// clear color
@@ -518,7 +554,7 @@ void SetValueToShader(Shader& shader)
 	mat4 projection;
 	float fov = myCam.getCamFov();
 
-	projection = perspective(radians(fov), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f); // 之前写成(float)(WINDOW_WIDTH / WINDOW_HEIGHT)了，精度丢失，导致结果是1
+	projection = perspective(radians(fov), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, myCam.camNear, myCam.camFar); // 之前写成(float)(WINDOW_WIDTH / WINDOW_HEIGHT)了，精度丢失，导致结果是1
 	shader.SetMat4("uni_projection", projection);
 
 	// model矩阵 local -> world
@@ -560,4 +596,47 @@ void MakeFrameBuffer()
 	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+GLuint LoadCubemap(const vector<string>& cubemapFaces)
+{
+	GLuint cmo = 0;
+	glGenTextures(1, &cmo);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, cmo);
+
+	// 设置纹理目标的的环绕，过滤方式
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	for (int i = 0; i < cubemapFaces.size(); i++)
+	{
+		// 从硬盘加载贴图，转换为像素数据（先放到内存）
+		int width, height, channel;
+		unsigned char* data = stbi_load(cubemapFaces[i].c_str(), &width, &height, &channel, 0);
+
+		GLenum format = 0;
+		if (channel == 1)
+			format = GL_RED;
+		else if (channel == 3)
+			format = GL_RGB;
+		else if (channel == 4)
+			format = GL_RGBA;
+
+		if (data)
+		{
+			// 贴图数据 内存 -> 显存
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+		}
+		else
+		{
+			cout << "Failed to load cubemap！" << endl;
+		}
+		// 像素数据已经传给显存了，删除内存中的像素数据
+		stbi_image_free(data);
+	}
+
+	return cmo;
 }

@@ -136,6 +136,7 @@ void Mesh::DrawMesh(const Shader& shader)
 	shader.Use();
 	GLuint diffuseN = 0;
 	GLuint specularN = 0;
+	GLuint cubemapN = 0;
 	string type;
 
 	for (int i = 0; i < textures.size(); i++)
@@ -151,8 +152,22 @@ void Mesh::DrawMesh(const Shader& shader)
 			specularN++;
 			shader.SetInt("material." + type + to_string(specularN), i);
 		}
-		glActiveTexture(GL_TEXTURE0 + i);
-		glBindTexture(GL_TEXTURE_2D, textures[i].id);  //片段着色器会根据对应的纹理单元读取texture_diffuse的贴图数据
+		else if (type == "cubemap")
+		{
+			cubemapN++;
+			shader.SetInt(type + to_string(cubemapN), i);
+		}
+
+		if (type == "cubemap")
+		{
+			glActiveTexture(GL_TEXTURE0 + i);
+			glBindTexture(GL_TEXTURE_CUBE_MAP, textures[i].id);
+		}
+		else
+		{
+			glActiveTexture(GL_TEXTURE0 + i);
+			glBindTexture(GL_TEXTURE_2D, textures[i].id);
+		}	
 	}
 
 	mat4 model = mat4(1.0f);  

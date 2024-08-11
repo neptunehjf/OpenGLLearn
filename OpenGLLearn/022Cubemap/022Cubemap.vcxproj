@@ -153,6 +153,8 @@
   <ItemGroup>
     <None Include="Shader.fs" />
     <None Include="Shader.vs" />
+    <None Include="ShaderCubemap.fs" />
+    <None Include="ShaderCubemap.vs" />
     <None Include="ShaderPostProcess.fs" />
     <None Include="ShaderPostProcess.vs" />
   </ItemGroup>

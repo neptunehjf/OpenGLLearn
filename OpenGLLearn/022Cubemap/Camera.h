@@ -12,6 +12,8 @@ public:
 	Camera(const vec3& camPos, const vec3& camFront, const vec3& camUp);
 
 	float camSpeed;
+	float camNear;
+	float camFar;
 	vec3 camPos;
 	vec3 camFront;
 	vec3 camUp;
@@ -42,6 +44,8 @@ private:
 Camera::Camera(const vec3& camPos, const vec3& camFront, const vec3& camUp)
 {
 	camSpeed = 5.0f;
+	camNear = 0.1f;
+	camFar = 100.0f;
 
 	deltaTime = 0.0f; 
 	lastFrame = 0.0f;  

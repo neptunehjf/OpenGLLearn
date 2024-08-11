@@ -61,6 +61,12 @@
     <None Include="ShaderPostProcess.vs">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="ShaderCubemap.vs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="ShaderCubemap.fs">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Cubemap.cpp">
