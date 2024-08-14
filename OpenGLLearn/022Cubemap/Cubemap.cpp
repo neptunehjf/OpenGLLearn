@@ -226,34 +226,32 @@ int main()
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
 		glEnable(GL_DEPTH_TEST);
-		//glDepthFunc(GL_LEQUAL);
+		glDepthFunc(GL_LEQUAL);
 
 		// 清空各个缓冲区
 		glClearColor(bkgColor.r, bkgColor.g, bkgColor.b, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glDepthMask(GL_FALSE);
-
-		// 绘制天空盒
-		skybox.DrawMesh(cubemapShader);
-		glDepthMask(GL_TRUE);
-
 		// 绘制地板
 		//plane.DrawMesh(myShader);
 
 		glEnable(GL_CULL_FACE); 
-		
 		// 绘制两个立方体
 		cube.SetScale(vec3(CUBE_SCALE_DEFAULT));
 		cube.SetTranslate(vec3(1.0f, 1.5f, 1.0f));
 		cube.DrawMesh(myShader);
 		cube.SetTranslate(vec3(0.0f, 1.5f, -1.0f));
 		cube.DrawMesh(myShader);
-		glDisable(GL_CULL_FACE);
 
 		// 绘制人物
 		nanosuit.SetScale(vec3(0.1f));
 		nanosuit.DrawModel(myShader);
+
+		glDisable(GL_CULL_FACE);
+		// 绘制天空盒
+		skybox.DrawMesh(cubemapShader);
+
+		glEnable(GL_CULL_FACE);
 
 		// 按窗户离摄像机间的距离排序，map默认是升序排序，也就是从近到远
 		// 必须放在render loop里，因为摄像机是实时改变的

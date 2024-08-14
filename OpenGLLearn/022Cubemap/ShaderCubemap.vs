@@ -18,6 +18,7 @@ void main()
     // 因此视锥的near应该远小于1 far应该远大于1，否则天空盒的某部分可能会落在视锥之外，被裁剪掉
     // 总结：摄像机被包裹在一个很小的天空盒(2x2x2)内，只是没有相对位移产生了盒子很大的错觉
     mat4 view = mat4(mat3(uni_view));
-    gl_Position = uni_projection * view * vec4(aPos, 1.0);  
+    vec4 pos = uni_projection * view * vec4(aPos, 1.0);  
     TexCoords = aPos;
+    gl_Position = pos.xyww;
 }
