@@ -49,10 +49,10 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shader.fs">
+    <None Include="ShaderLighting.fs">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="Shader.vs">
+    <None Include="ShaderLighting.vs">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="ShaderPostProcess.fs">
@@ -65,6 +65,12 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="ShaderCubemap.fs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="ShaderReflection.fs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="ShaderReflection.vs">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

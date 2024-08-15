@@ -115,9 +115,10 @@ int main()
 	ImGui_ImplOpenGL3_Init();
 
 	// 创建shader 不能声明全局变量，因为shader的相关操作必须在glfw初始化完成后
-	Shader myShader("Shader.vs", "Shader.fs");
+	Shader lightShader("ShaderLighting.vs", "ShaderLighting.fs");
 	Shader screenShader("ShaderPostProcess.vs", "ShaderPostProcess.fs");
 	Shader cubemapShader("ShaderCubemap.vs", "ShaderCubemap.fs");
+	Shader reflectShader("ShaderReflection.vs", "ShaderReflection.fs");
 
 	/* 加载贴图 */
     // 翻转y轴，使图片和opengl坐标一致  但是如果assimp 导入模型时设置了aiProcess_FlipUVs，就不能重复设置了
@@ -170,9 +171,17 @@ int main()
 
 	Mesh plane(g_planeVertices, g_planeIndices, planeTexture);
 	plane.SetScale(vec3(100.0f, 0.0f, 100.0f));
-	Mesh cube(g_cubeVertices, g_cubeIndices, cubeTexture);
+	Mesh cube(g_cubeVertices, g_cubeIndices, skyboxTexture);
 	Model nanosuit("nanosuit/nanosuit.obj");
 	nanosuit.SetTranslate(vec3(1.0f, 1.0f, 0.0f));
+
+	//vector<Mesh> suitMeshes = nanosuit.meshes;     // 赋值号，默认vector是深拷贝，因此SetTextures不会影响nanosuit对象
+	//vector<Mesh>& suitMeshes = nanosuit.meshes;    // 使用引用，引用只是nanosuit.meshes的别名，因此SetTextures会影响到nanosuit对象
+	vector<Mesh>& suitMeshes = nanosuit.GetMeshes(); // 使用引用，引用只是nanosuit.meshes的别名，因此SetTextures会影响到nanosuit对象
+	for (unsigned int i = 0; i < suitMeshes.size(); i++)
+	{
+		suitMeshes[i].SetTextures(skyboxTexture);
+	}
 
 	Mesh square(g_squareVertices, g_squareIndices, windowTexture);
 	vector<vec3> squarePositions;
@@ -217,9 +226,10 @@ int main()
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
 		ImGui::End();
 
-		SetValueToShader(myShader);
+		SetValueToShader(lightShader);
 		SetValueToShader(screenShader);
 		SetValueToShader(cubemapShader);
+		SetValueToShader(reflectShader);
 
 		/********************** 先用自定义帧缓冲进行离屏渲染 **********************/ 
 		// 绑定到自定义帧缓冲，默认帧缓冲不再起作用
@@ -228,30 +238,29 @@ int main()
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
 
+		glEnable(GL_CULL_FACE);
+
 		// 清空各个缓冲区
 		glClearColor(bkgColor.r, bkgColor.g, bkgColor.b, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// 绘制地板
-		//plane.DrawMesh(myShader);
+		//plane.DrawMesh(lightShader);
 
-		glEnable(GL_CULL_FACE); 
 		// 绘制两个立方体
 		cube.SetScale(vec3(CUBE_SCALE_DEFAULT));
 		cube.SetTranslate(vec3(1.0f, 1.5f, 1.0f));
-		cube.DrawMesh(myShader);
+		cube.DrawMesh(reflectShader);
 		cube.SetTranslate(vec3(0.0f, 1.5f, -1.0f));
-		cube.DrawMesh(myShader);
+		cube.DrawMesh(reflectShader);
 
 		// 绘制人物
 		nanosuit.SetScale(vec3(0.1f));
-		nanosuit.DrawModel(myShader);
+		nanosuit.DrawModel(reflectShader);
 
 		glDisable(GL_CULL_FACE);
 		// 绘制天空盒
 		skybox.DrawMesh(cubemapShader);
-
-		glEnable(GL_CULL_FACE);
 
 		// 按窗户离摄像机间的距离排序，map默认是升序排序，也就是从近到远
 		// 必须放在render loop里，因为摄像机是实时改变的
@@ -265,7 +274,7 @@ int main()
 		for (map<float, vec3>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); it++)
 		{
 			square.SetTranslate(it->second);
-			square.DrawMesh(myShader);
+			square.DrawMesh(lightShader);
 		}
 
 		/********************** 默认帧缓冲输出前面绘制时写入 **********************/
@@ -301,7 +310,7 @@ int main()
 	skybox.DeleteMesh();
 	square.DeleteMesh();
 	screen.DeleteMesh();
-	myShader.Remove();
+	lightShader.Remove();
 	screenShader.Remove();
 	cubemapShader.Remove();
 	DeleteFrameBuffer();
@@ -489,7 +498,7 @@ void GetImguiValue()
 
 void SetValueToShader(Shader& shader)
 {
-	//激活myShader程序 这里涉及两个shader程序的切换，所以每次loop里都要在对应的位置调用，不能只在开始调用一次
+	//激活lightShader程序 这里涉及两个shader程序的切换，所以每次loop里都要在对应的位置调用，不能只在开始调用一次
 	shader.Use();
 
 	float constant = 1.0f; // 通常保持1就行了

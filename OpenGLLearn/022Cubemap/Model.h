@@ -29,10 +29,16 @@ public:
             meshes[i].DrawMesh(shader);
         }    
     }
+
     void DeleteModel()
     {
         for (unsigned int i = 0; i < meshes.size(); i++)
             meshes[i].DeleteMesh();
+    }
+    vector<Mesh>& GetMeshes()
+    {
+        vector<Mesh>& _meshes = meshes; // 注意，如果想return引用的话，必须先先定义一个引用类型的局部变量，再return这个局部变量，否则return的不是引用类型
+        return _meshes;
     }
 
 private:

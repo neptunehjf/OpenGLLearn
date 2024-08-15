@@ -10,8 +10,6 @@
 #include "common.h"
 #include "assimp/types.h"
 
-
-
 //¶¥µãÊý¾Ý
 #pragma pack(1)
 struct Vertex
@@ -162,10 +160,12 @@ void Mesh::DrawMesh(const Shader& shader)
 		glActiveTexture(GL_TEXTURE0 + i);
 		if (type == "cubemap")
 		{
+			cout << "cubemap" << endl;
 			glBindTexture(GL_TEXTURE_CUBE_MAP, textures[i].id);
 		}
 		else
 		{
+			cout << "other" << endl;
 			glBindTexture(GL_TEXTURE_2D, textures[i].id);
 		}	
 	}

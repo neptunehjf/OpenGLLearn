@@ -151,12 +151,14 @@
     <Image Include="window.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shader.fs" />
-    <None Include="Shader.vs" />
+    <None Include="ShaderLighting.fs" />
+    <None Include="ShaderLighting.vs" />
     <None Include="ShaderCubemap.fs" />
     <None Include="ShaderCubemap.vs" />
     <None Include="ShaderPostProcess.fs" />
     <None Include="ShaderPostProcess.vs" />
+    <None Include="ShaderReflection.fs" />
+    <None Include="ShaderReflection.vs" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Dependency\Src\glad\src\glad.c" />
