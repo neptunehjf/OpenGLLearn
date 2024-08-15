@@ -159,6 +159,8 @@
     <None Include="ShaderPostProcess.vs" />
     <None Include="ShaderReflection.fs" />
     <None Include="ShaderReflection.vs" />
+    <None Include="ShaderRefraction.fs" />
+    <None Include="ShaderRefraction.vs" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Dependency\Src\glad\src\glad.c" />

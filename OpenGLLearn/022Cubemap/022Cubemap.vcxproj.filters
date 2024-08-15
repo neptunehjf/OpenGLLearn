@@ -49,29 +49,35 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
+    <None Include="ShaderReflection.vs">
+      <Filter>Source Files</Filter>
+    </None>
     <None Include="ShaderLighting.fs">
-      <Filter>Resource Files</Filter>
+      <Filter>Source Files</Filter>
     </None>
     <None Include="ShaderLighting.vs">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="ShaderPostProcess.fs">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="ShaderPostProcess.vs">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="ShaderCubemap.vs">
-      <Filter>Resource Files</Filter>
+      <Filter>Source Files</Filter>
     </None>
     <None Include="ShaderCubemap.fs">
-      <Filter>Resource Files</Filter>
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="ShaderCubemap.vs">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="ShaderPostProcess.fs">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="ShaderPostProcess.vs">
+      <Filter>Source Files</Filter>
     </None>
     <None Include="ShaderReflection.fs">
-      <Filter>Resource Files</Filter>
+      <Filter>Source Files</Filter>
     </None>
-    <None Include="ShaderReflection.vs">
-      <Filter>Resource Files</Filter>
+    <None Include="ShaderRefraction.vs">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="ShaderRefraction.fs">
+      <Filter>Source Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

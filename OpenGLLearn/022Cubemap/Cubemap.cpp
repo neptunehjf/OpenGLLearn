@@ -119,6 +119,7 @@ int main()
 	Shader screenShader("ShaderPostProcess.vs", "ShaderPostProcess.fs");
 	Shader cubemapShader("ShaderCubemap.vs", "ShaderCubemap.fs");
 	Shader reflectShader("ShaderReflection.vs", "ShaderReflection.fs");
+	Shader refractShader("ShaderRefraction.vs", "ShaderRefraction.fs");
 
 	/* 加载贴图 */
     // 翻转y轴，使图片和opengl坐标一致  但是如果assimp 导入模型时设置了aiProcess_FlipUVs，就不能重复设置了
@@ -230,6 +231,7 @@ int main()
 		SetValueToShader(screenShader);
 		SetValueToShader(cubemapShader);
 		SetValueToShader(reflectShader);
+		SetValueToShader(refractShader);
 
 		/********************** 先用自定义帧缓冲进行离屏渲染 **********************/ 
 		// 绑定到自定义帧缓冲，默认帧缓冲不再起作用
@@ -250,13 +252,16 @@ int main()
 		// 绘制两个立方体
 		cube.SetScale(vec3(CUBE_SCALE_DEFAULT));
 		cube.SetTranslate(vec3(1.0f, 1.5f, 1.0f));
-		cube.DrawMesh(reflectShader);
+		//cube.DrawMesh(reflectShader);
+		cube.DrawMesh(refractShader);
 		cube.SetTranslate(vec3(0.0f, 1.5f, -1.0f));
-		cube.DrawMesh(reflectShader);
+		cube.DrawMesh(refractShader);
+		//cube.DrawMesh(reflectShader);
 
 		// 绘制人物
 		nanosuit.SetScale(vec3(0.1f));
-		nanosuit.DrawModel(reflectShader);
+		//nanosuit.DrawModel(reflectShader);
+		nanosuit.DrawModel(refractShader);
 
 		glDisable(GL_CULL_FACE);
 		// 绘制天空盒
