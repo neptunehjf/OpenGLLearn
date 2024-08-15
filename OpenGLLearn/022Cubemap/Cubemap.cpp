@@ -35,7 +35,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 bool LoadTexture(const string&& filePath, GLuint& texture, const GLint param_s, const GLint param_t);
 void GetImguiValue();
 void SetValueToShader(Shader& shader);
-void CreateFrameBuffer();
+void CreateFrameBuffer(GLuint& fbo, GLuint& tbo, GLuint& rbo);
 void DeleteFrameBuffer();
 GLuint LoadCubemap(const vector<string>& cubemapFaces);
 
@@ -65,9 +65,6 @@ static float imgui_camNear = 0.1f;
 static float imgui_camFar = 100.0f;
 /************** Imgui变量 **************/
 
-GLuint fbo = 0; // 自定义帧缓冲对象
-GLuint tbo = 0; // 纹理缓冲对象（附件）
-GLuint rbo = 0; // 渲染缓冲对象（附件）
 
 int main()
 {
@@ -202,10 +199,30 @@ int main()
 	};
 	Mesh screen(g_screenVertices, g_screenIndices, screenTexture);
 
+	const vector<Texture> mirrorTexture =
+	{
+		{t_dummy, "texture_diffuse"},
+		{t_dummy, "texture_specular"}
+	};
+	Mesh mirror(g_mirrorVertices, g_mirrorIndices, mirrorTexture);
+
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	CreateFrameBuffer();
+
+	// 原场景缓冲
+	GLuint fbo1 = 0; // 自定义帧缓冲对象
+	GLuint tbo1 = 0; // 纹理缓冲对象（附件）
+	GLuint rbo1 = 0; // 渲染缓冲对象（附件）
+	CreateFrameBuffer(fbo1, tbo1, rbo1);
+
+	// 后视镜缓冲
+	GLuint fbo2 = 0; // 自定义帧缓冲对象
+	GLuint tbo2 = 0; // 纹理缓冲对象（附件）
+	GLuint rbo2 = 0; // 渲染缓冲对象（附件）
+	CreateFrameBuffer(fbo2, tbo2, rbo2);
+
+	
 
 	//渲染循环
 	while (!glfwWindowShouldClose(window))
@@ -227,61 +244,81 @@ int main()
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
 		ImGui::End();
 
-		SetValueToShader(lightShader);
-		SetValueToShader(screenShader);
-		SetValueToShader(cubemapShader);
-		SetValueToShader(reflectShader);
-		SetValueToShader(refractShader);
-
-		/********************** 先用自定义帧缓冲进行离屏渲染 **********************/ 
-		// 绑定到自定义帧缓冲，默认帧缓冲不再起作用
-		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
-
 		glEnable(GL_CULL_FACE);
 
-		// 清空各个缓冲区
-		glClearColor(bkgColor.r, bkgColor.g, bkgColor.b, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		/********************** 先用自定义帧缓冲进行离屏渲染 **********************/
 
-		// 绘制地板
-		//plane.DrawMesh(lightShader);
-
-		// 绘制两个立方体
-		cube.SetScale(vec3(CUBE_SCALE_DEFAULT));
-		cube.SetTranslate(vec3(1.0f, 1.5f, 1.0f));
-		cube.DrawMesh(reflectShader);
-		//cube.DrawMesh(refractShader);
-		cube.SetTranslate(vec3(0.0f, 1.5f, -1.0f));
-		//cube.DrawMesh(refractShader);
-		cube.DrawMesh(reflectShader);
-
-		glDisable(GL_BLEND);
-		// 绘制人物
-		nanosuit.SetScale(vec3(0.1f));
-		nanosuit.DrawModel(lightShader);
-		//nanosuit.DrawModel(refractShader);
-		glEnable(GL_BLEND);
-
-		glDisable(GL_CULL_FACE);
-		// 绘制天空盒
-		skybox.DrawMesh(cubemapShader);
-
-		// 按窗户离摄像机间的距离排序，map默认是升序排序，也就是从近到远
-		// 必须放在render loop里，因为摄像机是实时改变的
-		map<float, vec3> sorted;
-		for (int i = 0; i < squarePositions.size(); i++)
+		for (unsigned int i = 1; i <= 2; i++)
 		{
-			float distance = length(myCam.camPos - squarePositions[i]);
-			sorted[distance] = squarePositions[i];
-		}
-		// 透明物体必须最后绘制，并且透明物体之间要从远到近绘制
-		for (map<float, vec3>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); it++)
-		{
-			square.SetTranslate(it->second);
-			square.DrawMesh(lightShader);
+			if (i == 1)
+			{
+				glBindFramebuffer(GL_FRAMEBUFFER, fbo1); // 绑定到自定义帧缓冲，默认帧缓冲不再起作用
+			}
+			else if (i == 2)
+			{
+				myCam.yawValue += 180.0;
+				glBindFramebuffer(GL_FRAMEBUFFER, fbo2); // 绑定到自定义帧缓冲，默认帧缓冲不再起作用
+			}
+
+			SetValueToShader(lightShader);
+			SetValueToShader(screenShader);
+			SetValueToShader(cubemapShader);
+			SetValueToShader(reflectShader);
+			SetValueToShader(refractShader);
+
+			// 清空各个缓冲区
+			glClearColor(bkgColor.r, bkgColor.g, bkgColor.b, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //离屏渲染不需要glClear(GL_COLOR_BUFFER_BIT);
+
+			// 绘制地板
+			//plane.DrawMesh(lightShader);
+
+			// 绘制两个立方体
+			cube.SetScale(vec3(CUBE_SCALE_DEFAULT));
+			cube.SetTranslate(vec3(1.0f, 1.5f, 1.0f));
+			cube.DrawMesh(reflectShader);
+			//cube.DrawMesh(refractShader);
+			cube.SetTranslate(vec3(0.0f, 1.5f, -1.0f));
+			//cube.DrawMesh(refractShader);
+			cube.DrawMesh(reflectShader);
+
+			glDisable(GL_BLEND);
+			// 绘制人物
+			nanosuit.SetScale(vec3(0.1f));
+			nanosuit.DrawModel(lightShader);
+			//nanosuit.DrawModel(refractShader);
+			glEnable(GL_BLEND);
+
+			glDisable(GL_CULL_FACE);
+			// 绘制天空盒
+			skybox.DrawMesh(cubemapShader);
+
+			// 按窗户离摄像机间的距离排序，map默认是升序排序，也就是从近到远
+			// 必须放在render loop里，因为摄像机是实时改变的
+			map<float, vec3> sorted;
+			for (int i = 0; i < squarePositions.size(); i++)
+			{
+				float distance = length(myCam.camPos - squarePositions[i]);
+				sorted[distance] = squarePositions[i];
+			}
+			// 透明物体必须最后绘制，并且透明物体之间要从远到近绘制
+			for (map<float, vec3>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); it++)
+			{
+				square.SetTranslate(it->second);
+				square.DrawMesh(lightShader);
+			}
+
+			if (i == 2)
+			{
+				myCam.yawValue -= 180.0;
+				SetValueToShader(lightShader);
+				SetValueToShader(screenShader);
+				SetValueToShader(cubemapShader);
+				SetValueToShader(reflectShader);
+				SetValueToShader(refractShader);
+			}
 		}
 
 		/********************** 默认帧缓冲输出前面绘制时写入 **********************/
@@ -292,15 +329,23 @@ int main()
 		
 		// 清空各个缓冲区
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT); //离屏渲染不需要glClear(GL_COLOR_BUFFER_BIT);
 
 		const vector<Texture> screenTexture =
 		{
-			{tbo, "texture_diffuse"},
+			{tbo1, "texture_diffuse"},
 			{t_dummy, "texture_specular"}
 		};
 		screen.SetTextures(screenTexture);
 		screen.DrawMesh(screenShader);
+
+		const vector<Texture> mirrorTexture =
+		{
+			{tbo2, "texture_diffuse"},
+			{t_dummy, "texture_specular"}
+		};
+		mirror.SetTextures(mirrorTexture);
+		mirror.DrawMesh(screenShader);
 
 		// imgui在默认缓冲中绘制，因为我不想imgui也有后期处理效果
 		ImGui::Render();
@@ -320,7 +365,13 @@ int main()
 	lightShader.Remove();
 	screenShader.Remove();
 	cubemapShader.Remove();
-	DeleteFrameBuffer();
+	//DeleteFrameBuffer();
+	glDeleteFramebuffers(1, &fbo1);
+	glDeleteFramebuffers(1, &tbo1);
+	glDeleteFramebuffers(1, &rbo1);
+	glDeleteFramebuffers(1, &fbo2);
+	glDeleteFramebuffers(1, &tbo2);
+	glDeleteFramebuffers(1, &rbo2);
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
@@ -596,7 +647,7 @@ void SetValueToShader(Shader& shader)
 }
 
 //创建自定义帧缓冲
-void CreateFrameBuffer()
+void CreateFrameBuffer(GLuint& fbo, GLuint& tbo, GLuint& rbo)
 {
 	// 首先创建一个帧缓冲对象 （由color stencil depth组成。默认缓冲区也有。只不过这次自己创建缓冲区，可以实现一些有意思的功能）
 	// 只有默认缓冲才能输出图像，用自建的缓冲不会输出任何图像，因此可以用来离屏渲染
@@ -635,9 +686,9 @@ void CreateFrameBuffer()
 //删除自定义帧缓冲
 void DeleteFrameBuffer()
 {
-	glDeleteFramebuffers(1, &fbo);
-	glDeleteFramebuffers(1, &tbo);
-	glDeleteFramebuffers(1, &rbo);
+	//glDeleteFramebuffers(1, &fbo);
+	//glDeleteFramebuffers(1, &tbo);
+	//glDeleteFramebuffers(1, &rbo);
 }
 
 GLuint LoadCubemap(const vector<string>& cubemapFaces)

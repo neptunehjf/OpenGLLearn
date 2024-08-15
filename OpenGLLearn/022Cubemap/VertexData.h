@@ -96,6 +96,21 @@ const vector<GLuint> g_screenIndices =
     0, 2, 3
 };
 
+// 这里normal没有意义，但是为了复用之前的代码，加了normal
+const vector<Vertex> g_mirrorVertices = {
+    // positions                    // normal                  // texture Coords
+    {vec3(-0.2f,  1.0f, 0.0f),      vec3(0.0f,  0.0f,  1.0f),  vec2(0.0f, 1.0f)},
+    {vec3(-0.2f,  0.8f, 0.0f),      vec3(0.0f,  0.0f,  1.0f),  vec2(0.0f, 0.0f)},
+    {vec3( 0.2f,  0.8f, 0.0f),      vec3(0.0f,  0.0f,  1.0f),  vec2(1.0f, 0.0f)},
+    {vec3( 0.2f,  1.0f, 0.0f),      vec3(0.0f,  0.0f,  1.0f),  vec2(1.0f, 1.0f)}
+};
+
+const vector<GLuint> g_mirrorIndices =
+{
+    0, 1, 2,
+    0, 2, 3
+};
+
 
 const vector<Vertex> g_skyboxVertices =
 {
