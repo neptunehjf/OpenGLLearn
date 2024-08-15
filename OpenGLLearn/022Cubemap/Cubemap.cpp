@@ -113,7 +113,7 @@ int main()
 	// Setup Platform/Renderer backends
 	ImGui_ImplGlfw_InitForOpenGL(window, true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
 	ImGui_ImplOpenGL3_Init();
-
+	
 	// 创建shader 不能声明全局变量，因为shader的相关操作必须在glfw初始化完成后
 	Shader lightShader("ShaderLighting.vs", "ShaderLighting.fs");
 	Shader screenShader("ShaderPostProcess.vs", "ShaderPostProcess.fs");
@@ -167,13 +167,13 @@ int main()
 
 	const vector<Texture> skyboxTexture =
 	{
-		{t_cubemap, "cubemap"}
+		{t_cubemap, "texture_cubemap"}
 	};
 
 	Mesh plane(g_planeVertices, g_planeIndices, planeTexture);
 	plane.SetScale(vec3(100.0f, 0.0f, 100.0f));
 	Mesh cube(g_cubeVertices, g_cubeIndices, skyboxTexture);
-	Model nanosuit("nanosuit/nanosuit.obj");
+	Model nanosuit("nanosuit_reflection/nanosuit.obj");
 	nanosuit.SetTranslate(vec3(1.0f, 1.0f, 0.0f));
 
 	//vector<Mesh> suitMeshes = nanosuit.meshes;     // 赋值号，默认vector是深拷贝，因此SetTextures不会影响nanosuit对象
@@ -181,7 +181,7 @@ int main()
 	vector<Mesh>& suitMeshes = nanosuit.GetMeshes(); // 使用引用，引用只是nanosuit.meshes的别名，因此SetTextures会影响到nanosuit对象
 	for (unsigned int i = 0; i < suitMeshes.size(); i++)
 	{
-		suitMeshes[i].SetTextures(skyboxTexture);
+		suitMeshes[i].AddTextures(skyboxTexture);
 	}
 
 	Mesh square(g_squareVertices, g_squareIndices, windowTexture);
@@ -252,16 +252,18 @@ int main()
 		// 绘制两个立方体
 		cube.SetScale(vec3(CUBE_SCALE_DEFAULT));
 		cube.SetTranslate(vec3(1.0f, 1.5f, 1.0f));
-		//cube.DrawMesh(reflectShader);
-		cube.DrawMesh(refractShader);
+		cube.DrawMesh(reflectShader);
+		//cube.DrawMesh(refractShader);
 		cube.SetTranslate(vec3(0.0f, 1.5f, -1.0f));
-		cube.DrawMesh(refractShader);
-		//cube.DrawMesh(reflectShader);
+		//cube.DrawMesh(refractShader);
+		cube.DrawMesh(reflectShader);
 
+		glDisable(GL_BLEND);
 		// 绘制人物
 		nanosuit.SetScale(vec3(0.1f));
-		//nanosuit.DrawModel(reflectShader);
-		nanosuit.DrawModel(refractShader);
+		nanosuit.DrawModel(lightShader);
+		//nanosuit.DrawModel(refractShader);
+		glEnable(GL_BLEND);
 
 		glDisable(GL_CULL_FACE);
 		// 绘制天空盒

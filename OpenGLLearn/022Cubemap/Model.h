@@ -61,7 +61,7 @@ private:
 void Model::loadModel(string path)
 {
     Assimp::Importer import;
-    const aiScene * scene = import.ReadFile(path, aiProcess_Triangulate); //  | aiProcess_FlipUVs
+    const aiScene * scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
 
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
     {
@@ -142,6 +142,9 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
     // specular texure
     vector<Texture> specular = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");;
     textures.insert(textures.end(), specular.begin(), specular.end());
+    // reflection texure
+    vector<Texture> reflection = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_reflection");;
+    textures.insert(textures.end(), reflection.begin(), reflection.end());
 
     return Mesh(vertices, indices, textures);
 }

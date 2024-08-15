@@ -5,11 +5,13 @@ in vec3 normal;
 in vec2 texCoord;
 
 uniform vec3 uni_viewPos;
+uniform samplerCube texture_cubemap1;
 
 struct Material
 {
 	sampler2D texture_diffuse1;
 	sampler2D texture_specular1;
+	sampler2D texture_reflection1;
 	int shininess;
 };
 
@@ -55,6 +57,7 @@ out vec4 fragColor;
 vec4 calcDirLight(vec4 diffuseColor, vec4 specularColor);
 vec4 calcPointLight(vec4 diffuseColor, vec4 specularColor);
 vec4 calcSpotLight(vec4 diffuseColor, vec4 specularColor);
+vec4 calcReflectionLight(vec4 reflectionColor);
 
 float near = 0.1; 
 float far  = 100.0; 
@@ -63,12 +66,14 @@ void main()
 {
 	vec4 diffuseColor = texture(material.texture_diffuse1, texCoord);
 	vec4 specularColor = texture(material.texture_specular1, texCoord);
+	vec4 reflectionColor = texture(material.texture_reflection1, texCoord);
 
     vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
 
 	color += calcDirLight(diffuseColor, specularColor);
 	color += calcPointLight(diffuseColor, specularColor);
 	color += calcSpotLight(diffuseColor, specularColor);
+	color += calcReflectionLight(reflectionColor);
 
 	// 因为向量相加会使alpha超过1从而失去意义，所以要重新计算
 	color.a = diffuseColor.a;
@@ -164,6 +169,16 @@ vec4 calcSpotLight(vec4 diffuseColor, vec4 specularColor)
 	specular = intensity * spec * vec4(spotLight.specular, 1.0) * specularColor;
 
 	color = ambient + diffuse + specular;
+
+	return color;
+}
+
+vec4 calcReflectionLight(vec4 reflectionColor)
+{
+	// 反射光reflection
+	vec3 I = normalize(fragPos - uni_viewPos);
+	vec3 R = normalize(reflect(I, normalize(normal)));
+	vec4 color = reflectionColor * vec4(texture(texture_cubemap1, R).rgb, 1.0);
 
 	return color;
 }

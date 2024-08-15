@@ -43,6 +43,7 @@ public:
 	void SetScale(vec3 scale);
 	void SetTranslate(vec3 scale);
 	void SetTextures(const vector<Texture>& textures);
+	void AddTextures(const vector<Texture>& textures);
 
 protected:  //只允许子类访问
 	vec3 m_scale;
@@ -135,6 +136,7 @@ void Mesh::DrawMesh(const Shader& shader)
 	shader.Use();
 	GLuint diffuseN = 0;
 	GLuint specularN = 0;
+	GLuint reflectionN = 0;
 	GLuint cubemapN = 0;
 	string type;
 
@@ -143,32 +145,41 @@ void Mesh::DrawMesh(const Shader& shader)
 		type = textures[i].type;
 		if (type == "texture_diffuse")
 		{
+			//cout << "texture_diffuse" << endl;
 			diffuseN++;
 			shader.SetInt("material." + type + to_string(diffuseN), i);   // 不清楚这里一次draw有多个贴图要怎么搞，这里代码姑且保留
 		}
 		else if (type == "texture_specular")
 		{
+			//cout << "texture_specular" << endl;
 			specularN++;
 			shader.SetInt("material." + type + to_string(specularN), i);
 		}
-		else if (type == "cubemap")
+		else if (type == "texture_reflection")
 		{
+			//cout << "texture_reflection" << endl;
+			reflectionN++;
+			shader.SetInt("material." + type + to_string(reflectionN), i);
+		}
+		else if (type == "texture_cubemap")
+		{
+			//cout << "texture_cubemap" << endl;
 			cubemapN++;
 			shader.SetInt(type + to_string(cubemapN), i);
 		}
 
+		//cout << i << endl << endl;
 		glActiveTexture(GL_TEXTURE0 + i);
-		if (type == "cubemap")
+		if (type == "texture_cubemap")
 		{
-			cout << "cubemap" << endl;
 			glBindTexture(GL_TEXTURE_CUBE_MAP, textures[i].id);
 		}
 		else
 		{
-			cout << "other" << endl;
 			glBindTexture(GL_TEXTURE_2D, textures[i].id);
 		}	
 	}
+	//cout << "***********************************" << endl;
 
 	mat4 model = mat4(1.0f);  
 	model = translate(model, m_translate);
@@ -178,7 +189,7 @@ void Mesh::DrawMesh(const Shader& shader)
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 
 	// 解绑
-	if (type == "cubemap")
+	if (type == "texture_cubemap")
 	{
 		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 	}
@@ -215,4 +226,9 @@ void Mesh::SetTranslate(vec3 translate)
 void Mesh::SetTextures(const vector<Texture>& textures)
 {
 	this->textures = textures;
+}
+
+void Mesh::AddTextures(const vector<Texture>& textures)
+{
+	this->textures.insert(this->textures.end(), textures.begin(), textures.end());
 }
