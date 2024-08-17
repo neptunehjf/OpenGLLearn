@@ -29,7 +29,7 @@ void mouse_callback(GLFWwindow* window, double posX, double posY);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 bool LoadTexture(const string&& filePath, GLuint& texture, const GLint param_s, const GLint param_t);
 void GetImguiValue();
-void SetValueToShader(Shader& shader);
+void SetUniformToShader(Shader& shader);
 void CreateFrameBuffer(GLuint& fbo, GLuint& tbo, GLuint& rbo);
 void DeleteFrameBuffer();
 GLuint LoadCubemap(const vector<string>& cubemapFaces);
@@ -53,13 +53,26 @@ static float spotLight_innerCos = 5.0f;
 static float spotLight_outerCos = 8.0f;
 static int item = 0;
 static int material_shininess = 32;
-static int postProcessType = 0;
+static int postProcessType = 1;
 static float sampleOffsetBase = 300.0f;
 static float imgui_speed = 5.0f;
 static float imgui_camNear = 0.1f;
 static float imgui_camFar = 100.0f;
+static float pointSize = 20.0f;
+static bool isSplitScreen = 1;
+static float windowWidth = WINDOW_WIDTH;
+static float windowHeight = WINDOW_HEIGHT;
 /************** Imgui变量 **************/
 
+// 原场景缓冲
+GLuint fbo1 = 0; // 自定义帧缓冲对象
+GLuint tbo1 = 0; // 纹理缓冲对象（附件）
+GLuint rbo1 = 0; // 渲染缓冲对象（附件）
+
+// 后视镜缓冲
+GLuint fbo2 = 0; // 自定义帧缓冲对象
+GLuint tbo2 = 0; // 纹理缓冲对象（附件）
+GLuint rbo2 = 0; // 渲染缓冲对象（附件）
 
 int main()
 {
@@ -73,7 +86,7 @@ int main()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// 绘制窗口
-	GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "koalahjf", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(windowWidth, windowHeight, "koalahjf", NULL, NULL);
 	if (window == NULL)
 	{
 		cout << "Failed to create window." << endl;
@@ -82,6 +95,7 @@ int main()
 	}
 	glfwMakeContextCurrent(window);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
 
 	// 捕获鼠标
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
@@ -94,6 +108,7 @@ int main()
 		glfwTerminate();
 		return -1;
 	}
+	glViewport(0, 0, windowWidth, windowHeight);
 
 	// Setup Dear ImGui context
 	IMGUI_CHECKVERSION();
@@ -201,20 +216,20 @@ int main()
 	};
 	Mesh mirror(g_mirrorVertices, g_mirrorIndices, mirrorTexture);
 
+	const vector<Texture> particleTexture =
+	{
+		{t_dummy, "texture_diffuse"},
+		{t_dummy, "texture_specular"}
+	};
+	Mesh particle(g_particleVertices, g_particleIndices, particleTexture);
+
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	// 原场景缓冲
-	GLuint fbo1 = 0; // 自定义帧缓冲对象
-	GLuint tbo1 = 0; // 纹理缓冲对象（附件）
-	GLuint rbo1 = 0; // 渲染缓冲对象（附件）
 	CreateFrameBuffer(fbo1, tbo1, rbo1);
-
 	// 后视镜缓冲
-	GLuint fbo2 = 0; // 自定义帧缓冲对象
-	GLuint tbo2 = 0; // 纹理缓冲对象（附件）
-	GLuint rbo2 = 0; // 渲染缓冲对象（附件）
 	CreateFrameBuffer(fbo2, tbo2, rbo2);
 
 	glEnable(GL_PROGRAM_POINT_SIZE);
@@ -257,11 +272,11 @@ int main()
 				glBindFramebuffer(GL_FRAMEBUFFER, fbo2); // 绑定到自定义帧缓冲，默认帧缓冲不再起作用
 			}
 
-			SetValueToShader(lightShader);
-			SetValueToShader(screenShader);
-			SetValueToShader(cubemapShader);
-			SetValueToShader(reflectShader);
-			SetValueToShader(refractShader);
+			SetUniformToShader(lightShader);
+			SetUniformToShader(screenShader);
+			SetUniformToShader(cubemapShader);
+			SetUniformToShader(reflectShader);
+			SetUniformToShader(refractShader);
 
 			// 清空各个缓冲区
 			glClearColor(bkgColor.r, bkgColor.g, bkgColor.b, 1.0f);
@@ -312,11 +327,11 @@ int main()
 			if (i == 2)
 			{
 				myCam.yawValue -= 180.0;
-				SetValueToShader(lightShader);
-				SetValueToShader(screenShader);
-				SetValueToShader(cubemapShader);
-				SetValueToShader(reflectShader);
-				SetValueToShader(refractShader);
+				SetUniformToShader(lightShader);
+				SetUniformToShader(screenShader);
+				SetUniformToShader(cubemapShader);
+				SetUniformToShader(reflectShader);
+				SetUniformToShader(refractShader);
 			}
 		}
 
@@ -345,6 +360,10 @@ int main()
 		};
 		mirror.SetTextures(mirrorTexture);
 		mirror.DrawMesh(screenShader, GL_TRIANGLES);
+
+		//绘制的图元是GL_POINTS。对应的是裁剪空间的归一化坐标（实际是在顶点着色器设定）
+		glPointSize(pointSize);
+		particle.DrawMesh(screenShader, GL_POINTS);
 
 		// imgui在默认缓冲中绘制，因为我不想imgui也有后期处理效果
 		ImGui::Render();
@@ -383,6 +402,22 @@ int main()
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
+	windowWidth = width;
+	windowHeight = height;
+
+	// bugfix 窗口大小变化后，纹理缓冲的大小也要相应变化
+	// 删除已存在的缓冲
+	glDeleteFramebuffers(1, &fbo1);
+	glDeleteFramebuffers(1, &tbo1);
+	glDeleteFramebuffers(1, &rbo1);
+	glDeleteFramebuffers(1, &fbo2);
+	glDeleteFramebuffers(1, &tbo2);
+	glDeleteFramebuffers(1, &rbo2);
+	// 原场景缓冲
+	CreateFrameBuffer(fbo1, tbo1, rbo1);
+	// 后视镜缓冲
+	CreateFrameBuffer(fbo2, tbo2, rbo2);
+
 	glViewport(0, 0, width, height);
 }
 
@@ -552,9 +587,16 @@ void GetImguiValue()
 		ImGui::SliderFloat("PostProcess sample offset", &sampleOffsetBase, 1.0f, 3000.0f);
 		ImGui::TreePop();
 	}
+
+	if (ImGui::TreeNodeEx("Advanced GLSL", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		ImGui::SliderFloat("Point Size", &pointSize, 0.0f, 50.0f);
+		ImGui::Checkbox("Split Screen", &isSplitScreen);
+		ImGui::TreePop();
+	}
 }
 
-void SetValueToShader(Shader& shader)
+void SetUniformToShader(Shader& shader)
 {
 	//激活lightShader程序 这里涉及两个shader程序的切换，所以每次loop里都要在对应的位置调用，不能只在开始调用一次
 	shader.Use();
@@ -611,6 +653,9 @@ void SetValueToShader(Shader& shader)
 	shader.SetInt("material.shininess", material_shininess);
 	shader.SetInt("kernel_type", postProcessType);
 	shader.SetFloat("sample_offset_base", sampleOffsetBase);
+	shader.SetFloat("window_width", windowWidth);
+	shader.SetFloat("window_height", windowHeight);
+	shader.SetInt("split_flag", (int)isSplitScreen);
 	
 	for (int i = 0; i < 4; i++)
 	{
@@ -638,7 +683,7 @@ void SetValueToShader(Shader& shader)
 	mat4 projection;
 	float fov = myCam.getCamFov();
 
-	projection = perspective(radians(fov), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, myCam.camNear, myCam.camFar); // 之前写成(float)(WINDOW_WIDTH / WINDOW_HEIGHT)了，精度丢失，导致结果是1
+	projection = perspective(radians(fov), (float)windowWidth / (float)windowHeight, myCam.camNear, myCam.camFar); // 之前写成(float)(WINDOW_WIDTH / WINDOW_HEIGHT)了，精度丢失，导致结果是1
 	shader.SetMat4("uni_projection", projection);
 
 	// model矩阵 local -> world
@@ -657,7 +702,7 @@ void CreateFrameBuffer(GLuint& fbo, GLuint& tbo, GLuint& rbo)
 	// 生成纹理附件 对应color缓冲
 	glGenTextures(1, &tbo);
 	glBindTexture(GL_TEXTURE_2D, tbo);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, windowWidth, windowHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -668,7 +713,7 @@ void CreateFrameBuffer(GLuint& fbo, GLuint& tbo, GLuint& rbo)
 	// 生成渲染缓冲对象 对应stencil，depth缓冲
 	glGenRenderbuffers(1, &rbo);
 	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WINDOW_WIDTH, WINDOW_HEIGHT);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, windowWidth, windowHeight);
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
 	// 渲染缓冲对象 作为一个GL_DEPTH_STENCIL_ATTACHMENT附件 附加到 帧缓冲上

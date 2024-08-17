@@ -159,3 +159,19 @@ const vector<GLuint> g_skyboxIndices =
     20, 21, 22,
     20, 23, 21
 };
+
+const vector<Vertex> g_particleVertices = {
+    // positions                    // normal                  // texture Coords
+    {vec3(0.3f, 0.5f, 0.0f),      vec3(0.0f,  0.0f,  1.0f),  vec2(0.0f, 1.0f)},
+    {vec3(0.4f, 0.2f, 0.0f),      vec3(0.0f,  0.0f,  1.0f),  vec2(0.0f, 0.0f)},
+    {vec3(0.3f, 0.3f, 0.0f),     vec3(0.0f,  0.0f,  1.0f),  vec2(1.0f, 0.0f)},
+    {vec3(0.5f, 0.1f, 0.0f),      vec3(0.0f,  0.0f,  1.0f),  vec2(1.0f, 1.0f)},
+    {vec3(0.4f, 0.4f, 0.0f),      vec3(0.0f,  0.0f,  1.0f),  vec2(1.0f, 1.0f)},
+    {vec3(0.5f, 0.5f, 0.0f),      vec3(0.0f,  0.0f,  1.0f),  vec2(1.0f, 1.0f)},
+    {vec3(0.3f, 0.1f, 0.0f),      vec3(0.0f,  0.0f,  1.0f),  vec2(1.0f, 1.0f)},
+};
+
+const vector<GLuint> g_particleIndices =
+{
+    0, 1, 2, 3, 4, 5, 6
+};

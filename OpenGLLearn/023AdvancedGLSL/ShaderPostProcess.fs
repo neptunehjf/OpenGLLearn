@@ -5,6 +5,9 @@ in vec2 TexCoords;
 uniform sampler2D texture_diffuse1;
 uniform float sample_offset_base; 
 uniform int kernel_type;
+uniform float window_width;
+uniform float window_height;
+uniform bool split_flag;
 
 out vec4 FragColor;
 
@@ -12,7 +15,7 @@ float[9] CopyKernel(float src[9]);
 
 void main()
 {   // 原色
-    //FragColor = texture(texture_diffuse1, TexCoords);
+    vec4 originColor = texture(texture_diffuse1, TexCoords);
 
     // 反相
     //FragColor = vec4(vec3(1.0 - texture(texture_diffuse1, TexCoords)), 1.0); 
@@ -102,7 +105,19 @@ void main()
     for(int i = 0; i < 9; i++)
         color += sampleTex[i] * kernel[i];
 
-    FragColor = vec4(color, 1.0);
+    //gl_FragCoord 对应的是视口坐标（像素） 
+    if ((gl_FragCoord.x < window_width / 2.0) && split_flag)
+    {
+        FragColor = originColor;
+    }
+    else if ((gl_FragCoord.x < window_width / 2.0 + 1.0) && split_flag) // gl_FragCoord.x == window_width / 2.0 因为误差的原因算不出来
+    {
+        FragColor = vec4(0.0, 255.0, 0.0, 1.0);
+    }
+    else
+    {
+        FragColor = vec4(color, 1.0);
+    }
 }
 
 // 注意GLSL不支持指针操作（在显卡里当然不能访问内存了），只能通过返回值的方式返回数组
