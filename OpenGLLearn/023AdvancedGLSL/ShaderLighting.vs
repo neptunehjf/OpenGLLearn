@@ -5,8 +5,12 @@ layout(location = 1) in vec3 aNormal;
 layout(location = 2) in vec2 aTexCoord;
 
 uniform mat4 uni_model;
-uniform mat4 uni_view;
-uniform mat4 uni_projection;
+
+layout (std140) uniform Matrix
+{
+	mat4 uni_view;
+	mat4 uni_projection;	
+};
 
 out VS_OUT
 {

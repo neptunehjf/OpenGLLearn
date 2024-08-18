@@ -33,6 +33,7 @@ void SetUniformToShader(Shader& shader);
 void CreateFrameBuffer(GLuint& fbo, GLuint& tbo, GLuint& rbo);
 void DeleteFrameBuffer();
 GLuint LoadCubemap(const vector<string>& cubemapFaces);
+void SetUniformBuffer();
 
 Camera myCam(vec3(1.5f, 2.0f, 3.8f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
 
@@ -73,6 +74,9 @@ GLuint rbo1 = 0; // 渲染缓冲对象（附件）
 GLuint fbo2 = 0; // 自定义帧缓冲对象
 GLuint tbo2 = 0; // 纹理缓冲对象（附件）
 GLuint rbo2 = 0; // 渲染缓冲对象（附件）
+
+// Uniform缓冲
+GLuint ubo = 0;
 
 int main()
 {
@@ -232,7 +236,24 @@ int main()
 	// 后视镜缓冲
 	CreateFrameBuffer(fbo2, tbo2, rbo2);
 
-	glEnable(GL_PROGRAM_POINT_SIZE);
+	// Uniform缓冲
+	// 
+	// 根据UniformBlockIndex绑定各shader的uniformblock到binding point，在opengl 420以上版本可以直接用layout(std140, binding = XXX)在shader直接指定 
+	GLuint ubi_Lighting = glGetUniformBlockIndex(lightShader.ID, "Matrix");
+	GLuint ubi_Cubemap = glGetUniformBlockIndex(cubemapShader.ID, "Matrix");
+	GLuint ubi_Refract  = glGetUniformBlockIndex(refractShader.ID, "Matrix");
+	GLuint ubi_Reflect  = glGetUniformBlockIndex(reflectShader.ID, "Matrix");
+
+	glUniformBlockBinding(lightShader.ID, ubi_Lighting, 0);
+	glUniformBlockBinding(cubemapShader.ID, ubi_Cubemap, 0);
+	glUniformBlockBinding(refractShader.ID, ubi_Refract, 0);
+	glUniformBlockBinding(reflectShader.ID, ubi_Reflect, 0);
+
+	// 创建Uniform缓冲区，并绑定到对应的binding point
+	glGenBuffers(1, &ubo);
+	glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(mat4), NULL, GL_STATIC_DRAW); // 只有4->16的情况才要考虑内存对齐。NULL表示只分配内存，不写入数据。
+	glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo);
 
 	//渲染循环
 	while (!glfwWindowShouldClose(window))
@@ -272,6 +293,7 @@ int main()
 				glBindFramebuffer(GL_FRAMEBUFFER, fbo2); // 绑定到自定义帧缓冲，默认帧缓冲不再起作用
 			}
 
+			SetUniformBuffer();
 			SetUniformToShader(lightShader);
 			SetUniformToShader(screenShader);
 			SetUniformToShader(cubemapShader);
@@ -327,6 +349,7 @@ int main()
 			if (i == 2)
 			{
 				myCam.yawValue -= 180.0;
+				SetUniformBuffer();
 				SetUniformToShader(lightShader);
 				SetUniformToShader(screenShader);
 				SetUniformToShader(cubemapShader);
@@ -360,10 +383,12 @@ int main()
 		};
 		mirror.SetTextures(mirrorTexture);
 		mirror.DrawMesh(screenShader, GL_TRIANGLES);
-
+		
+		glEnable(GL_PROGRAM_POINT_SIZE);
 		//绘制的图元是GL_POINTS。对应的是裁剪空间的归一化坐标（实际是在顶点着色器设定）
 		glPointSize(pointSize);
 		particle.DrawMesh(screenShader, GL_POINTS);
+		glDisable(GL_PROGRAM_POINT_SIZE);
 
 		// imgui在默认缓冲中绘制，因为我不想imgui也有后期处理效果
 		ImGui::Render();
@@ -391,6 +416,7 @@ int main()
 	glDeleteFramebuffers(1, &fbo2);
 	glDeleteFramebuffers(1, &tbo2);
 	glDeleteFramebuffers(1, &rbo2);
+	glDeleteBuffers(1, &ubo);
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
@@ -477,6 +503,12 @@ void mouse_callback(GLFWwindow* window, double posX, double posY)
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
+	// 鼠标右键不按就不处理，因为鼠标要用来点Imgui
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) != GLFW_PRESS)
+	{
+		return;
+	}
+
 	/* 镜头缩放 */
 	if (myCam.fov >= 1.0f && myCam.fov <= 95.0f)
 		myCam.fov -= yoffset;
@@ -673,18 +705,18 @@ void SetUniformToShader(Shader& shader)
 		shader.SetFloat(prefix + "quadratic", quadratic);
 	}
 
-	// view矩阵 world -> view
-	mat4 view;
-	myCam.setCamView();
-	view = myCam.getCamView();
-	shader.SetMat4("uni_view", view);
+	//// view矩阵 world -> view
+	//mat4 view;
+	//myCam.setCamView();
+	//view = myCam.getCamView();
+	//shader.SetMat4("uni_view", view);
 
-	// 投影矩阵 view -> clip
-	mat4 projection;
-	float fov = myCam.getCamFov();
+	//// 投影矩阵 view -> clip
+	//mat4 projection;
+	//float fov = myCam.getCamFov();
 
-	projection = perspective(radians(fov), (float)windowWidth / (float)windowHeight, myCam.camNear, myCam.camFar); // 之前写成(float)(WINDOW_WIDTH / WINDOW_HEIGHT)了，精度丢失，导致结果是1
-	shader.SetMat4("uni_projection", projection);
+	//projection = perspective(radians(fov), (float)windowWidth / (float)windowHeight, myCam.camNear, myCam.camFar); // 之前写成(float)(WINDOW_WIDTH / WINDOW_HEIGHT)了，精度丢失，导致结果是1
+	//shader.SetMat4("uni_projection", projection);
 
 	// model矩阵 local -> world
 	mat4 model = mat4(1.0f); // mat4初始化最好显示调用初始化为单位矩阵，因为新版本mat4 model可能是全0矩阵
@@ -780,4 +812,24 @@ GLuint LoadCubemap(const vector<string>& cubemapFaces)
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 	
 	return cmo;
+}
+
+void SetUniformBuffer()
+{
+	// view矩阵 world -> view
+	mat4 view;
+	myCam.setCamView();
+	view = myCam.getCamView();
+	
+	glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(mat4), value_ptr(view)); //调用glBufferSubData填充数据之前要确保已经调用glBufferData分配了内存
+
+	// 投影矩阵 view -> clip
+	mat4 projection;
+	float fov = myCam.getCamFov();
+
+	projection = perspective(radians(fov), (float)windowWidth / (float)windowHeight, myCam.camNear, myCam.camFar); // 之前写成(float)(WINDOW_WIDTH / WINDOW_HEIGHT)了，精度丢失，导致结果是1
+	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(mat4), sizeof(mat4), value_ptr(projection));
+
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
