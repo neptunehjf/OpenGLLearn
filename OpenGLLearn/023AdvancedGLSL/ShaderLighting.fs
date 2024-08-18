@@ -1,8 +1,11 @@
 #version 330 core
 
-in vec3 fragPos;
-in vec3 normal;
-in vec2 texCoord;
+in VS_OUT
+{
+	vec3 fragPos;
+	vec3 normal;
+	vec2 texCoord;
+} vs_in;
 
 uniform vec3 uni_viewPos;
 uniform samplerCube texture_cubemap1;
@@ -64,9 +67,9 @@ float far  = 100.0;
 
 void main()
 {
-	vec4 diffuseColor = texture(material.texture_diffuse1, texCoord);
-	vec4 specularColor = texture(material.texture_specular1, texCoord);
-	vec4 reflectionColor = texture(material.texture_reflection1, texCoord);
+	vec4 diffuseColor = texture(material.texture_diffuse1, vs_in.texCoord);
+	vec4 specularColor = texture(material.texture_specular1, vs_in.texCoord);
+	vec4 reflectionColor = texture(material.texture_reflection1, vs_in.texCoord);
 
     vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
 
@@ -89,13 +92,13 @@ vec4 calcDirLight(vec4 diffuseColor, vec4 specularColor)
 	vec4 ambient = vec4(dirLight.ambient, 1.0) * diffuseColor;
 
 	// 漫反射光照diffuse
-	vec3 norm = normalize(normal);
+	vec3 norm = normalize(vs_in.normal);
 	vec3 lightDir = normalize(-dirLight.direction);
 	float diff = max(dot(norm, lightDir), 0.0);
 	vec4 diffuse = diff * vec4(dirLight.diffuse, 1.0) * diffuseColor;
 	
 	// 镜面光照specular
-	vec3 viewDir = normalize(uni_viewPos - fragPos);
+	vec3 viewDir = normalize(uni_viewPos - vs_in.fragPos);
 	vec3 reflectDir = normalize(reflect(-lightDir, norm));
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
 	vec4 specular = spec * vec4(dirLight.specular, 1.0) * specularColor;
@@ -108,8 +111,8 @@ vec4 calcDirLight(vec4 diffuseColor, vec4 specularColor)
 vec4 calcPointLight(vec4 diffuseColor, vec4 specularColor)
 {
 	vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
-	vec3 norm = normalize(normal);
-	vec3 viewDir = normalize(uni_viewPos - fragPos);
+	vec3 norm = normalize(vs_in.normal);
+	vec3 viewDir = normalize(uni_viewPos - vs_in.fragPos);
 
 	for (int i = 0; i < POINT_LIGHT_NUM; i++)
 	{
@@ -117,7 +120,7 @@ vec4 calcPointLight(vec4 diffuseColor, vec4 specularColor)
 	    vec4 ambient = vec4(pointLight[i].ambient, 1.0) * diffuseColor;
 
 		// 漫反射光照diffuse
-		vec3 lightDir = normalize(pointLight[i].lightPos - fragPos);
+		vec3 lightDir = normalize(pointLight[i].lightPos - vs_in.fragPos);
 		float diff = max(dot(norm, lightDir), 0.0);
 		vec4 diffuse = diff * vec4(pointLight[i].diffuse, 1.0) * diffuseColor;
 	
@@ -127,7 +130,7 @@ vec4 calcPointLight(vec4 diffuseColor, vec4 specularColor)
 		vec4 specular = spec * vec4(pointLight[i].specular, 1.0) * specularColor;
 
 		// 片段离光源的距离
-		float distance = length(pointLight[i].lightPos - fragPos);
+		float distance = length(pointLight[i].lightPos - vs_in.fragPos);
 		// 计算光照衰减，这里是一个点光源的衰减模型。距离较小时衰减得慢（一次项影响大）；距离较大时衰减得快（二次项影响大）；然后缓慢接近0（分母是无穷大，衰减到0）
 		float lightFade = 1 / (pointLight[i].constant + pointLight[i].linear * distance + pointLight[i].quadratic * distance * distance);
 		// 应用光照衰减
@@ -151,19 +154,19 @@ vec4 calcSpotLight(vec4 diffuseColor, vec4 specularColor)
 	vec4 diffuse = vec4(0.0, 0.0, 0.0, 1.0);
 	vec4 specular = vec4(0.0, 0.0, 0.0, 1.0);
 
-	vec3 lightDir = normalize(spotLight.lightPos - fragPos); //片段到spotlight的方向
+	vec3 lightDir = normalize(spotLight.lightPos - vs_in.fragPos); //片段到spotlight的方向
 	float theta = max(dot(-lightDir, normalize(spotLight.direction)), 0.0); //spotDir与聚光源的轴方向 ，注意调用normalize转成单位向量
 
 	// 计算边缘的光照衰减
 	float intensity = clamp((theta - spotLight.outerCos) / (spotLight.innerCos - spotLight.outerCos), 0.0, 1.0); //用clamp就不需要ifelse了
 
 	// 漫反射光照diffuse
-	vec3 norm = normalize(normal);
+	vec3 norm = normalize(vs_in.normal);
 	float diff = max(dot(norm, lightDir), 0.0);
 	diffuse = intensity * diff * vec4(spotLight.diffuse, 1.0) * diffuseColor;
 	
 	// 镜面光照specular
-	vec3 viewDir = normalize(uni_viewPos - fragPos);
+	vec3 viewDir = normalize(uni_viewPos - vs_in.fragPos);
 	vec3 reflectDir = normalize(reflect(-lightDir, norm));
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
 	specular = intensity * spec * vec4(spotLight.specular, 1.0) * specularColor;
@@ -176,8 +179,8 @@ vec4 calcSpotLight(vec4 diffuseColor, vec4 specularColor)
 vec4 calcReflectionLight(vec4 reflectionColor)
 {
 	// 反射光reflection
-	vec3 I = normalize(fragPos - uni_viewPos);
-	vec3 R = normalize(reflect(I, normalize(normal)));
+	vec3 I = normalize(vs_in.fragPos - uni_viewPos);
+	vec3 R = normalize(reflect(I, normalize(vs_in.normal)));
 	vec4 color = reflectionColor * vec4(texture(texture_cubemap1, R).rgb, 1.0);
 
 	return color;

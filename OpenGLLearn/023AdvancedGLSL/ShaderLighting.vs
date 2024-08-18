@@ -8,16 +8,19 @@ uniform mat4 uni_model;
 uniform mat4 uni_view;
 uniform mat4 uni_projection;
 
-out vec3 fragPos;
-out vec3 normal;
-out vec2 texCoord;
+out VS_OUT
+{
+	vec3 fragPos;
+	vec3 normal;
+	vec2 texCoord;
+} vs_out;
 
 void main()
 {
   gl_Position = uni_projection * uni_view * uni_model * vec4(aPos, 1.0);  // 注意矩阵变换的顺序是从右向左
 
-  fragPos = vec3(uni_model * vec4(aPos, 1.0));
-  normal = mat3(transpose(inverse(uni_model))) * aNormal;
-  texCoord = aTexCoord;
+  vs_out.fragPos = vec3(uni_model * vec4(aPos, 1.0));
+  vs_out.normal = mat3(transpose(inverse(uni_model))) * aNormal;
+  vs_out.texCoord = aTexCoord;
 
 }

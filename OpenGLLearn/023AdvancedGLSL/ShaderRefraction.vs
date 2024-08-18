@@ -8,13 +8,16 @@ uniform mat4 uni_model;
 uniform mat4 uni_view;
 uniform mat4 uni_projection;
 
-out vec3 normal;
-out vec3 position;
+out VS_OUT
+{
+	vec3 normal;
+	vec3 position;
+}vs_out;
 
 void main()
 {
   gl_Position = uni_projection * uni_view * uni_model * vec4(aPos, 1.0);  // 注意矩阵变换的顺序是从右向左
 
-  normal = mat3(transpose(inverse(uni_model))) * aNormal;
-  position = vec3(uni_model * vec4(aPos, 1.0));;
+  vs_out.normal = mat3(transpose(inverse(uni_model))) * aNormal;
+  vs_out.position = vec3(uni_model * vec4(aPos, 1.0));;
 }
