@@ -151,6 +151,7 @@
     <None Include="ShaderGeometryTest.gs" />
     <None Include="ShaderGeometryTest.vs" />
     <None Include="ShaderLighting.fs" />
+    <None Include="ShaderLighting.gs" />
     <None Include="ShaderLighting.vs" />
     <None Include="ShaderPostProcess.fs" />
     <None Include="ShaderPostProcess.vs" />

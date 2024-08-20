@@ -61,10 +61,12 @@ static float imgui_speed = 5.0f;
 static float imgui_camNear = 0.1f;
 static float imgui_camFar = 100.0f;
 static float pointSize = 1.0f;
-static bool isSplitScreen = 0;
+static bool bSplitScreen = 0;
 static float windowWidth = WINDOW_WIDTH;
 static float windowHeight = WINDOW_HEIGHT;
-static bool isGMTest = 1;
+static bool bGMTest = 0;
+static float explodeMag = 0.0;
+static bool bFaceCulling = 0;
 /************** Imgui变量 **************/
 
 // 原场景缓冲
@@ -128,7 +130,7 @@ int main()
 	ImGui_ImplOpenGL3_Init();
 	
 	// 创建shader 不能声明全局变量，因为shader的相关操作必须在glfw初始化完成后
-	Shader lightShader("ShaderLighting.vs", "ShaderLighting.fs");
+	Shader lightShader("ShaderLighting.vs", "ShaderLighting.fs", "ShaderLighting.gs");
 	Shader screenShader("ShaderPostProcess.vs", "ShaderPostProcess.fs");
 	Shader cubemapShader("ShaderCubemap.vs", "ShaderCubemap.fs");
 	Shader reflectShader("ShaderReflection.vs", "ShaderReflection.fs");
@@ -272,7 +274,8 @@ int main()
 
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
-		glEnable(GL_CULL_FACE);
+		if (bFaceCulling)
+			glEnable(GL_CULL_FACE);
 
 		/********************** 先用自定义帧缓冲进行离屏渲染 **********************/
 
@@ -385,7 +388,7 @@ int main()
 		particle.DrawMesh(screenShader, GL_POINTS);
 
 		// Geometry Shader Test
-		if (isGMTest)
+		if (bGMTest)
 		{
 			glClearColor(bkgColor.r, bkgColor.g, bkgColor.b, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -615,6 +618,12 @@ void GetImguiValue()
 		ImGui::TreePop();
 	}
 
+	if (ImGui::TreeNodeEx("Test and Blend", ImGuiTreeNodeFlags_None))
+	{
+		ImGui::Checkbox("Face Culling", &bFaceCulling);
+		ImGui::TreePop();
+	}
+
 	if (ImGui::TreeNodeEx("PostProcess", ImGuiTreeNodeFlags_None))
 	{
 		const char* itemArray[] = {"Default", "Sharpen", "Edge Detection", "Blur"};
@@ -627,13 +636,14 @@ void GetImguiValue()
 	if (ImGui::TreeNodeEx("Advanced GLSL", ImGuiTreeNodeFlags_None))
 	{
 		ImGui::SliderFloat("Point Size", &pointSize, 0.0f, 50.0f);
-		ImGui::Checkbox("Split Screen", &isSplitScreen);
+		ImGui::Checkbox("Split Screen", &bSplitScreen);
 		ImGui::TreePop();
 	}
 
 	if (ImGui::TreeNodeEx("Geometry Shader", ImGuiTreeNodeFlags_DefaultOpen))
 	{
-		ImGui::Checkbox("Geometry Shader Test", &isGMTest);
+		ImGui::SliderFloat("Explode Magnitude", &explodeMag, 0.0f, 5.0f);
+		ImGui::Checkbox("Geometry Shader Test", &bGMTest);
 		ImGui::TreePop();
 	}
 }
@@ -697,7 +707,8 @@ void SetUniformToShader(Shader& shader)
 	shader.SetFloat("sample_offset_base", sampleOffsetBase);
 	shader.SetFloat("window_width", windowWidth);
 	shader.SetFloat("window_height", windowHeight);
-	shader.SetInt("split_flag", (int)isSplitScreen);
+	shader.SetInt("split_flag", (int)bSplitScreen);
+	shader.SetFloat("magnitude", explodeMag);
 	
 	for (int i = 0; i < 4; i++)
 	{
