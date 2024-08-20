@@ -147,6 +147,9 @@
   <ItemGroup>
     <None Include="ShaderCubemap.fs" />
     <None Include="ShaderCubemap.vs" />
+    <None Include="ShaderGeometryTest.fs" />
+    <None Include="ShaderGeometryTest.gs" />
+    <None Include="ShaderGeometryTest.vs" />
     <None Include="ShaderLighting.fs" />
     <None Include="ShaderLighting.vs" />
     <None Include="ShaderPostProcess.fs" />

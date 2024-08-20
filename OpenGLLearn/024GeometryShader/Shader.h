@@ -20,7 +20,7 @@ public:
 	//程序ID 
 	GLuint ID = 0; 
 
-	Shader(const char* vertexShaderPath, const char* fragmentShaderPath);
+	Shader(const char* vertexShaderPath, const char* fragmentShaderPath, const char* geometryShaderPath);
 
 	//使用/激活程序
 	bool Use() const;
@@ -36,76 +36,25 @@ public:
 	void SetMat4(const string& name, mat4 matrix) const;
 	void SetVec3(const string& name, vec3 vector) const;
 	void SetVec4(const string& name, vec4 vector) const;
+
+private:
+	GLuint CompileShader(const char* shaderPath, GLuint shaderType);
 };
 
-Shader::Shader(const char* vertexShaderPath, const char* fragmentShaderPath)
+Shader::Shader(const char* vertexShaderPath, const char* fragmentShaderPath, const char* geometryShaderPath = NULL)
 {
-	// 1.从硬盘读取shader源码
-	string vertexCode;
-	string fragmentCode;
-	ifstream vShaderFile;
-	ifstream fShaderFile;
-	// 设置抛出异常类型
-	vShaderFile.exceptions(ifstream::failbit | ifstream::badbit);
-	fShaderFile.exceptions(ifstream::failbit | ifstream::badbit);
-	try
+	// 顶点着色器
+	GLuint vertexShader = CompileShader(vertexShaderPath, GL_VERTEX_SHADER);
+
+	// 几何着色器
+	GLuint geometryShader = 0;
+	if (geometryShaderPath)
 	{
-		// 打开文件
-		vShaderFile.open(vertexShaderPath);
-		fShaderFile.open(fragmentShaderPath);
-		// 读取到数据流
-		stringstream vShaderStream, fShaderStream;
-		vShaderStream << vShaderFile.rdbuf();
-		fShaderStream << fShaderFile.rdbuf();
-		// 关闭文件流
-		vShaderFile.close();
-		fShaderFile.close();
-		// 从数据流取出str
-		vertexCode = vShaderStream.str();
-		fragmentCode = fShaderStream.str();
-	}
-	catch(ifstream::failure e)
-	{
-		cout << "Read shader file: exception occur!" << endl;
-		cerr << "Error reading file: " << e.what() << endl;
-		cerr << "Error code: " << e.code() << endl;
+		geometryShader = CompileShader(geometryShaderPath, GL_GEOMETRY_SHADER);
 	}
 
-	// 获取shader源码
-	const char* vertexShaderSource = vertexCode.c_str();
-	const char* fragmentShaderSource = fragmentCode.c_str();
-
-	int success = 0;
-	char infoLog[LOG_LENGTH] = "\0";
-
-	// 编译shader代码
-	GLuint vertexShader = 0;
-	vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);  // 在这里直接用 &vertexCode.c_str()报错， 因为vertexCode.c_str()不是左值。
-	glCompileShader(vertexShader);
-
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		memset(infoLog, 0, sizeof(infoLog));
-
-		glGetShaderInfoLog(vertexShader, sizeof(infoLog), NULL, infoLog);
-		cout << "Vertex shader compile failed!\n" << infoLog << endl; 
-	}
-
-	GLuint fragmentShader = 0;
-	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-	glCompileShader(fragmentShader);
-
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		memset(infoLog, 0, sizeof(infoLog));
-
-		glGetShaderInfoLog(fragmentShader, sizeof(infoLog), NULL, infoLog);
-		cout << "Fragment shader compile failed!\n" << infoLog << endl;
-	}
+	// 片段着色器
+	GLuint fragmentShader = CompileShader(fragmentShaderPath, GL_FRAGMENT_SHADER);
 
 	// 链接着色器程序
 	ID = glCreateProgram();
@@ -113,10 +62,14 @@ Shader::Shader(const char* vertexShaderPath, const char* fragmentShaderPath)
 	{
 		cout << "Shader program create failed!\n" << endl;
 	}
-
 	glAttachShader(ID, vertexShader);
+	if (geometryShaderPath)
+		glAttachShader(ID, geometryShader);
 	glAttachShader(ID, fragmentShader);
 	glLinkProgram(ID);
+
+	int success = 0;
+	char infoLog[LOG_LENGTH] = "\0";
 
 	glGetProgramiv(ID, GL_LINK_STATUS, &success);
 	if (!success)
@@ -126,11 +79,12 @@ Shader::Shader(const char* vertexShaderPath, const char* fragmentShaderPath)
 		glGetProgramInfoLog(ID, sizeof(infoLog), NULL, infoLog);
 		cout << "Shader program link failed!\n" << infoLog << endl;
 
-		// 连接失败，shader程序应该置为不可用
-		ID = 0;
+		//ID = 0; 这里不能置0，因为这样就不能按ID delete了
 	}
 
 	glDeleteShader(vertexShader);
+	if (geometryShaderPath)
+		glDeleteShader(geometryShader);
 	glDeleteShader(fragmentShader);
 }
 
@@ -184,4 +138,54 @@ void Shader::SetVec4(const string& name, vec4 vector) const
 	glUniform4fv(glGetUniformLocation(ID, name.c_str()), 1, value_ptr(vector));
 }
 
+
+GLuint Shader::CompileShader(const char* shaderPath, GLuint shaderType)
+{
+	// 1.从硬盘读取shader源码
+	string code;
+	ifstream shaderFile;
+	// 设置抛出异常类型
+	shaderFile.exceptions(ifstream::failbit | ifstream::badbit);
+	try
+	{
+		// 打开文件
+		shaderFile.open(shaderPath);
+		// 读取到数据流
+		stringstream shaderStream;
+		shaderStream << shaderFile.rdbuf();
+		// 关闭文件流
+		shaderFile.close();
+		// 从数据流取出str
+		code = shaderStream.str();
+	}
+	catch (ifstream::failure e)
+	{
+		cout << "Read shader file: exception occur!" << endl;
+		cerr << "Error reading file: " << e.what() << endl;
+		cerr << "Error code: " << e.code() << endl;
+	}
+
+	// 获取shader源码
+	const char* shaderSource = code.c_str();
+
+	int success = 0;
+	char infoLog[LOG_LENGTH] = "\0";
+
+	// 编译shader代码
+	GLuint shader = 0;
+	shader = glCreateShader(shaderType);
+	glShaderSource(shader, 1, &shaderSource, NULL);  // 在这里直接用 &code.c_str()报错， 因为code.c_str()不是左值。
+	glCompileShader(shader);
+
+	glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+	if (!success)
+	{
+		memset(infoLog, 0, sizeof(infoLog));
+
+		glGetShaderInfoLog(shader, sizeof(infoLog), NULL, infoLog);
+		cout << "Shader compile failed!\n" << infoLog << endl;
+	}
+
+	return shader;
+}
 

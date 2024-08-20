@@ -35,6 +35,7 @@ void DeleteFrameBuffer();
 GLuint LoadCubemap(const vector<string>& cubemapFaces);
 void SetUniformBuffer();
 
+
 Camera myCam(vec3(1.5f, 2.0f, 3.8f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
 
 /************** Imgui变量 **************/
@@ -54,15 +55,16 @@ static float spotLight_innerCos = 5.0f;
 static float spotLight_outerCos = 8.0f;
 static int item = 0;
 static int material_shininess = 32;
-static int postProcessType = 1;
+static int postProcessType = 0;
 static float sampleOffsetBase = 300.0f;
 static float imgui_speed = 5.0f;
 static float imgui_camNear = 0.1f;
 static float imgui_camFar = 100.0f;
-static float pointSize = 20.0f;
-static bool isSplitScreen = 1;
+static float pointSize = 1.0f;
+static bool isSplitScreen = 0;
 static float windowWidth = WINDOW_WIDTH;
 static float windowHeight = WINDOW_HEIGHT;
+static bool isGMTest = 1;
 /************** Imgui变量 **************/
 
 // 原场景缓冲
@@ -131,6 +133,7 @@ int main()
 	Shader cubemapShader("ShaderCubemap.vs", "ShaderCubemap.fs");
 	Shader reflectShader("ShaderReflection.vs", "ShaderReflection.fs");
 	Shader refractShader("ShaderRefraction.vs", "ShaderRefraction.fs");
+	Shader GMTestShader("ShaderGeometryTest.vs", "ShaderGeometryTest.fs", "ShaderGeometryTest.gs");
 
 	/* 加载贴图 */
     // 翻转y轴，使图片和opengl坐标一致  但是如果assimp 导入模型时设置了aiProcess_FlipUVs，就不能重复设置了
@@ -205,27 +208,19 @@ int main()
 
 	Mesh skybox(g_skyboxVertices, g_skyboxIndices, skyboxTexture);
 
-	// 实际材质是从自定义缓冲的纹理附件读出来的，因此开始设成dummy只是为了复用代码方便
-	const vector<Texture> screenTexture =
+	// 用于不需要texture的mesh
+	const vector<Texture> dummyTexture =
 	{
 		{t_dummy, "texture_diffuse"},
 		{t_dummy, "texture_specular"}
 	};
-	Mesh screen(g_screenVertices, g_screenIndices, screenTexture);
+	Mesh screen(g_screenVertices, g_screenIndices, dummyTexture);
 
-	const vector<Texture> mirrorTexture =
-	{
-		{t_dummy, "texture_diffuse"},
-		{t_dummy, "texture_specular"}
-	};
-	Mesh mirror(g_mirrorVertices, g_mirrorIndices, mirrorTexture);
+	Mesh mirror(g_mirrorVertices, g_mirrorIndices, dummyTexture);
 
-	const vector<Texture> particleTexture =
-	{
-		{t_dummy, "texture_diffuse"},
-		{t_dummy, "texture_specular"}
-	};
-	Mesh particle(g_particleVertices, g_particleIndices, particleTexture);
+	Mesh particle(g_particleVertices, g_particleIndices, dummyTexture);
+
+	Mesh GMTest(g_GMTestVertices, g_GMTestIndices, dummyTexture);
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -388,6 +383,15 @@ int main()
 		//绘制的图元是GL_POINTS。对应的是裁剪空间的归一化坐标（实际是在顶点着色器设定）
 		glPointSize(pointSize);
 		particle.DrawMesh(screenShader, GL_POINTS);
+
+		// Geometry Shader Test
+		if (isGMTest)
+		{
+			glClearColor(bkgColor.r, bkgColor.g, bkgColor.b, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			GMTest.DrawMesh(GMTestShader, GL_POINTS);
+		}
+
 		glDisable(GL_PROGRAM_POINT_SIZE);
 
 		// imgui在默认缓冲中绘制，因为我不想imgui也有后期处理效果
@@ -563,7 +567,7 @@ bool LoadTexture(const string&& filePath, GLuint& texture, const GLint param_s, 
 
 void GetImguiValue()
 {
-	if (ImGui::TreeNodeEx("Camera", ImGuiTreeNodeFlags_DefaultOpen))
+	if (ImGui::TreeNodeEx("Camera", ImGuiTreeNodeFlags_None))
 	{
 		ImGui::Text("CameraX %f | CameraY %f | CameraZ %f \n CameraPitch %f | CameraYaw %f | CameraFov %f",
 			myCam.camPos.x, myCam.camPos.y, myCam.camPos.z, myCam.pitchValue, myCam.yawValue, myCam.fov);
@@ -580,7 +584,7 @@ void GetImguiValue()
 		ImGui::TreePop();
 	}
 
-	if (ImGui::TreeNode("Lighting"))
+	if (ImGui::TreeNodeEx("Lighting", ImGuiTreeNodeFlags_None))
 	{
 		// clear color
 		ImGui::ColorEdit3("background", (float*)&bkgColor);
@@ -611,7 +615,7 @@ void GetImguiValue()
 		ImGui::TreePop();
 	}
 
-	if (ImGui::TreeNodeEx("PostProcess", ImGuiTreeNodeFlags_DefaultOpen))
+	if (ImGui::TreeNodeEx("PostProcess", ImGuiTreeNodeFlags_None))
 	{
 		const char* itemArray[] = {"Default", "Sharpen", "Edge Detection", "Blur"};
 		ImGui::Combo("PostProcess Type", &postProcessType, itemArray, IM_ARRAYSIZE(itemArray));
@@ -620,10 +624,16 @@ void GetImguiValue()
 		ImGui::TreePop();
 	}
 
-	if (ImGui::TreeNodeEx("Advanced GLSL", ImGuiTreeNodeFlags_DefaultOpen))
+	if (ImGui::TreeNodeEx("Advanced GLSL", ImGuiTreeNodeFlags_None))
 	{
 		ImGui::SliderFloat("Point Size", &pointSize, 0.0f, 50.0f);
 		ImGui::Checkbox("Split Screen", &isSplitScreen);
+		ImGui::TreePop();
+	}
+
+	if (ImGui::TreeNodeEx("Geometry Shader", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		ImGui::Checkbox("Geometry Shader Test", &isGMTest);
 		ImGui::TreePop();
 	}
 }
@@ -704,19 +714,6 @@ void SetUniformToShader(Shader& shader)
 		shader.SetFloat(prefix + "linear", linear);
 		shader.SetFloat(prefix + "quadratic", quadratic);
 	}
-
-	//// view矩阵 world -> view
-	//mat4 view;
-	//myCam.setCamView();
-	//view = myCam.getCamView();
-	//shader.SetMat4("uni_view", view);
-
-	//// 投影矩阵 view -> clip
-	//mat4 projection;
-	//float fov = myCam.getCamFov();
-
-	//projection = perspective(radians(fov), (float)windowWidth / (float)windowHeight, myCam.camNear, myCam.camFar); // 之前写成(float)(WINDOW_WIDTH / WINDOW_HEIGHT)了，精度丢失，导致结果是1
-	//shader.SetMat4("uni_projection", projection);
 
 	// model矩阵 local -> world
 	mat4 model = mat4(1.0f); // mat4初始化最好显示调用初始化为单位矩阵，因为新版本mat4 model可能是全0矩阵

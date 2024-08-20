@@ -98,7 +98,7 @@ const vector<GLuint> g_screenIndices =
 
 // 这里normal没有意义，但是为了复用之前的代码，加了normal
 const vector<Vertex> g_mirrorVertices = {
-    // positions                    // normal                  // texture Coords
+    // positions                    // normal(dummy)           // texture Coords(dummy) 
     {vec3(-0.2f,  1.0f, 0.0f),      vec3(0.0f,  0.0f,  1.0f),  vec2(0.0f, 1.0f)},
     {vec3(-0.2f,  0.8f, 0.0f),      vec3(0.0f,  0.0f,  1.0f),  vec2(0.0f, 0.0f)},
     {vec3( 0.2f,  0.8f, 0.0f),      vec3(0.0f,  0.0f,  1.0f),  vec2(1.0f, 0.0f)},
@@ -114,14 +114,15 @@ const vector<GLuint> g_mirrorIndices =
 
 const vector<Vertex> g_skyboxVertices =
 {
+    // positions                 // normal(dummy)          // texture Coords(dummy) 
     {vec3(-1.0f, -1.0f, -1.0f),  vec3(0.0f, 0.0f, -1.0f),  vec2(0.0f, 0.0f)},
-    {vec3(1.0f,  1.0f, -1.0f),  vec3(0.0f, 0.0f, -1.0f),  vec2(1.0f, 1.0f)},
-    {vec3(1.0f, -1.0f, -1.0f),  vec3(0.0f, 0.0f, -1.0f),  vec2(1.0f, 0.0f)},
+    {vec3(1.0f,  1.0f, -1.0f),   vec3(0.0f, 0.0f, -1.0f),  vec2(1.0f, 1.0f)},
+    {vec3(1.0f, -1.0f, -1.0f),   vec3(0.0f, 0.0f, -1.0f),  vec2(1.0f, 0.0f)},
     {vec3(-1.0f,  1.0f, -1.0f),  vec3(0.0f, 0.0f, -1.0f),  vec2(0.0f, 1.0f)},
 
     {vec3(-1.0f, -1.0f,  1.0f),  vec3(0.0f, 0.0f,  1.0f),  vec2(0.0f, 0.0f)},
-    {vec3(1.0f, -1.0f,  1.0f),  vec3(0.0f, 0.0f,  1.0f),  vec2(1.0f, 0.0f)}, 
-    {vec3(1.0f,  1.0f,  1.0f),  vec3(0.0f, 0.0f,  1.0f),  vec2(1.0f, 1.0f)}, 
+    {vec3(1.0f, -1.0f,  1.0f),   vec3(0.0f, 0.0f,  1.0f),  vec2(1.0f, 0.0f)}, 
+    {vec3(1.0f,  1.0f,  1.0f),   vec3(0.0f, 0.0f,  1.0f),  vec2(1.0f, 1.0f)}, 
     {vec3(-1.0f,  1.0f,  1.0f),  vec3(0.0f, 0.0f,  1.0f),  vec2(0.0f, 1.0f)},
 
     {vec3(-1.0f,  1.0f,  1.0f),  vec3(-1.0f, 0.0f, 0.0f),  vec2(1.0f, 0.0f)},
@@ -129,19 +130,19 @@ const vector<Vertex> g_skyboxVertices =
     {vec3(-1.0f, -1.0f, -1.0f),  vec3(-1.0f, 0.0f, 0.0f),  vec2(0.0f, 1.0f)},
     {vec3(-1.0f, -1.0f,  1.0f),  vec3(-1.0f, 0.0f, 0.0f),  vec2(0.0f, 0.0f)},
 
-    {vec3(1.0f,  1.0f,  1.0f),  vec3(1.0f,  0.0f, 0.0f),  vec2(1.0f, 0.0f)}, 
-    {vec3(1.0f, -1.0f, -1.0f),  vec3(1.0f,  0.0f, 0.0f),  vec2(0.0f, 1.0f)}, 
-    {vec3(1.0f,  1.0f, -1.0f),  vec3(1.0f,  0.0f, 0.0f),  vec2(1.0f, 1.0f)},      
-    {vec3(1.0f, -1.0f,  1.0f),  vec3(1.0f,  0.0f, 0.0f),  vec2(0.0f, 0.0f)},    
+    {vec3(1.0f,  1.0f,  1.0f),   vec3(1.0f,  0.0f, 0.0f),  vec2(1.0f, 0.0f)}, 
+    {vec3(1.0f, -1.0f, -1.0f),   vec3(1.0f,  0.0f, 0.0f),  vec2(0.0f, 1.0f)}, 
+    {vec3(1.0f,  1.0f, -1.0f),   vec3(1.0f,  0.0f, 0.0f),  vec2(1.0f, 1.0f)},      
+    {vec3(1.0f, -1.0f,  1.0f),   vec3(1.0f,  0.0f, 0.0f),  vec2(0.0f, 0.0f)},    
 
     {vec3(-1.0f, -1.0f, -1.0f),  vec3(0.0f, -1.0f, 0.0f),  vec2(0.0f, 1.0f)},
-    {vec3(1.0f, -1.0f, -1.0f),  vec3(0.0f, -1.0f, 0.0f),  vec2(1.0f, 1.0f)}, 
-    {vec3(1.0f, -1.0f,  1.0f),  vec3(0.0f, -1.0f, 0.0f),  vec2(1.0f, 0.0f)}, 
+    {vec3(1.0f, -1.0f, -1.0f),   vec3(0.0f, -1.0f, 0.0f),  vec2(1.0f, 1.0f)}, 
+    {vec3(1.0f, -1.0f,  1.0f),   vec3(0.0f, -1.0f, 0.0f),  vec2(1.0f, 0.0f)}, 
     {vec3(-1.0f, -1.0f,  1.0f),  vec3(0.0f, -1.0f, 0.0f),  vec2(0.0f, 0.0f)},
 
     {vec3(-1.0f,  1.0f, -1.0f),  vec3(0.0f,  1.0f, 0.0f),  vec2(0.0f, 1.0f)},
-    {vec3(1.0f,  1.0f,  1.0f),  vec3(0.0f,  1.0f, 0.0f),  vec2(1.0f, 0.0f)}, 
-    {vec3(1.0f,  1.0f, -1.0f),  vec3(0.0f,  1.0f, 0.0f),  vec2(1.0f, 1.0f)},  
+    {vec3(1.0f,  1.0f,  1.0f),   vec3(0.0f,  1.0f, 0.0f),  vec2(1.0f, 0.0f)}, 
+    {vec3(1.0f,  1.0f, -1.0f),   vec3(0.0f,  1.0f, 0.0f),  vec2(1.0f, 1.0f)},  
     {vec3(-1.0f,  1.0f,  1.0f),  vec3(0.0f,  1.0f, 0.0f),  vec2(0.0f, 0.0f)}  
 };
 const vector<GLuint> g_skyboxIndices =
@@ -161,10 +162,10 @@ const vector<GLuint> g_skyboxIndices =
 };
 
 const vector<Vertex> g_particleVertices = {
-    // positions                    // normal                  // texture Coords
+    // positions                  // normal(dummy)           // texture Coords(dummy) 
     {vec3(0.3f, 0.5f, 0.0f),      vec3(0.0f,  0.0f,  1.0f),  vec2(0.0f, 1.0f)},
     {vec3(0.4f, 0.2f, 0.0f),      vec3(0.0f,  0.0f,  1.0f),  vec2(0.0f, 0.0f)},
-    {vec3(0.3f, 0.3f, 0.0f),     vec3(0.0f,  0.0f,  1.0f),  vec2(1.0f, 0.0f)},
+    {vec3(0.3f, 0.3f, 0.0f),      vec3(0.0f,  0.0f,  1.0f),  vec2(1.0f, 0.0f)},
     {vec3(0.5f, 0.1f, 0.0f),      vec3(0.0f,  0.0f,  1.0f),  vec2(1.0f, 1.0f)},
     {vec3(0.4f, 0.4f, 0.0f),      vec3(0.0f,  0.0f,  1.0f),  vec2(1.0f, 1.0f)},
     {vec3(0.5f, 0.5f, 0.0f),      vec3(0.0f,  0.0f,  1.0f),  vec2(1.0f, 1.0f)},
@@ -174,4 +175,17 @@ const vector<Vertex> g_particleVertices = {
 const vector<GLuint> g_particleIndices =
 {
     0, 1, 2, 3, 4, 5, 6
+};
+
+const vector<Vertex> g_GMTestVertices = {
+    // positions                   // color(暂时用normal来装color，后面看看有没有更好的方案)  // texture Coords(dummy)
+    {vec3(-0.5f, 0.5f, 0.0f),      vec3(1.0f,  0.0f,  0.0f),                             vec2(0.0f, 1.0f)},
+    {vec3(-0.5f, -0.5f, 0.0f),     vec3(0.0f,  1.0f,  0.0f),                             vec2(1.0f, 1.0f)},
+    {vec3(0.5f, 0.5f, 0.0f),       vec3(0.0f,  0.0f,  1.0f),                             vec2(0.0f, 0.0f)},
+    {vec3(0.5f, -0.5f, 0.0f),      vec3(1.0f,  1.0f,  0.0f),                             vec2(1.0f, 0.0f)},
+};
+
+const vector<GLuint> g_GMTestIndices =
+{
+    0, 1, 2, 3
 };
