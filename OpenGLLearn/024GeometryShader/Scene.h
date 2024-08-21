@@ -22,6 +22,7 @@ public:
 	Shader reflectShader;
 	Shader refractShader;
 	Shader GMTestShader;
+	Shader normalShader;
 
 	Mesh cubeReflect;
 	Mesh cubeMarble;
@@ -56,6 +57,7 @@ void Scene::CreateScene(Camera* myCam)
 	reflectShader = Shader("ShaderReflection.vs", "ShaderReflection.fs");
 	refractShader = Shader("ShaderRefraction.vs", "ShaderRefraction.fs");
 	GMTestShader = Shader("ShaderGeometryTest.vs", "ShaderGeometryTest.fs", "ShaderGeometryTest.gs");
+	normalShader = Shader("ShaderLighting.vs", "ShaderNormal.fs", "ShaderNormal.gs");
 
 	/* 加载贴图 */
 	// 翻转y轴，使图片和opengl坐标一致  但是如果assimp 导入模型时设置了aiProcess_FlipUVs，就不能重复设置了
@@ -141,8 +143,16 @@ void Scene::CreateScene(Camera* myCam)
 
 void Scene::DrawScene()
 {
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	if (bBlending)
+	{
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
+	else
+	{
+		glDisable(GL_BLEND);
+		glBlendFunc(GL_ONE, GL_ZERO);
+	}
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	// 清空各个缓冲区
@@ -155,17 +165,21 @@ void Scene::DrawScene()
 	// 绘制立方体
 	cubeReflect.SetTranslate(vec3(1.0f, 1.5f, 1.0f));
 	cubeReflect.DrawMesh(reflectShader, GL_TRIANGLES);
+	cubeReflect.DrawMesh(normalShader, GL_TRIANGLES);
 	cubeReflect.SetTranslate(vec3(0.0f, 1.5f, -1.0f));
 	cubeReflect.DrawMesh(refractShader, GL_TRIANGLES);
+	cubeReflect.DrawMesh(normalShader, GL_TRIANGLES);
 
 	cubeMarble.SetTranslate(vec3(3.0f, 1.5f, 0.0f));
 	cubeMarble.DrawMesh(lightShader, GL_TRIANGLES);
+	cubeMarble.DrawMesh(normalShader, GL_TRIANGLES);
 
 	glDisable(GL_BLEND);
 	// 绘制人物
 	nanosuit.SetScale(vec3(0.1f));
 	nanosuit.SetTranslate(vec3(1.0f, 1.0f, 0.0f));
 	nanosuit.DrawModel(lightShader);
+	nanosuit.DrawModel(normalShader);
 	nanosuit.SetTranslate(vec3(0.0f, 1.0f, -3.0f));
 	nanosuit.DrawModel(reflectShader);
 	nanosuit.SetTranslate(vec3(3.0f, 1.0f, -3.0f));

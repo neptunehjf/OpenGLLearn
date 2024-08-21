@@ -43,6 +43,8 @@ float windowWidth = WINDOW_WIDTH;
 float windowHeight = WINDOW_HEIGHT;
 bool bGMTest = 0;
 float explodeMag = 0.0;
+bool bBlending = 1;
 bool bFaceCulling = 0;
+float normalLen = 0.1;
 /************** Imgui±‰¡ø **************/
 

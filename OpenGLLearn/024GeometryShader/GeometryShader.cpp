@@ -24,6 +24,7 @@
 #include <map>
 #include "Scene.h"
 
+bool InitOpenGL();
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 void mouse_callback(GLFWwindow* window, double posX, double posY);
@@ -37,6 +38,7 @@ GLuint LoadCubemap(const vector<string>& cubemapFaces);
 void SetUniformBuffer();
 
 Camera myCam(vec3(1.5f, 2.0f, 3.8f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
+GLFWwindow* window = NULL;
 
 // 原场景缓冲
 GLuint fbo1 = 0; // 自定义帧缓冲对象
@@ -53,36 +55,11 @@ GLuint ubo = 0;
 
 int main()
 {
-	// 初始化
-	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-	// 绘制窗口
-	GLFWwindow* window = glfwCreateWindow(windowWidth, windowHeight, "koalahjf", NULL, NULL);
-	if (window == NULL)
+	if (!InitOpenGL())
 	{
-		cout << "Failed to create window." << endl;
-		glfwTerminate();  
+		cout << "Failed to initialize." << endl;
 		return -1;
 	}
-	glfwMakeContextCurrent(window);
-	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
-
-	// 捕获鼠标
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-	glfwSetCursorPosCallback(window, mouse_callback);
-	glfwSetScrollCallback(window, scroll_callback);
-
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-	{
-		cout << "Failed to initialze GLAD." << endl;
-		glfwTerminate();
-		return -1;
-	}
-	glViewport(0, 0, windowWidth, windowHeight);
 
 	// Setup Dear ImGui context
 	IMGUI_CHECKVERSION();
@@ -90,9 +67,8 @@ int main()
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-
 	// Setup Platform/Renderer backends
-	ImGui_ImplGlfw_InitForOpenGL(window, true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
+	ImGui_ImplGlfw_InitForOpenGL(window, true);               // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
 	ImGui_ImplOpenGL3_Init();
 	
 	Scene scene;
@@ -164,6 +140,7 @@ int main()
 		SetUniformToShader(scene.cubemapShader);
 		SetUniformToShader(scene.reflectShader);
 		SetUniformToShader(scene.refractShader);
+		SetUniformToShader(scene.normalShader);
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo1);
 		scene.DrawScene();
 
@@ -175,6 +152,7 @@ int main()
 		SetUniformToShader(scene.cubemapShader);
 		SetUniformToShader(scene.reflectShader);
 		SetUniformToShader(scene.refractShader);
+		SetUniformToShader(scene.normalShader);
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo2); 
 		scene.DrawScene();
 		myCam.yawValue -= 180.0;
@@ -184,6 +162,7 @@ int main()
 		SetUniformToShader(scene.cubemapShader);
 		SetUniformToShader(scene.reflectShader);
 		SetUniformToShader(scene.refractShader);
+		SetUniformToShader(scene.normalShader);
 
 		/********************** 默认帧缓冲输出前面绘制时写入 **********************/
 		// 关掉自定义缓冲的读写，就切换成了默认缓冲
@@ -396,6 +375,7 @@ void GetImguiValue()
 
 	if (ImGui::TreeNodeEx("Test and Blend", ImGuiTreeNodeFlags_None))
 	{
+		ImGui::Checkbox("Blending", &bBlending);
 		ImGui::Checkbox("Face Culling", &bFaceCulling);
 		ImGui::TreePop();
 	}
@@ -418,8 +398,9 @@ void GetImguiValue()
 
 	if (ImGui::TreeNodeEx("Geometry Shader", ImGuiTreeNodeFlags_DefaultOpen))
 	{
-		ImGui::SliderFloat("Explode Magnitude", &explodeMag, 0.0f, 5.0f);
 		ImGui::Checkbox("Geometry Shader Test", &bGMTest);
+		ImGui::SliderFloat("Explode Magnitude", &explodeMag, 0.0f, 5.0f);
+		ImGui::SliderFloat("Normal Length", &normalLen, 0.0f, 0.3f);
 		ImGui::TreePop();
 	}
 }
@@ -485,6 +466,7 @@ void SetUniformToShader(Shader& shader)
 	shader.SetFloat("window_height", windowHeight);
 	shader.SetInt("split_flag", (int)bSplitScreen);
 	shader.SetFloat("magnitude", explodeMag);
+	shader.SetFloat("normal_len", normalLen);
 	
 	for (int i = 0; i < 4; i++)
 	{
@@ -570,4 +552,40 @@ void SetUniformBuffer()
 	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(mat4), sizeof(mat4), value_ptr(projection));
 
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
+bool InitOpenGL()
+{
+	// 初始化
+	glfwInit();
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+	// 绘制窗口
+	window = glfwCreateWindow(windowWidth, windowHeight, "koalahjf", NULL, NULL);
+	if (window == NULL)
+	{
+		cout << "Failed to create window." << endl;
+		glfwTerminate();
+		return false;
+	}
+	glfwMakeContextCurrent(window);
+	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+
+	// 捕获鼠标
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	glfwSetCursorPosCallback(window, mouse_callback);
+	glfwSetScrollCallback(window, scroll_callback);
+
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+	{
+		cout << "Failed to initialze GLAD." << endl;
+		glfwTerminate();
+		return false;
+	}
+	glViewport(0, 0, windowWidth, windowHeight);
+
+	return true;
 }

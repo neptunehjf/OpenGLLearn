@@ -154,6 +154,8 @@
     <None Include="ShaderLighting.fs" />
     <None Include="ShaderLighting.gs" />
     <None Include="ShaderLighting.vs" />
+    <None Include="ShaderNormal.fs" />
+    <None Include="ShaderNormal.gs" />
     <None Include="ShaderPostProcess.fs" />
     <None Include="ShaderPostProcess.vs" />
     <None Include="ShaderReflection.fs" />
