@@ -73,7 +73,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Cubemap.cpp">
+    <ClCompile Include="AdvancedGLSL.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\Dependency\Src\glad\src\glad.c">
