@@ -22,6 +22,7 @@
 #include "VertexData.h"
 #include "common.h"
 #include <map>
+#include "Scene.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
@@ -35,39 +36,7 @@ void DeleteFrameBuffer();
 GLuint LoadCubemap(const vector<string>& cubemapFaces);
 void SetUniformBuffer();
 
-
 Camera myCam(vec3(1.5f, 2.0f, 3.8f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
-
-/************** Imgui变量 **************/
-static float posValue = 0.0f;
-static vec3 bkgColor = vec3(0.0f, 0.0f, 0.0f);
-static vec3 dirLight_direction = vec3(-1.0f, -1.0f, -1.0f);
-static vec3 dirLight_ambient = vec3(0.2f);
-static vec3 dirLight_diffuse = vec3(0.8f);
-static vec3 dirLight_specular = vec3(1.0f);
-static vec3 pointLight_ambient = vec3(0.2f);
-static vec3 pointLight_diffuse = vec3(0.8f);
-static vec3 pointLight_specular = vec3(1.0f);
-static vec3 spotLight_ambient = vec3(0.2f);
-static vec3 spotLight_diffuse = vec3(0.8f);
-static vec3 spotLight_specular = vec3(1.0f);
-static float spotLight_innerCos = 5.0f;
-static float spotLight_outerCos = 8.0f;
-static int item = 0;
-static int material_shininess = 32;
-static int postProcessType = 0;
-static float sampleOffsetBase = 300.0f;
-static float imgui_speed = 5.0f;
-static float imgui_camNear = 0.1f;
-static float imgui_camFar = 100.0f;
-static float pointSize = 1.0f;
-static bool bSplitScreen = 0;
-static float windowWidth = WINDOW_WIDTH;
-static float windowHeight = WINDOW_HEIGHT;
-static bool bGMTest = 0;
-static float explodeMag = 0.0;
-static bool bFaceCulling = 0;
-/************** Imgui变量 **************/
 
 // 原场景缓冲
 GLuint fbo1 = 0; // 自定义帧缓冲对象
@@ -84,9 +53,6 @@ GLuint ubo = 0;
 
 int main()
 {
-	int success = 0;
-	char infoLog[LOG_LENGTH] = "\0";
-
 	// 初始化
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -129,104 +95,8 @@ int main()
 	ImGui_ImplGlfw_InitForOpenGL(window, true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
 	ImGui_ImplOpenGL3_Init();
 	
-	// 创建shader 不能声明全局变量，因为shader的相关操作必须在glfw初始化完成后
-	Shader lightShader("ShaderLighting.vs", "ShaderLighting.fs", "ShaderLighting.gs");
-	Shader screenShader("ShaderPostProcess.vs", "ShaderPostProcess.fs");
-	Shader cubemapShader("ShaderCubemap.vs", "ShaderCubemap.fs");
-	Shader reflectShader("ShaderReflection.vs", "ShaderReflection.fs");
-	Shader refractShader("ShaderRefraction.vs", "ShaderRefraction.fs");
-	Shader GMTestShader("ShaderGeometryTest.vs", "ShaderGeometryTest.fs", "ShaderGeometryTest.gs");
-
-	/* 加载贴图 */
-    // 翻转y轴，使图片和opengl坐标一致  但是如果assimp 导入模型时设置了aiProcess_FlipUVs，就不能重复设置了
-	stbi_set_flip_vertically_on_load(true);
-
-	// 加载贴图
-	GLuint t_metal = 0;
-	GLuint t_marble = 0;
-	GLuint t_dummy = 0;
-	GLuint t_window = 0;
-
-	LoadTexture("Resource/Texture/metal.png", t_metal, GL_REPEAT, GL_REPEAT);
-	LoadTexture("Resource/Texture/marble.jpg", t_marble, GL_REPEAT, GL_REPEAT);
-	LoadTexture("Resource/Texture/dummy.png", t_dummy, GL_REPEAT, GL_REPEAT);  //自己做的占位贴图，占一个sampler位置，否则会被其他mesh的高光贴图替代
-	LoadTexture("Resource/Texture/window.png", t_window, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
-
-	stbi_set_flip_vertically_on_load(false);
-	const vector<string> cubemapFaces = {
-	"Resource/Texture/skybox/left.jpg",
-	"Resource/Texture/skybox/right.jpg",
-	"Resource/Texture/skybox/top.jpg",
-	"Resource/Texture/skybox/bottom.jpg",
-	"Resource/Texture/skybox/back.jpg",
-	"Resource/Texture/skybox/front.jpg"
-	};
-	GLuint t_cubemap = LoadCubemap(cubemapFaces);
-
-	const vector<Texture> planeTexture =
-	{
-		{t_metal, "texture_diffuse"},
-		{t_dummy, "texture_specular"}
-	};
-
-	const vector<Texture> cubeTexture =
-	{
-		{t_marble, "texture_diffuse"},
-		{t_dummy, "texture_specular"}
-	};
-
-	const vector<Texture> windowTexture =
-	{
-		{t_window, "texture_diffuse"},
-		{t_dummy, "texture_specular"}
-	};
-
-	const vector<Texture> skyboxTexture =
-	{
-		{t_cubemap, "texture_cubemap"}
-	};
-
-	Mesh plane(g_planeVertices, g_planeIndices, planeTexture);
-	plane.SetScale(vec3(100.0f, 0.0f, 100.0f));
-	Mesh cubeReflect(g_cubeVertices, g_cubeIndices, skyboxTexture);
-	Mesh cubeMarble(g_cubeVertices, g_cubeIndices, cubeTexture);
-	Model nanosuit("Resource/Model/nanosuit_reflection/nanosuit.obj");
-
-	//vector<Mesh> suitMeshes = nanosuit.meshes;     // 赋值号，默认vector是深拷贝，因此SetTextures不会影响nanosuit对象
-	//vector<Mesh>& suitMeshes = nanosuit.meshes;    // 使用引用，引用只是nanosuit.meshes的别名，因此SetTextures会影响到nanosuit对象
-	vector<Mesh>& suitMeshes = nanosuit.GetMeshes(); // 使用引用，引用只是nanosuit.meshes的别名，因此SetTextures会影响到nanosuit对象
-	for (unsigned int i = 0; i < suitMeshes.size(); i++)
-	{
-		suitMeshes[i].AddTextures(skyboxTexture);
-	}
-
-	Mesh square(g_squareVertices, g_squareIndices, windowTexture);
-	vector<vec3> squarePositions;
-	squarePositions.push_back(glm::vec3(-1.5f, 1.0f, -0.48f));
-	squarePositions.push_back(glm::vec3(1.5f, 1.0f, 0.51f));
-	squarePositions.push_back(glm::vec3(0.0f, 1.0f, 0.7f));
-	squarePositions.push_back(glm::vec3(-0.3f, 1.0f, -2.3f));
-	squarePositions.push_back(glm::vec3(0.5f, 1.0f, -0.6f));
-
-	Mesh skybox(g_skyboxVertices, g_skyboxIndices, skyboxTexture);
-
-	// 用于不需要texture的mesh
-	const vector<Texture> dummyTexture =
-	{
-		{t_dummy, "texture_diffuse"},
-		{t_dummy, "texture_specular"}
-	};
-	Mesh screen(g_screenVertices, g_screenIndices, dummyTexture);
-
-	Mesh mirror(g_mirrorVertices, g_mirrorIndices, dummyTexture);
-
-	Mesh particle(g_particleVertices, g_particleIndices, dummyTexture);
-
-	Mesh GMTest(g_GMTestVertices, g_GMTestIndices, dummyTexture);
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	Scene scene;
+	scene.CreateScene(&myCam);
 
 	// 原场景缓冲
 	CreateFrameBuffer(fbo1, tbo1, rbo1);
@@ -236,21 +106,29 @@ int main()
 	// Uniform缓冲
 	// 
 	// 根据UniformBlockIndex绑定各shader的uniformblock到binding point，在opengl 420以上版本可以直接用layout(std140, binding = XXX)在shader直接指定 
-	GLuint ubi_Lighting = glGetUniformBlockIndex(lightShader.ID, "Matrix");
-	GLuint ubi_Cubemap = glGetUniformBlockIndex(cubemapShader.ID, "Matrix");
-	GLuint ubi_Refract  = glGetUniformBlockIndex(refractShader.ID, "Matrix");
-	GLuint ubi_Reflect  = glGetUniformBlockIndex(reflectShader.ID, "Matrix");
+	GLuint ubi_Lighting = glGetUniformBlockIndex(scene.lightShader.ID, "Matrix");
+	GLuint ubi_Cubemap = glGetUniformBlockIndex(scene.cubemapShader.ID, "Matrix");
+	GLuint ubi_Refract  = glGetUniformBlockIndex(scene.refractShader.ID, "Matrix");
+	GLuint ubi_Reflect  = glGetUniformBlockIndex(scene.reflectShader.ID, "Matrix");
 
-	glUniformBlockBinding(lightShader.ID, ubi_Lighting, 0);
-	glUniformBlockBinding(cubemapShader.ID, ubi_Cubemap, 0);
-	glUniformBlockBinding(refractShader.ID, ubi_Refract, 0);
-	glUniformBlockBinding(reflectShader.ID, ubi_Reflect, 0);
+	glUniformBlockBinding(scene.lightShader.ID, ubi_Lighting, 0);
+	glUniformBlockBinding(scene.cubemapShader.ID, ubi_Cubemap, 0);
+	glUniformBlockBinding(scene.refractShader.ID, ubi_Refract, 0);
+	glUniformBlockBinding(scene.reflectShader.ID, ubi_Reflect, 0);
 
 	// 创建Uniform缓冲区，并绑定到对应的binding point
 	glGenBuffers(1, &ubo);
 	glBindBuffer(GL_UNIFORM_BUFFER, ubo);
 	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(mat4), NULL, GL_STATIC_DRAW); // 只有4->16的情况才要考虑内存对齐。NULL表示只分配内存，不写入数据。
 	glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo);
+
+	GLuint t_dummy = 0;
+	// 用于不需要texture的mesh
+	const vector<Texture> dummyTexture =
+	{
+		{t_dummy, "texture_diffuse"},
+		{t_dummy, "texture_specular"}
+	};
 
 	//渲染循环
 	while (!glfwWindowShouldClose(window))
@@ -277,84 +155,35 @@ int main()
 		if (bFaceCulling)
 			glEnable(GL_CULL_FACE);
 
-		/********************** 先用自定义帧缓冲进行离屏渲染 **********************/
+		/********************** 先用自定义帧缓冲进行离屏渲染 绑定到自定义帧缓冲，默认帧缓冲不再起作用 **********************/
 
-		for (unsigned int i = 1; i <= 2; i++)
-		{
-			if (i == 1)
-			{
-				glBindFramebuffer(GL_FRAMEBUFFER, fbo1); // 绑定到自定义帧缓冲，默认帧缓冲不再起作用
-			}
-			else if (i == 2)
-			{
-				myCam.yawValue += 180.0;
-				glBindFramebuffer(GL_FRAMEBUFFER, fbo2); // 绑定到自定义帧缓冲，默认帧缓冲不再起作用
-			}
+		// 原场景
+		SetUniformBuffer();
+		SetUniformToShader(scene.lightShader);
+		SetUniformToShader(scene.screenShader);
+		SetUniformToShader(scene.cubemapShader);
+		SetUniformToShader(scene.reflectShader);
+		SetUniformToShader(scene.refractShader);
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo1);
+		scene.DrawScene();
 
-			SetUniformBuffer();
-			SetUniformToShader(lightShader);
-			SetUniformToShader(screenShader);
-			SetUniformToShader(cubemapShader);
-			SetUniformToShader(reflectShader);
-			SetUniformToShader(refractShader);
-
-			// 清空各个缓冲区
-			glClearColor(bkgColor.r, bkgColor.g, bkgColor.b, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //离屏渲染不需要glClear(GL_COLOR_BUFFER_BIT);
-
-			// 绘制地板
-			//plane.DrawMesh(lightShader);
-
-			// 绘制立方体
-			cubeReflect.SetTranslate(vec3(1.0f, 1.5f, 1.0f));
-			cubeReflect.DrawMesh(reflectShader, GL_TRIANGLES);
-			cubeReflect.SetTranslate(vec3(0.0f, 1.5f, -1.0f));
-			cubeReflect.DrawMesh(refractShader, GL_TRIANGLES);
-
-			cubeMarble.SetTranslate(vec3(3.0f, 1.5f, 0.0f));
-			cubeMarble.DrawMesh(lightShader, GL_TRIANGLES);
-
-			glDisable(GL_BLEND);
-			// 绘制人物
-			nanosuit.SetScale(vec3(0.1f));
-			nanosuit.SetTranslate(vec3(1.0f, 1.0f, 0.0f));
-			nanosuit.DrawModel(lightShader);
-			nanosuit.SetTranslate(vec3(0.0f, 1.0f, -3.0f));
-			nanosuit.DrawModel(reflectShader);
-			nanosuit.SetTranslate(vec3(3.0f, 1.0f, -3.0f));
-			nanosuit.DrawModel(refractShader);
-			glEnable(GL_BLEND);
-
-			glDisable(GL_CULL_FACE);
-			// 绘制天空盒
-			skybox.DrawMesh(cubemapShader, GL_TRIANGLES);
-
-			// 按窗户离摄像机间的距离排序，map默认是升序排序，也就是从近到远
-			// 必须放在render loop里，因为摄像机是实时改变的
-			map<float, vec3> sorted;
-			for (int i = 0; i < squarePositions.size(); i++)
-			{
-				float distance = length(myCam.camPos - squarePositions[i]);
-				sorted[distance] = squarePositions[i];
-			}
-			// 透明物体必须最后绘制，并且透明物体之间要从远到近绘制
-			for (map<float, vec3>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); it++)
-			{
-				square.SetTranslate(it->second);
-				square.DrawMesh(lightShader, GL_TRIANGLES);
-			}
-
-			if (i == 2)
-			{
-				myCam.yawValue -= 180.0;
-				SetUniformBuffer();
-				SetUniformToShader(lightShader);
-				SetUniformToShader(screenShader);
-				SetUniformToShader(cubemapShader);
-				SetUniformToShader(reflectShader);
-				SetUniformToShader(refractShader);
-			}
-		}
+		// 后视镜场景
+		myCam.yawValue += 180.0;
+		SetUniformBuffer();
+		SetUniformToShader(scene.lightShader);
+		SetUniformToShader(scene.screenShader);
+		SetUniformToShader(scene.cubemapShader);
+		SetUniformToShader(scene.reflectShader);
+		SetUniformToShader(scene.refractShader);
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo2); 
+		scene.DrawScene();
+		myCam.yawValue -= 180.0;
+		SetUniformBuffer();
+		SetUniformToShader(scene.lightShader);
+		SetUniformToShader(scene.screenShader);
+		SetUniformToShader(scene.cubemapShader);
+		SetUniformToShader(scene.reflectShader);
+		SetUniformToShader(scene.refractShader);
 
 		/********************** 默认帧缓冲输出前面绘制时写入 **********************/
 		// 关掉自定义缓冲的读写，就切换成了默认缓冲
@@ -371,28 +200,28 @@ int main()
 			{tbo1, "texture_diffuse"},
 			{t_dummy, "texture_specular"}
 		};
-		screen.SetTextures(screenTexture);
-		screen.DrawMesh(screenShader, GL_TRIANGLES);
+		scene.screen.SetTextures(screenTexture);
+		scene.screen.DrawMesh(scene.screenShader, GL_TRIANGLES);
 
 		const vector<Texture> mirrorTexture =
 		{
 			{tbo2, "texture_diffuse"},
 			{t_dummy, "texture_specular"}
 		};
-		mirror.SetTextures(mirrorTexture);
-		mirror.DrawMesh(screenShader, GL_TRIANGLES);
+		scene.mirror.SetTextures(mirrorTexture);
+		scene.mirror.DrawMesh(scene.screenShader, GL_TRIANGLES);
 		
 		glEnable(GL_PROGRAM_POINT_SIZE);
 		//绘制的图元是GL_POINTS。对应的是裁剪空间的归一化坐标（实际是在顶点着色器设定）
 		glPointSize(pointSize);
-		particle.DrawMesh(screenShader, GL_POINTS);
+		scene.particle.DrawMesh(scene.screenShader, GL_POINTS);
 
 		// Geometry Shader Test
 		if (bGMTest)
 		{
 			glClearColor(bkgColor.r, bkgColor.g, bkgColor.b, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			GMTest.DrawMesh(GMTestShader, GL_POINTS);
+			scene.GMTest.DrawMesh(scene.GMTestShader, GL_POINTS);
 		}
 
 		glDisable(GL_PROGRAM_POINT_SIZE);
@@ -406,17 +235,7 @@ int main()
 	}
 
 	// 资源清理
-	nanosuit.DeleteModel();
-	plane.DeleteMesh();
-	cubeReflect.DeleteMesh();
-	cubeMarble.DeleteMesh();
-	skybox.DeleteMesh();
-	square.DeleteMesh();
-	screen.DeleteMesh();
-	lightShader.Remove();
-	screenShader.Remove();
-	cubemapShader.Remove();
-	//DeleteFrameBuffer();
+	scene.DeleteScene();
 	glDeleteFramebuffers(1, &fbo1);
 	glDeleteFramebuffers(1, &tbo1);
 	glDeleteFramebuffers(1, &rbo1);
@@ -523,49 +342,6 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 		myCam.fov = 1.0f;
 	if (myCam.fov >= 95.0f)
 		myCam.fov = 95.0f;
-}
-
-bool LoadTexture(const string&& filePath, GLuint& texture, const GLint param_s, const GLint param_t)
-{
-	// 申请显存空间并绑定GL_TEXTURE_2D对象
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture); // 绑定操作要么是读要么是写，这里是要写
-	// 设置GL_TEXTURE_2D的环绕，过滤方式
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, param_s);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, param_t);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	// 加载贴图，转换为像素数据
-	int width, height, channel;
-	unsigned char* data = stbi_load(filePath.c_str(), &width, &height, &channel, 0);
-
-	GLenum format = 0;
-	if (channel == 1)
-		format = GL_RED;
-	else if (channel == 3)
-		format = GL_RGB;
-	else if (channel == 4)
-		format = GL_RGBA;
-
-	if (data)
-	{
-		// 贴图数据 内存 -> 显存
-		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-		// 生成多级渐进贴图
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else
-	{
-		cout << "Failed to load texture！" << endl;
-		return false;
-	}
-	// 像素数据已经传给显存了，删除内存中的像素数据
-	stbi_image_free(data);
-
-	// 读写结束后关掉独写权限后是个好习惯，一直开着容易出bug
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	return true;
 }
 
 void GetImguiValue()
@@ -774,52 +550,6 @@ void DeleteFrameBuffer()
 	//glDeleteFramebuffers(1, &fbo);
 	//glDeleteFramebuffers(1, &tbo);
 	//glDeleteFramebuffers(1, &rbo);
-}
-
-GLuint LoadCubemap(const vector<string>& cubemapFaces)
-{
-	GLuint cmo = 0;
-	glGenTextures(1, &cmo);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, cmo);
-
-	// 设置纹理目标的的环绕，过滤方式
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	for (int i = 0; i < cubemapFaces.size(); i++)
-	{
-		// 从硬盘加载贴图，转换为像素数据（先放到内存）
-		int width, height, channel;
-		unsigned char* data = stbi_load(cubemapFaces[i].c_str(), &width, &height, &channel, 0);
-
-		GLenum format = 0;
-		if (channel == 1)
-			format = GL_RED;
-		else if (channel == 3)
-			format = GL_RGB;
-		else if (channel == 4)
-			format = GL_RGBA;
-
-		if (data)
-		{
-			// 贴图数据 内存 -> 显存
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-		}
-		else
-		{
-			cout << "Failed to load cubemap！" << endl;
-		}
-		// 像素数据已经传给显存了，删除内存中的像素数据
-		stbi_image_free(data);
-	}
-
-	// 读写结束后关掉独写权限后是个好习惯，一直开着容易出bug
-	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-	
-	return cmo;
 }
 
 void SetUniformBuffer()

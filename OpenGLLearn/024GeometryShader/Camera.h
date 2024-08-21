@@ -8,7 +8,7 @@
 class Camera
 {
 public:
-
+	Camera() {};
 	Camera(const vec3& camPos, const vec3& camFront, const vec3& camUp);
 
 	float camSpeed;

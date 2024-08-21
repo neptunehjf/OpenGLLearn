@@ -20,6 +20,8 @@ public:
 	//程序ID 
 	GLuint ID = 0; 
 
+	Shader() {};
+
 	Shader(const char* vertexShaderPath, const char* fragmentShaderPath, const char* geometryShaderPath);
 
 	//使用/激活程序
