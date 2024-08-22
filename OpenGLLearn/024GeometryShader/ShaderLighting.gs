@@ -8,6 +8,7 @@ in VS_OUT
 	vec3 fragPos;
 	vec3 normal;    // 几何着色器不能直接用顶点自带的法线，因为这个法线不一定是垂直于当前三角形的（想象一下1个正方体的顶点，对应3个法线）
 	vec2 texCoord;
+    vec4 normal_mvp;
 } gs_in[];
 
 out GS_OUT
@@ -15,6 +16,7 @@ out GS_OUT
 	vec3 fragPos;
 	vec3 normal;
 	vec2 texCoord;
+    vec4 normal_mvp;
 } gs_out;
 
 uniform float magnitude;

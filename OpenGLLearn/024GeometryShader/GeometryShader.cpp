@@ -400,7 +400,7 @@ void GetImguiValue()
 	{
 		ImGui::Checkbox("Geometry Shader Test", &bGMTest);
 		ImGui::SliderFloat("Explode Magnitude", &explodeMag, 0.0f, 5.0f);
-		ImGui::SliderFloat("Normal Length", &normalLen, 0.0f, 0.3f);
+		ImGui::SliderFloat("Normal Length", &normalLen, 0.0f, 0.8f);
 		ImGui::TreePop();
 	}
 }

@@ -179,7 +179,7 @@ void Scene::DrawScene()
 	nanosuit.SetScale(vec3(0.1f));
 	nanosuit.SetTranslate(vec3(1.0f, 1.0f, 0.0f));
 	nanosuit.DrawModel(lightShader);
-	nanosuit.DrawModel(normalShader);
+	//nanosuit.DrawModel(normalShader);
 	nanosuit.SetTranslate(vec3(0.0f, 1.0f, -3.0f));
 	nanosuit.DrawModel(reflectShader);
 	nanosuit.SetTranslate(vec3(3.0f, 1.0f, -3.0f));
