@@ -29,12 +29,10 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 void mouse_callback(GLFWwindow* window, double posX, double posY);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-bool LoadTexture(const string&& filePath, GLuint& texture, const GLint param_s, const GLint param_t);
 void GetImguiValue();
 void SetUniformToShader(Shader& shader);
 void CreateFrameBuffer(GLuint& fbo, GLuint& tbo, GLuint& rbo);
 void DeleteFrameBuffer();
-GLuint LoadCubemap(const vector<string>& cubemapFaces);
 void SetUniformBuffer();
 
 Camera myCam(vec3(1.5f, 2.0f, 3.8f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
