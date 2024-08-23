@@ -17,6 +17,9 @@ out VS_OUT
 	vec3 fragPos;
 	vec3 normal;
 	vec2 texCoord;
+	vec4 position;
+	mat4 view;
+	mat4 projection;	
 } vs_out;
 
 void main()
@@ -26,4 +29,7 @@ void main()
   vs_out.fragPos = vec3(uni_model * vec4(aPos, 1.0));
   vs_out.normal = mat3(transpose(inverse(uni_model))) * aNormal;
   vs_out.texCoord = aTexCoord;
+  vs_out.position = uni_model * vec4(aPos, 1.0);
+  vs_out.view = uni_view;
+  vs_out.projection = uni_projection;
 }
