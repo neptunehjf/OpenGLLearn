@@ -5,7 +5,6 @@ in GS_OUT
 	vec3 fragPos;
 	vec3 normal;
 	vec2 texCoord;
-	vec4 normal_mvp;
 } vs_in;
 
 uniform vec3 uni_viewPos;

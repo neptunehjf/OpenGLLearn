@@ -57,7 +57,7 @@ void Scene::CreateScene(Camera* myCam)
 	reflectShader = Shader("ShaderReflection.vs", "ShaderReflection.fs");
 	refractShader = Shader("ShaderRefraction.vs", "ShaderRefraction.fs");
 	GMTestShader = Shader("ShaderGeometryTest.vs", "ShaderGeometryTest.fs", "ShaderGeometryTest.gs");
-	normalShader = Shader("ShaderLighting.vs", "ShaderNormal.fs", "ShaderNormal.gs");
+	normalShader = Shader("ShaderNormal.vs", "ShaderNormal.fs", "ShaderNormal.gs");
 
 	/* 加载贴图 */
 	// 翻转y轴，使图片和opengl坐标一致  但是如果assimp 导入模型时设置了aiProcess_FlipUVs，就不能重复设置了
@@ -179,7 +179,7 @@ void Scene::DrawScene()
 	nanosuit.SetScale(vec3(0.1f));
 	nanosuit.SetTranslate(vec3(1.0f, 1.0f, 0.0f));
 	nanosuit.DrawModel(lightShader);
-	//nanosuit.DrawModel(normalShader);
+	nanosuit.DrawModel(normalShader);
 	nanosuit.SetTranslate(vec3(0.0f, 1.0f, -3.0f));
 	nanosuit.DrawModel(reflectShader);
 	nanosuit.SetTranslate(vec3(3.0f, 1.0f, -3.0f));

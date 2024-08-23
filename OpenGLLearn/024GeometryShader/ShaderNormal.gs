@@ -5,10 +5,8 @@ layout (line_strip, max_vertices = 2) out;
 
 in VS_OUT
 {
-	vec3 fragPos;
-	vec3 normal;
-	vec2 texCoord;
-    vec4 normal_mvp;
+	vec4 normal;
+    mat4 projection;
 } gs_in[];
 
 uniform float normal_len;
@@ -23,7 +21,7 @@ vec3 GetNormal()
 
 void main() 
 {    
-    vec4 normal = gs_in[1].normal_mvp;
+    vec4 normal = normalize(vec4(gs_in[1].normal));
 
     gl_Position = gl_in[1].gl_Position;                      // 1
     EmitVertex();   

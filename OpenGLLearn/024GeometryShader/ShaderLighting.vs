@@ -17,7 +17,6 @@ out VS_OUT
 	vec3 fragPos;
 	vec3 normal;
 	vec2 texCoord;
-	vec4 normal_mvp;
 } vs_out;
 
 void main()
@@ -27,5 +26,4 @@ void main()
   vs_out.fragPos = vec3(uni_model * vec4(aPos, 1.0));
   vs_out.normal = mat3(transpose(inverse(uni_model))) * aNormal;
   vs_out.texCoord = aTexCoord;
-  vs_out.normal_mvp = uni_model * vec4(aNormal, 1.0);
 }
