@@ -117,6 +117,20 @@ void Scene::CreateScene(Camera* myCam)
 		{t_dummy, "texture_specular"}
 	};
 
+	vector<vec2> instanceArray;
+	int index = 0;
+	float offset = 0.1f;
+	for (int y = -10; y < 10; y += 2)
+	{
+		for (int x = -10; x < 10; x += 2)
+		{
+			vec2 translation;
+			translation.x = (float)x / 10.0f + offset;
+			translation.y = (float)y / 10.0f + offset;
+			instanceArray.push_back(translation);
+		}
+	}
+
 	plane = Mesh(g_planeVertices, g_planeIndices, planeTexture);
 	plane.SetScale(vec3(100.0f, 0.0f, 100.0f));
 	cubeReflect = Mesh(g_cubeVertices, g_cubeIndices, skyboxTexture);
@@ -127,7 +141,7 @@ void Scene::CreateScene(Camera* myCam)
 	mirror = Mesh(g_mirrorVertices, g_mirrorIndices, dummyTexture);
 	particle = Mesh(g_particleVertices, g_particleIndices, dummyTexture);
 	GMTest = Mesh(g_GMTestVertices, g_GMTestIndices, dummyTexture);
-	InstanceTest = Mesh(g_InstanceTestV, g_InstanceTestI, g_InstanceTestP, dummyTexture);
+	InstanceTest = Mesh(g_InstanceTestV, g_InstanceTestI, g_InstanceTestP, dummyTexture, instanceArray);
 	
 
 	squarePositions.push_back(glm::vec3(-1.5f, 1.0f, -0.48f));

@@ -35,7 +35,8 @@ class Mesh
 public:
 	Mesh();
 	Mesh(const vector<Vertex>& vertices, const vector<GLuint>& indices, const vector<Texture>& textures);
-	Mesh(const vector<float>& vertices, const vector<uint>& indices, const vector<uint>& parse, const vector<Texture>& textures);
+	Mesh(const vector<float>& vertices, const vector<uint>& indices, const vector<uint>& parse, 
+		 const vector<Texture>& textures, const vector<vec2>& instanceArray);
 	~Mesh();
 
 	void DrawMesh(const Shader& shader, GLuint element);
@@ -61,11 +62,12 @@ private:
 	vector<uint> u_indices;
 	vector<uint> parse;
 	vector<Texture> textures;
+	vector<vec2> instanceArray;
 
 	GLuint VAO;
 	GLuint VBO;
 	GLuint EBO;
-	GLuint lampVAO;
+	GLuint VBO_Instances;
 };
 
 Mesh::Mesh()
@@ -73,7 +75,7 @@ Mesh::Mesh()
 	VAO = 0;
 	VBO = 0;
 	EBO = 0;
-	lampVAO = 0;
+	VBO_Instances = 0;
 
 	m_scale = vec3(1.0f);
 	m_translate = vec3(0.0f);
@@ -88,7 +90,7 @@ Mesh::Mesh(const vector<Vertex>& vertices, const vector<GLuint>& indices, const 
 	VAO = 0;
 	VBO = 0;
 	EBO = 0;
-	lampVAO = 0;
+	VBO_Instances = 0;
 
 	m_scale = vec3(1.0f);
 	m_translate = vec3(1.0f);
@@ -96,17 +98,19 @@ Mesh::Mesh(const vector<Vertex>& vertices, const vector<GLuint>& indices, const 
 	SetupMesh();
 }
 
-Mesh::Mesh(const vector<float>& vertices, const vector<uint>& indices, const vector<uint>& parse, const vector<Texture>& textures)
+Mesh::Mesh(const vector<float>& vertices, const vector<uint>& indices, const vector<uint>& parse,
+		   const vector<Texture>& textures, const vector<vec2>& instanceArray)
 {
 	this->u_vertices = vertices;
 	this->u_indices = indices;
 	this->parse = parse;
 	this->textures = textures;
+	this->instanceArray = instanceArray;
 
 	VAO = 0;
 	VBO = 0;
 	EBO = 0;
-	lampVAO = 0;
+	VBO_Instances = 0;
 
 	m_scale = vec3(1.0f);
 	m_translate = vec3(1.0f);
@@ -175,6 +179,7 @@ void Mesh::UniversalSetupMesh()
 		stride += parse[i];
 	}
 	uint offset = 0;
+
 	for (uint i = 0; i < parse.size(); i++)
 	{
 		glVertexAttribPointer(i, parse[i], GL_FLOAT, GL_FALSE, sizeof(float) * stride, (void*)(sizeof(float) * offset));
@@ -182,6 +187,22 @@ void Mesh::UniversalSetupMesh()
 		offset += parse[i];
 	}
 
+	/**************************** 实例化数组 ****************************/
+	// 因为EBO只是指定了索引顶点的顺序，是单独存在的，所以EBO绑定期间不会影响到 VBO_Instances（或者VBO）
+	// VBO绑定期间更不会影响VBO_Instances，因为VBO 和 VBO_Instances平级并行的
+	// 所以直接接着绑定VBO_Instances即可，这样实例化数组就和layout location2对应了
+	// 存储实例化数组到显存VBO
+	glGenBuffers(1, &VBO_Instances);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO_Instances);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vec2) * instanceArray.size(), &instanceArray[0], GL_STATIC_DRAW);
+
+	// parse.size()正好对应实例化数组的layout location 
+	int componetNum = sizeof(instanceArray[0]) / sizeof(GL_FLOAT);
+	glVertexAttribPointer(parse.size(), componetNum, GL_FLOAT, GL_FALSE, sizeof(float) * componetNum, (void*)(sizeof(float) * 0));
+	glEnableVertexAttribArray(parse.size());
+	// 指定location2 每渲染1个实例更新1次instanceArray，第二个参数是0的话等于没调用，就是每渲染一个顶点更新1次实例数组了，会出bug
+	glVertexAttribDivisor(2, 1);
+	
 	// 解绑
 	glBindVertexArray(0);// 关闭VAO上下文
 
@@ -189,6 +210,7 @@ void Mesh::UniversalSetupMesh()
 	//当目标是GL_ELEMENT_ARRAY_BUFFER的时候，VAO会储存glBindBuffer的函数调用。这也意味着它也会储存解绑调用，所以确保你没有在解绑VAO之前解绑索引数组缓冲，否则它就没有这个EBO配置了
 	// remember: do NOT unbind the EBO while a VAO is active as the bound element buffer object IS stored in the VAO; keep the EBO bound.
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
 }
 
 void Mesh::UniversalDrawMesh(const Shader& shader, GLuint element)
@@ -343,7 +365,7 @@ void Mesh::DeleteMesh()
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
 	glDeleteBuffers(1, &EBO); 
-	glDeleteBuffers(1, &lampVAO);
+	glDeleteBuffers(1, &VBO_Instances);
 	for (int i = 0; i < textures.size(); i++)
 	{
 		glDeleteTextures(1, &textures[i].id);

@@ -32,7 +32,6 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void GetImguiValue();
 void SetUniformToShader(Shader& shader);
 void CreateFrameBuffer(GLuint& fbo, GLuint& tbo, GLuint& rbo);
-void DeleteFrameBuffer();
 void SetUniformBuffer();
 
 Camera myCam(vec3(1.5f, 2.0f, 3.8f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
@@ -139,7 +138,6 @@ int main()
 		SetUniformToShader(scene.reflectShader);
 		SetUniformToShader(scene.refractShader);
 		SetUniformToShader(scene.normalShader);
-		SetUniformToShader(scene.InstanceShader);
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo1);
 		scene.DrawScene();
 
@@ -152,7 +150,6 @@ int main()
 		SetUniformToShader(scene.reflectShader);
 		SetUniformToShader(scene.refractShader);
 		SetUniformToShader(scene.normalShader);
-		SetUniformToShader(scene.InstanceShader);
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo2); 
 		scene.DrawScene();
 		myCam.yawValue -= 180.0;
@@ -163,7 +160,6 @@ int main()
 		SetUniformToShader(scene.reflectShader);
 		SetUniformToShader(scene.refractShader);
 		SetUniformToShader(scene.normalShader);
-		SetUniformToShader(scene.InstanceShader);
 
 		/********************** 默认帧缓冲输出前面绘制时写入 **********************/
 		// 关掉自定义缓冲的读写，就切换成了默认缓冲
@@ -481,29 +477,6 @@ void SetUniformToShader(Shader& shader)
 	// model矩阵 local -> world
 	mat4 model = mat4(1.0f); // mat4初始化最好显示调用初始化为单位矩阵，因为新版本mat4 model可能是全0矩阵
 	shader.SetMat4("uni_model", model);
-
-	vec2 translations[100];
-	int index = 0;
-	float offset = 0.1f;
-	for (int y = -10; y < 10; y += 2)
-	{
-		for (int x = -10; x < 10; x += 2)
-		{
-			glm::vec2 translation;
-			translation.x = (float)x / 10.0f + offset;
-			translation.y = (float)y / 10.0f + offset;
-			translations[index++] = translation;
-		}
-	}
-
-	for (uint i = 0; i < 100; i++)
-	{
-		stringstream ss;
-		string index;
-		ss << i;
-		index = ss.str();
-		shader.SetVec2(("offsets[" + index + "]").c_str(), translations[i]);
-	}
 }
 
 //创建自定义帧缓冲
@@ -541,14 +514,6 @@ void CreateFrameBuffer(GLuint& fbo, GLuint& tbo, GLuint& rbo)
 	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-
-//删除自定义帧缓冲
-void DeleteFrameBuffer()
-{
-	//glDeleteFramebuffers(1, &fbo);
-	//glDeleteFramebuffers(1, &tbo);
-	//glDeleteFramebuffers(1, &rbo);
 }
 
 void SetUniformBuffer()
