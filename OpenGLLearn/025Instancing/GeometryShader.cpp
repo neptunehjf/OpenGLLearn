@@ -139,6 +139,7 @@ int main()
 		SetUniformToShader(scene.reflectShader);
 		SetUniformToShader(scene.refractShader);
 		SetUniformToShader(scene.normalShader);
+		SetUniformToShader(scene.InstanceShader);
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo1);
 		scene.DrawScene();
 
@@ -151,6 +152,7 @@ int main()
 		SetUniformToShader(scene.reflectShader);
 		SetUniformToShader(scene.refractShader);
 		SetUniformToShader(scene.normalShader);
+		SetUniformToShader(scene.InstanceShader);
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo2); 
 		scene.DrawScene();
 		myCam.yawValue -= 180.0;
@@ -161,6 +163,7 @@ int main()
 		SetUniformToShader(scene.reflectShader);
 		SetUniformToShader(scene.refractShader);
 		SetUniformToShader(scene.normalShader);
+		SetUniformToShader(scene.InstanceShader);
 
 		/********************** 默认帧缓冲输出前面绘制时写入 **********************/
 		// 关掉自定义缓冲的读写，就切换成了默认缓冲
@@ -172,6 +175,7 @@ int main()
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT); //离屏渲染不需要glClear(GL_COLOR_BUFFER_BIT);
 
+		// 主屏幕
 		const vector<Texture> screenTexture =
 		{
 			{tbo1, "texture_diffuse"},
@@ -180,6 +184,7 @@ int main()
 		scene.screen.SetTextures(screenTexture);
 		scene.screen.DrawMesh(scene.screenShader, GL_TRIANGLES);
 
+		// 后视镜
 		const vector<Texture> mirrorTexture =
 		{
 			{tbo2, "texture_diffuse"},
@@ -187,21 +192,6 @@ int main()
 		};
 		scene.mirror.SetTextures(mirrorTexture);
 		scene.mirror.DrawMesh(scene.screenShader, GL_TRIANGLES);
-		
-		glEnable(GL_PROGRAM_POINT_SIZE);
-		//绘制的图元是GL_POINTS。对应的是裁剪空间的归一化坐标（实际是在顶点着色器设定）
-		glPointSize(pointSize);
-		scene.particle.DrawMesh(scene.screenShader, GL_POINTS);
-
-		// Geometry Shader Test
-		if (bGMTest)
-		{
-			glClearColor(bkgColor.r, bkgColor.g, bkgColor.b, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			scene.GMTest.DrawMesh(scene.GMTestShader, GL_POINTS);
-		}
-
-		glDisable(GL_PROGRAM_POINT_SIZE);
 
 		// imgui在默认缓冲中绘制，因为我不想imgui也有后期处理效果
 		ImGui::Render();
@@ -401,6 +391,12 @@ void GetImguiValue()
 		ImGui::SliderFloat("Normal Length", &normalLen, 0.0f, 0.8f);
 		ImGui::TreePop();
 	}
+
+	if (ImGui::TreeNodeEx("Instance", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		ImGui::Checkbox("Instance Test", &bInstanceTest);
+		ImGui::TreePop();
+	}
 }
 
 void SetUniformToShader(Shader& shader)
@@ -485,6 +481,29 @@ void SetUniformToShader(Shader& shader)
 	// model矩阵 local -> world
 	mat4 model = mat4(1.0f); // mat4初始化最好显示调用初始化为单位矩阵，因为新版本mat4 model可能是全0矩阵
 	shader.SetMat4("uni_model", model);
+
+	vec2 translations[100];
+	int index = 0;
+	float offset = 0.1f;
+	for (int y = -10; y < 10; y += 2)
+	{
+		for (int x = -10; x < 10; x += 2)
+		{
+			glm::vec2 translation;
+			translation.x = (float)x / 10.0f + offset;
+			translation.y = (float)y / 10.0f + offset;
+			translations[index++] = translation;
+		}
+	}
+
+	for (uint i = 0; i < 100; i++)
+	{
+		stringstream ss;
+		string index;
+		ss << i;
+		index = ss.str();
+		shader.SetVec2(("offsets[" + index + "]").c_str(), translations[i]);
+	}
 }
 
 //创建自定义帧缓冲

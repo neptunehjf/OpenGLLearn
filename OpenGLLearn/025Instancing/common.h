@@ -46,5 +46,6 @@ float explodeMag = 0.0;
 bool bBlending = 1;
 bool bFaceCulling = 0;
 float normalLen = 0.1;
+bool bInstanceTest = 0;
 /************** Imgui±‰¡ø **************/
 

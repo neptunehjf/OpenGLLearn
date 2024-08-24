@@ -23,6 +23,7 @@ public:
 	Shader refractShader;
 	Shader GMTestShader;
 	Shader normalShader;
+	Shader InstanceShader;
 
 	Mesh cubeReflect;
 	Mesh cubeMarble;
@@ -34,6 +35,7 @@ public:
 	Mesh particle; 
 	Mesh GMTest;
 	Model nanosuit;
+	Mesh InstanceTest;
 
 	vector<vec3> squarePositions;
 
@@ -58,6 +60,7 @@ void Scene::CreateScene(Camera* myCam)
 	refractShader = Shader("ShaderRefraction.vs", "ShaderRefraction.fs");
 	GMTestShader = Shader("ShaderGeometryTest.vs", "ShaderGeometryTest.fs", "ShaderGeometryTest.gs");
 	normalShader = Shader("ShaderNormal.vs", "ShaderNormal.fs", "ShaderNormal.gs");
+	InstanceShader = Shader("ShaderInstance.vs", "ShaderInstance.fs");
 
 	/* 加载贴图 */
 	// 翻转y轴，使图片和opengl坐标一致  但是如果assimp 导入模型时设置了aiProcess_FlipUVs，就不能重复设置了
@@ -124,6 +127,8 @@ void Scene::CreateScene(Camera* myCam)
 	mirror = Mesh(g_mirrorVertices, g_mirrorIndices, dummyTexture);
 	particle = Mesh(g_particleVertices, g_particleIndices, dummyTexture);
 	GMTest = Mesh(g_GMTestVertices, g_GMTestIndices, dummyTexture);
+	InstanceTest = Mesh(g_InstanceTestV, g_InstanceTestI, g_InstanceTestP, dummyTexture);
+	
 
 	squarePositions.push_back(glm::vec3(-1.5f, 1.0f, -0.48f));
 	squarePositions.push_back(glm::vec3(1.5f, 1.0f, 0.51f));
@@ -203,6 +208,23 @@ void Scene::DrawScene()
 	{
 		square.SetTranslate(it->second);
 		square.DrawMesh(lightShader, GL_TRIANGLES);
+	}
+
+	/* 一些功能测试 */
+	glEnable(GL_PROGRAM_POINT_SIZE);
+	//绘制的图元是GL_POINTS。对应的是裁剪空间的归一化坐标（实际是在顶点着色器设定）
+	glPointSize(pointSize);
+	particle.DrawMesh(screenShader, GL_POINTS);
+	glDisable(GL_PROGRAM_POINT_SIZE);
+
+	// Geometry Shader Test
+	if (bGMTest)
+	{
+		GMTest.DrawMesh(GMTestShader, GL_POINTS);
+	}
+	if (bInstanceTest)
+	{
+		InstanceTest.UniversalDrawMesh(InstanceShader, GL_TRIANGLES);
 	}
 }
 

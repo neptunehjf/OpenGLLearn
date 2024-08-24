@@ -189,3 +189,20 @@ const vector<GLuint> g_GMTestIndices =
 {
     0, 1, 2, 3
 };
+
+const vector<float> g_InstanceTestV = {
+    // Î»ÖÃ           // ÑÕÉ«
+  { -0.05f,  0.05f,  1.0f, 0.0f, 0.0f,
+     0.05f, -0.05f,  0.0f, 1.0f, 0.0f,
+    -0.05f, -0.05f,  0.0f, 0.0f, 1.0f,
+     0.05f,  0.05f,  0.0f, 1.0f, 1.0f }
+};
+
+const vector<uint> g_InstanceTestI = {
+   { 0, 1, 2,
+     0, 1, 3 }
+};
+
+const vector<uint> g_InstanceTestP = {
+    { 2, 3 }
+};

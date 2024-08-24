@@ -35,9 +35,11 @@ class Mesh
 public:
 	Mesh();
 	Mesh(const vector<Vertex>& vertices, const vector<GLuint>& indices, const vector<Texture>& textures);
+	Mesh(const vector<float>& vertices, const vector<uint>& indices, const vector<uint>& parse, const vector<Texture>& textures);
 	~Mesh();
 
 	void DrawMesh(const Shader& shader, GLuint element);
+	void UniversalDrawMesh(const Shader& shader, GLuint element);
 	void DeleteMesh();
 
 	void SetScale(vec3 scale);
@@ -51,9 +53,13 @@ protected:  //只允许子类访问
 
 private:
 	void SetupMesh();
+	void UniversalSetupMesh();
 
 	vector<Vertex> vertices;
 	vector<GLuint> indices;
+	vector<float> u_vertices;
+	vector<uint> u_indices;
+	vector<uint> parse;
 	vector<Texture> textures;
 
 	GLuint VAO;
@@ -88,6 +94,24 @@ Mesh::Mesh(const vector<Vertex>& vertices, const vector<GLuint>& indices, const 
 	m_translate = vec3(1.0f);
 
 	SetupMesh();
+}
+
+Mesh::Mesh(const vector<float>& vertices, const vector<uint>& indices, const vector<uint>& parse, const vector<Texture>& textures)
+{
+	this->u_vertices = vertices;
+	this->u_indices = indices;
+	this->parse = parse;
+	this->textures = textures;
+
+	VAO = 0;
+	VBO = 0;
+	EBO = 0;
+	lampVAO = 0;
+
+	m_scale = vec3(1.0f);
+	m_translate = vec3(1.0f);
+
+	UniversalSetupMesh();
 }
 
 Mesh::~Mesh()
@@ -126,6 +150,119 @@ void Mesh::SetupMesh()
 	//当目标是GL_ELEMENT_ARRAY_BUFFER的时候，VAO会储存glBindBuffer的函数调用。这也意味着它也会储存解绑调用，所以确保你没有在解绑VAO之前解绑索引数组缓冲，否则它就没有这个EBO配置了
 	// remember: do NOT unbind the EBO while a VAO is active as the bound element buffer object IS stored in the VAO; keep the EBO bound.
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
+void Mesh::UniversalSetupMesh()
+{
+	// 用显存VAO来管理 shader的顶点属性
+	glGenVertexArrays(1, &VAO);
+	glBindVertexArray(VAO); // VBO glVertexAttribPointer 操作向VAO上下文写
+
+	// 存储顶点数据到显存VBO
+	glGenBuffers(1, &VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * u_vertices.size(), &u_vertices[0], GL_STATIC_DRAW);
+
+	// 存储下标数据到显存EBO
+	glGenBuffers(1, &EBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint) * u_indices.size(), &u_indices[0], GL_STATIC_DRAW);
+
+	// 定义顶点属性的解析方式
+	uint stride = 0;
+	for (uint i = 0; i < parse.size(); i++)
+	{
+		stride += parse[i];
+	}
+	uint offset = 0;
+	for (uint i = 0; i < parse.size(); i++)
+	{
+		glVertexAttribPointer(i, parse[i], GL_FLOAT, GL_FALSE, sizeof(float) * stride, (void*)(sizeof(float) * offset));
+		glEnableVertexAttribArray(i);
+		offset += parse[i];
+	}
+
+	// 解绑
+	glBindVertexArray(0);// 关闭VAO上下文
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	//当目标是GL_ELEMENT_ARRAY_BUFFER的时候，VAO会储存glBindBuffer的函数调用。这也意味着它也会储存解绑调用，所以确保你没有在解绑VAO之前解绑索引数组缓冲，否则它就没有这个EBO配置了
+	// remember: do NOT unbind the EBO while a VAO is active as the bound element buffer object IS stored in the VAO; keep the EBO bound.
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
+void Mesh::UniversalDrawMesh(const Shader& shader, GLuint element)
+{
+	// 设置纹理单元 任何uniform设置操作一定要放到《对应的shader》启动之后！  --》不同的shader切换运行，另一个shader会关掉，写的数据会丢失数据
+	// 也就是说启动了shader之后又启动了shader_lamp，之前在shader设置的就无效了！这种情况只能放到渲染循环里，不能放循环外面
+	glBindVertexArray(VAO); // draw操作从VAO上下文读顶点数据    可代替VBO EBO attrpoint的绑定操作，方便管理
+	shader.Use();
+	GLuint diffuseN = 0;
+	GLuint specularN = 0;
+	GLuint reflectionN = 0;
+	GLuint cubemapN = 0;
+	string type;
+
+	for (int i = 0; i < textures.size(); i++)
+	{
+		type = textures[i].type;
+		if (type == "texture_diffuse")
+		{
+			//cout << "texture_diffuse" << endl;
+			diffuseN++;
+			shader.SetInt("material." + type + to_string(diffuseN), i);   // 不清楚这里一次draw有多个贴图要怎么搞，这里代码姑且保留
+		}
+		else if (type == "texture_specular")
+		{
+			//cout << "texture_specular" << endl;
+			specularN++;
+			shader.SetInt("material." + type + to_string(specularN), i);
+		}
+		else if (type == "texture_reflection")
+		{
+			//cout << "texture_reflection" << endl;
+			reflectionN++;
+			shader.SetInt("material." + type + to_string(reflectionN), i);
+		}
+		else if (type == "texture_cubemap")
+		{
+			//cout << "texture_cubemap" << endl;
+			cubemapN++;
+			shader.SetInt(type + to_string(cubemapN), i);
+		}
+
+		//cout << i << endl << endl;
+		glActiveTexture(GL_TEXTURE0 + i);
+		if (type == "texture_cubemap")
+		{
+			glBindTexture(GL_TEXTURE_CUBE_MAP, textures[i].id);
+		}
+		else
+		{
+			glBindTexture(GL_TEXTURE_2D, textures[i].id);
+		}
+	}
+	//cout << "***********************************" << endl;
+
+	mat4 model = mat4(1.0f);
+	model = translate(model, m_translate);
+	model = scale(model, m_scale);
+	shader.SetMat4("uni_model", model);
+
+	//glDrawElements(element, u_indices.size(), GL_UNSIGNED_INT, 0);
+	glDrawElementsInstanced(element, u_indices.size(), GL_UNSIGNED_INT, 0, 100);
+
+	// 解绑
+	if (type == "texture_cubemap")
+	{
+		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+	}
+	else
+	{
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+
+	glBindVertexArray(0);
 }
 
 void Mesh::DrawMesh(const Shader& shader, GLuint element)

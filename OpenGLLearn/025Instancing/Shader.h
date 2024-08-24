@@ -36,6 +36,7 @@ public:
 	void SetFloat(const string& name, float value) const;
 	void Set4F(const string& name, float value0, float value1, float value2, float value3) const;
 	void SetMat4(const string& name, mat4 matrix) const;
+	void SetVec2(const string& name, vec2 vector) const;
 	void SetVec3(const string& name, vec3 vector) const;
 	void SetVec4(const string& name, vec4 vector) const;
 
@@ -129,6 +130,12 @@ void Shader::SetMat4(const string& name, mat4 matrix) const
 {
 	glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, value_ptr(matrix));
 }
+
+void Shader::SetVec2(const string& name, vec2 vector) const
+{
+	glUniform2fv(glGetUniformLocation(ID, name.c_str()), 1, value_ptr(vector));
+}
+
 
 void Shader::SetVec3(const string& name, vec3 vector) const
 {
