@@ -103,7 +103,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="GeometryShader.cpp">
+    <ClCompile Include="Instancing.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\Dependency\Src\glad\src\glad.c">
