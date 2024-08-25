@@ -239,7 +239,7 @@ void Mesh::UniversalDrawMesh(const Shader& shader, GLuint element)
 	GLuint cubemapN = 0;
 	string type;
 
-	for (int i = 0; i < textures.size(); i++)
+	for (uint i = 0; i < textures.size(); i++)
 	{
 		type = textures[i].type;
 		if (type == "texture_diffuse")
@@ -286,13 +286,48 @@ void Mesh::UniversalDrawMesh(const Shader& shader, GLuint element)
 	//glDrawElementsInstanced(element, u_indices.size(), GL_UNSIGNED_INT, 0, 100);
 
 	// 解绑
-	if (type == "texture_cubemap")
+	diffuseN = 0;
+	specularN = 0;
+	reflectionN = 0;
+	cubemapN = 0;
+	for (uint i = 0; i < textures.size(); i++)
 	{
-		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-	}
-	else
-	{
-		glBindTexture(GL_TEXTURE_2D, 0);
+		type = textures[i].type;
+		if (type == "texture_diffuse")
+		{
+			//cout << "texture_diffuse" << endl;
+			diffuseN++;
+			shader.SetInt("material." + type + to_string(diffuseN), i);   // 不清楚这里一次draw有多个贴图要怎么搞，这里代码姑且保留
+		}
+		else if (type == "texture_specular")
+		{
+			//cout << "texture_specular" << endl;
+			specularN++;
+			shader.SetInt("material." + type + to_string(specularN), i);
+		}
+		else if (type == "texture_reflection")
+		{
+			//cout << "texture_reflection" << endl;
+			reflectionN++;
+			shader.SetInt("material." + type + to_string(reflectionN), i);
+		}
+		else if (type == "texture_cubemap")
+		{
+			//cout << "texture_cubemap" << endl;
+			cubemapN++;
+			shader.SetInt(type + to_string(cubemapN), i);
+		}
+
+		//cout << i << endl << endl;
+		glActiveTexture(GL_TEXTURE0 + i);
+		if (type == "texture_cubemap")
+		{
+			glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+		}
+		else
+		{
+			glBindTexture(GL_TEXTURE_2D, 0);
+		}
 	}
 
 	glBindVertexArray(0);
@@ -310,7 +345,7 @@ void Mesh::DrawMesh(const Shader& shader, GLuint element)
 	GLuint cubemapN = 0;
 	string type;
 
-	for (int i = 0; i < textures.size(); i++)
+	for (uint i = 0; i < textures.size(); i++)
 	{
 		type = textures[i].type;
 		if (type == "texture_diffuse")
@@ -359,13 +394,48 @@ void Mesh::DrawMesh(const Shader& shader, GLuint element)
 	glDrawElements(element, indices.size(), GL_UNSIGNED_INT, 0);
 
 	// 解绑
-	if (type == "texture_cubemap")
+	diffuseN = 0;
+	specularN = 0;
+	reflectionN = 0;
+	cubemapN = 0;
+	for (uint i = 0; i < textures.size(); i++)
 	{
-		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-	}
-	else
-	{
-		glBindTexture(GL_TEXTURE_2D, 0);
+		type = textures[i].type;
+		if (type == "texture_diffuse")
+		{
+			//cout << "texture_diffuse" << endl;
+			diffuseN++;
+			shader.SetInt("material." + type + to_string(diffuseN), i);   // 不清楚这里一次draw有多个贴图要怎么搞，这里代码姑且保留
+		}
+		else if (type == "texture_specular")
+		{
+			//cout << "texture_specular" << endl;
+			specularN++;
+			shader.SetInt("material." + type + to_string(specularN), i);
+		}
+		else if (type == "texture_reflection")
+		{
+			//cout << "texture_reflection" << endl;
+			reflectionN++;
+			shader.SetInt("material." + type + to_string(reflectionN), i);
+		}
+		else if (type == "texture_cubemap")
+		{
+			//cout << "texture_cubemap" << endl;
+			cubemapN++;
+			shader.SetInt(type + to_string(cubemapN), i);
+		}
+
+		//cout << i << endl << endl;
+		glActiveTexture(GL_TEXTURE0 + i);
+		if (type == "texture_cubemap")
+		{
+			glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+		}
+		else
+		{
+			glBindTexture(GL_TEXTURE_2D, 0);
+		}
 	}
 
 	glBindVertexArray(0);

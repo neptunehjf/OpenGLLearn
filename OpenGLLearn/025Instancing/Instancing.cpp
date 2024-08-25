@@ -34,7 +34,7 @@ void SetUniformToShader(Shader& shader);
 void CreateFrameBuffer(GLuint& fbo, GLuint& tbo, GLuint& rbo);
 void SetUniformBuffer();
 
-Camera myCam(vec3(1.5f, 2.0f, 3.8f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
+Camera myCam(vec3(-30.0f, 50.0f, -30.0f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
 GLFWwindow* window = NULL;
 
 // Ô­³¡¾°»º³å
@@ -370,6 +370,12 @@ void GetImguiValue()
 		ImGui::Combo("PostProcess Type", &postProcessType, itemArray, IM_ARRAYSIZE(itemArray));
 
 		ImGui::SliderFloat("PostProcess sample offset", &sampleOffsetBase, 1.0f, 3000.0f);
+		ImGui::TreePop();
+	}
+
+	if (ImGui::TreeNodeEx("Skybox", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		ImGui::Checkbox("Skybox", &bSkyBox);
 		ImGui::TreePop();
 	}
 

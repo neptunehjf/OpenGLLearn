@@ -34,7 +34,7 @@ int item = 0;
 int material_shininess = 32;
 int postProcessType = 0;
 float sampleOffsetBase = 300.0f;
-float imgui_speed = 5.0f;
+float imgui_speed = 100.0f;
 float imgui_camNear = 0.1f;
 float imgui_camFar = 500.0f;
 float pointSize = 1.0f;
@@ -47,5 +47,6 @@ bool bBlending = 1;
 bool bFaceCulling = 0;
 float normalLen = 0.1;
 bool bInstanceTest = 0;
+bool bSkyBox = 0;
 /************** Imgui±‰¡ø **************/
 

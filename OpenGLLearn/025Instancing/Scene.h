@@ -219,8 +219,12 @@ void Scene::DrawScene()
 	glEnable(GL_BLEND);
 
 	glDisable(GL_CULL_FACE);
-	// 绘制天空盒
-	skybox.DrawMesh(cubemapShader, GL_TRIANGLES);
+
+	if (bSkyBox)
+	{
+		// 绘制天空盒
+		skybox.DrawMesh(cubemapShader, GL_TRIANGLES);
+	}
 
 	planet.DrawModel(lightShader);
 
@@ -382,7 +386,7 @@ void Scene::CreateAsteroid()
 		float y = displacement * 0.4f; // 让行星带的高度比x和z的宽度要小
 		displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
 		float z = cos(angle) * radius + displacement;
-		model = translate(model, vec3(x, y, z) + vec3(40.0f, 40.0f, 40.0f));
+		model = translate(model, vec3(x, y, z) + vec3(40.0f, 45.0f, 40.0f));
 
 		// 2. 缩放：在 0.05 和 0.25f 之间缩放
 		float _scale = (rand() % 20) / 100.0f + 0.05;
