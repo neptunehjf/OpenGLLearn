@@ -45,12 +45,17 @@ public:
 
 	void SetScale(vec3 scale);
 	void SetTranslate(vec3 scale);
+	void SetRotate(float angle, vec3 axis);
+	void SetModel(mat4 model);
 	void SetTextures(const vector<Texture>& textures);
 	void AddTextures(const vector<Texture>& textures);
 
 protected:  //只允许子类访问
 	vec3 m_scale;
 	vec3 m_translate;
+	float m_rotateAngle;
+	vec3 m_rotateAxis;
+	mat4 m_model;
 
 private:
 	void SetupMesh();
@@ -79,6 +84,9 @@ Mesh::Mesh()
 
 	m_scale = vec3(1.0f);
 	m_translate = vec3(0.0f);
+	m_rotateAngle = 0.0f;
+	m_rotateAxis = vec3(1.0, 1.0, 1.0);
+	m_model = mat4(1.0f);
 }
 
 Mesh::Mesh(const vector<Vertex>& vertices, const vector<GLuint>& indices, const vector<Texture>& textures)
@@ -93,7 +101,10 @@ Mesh::Mesh(const vector<Vertex>& vertices, const vector<GLuint>& indices, const 
 	VBO_Instances = 0;
 
 	m_scale = vec3(1.0f);
-	m_translate = vec3(1.0f);
+	m_translate = vec3(0.0f);
+	m_rotateAngle = 0.0f;
+	m_rotateAxis = vec3(1.0, 1.0, 1.0);
+	m_model = mat4(1.0f);
 
 	SetupMesh();
 }
@@ -113,7 +124,10 @@ Mesh::Mesh(const vector<float>& vertices, const vector<uint>& indices, const vec
 	VBO_Instances = 0;
 
 	m_scale = vec3(1.0f);
-	m_translate = vec3(1.0f);
+	m_translate = vec3(0.0f);
+	m_rotateAngle = 0.0f;
+	m_rotateAxis = vec3(1.0, 1.0, 1.0);
+	m_model = mat4(1.0f);
 
 	UniversalSetupMesh();
 }
@@ -266,13 +280,10 @@ void Mesh::UniversalDrawMesh(const Shader& shader, GLuint element)
 	}
 	//cout << "***********************************" << endl;
 
-	mat4 model = mat4(1.0f);
-	model = translate(model, m_translate);
-	model = scale(model, m_scale);
-	shader.SetMat4("uni_model", model);
+	shader.SetMat4("uni_model", m_model);
 
-	//glDrawElements(element, u_indices.size(), GL_UNSIGNED_INT, 0);
-	glDrawElementsInstanced(element, u_indices.size(), GL_UNSIGNED_INT, 0, 100);
+	glDrawElements(element, indices.size(), GL_UNSIGNED_INT, 0);
+	//glDrawElementsInstanced(element, u_indices.size(), GL_UNSIGNED_INT, 0, 100);
 
 	// 解绑
 	if (type == "texture_cubemap")
@@ -380,6 +391,17 @@ void Mesh::SetScale(vec3 scale)
 void Mesh::SetTranslate(vec3 translate)
 {
 	m_translate = translate;
+}
+
+void Mesh::SetRotate(float angle, vec3 axis)
+{
+	m_rotateAngle = angle;
+	m_rotateAxis = axis;
+}
+
+void Mesh::SetModel(mat4 model)
+{
+	m_model = model;
 }
 
 void Mesh::SetTextures(const vector<Texture>& textures)

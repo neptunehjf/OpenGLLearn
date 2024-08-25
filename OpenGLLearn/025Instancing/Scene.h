@@ -9,6 +9,8 @@
 #include "Model.h"
 #include "Camera.h"
 
+#define ROCK_NUM 1000
+
 class Scene
 {
 public:
@@ -36,8 +38,11 @@ public:
 	Mesh GMTest;
 	Model nanosuit;
 	Mesh InstanceTest;
+	Model planet;
+	Model rock;
 
 	vector<vec3> squarePositions;
+	vector<mat4> modelMatrices;
 
 	Camera* myCam;
 
@@ -46,6 +51,7 @@ public:
 	bool LoadTexture(const string&& filePath, GLuint& texture, const GLint param_s, const GLint param_t);
 	GLuint LoadCubemap(const vector<string>& cubemapFaces);
 	void DeleteScene();
+	void CreateAsteroid();
 };
 
 void Scene::CreateScene(Camera* myCam)
@@ -158,6 +164,13 @@ void Scene::CreateScene(Camera* myCam)
 	{
 		suitMeshes[i].AddTextures(skyboxTexture);
 	}
+
+	planet = Model("Resource/Model/planet/planet.obj");
+	planet.SetTranslate(vec3(40.0f, 40.0f, 40.0f));
+	planet.SetScale(vec3(4.0f, 4.0f, 4.0f));
+
+	rock = Model("Resource/Model/rock/rock.obj");
+	CreateAsteroid();
 }
 
 void Scene::DrawScene()
@@ -208,6 +221,14 @@ void Scene::DrawScene()
 	glDisable(GL_CULL_FACE);
 	// 绘制天空盒
 	skybox.DrawMesh(cubemapShader, GL_TRIANGLES);
+
+	planet.DrawModel(lightShader);
+
+	for (uint i = 0; i < ROCK_NUM; i++)
+	{
+		rock.SetModel(modelMatrices[i]);
+		rock.UniversalDrawModel(lightShader);
+	}
 
 	// 按窗户离摄像机间的距离排序，map默认是升序排序，也就是从近到远
 	// 必须放在render loop里，因为摄像机是实时改变的
@@ -343,4 +364,35 @@ void Scene::DeleteScene()
 	lightShader.Remove();
 	screenShader.Remove();
 	cubemapShader.Remove();
+}
+
+void Scene::CreateAsteroid()
+{
+	srand(glfwGetTime()); // 初始化随机种子    
+	float radius = 50.0;
+	float offset = 2.5f;
+	for (unsigned int i = 0; i < ROCK_NUM; i++)
+	{
+		mat4 model;
+		// 1. 位移：分布在半径为 'radius' 的圆形上，偏移的范围是 [-offset, offset]
+		float angle = (float)i / (float)ROCK_NUM * 360.0f;
+		float displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
+		float x = sin(angle) * radius + displacement;
+		displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
+		float y = displacement * 0.4f; // 让行星带的高度比x和z的宽度要小
+		displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
+		float z = cos(angle) * radius + displacement;
+		model = translate(model, vec3(x, y, z) + vec3(40.0f, 40.0f, 40.0f));
+
+		// 2. 缩放：在 0.05 和 0.25f 之间缩放
+		float _scale = (rand() % 20) / 100.0f + 0.05;
+		model = scale(model, vec3(_scale));
+
+		// 3. 旋转：绕着一个（半）随机选择的旋转轴向量进行随机的旋转
+		float rotAngle = (rand() % 360);
+		model = rotate(model, rotAngle, vec3(0.4f, 0.6f, 0.8f));
+
+		// 4. 添加到矩阵的数组中
+		modelMatrices.push_back(model);
+	}
 }

@@ -309,7 +309,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 
 void GetImguiValue()
 {
-	if (ImGui::TreeNodeEx("Camera", ImGuiTreeNodeFlags_None))
+	if (ImGui::TreeNodeEx("Camera"))
 	{
 		ImGui::Text("CameraX %f | CameraY %f | CameraZ %f \n CameraPitch %f | CameraYaw %f | CameraFov %f",
 			myCam.camPos.x, myCam.camPos.y, myCam.camPos.z, myCam.pitchValue, myCam.yawValue, myCam.fov);
@@ -321,12 +321,12 @@ void GetImguiValue()
 		myCam.camNear = imgui_camNear;
 
 		ImGui::SliderFloat("View Far", &imgui_camFar, 0.1f, 1000.0f);
-		myCam.camFar = imgui_camFar;
+		myCam.camFar = imgui_camFar; // 如果用其他变量接收imgui变量，必须保证两者初始值一致，因为imgui收起的状态是不传值的。
 
 		ImGui::TreePop();
 	}
 
-	if (ImGui::TreeNodeEx("Lighting", ImGuiTreeNodeFlags_None))
+	if (ImGui::TreeNodeEx("Lighting"))
 	{
 		// clear color
 		ImGui::ColorEdit3("background", (float*)&bkgColor);
@@ -357,14 +357,14 @@ void GetImguiValue()
 		ImGui::TreePop();
 	}
 
-	if (ImGui::TreeNodeEx("Test and Blend", ImGuiTreeNodeFlags_None))
+	if (ImGui::TreeNodeEx("Test and Blend"))
 	{
 		ImGui::Checkbox("Blending", &bBlending);
 		ImGui::Checkbox("Face Culling", &bFaceCulling);
 		ImGui::TreePop();
 	}
 
-	if (ImGui::TreeNodeEx("PostProcess", ImGuiTreeNodeFlags_None))
+	if (ImGui::TreeNodeEx("PostProcess"))
 	{
 		const char* itemArray[] = {"Default", "Sharpen", "Edge Detection", "Blur"};
 		ImGui::Combo("PostProcess Type", &postProcessType, itemArray, IM_ARRAYSIZE(itemArray));
@@ -373,14 +373,14 @@ void GetImguiValue()
 		ImGui::TreePop();
 	}
 
-	if (ImGui::TreeNodeEx("Advanced GLSL", ImGuiTreeNodeFlags_None))
+	if (ImGui::TreeNodeEx("Advanced GLSL"))
 	{
 		ImGui::SliderFloat("Point Size", &pointSize, 0.0f, 50.0f);
 		ImGui::Checkbox("Split Screen", &bSplitScreen);
 		ImGui::TreePop();
 	}
 
-	if (ImGui::TreeNodeEx("Geometry Shader", ImGuiTreeNodeFlags_DefaultOpen))
+	if (ImGui::TreeNodeEx("Geometry Shader"))
 	{
 		ImGui::Checkbox("Geometry Shader Test", &bGMTest);
 		ImGui::SliderFloat("Explode Magnitude", &explodeMag, 0.0f, 5.0f);
@@ -473,10 +473,6 @@ void SetUniformToShader(Shader& shader)
 		shader.SetFloat(prefix + "linear", linear);
 		shader.SetFloat(prefix + "quadratic", quadratic);
 	}
-
-	// model矩阵 local -> world
-	mat4 model = mat4(1.0f); // mat4初始化最好显示调用初始化为单位矩阵，因为新版本mat4 model可能是全0矩阵
-	shader.SetMat4("uni_model", model);
 }
 
 //创建自定义帧缓冲

@@ -45,7 +45,7 @@ Camera::Camera(const vec3& camPos, const vec3& camFront, const vec3& camUp)
 {
 	camSpeed = 5.0f;
 	camNear = 0.1f;
-	camFar = 100.0f;
+	camFar = 500.0f;
 
 	deltaTime = 0.0f; 
 	lastFrame = 0.0f;  
