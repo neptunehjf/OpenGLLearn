@@ -103,9 +103,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Instancing.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\Dependency\Src\glad\src\glad.c">
       <Filter>Dependency Src</Filter>
     </ClCompile>
@@ -129,6 +126,9 @@
     </ClCompile>
     <ClCompile Include="..\Dependency\Src\imgui\imgui_tables.cpp">
       <Filter>Dependency Src</Filter>
+    </ClCompile>
+    <ClCompile Include="Instancing.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
