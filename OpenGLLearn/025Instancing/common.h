@@ -12,7 +12,7 @@ using namespace glm;
 #define CUBE_SCALE_DEFAULT 1.0f
 #define CUBE_SCALE_OUTLINE 1.05f
 
-#define ROCK_NUM 10000
+#define ROCK_NUM 100000
 
 /************** Imgui±‰¡ø **************/
 float posValue = 0.0f;

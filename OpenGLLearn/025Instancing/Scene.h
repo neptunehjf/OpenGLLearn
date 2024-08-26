@@ -66,7 +66,7 @@ void Scene::CreateScene(Camera* myCam)
 	GMTestShader = Shader("ShaderGeometryTest.vs", "ShaderGeometryTest.fs", "ShaderGeometryTest.gs");
 	normalShader = Shader("ShaderNormal.vs", "ShaderNormal.fs", "ShaderNormal.gs");
 	InstanceShader = Shader("ShaderInstance.vs", "ShaderInstance.fs");
-	lightInstShader = Shader("ShaderLightingInstance.vs", "ShaderLightingInstance.fs", "ShaderLightingInstance.gs");
+	lightInstShader = Shader("ShaderLightingInstance.vs", "ShaderLightingInstance.fs");
 
 	/* 加载贴图 */
 	// 翻转y轴，使图片和opengl坐标一致  但是如果assimp 导入模型时设置了aiProcess_FlipUVs，就不能重复设置了
@@ -167,7 +167,7 @@ void Scene::CreateScene(Camera* myCam)
 
 	planet = Model("Resource/Model/planet/planet.obj");
 	planet.SetTranslate(vec3(40.0f, 40.0f, 40.0f));
-	planet.SetScale(vec3(4.0f, 4.0f, 4.0f));
+	planet.SetScale(vec3(20.0f, 20.0f, 20.0f));
 
 	CreateAsteroid();
 	rock = Model("Resource/Model/rock/rock.obj", instMat4);
@@ -191,6 +191,8 @@ void Scene::DrawScene()
 	// 清空各个缓冲区
 	glClearColor(bkgColor.r, bkgColor.g, bkgColor.b, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //离屏渲染不需要glClear(GL_COLOR_BUFFER_BIT);
+
+	glEnable(GL_CULL_FACE);
 
 	// 绘制地板
 	//plane.DrawMesh(lightShader);
@@ -220,12 +222,12 @@ void Scene::DrawScene()
 	glEnable(GL_BLEND);
 
 	glDisable(GL_CULL_FACE);
-
 	if (bSkyBox)
 	{
 		// 绘制天空盒
 		skybox.DrawMesh(cubemapShader, GL_TRIANGLES);
 	}
+	glEnable(GL_CULL_FACE);
 
 	planet.DrawModel(lightShader);
 
@@ -370,8 +372,8 @@ void Scene::DeleteScene()
 void Scene::CreateAsteroid()
 {
 	srand(glfwGetTime()); // 初始化随机种子    
-	float radius = 50.0;
-	float offset = 10.0f;
+	float radius = 150.0;
+	float offset = 30.0f;
 	for (unsigned int i = 0; i < ROCK_NUM; i++)
 	{
 		mat4 model;

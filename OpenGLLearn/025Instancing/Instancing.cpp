@@ -34,7 +34,7 @@ void SetUniformToShader(Shader& shader);
 void CreateFrameBuffer(GLuint& fbo, GLuint& tbo, GLuint& rbo);
 void SetUniformBuffer();
 
-Camera myCam(vec3(-34.0f, 74.0f, -28.0f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
+Camera myCam(vec3(-230.0f, 70.0f, -88.0f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
 GLFWwindow* window = NULL;
 
 // Ô­³¡¾°»º³å
