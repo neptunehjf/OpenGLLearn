@@ -101,6 +101,15 @@
     <None Include="ShaderInstance.fs">
       <Filter>Shader</Filter>
     </None>
+    <None Include="ShaderLightingInstance.fs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="ShaderLightingInstance.gs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="ShaderLightingInstance.vs">
+      <Filter>Shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Dependency\Src\glad\src\glad.c">

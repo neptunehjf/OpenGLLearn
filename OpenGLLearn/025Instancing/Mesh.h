@@ -34,12 +34,13 @@ class Mesh
 {
 public:
 	Mesh();
-	Mesh(const vector<Vertex>& vertices, const vector<GLuint>& indices, const vector<Texture>& textures);
+	Mesh(const vector<Vertex>& vertices, const vector<GLuint>& indices, 
+		 const vector<Texture>& textures, const vector<mat4>& instMat4 = {});
 	Mesh(const vector<float>& vertices, const vector<uint>& indices, const vector<uint>& parse, 
 		 const vector<Texture>& textures, const vector<vec2>& instanceArray);
 	~Mesh();
 
-	void DrawMesh(const Shader& shader, GLuint element);
+	void DrawMesh(const Shader& shader, GLuint element, bool bInst = false);
 	void UniversalDrawMesh(const Shader& shader, GLuint element);
 	void DeleteMesh();
 
@@ -49,6 +50,7 @@ public:
 	void SetModel(mat4 model);
 	void SetTextures(const vector<Texture>& textures);
 	void AddTextures(const vector<Texture>& textures);
+	void SetInstMat4();
 
 protected:  //只允许子类访问
 	vec3 m_scale;
@@ -58,7 +60,7 @@ protected:  //只允许子类访问
 	mat4 m_model;
 
 private:
-	void SetupMesh();
+	void SetupMesh(bool bInst = false);
 	void UniversalSetupMesh();
 
 	vector<Vertex> vertices;
@@ -68,11 +70,13 @@ private:
 	vector<uint> parse;
 	vector<Texture> textures;
 	vector<vec2> instanceArray;
+	vector<mat4> instMat4;
 
 	GLuint VAO;
 	GLuint VBO;
 	GLuint EBO;
 	GLuint VBO_Instances;
+	GLuint VBO_InstMat4;
 };
 
 Mesh::Mesh()
@@ -89,11 +93,12 @@ Mesh::Mesh()
 	m_model = mat4(1.0f);
 }
 
-Mesh::Mesh(const vector<Vertex>& vertices, const vector<GLuint>& indices, const vector<Texture>& textures)
+Mesh::Mesh(const vector<Vertex>& vertices, const vector<GLuint>& indices, const vector<Texture>& textures, const vector<mat4>& instMat4)
 {
 	this->vertices = vertices;
 	this->indices = indices;
 	this->textures = textures;
+	this->instMat4 = instMat4;
 
 	VAO = 0;
 	VBO = 0;
@@ -106,7 +111,10 @@ Mesh::Mesh(const vector<Vertex>& vertices, const vector<GLuint>& indices, const 
 	m_rotateAxis = vec3(1.0, 1.0, 1.0);
 	m_model = mat4(1.0f);
 
-	SetupMesh();
+	if (instMat4.empty())
+		SetupMesh();
+	else
+		SetupMesh(true);
 }
 
 Mesh::Mesh(const vector<float>& vertices, const vector<uint>& indices, const vector<uint>& parse,
@@ -136,7 +144,7 @@ Mesh::~Mesh()
 {
 }
 
-void Mesh::SetupMesh()
+void Mesh::SetupMesh(bool bInst)
 {
 	// 用显存VAO来管理 shader的顶点属性
 	glGenVertexArrays(1, &VAO);
@@ -160,6 +168,9 @@ void Mesh::SetupMesh()
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(2, sizeof(((Vertex*)0)->texCoord) / sizeof(GL_FLOAT), GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, texCoord)));
 	glEnableVertexAttribArray(2);
+
+	if (bInst)
+		SetInstMat4();
 
 	// 解绑
 	glBindVertexArray(0);// 关闭VAO上下文
@@ -333,7 +344,7 @@ void Mesh::UniversalDrawMesh(const Shader& shader, GLuint element)
 	glBindVertexArray(0);
 }
 
-void Mesh::DrawMesh(const Shader& shader, GLuint element)
+void Mesh::DrawMesh(const Shader& shader, GLuint element, bool bInst)
 {
 	// 设置纹理单元 任何uniform设置操作一定要放到《对应的shader》启动之后！  --》不同的shader切换运行，另一个shader会关掉，写的数据会丢失数据
     // 也就是说启动了shader之后又启动了shader_lamp，之前在shader设置的就无效了！这种情况只能放到渲染循环里，不能放循环外面
@@ -386,12 +397,19 @@ void Mesh::DrawMesh(const Shader& shader, GLuint element)
 	}
 	//cout << "***********************************" << endl;
 
-	mat4 model = mat4(1.0f);  
-	model = translate(model, m_translate);
-	model = scale(model, m_scale);
-	shader.SetMat4("uni_model", model);
-
-	glDrawElements(element, indices.size(), GL_UNSIGNED_INT, 0);
+	if (!bInst)
+	{
+		mat4 model = mat4(1.0f);
+		model = translate(model, m_translate);
+		model = scale(model, m_scale);
+		shader.SetMat4("uni_model", model);
+		glDrawElements(element, indices.size(), GL_UNSIGNED_INT, 0);
+	}
+	else
+	{
+		// 不需要set uniform ，model作为实例化数组属性传入
+		glDrawElementsInstanced(element, indices.size(), GL_UNSIGNED_INT, 0, ROCK_NUM);
+	}
 
 	// 解绑
 	diffuseN = 0;
@@ -482,4 +500,34 @@ void Mesh::SetTextures(const vector<Texture>& textures)
 void Mesh::AddTextures(const vector<Texture>& textures)
 {
 	this->textures.insert(this->textures.end(), textures.begin(), textures.end());
+}
+
+void Mesh::SetInstMat4()
+{
+	/**************************** 实例化数组 ****************************/
+// 因为EBO只是指定了索引顶点的顺序，是单独存在的，所以EBO绑定期间不会影响到 VBO_Instances（或者VBO）
+// VBO绑定期间更不会影响VBO_Instances，因为VBO 和 VBO_Instances平级并行的
+// 所以直接接着绑定VBO_Instances即可，这样实例化数组就和layout location2对应了
+// 存储实例化数组到显存VBO
+// 指定location2 每渲染1个实例更新1次instanceArray，第二个参数是0的话等于没调用，就是每渲染一个顶点更新1次实例数组了，会出bug
+
+	glGenBuffers(1, &VBO_InstMat4);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO_InstMat4);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(mat4) * instMat4.size(), &instMat4[0], GL_STATIC_DRAW);
+
+	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(vec4) * 4, (void*)(sizeof(vec4) * 0));
+	glEnableVertexAttribArray(3);
+	glVertexAttribDivisor(3, 1);
+
+	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(vec4) * 4, (void*)(sizeof(vec4) * 1));
+	glEnableVertexAttribArray(4);
+	glVertexAttribDivisor(4, 1);
+
+	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(vec4) * 4, (void*)(sizeof(vec4) * 2));
+	glEnableVertexAttribArray(5);
+	glVertexAttribDivisor(5, 1);
+
+	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(vec4) * 4, (void*)(sizeof(vec4) * 3));
+	glEnableVertexAttribArray(6);
+	glVertexAttribDivisor(6, 1);
 }

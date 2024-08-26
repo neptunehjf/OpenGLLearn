@@ -43,7 +43,7 @@ private:
 
 Camera::Camera(const vec3& camPos, const vec3& camFront, const vec3& camUp)
 {
-	camSpeed = 5.0f;
+	camSpeed = 100.0f;
 	camNear = 0.1f;
 	camFar = 500.0f;
 
@@ -53,8 +53,8 @@ Camera::Camera(const vec3& camPos, const vec3& camFront, const vec3& camUp)
 
 	lastX = 0.0f;
 	lastY = 0.0f;
-	pitchValue = 0.0f;
-	yawValue = 50.0f; // 默认镜头朝向X正方向，所以向左转90度校正
+	pitchValue = -20.0f;
+	yawValue = 43.0f; // 默认镜头朝向X正方向，所以向左转90度校正
 
 	fov = 45.0f;
 

@@ -34,7 +34,7 @@ void SetUniformToShader(Shader& shader);
 void CreateFrameBuffer(GLuint& fbo, GLuint& tbo, GLuint& rbo);
 void SetUniformBuffer();
 
-Camera myCam(vec3(-30.0f, 50.0f, -30.0f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
+Camera myCam(vec3(-34.0f, 74.0f, -28.0f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
 GLFWwindow* window = NULL;
 
 // 原场景缓冲
@@ -138,6 +138,7 @@ int main()
 		SetUniformToShader(scene.reflectShader);
 		SetUniformToShader(scene.refractShader);
 		SetUniformToShader(scene.normalShader);
+		SetUniformToShader(scene.lightInstShader);
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo1);
 		scene.DrawScene();
 
@@ -150,6 +151,7 @@ int main()
 		SetUniformToShader(scene.reflectShader);
 		SetUniformToShader(scene.refractShader);
 		SetUniformToShader(scene.normalShader);
+		SetUniformToShader(scene.lightInstShader);
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo2); 
 		scene.DrawScene();
 		myCam.yawValue -= 180.0;
@@ -160,6 +162,7 @@ int main()
 		SetUniformToShader(scene.reflectShader);
 		SetUniformToShader(scene.refractShader);
 		SetUniformToShader(scene.normalShader);
+		SetUniformToShader(scene.lightInstShader);
 
 		/********************** 默认帧缓冲输出前面绘制时写入 **********************/
 		// 关掉自定义缓冲的读写，就切换成了默认缓冲

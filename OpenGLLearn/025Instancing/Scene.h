@@ -9,8 +9,6 @@
 #include "Model.h"
 #include "Camera.h"
 
-#define ROCK_NUM 1000
-
 class Scene
 {
 public:
@@ -26,6 +24,7 @@ public:
 	Shader GMTestShader;
 	Shader normalShader;
 	Shader InstanceShader;
+	Shader lightInstShader;
 
 	Mesh cubeReflect;
 	Mesh cubeMarble;
@@ -42,7 +41,7 @@ public:
 	Model rock;
 
 	vector<vec3> squarePositions;
-	vector<mat4> modelMatrices;
+	vector<mat4> instMat4;
 
 	Camera* myCam;
 
@@ -67,6 +66,7 @@ void Scene::CreateScene(Camera* myCam)
 	GMTestShader = Shader("ShaderGeometryTest.vs", "ShaderGeometryTest.fs", "ShaderGeometryTest.gs");
 	normalShader = Shader("ShaderNormal.vs", "ShaderNormal.fs", "ShaderNormal.gs");
 	InstanceShader = Shader("ShaderInstance.vs", "ShaderInstance.fs");
+	lightInstShader = Shader("ShaderLightingInstance.vs", "ShaderLightingInstance.fs", "ShaderLightingInstance.gs");
 
 	/* 加载贴图 */
 	// 翻转y轴，使图片和opengl坐标一致  但是如果assimp 导入模型时设置了aiProcess_FlipUVs，就不能重复设置了
@@ -169,8 +169,9 @@ void Scene::CreateScene(Camera* myCam)
 	planet.SetTranslate(vec3(40.0f, 40.0f, 40.0f));
 	planet.SetScale(vec3(4.0f, 4.0f, 4.0f));
 
-	rock = Model("Resource/Model/rock/rock.obj");
 	CreateAsteroid();
+	rock = Model("Resource/Model/rock/rock.obj", instMat4);
+
 }
 
 void Scene::DrawScene()
@@ -228,11 +229,7 @@ void Scene::DrawScene()
 
 	planet.DrawModel(lightShader);
 
-	for (uint i = 0; i < ROCK_NUM; i++)
-	{
-		rock.SetModel(modelMatrices[i]);
-		rock.UniversalDrawModel(lightShader);
-	}
+	rock.DrawModel(lightInstShader, true);
 
 	// 按窗户离摄像机间的距离排序，map默认是升序排序，也就是从近到远
 	// 必须放在render loop里，因为摄像机是实时改变的
@@ -374,7 +371,7 @@ void Scene::CreateAsteroid()
 {
 	srand(glfwGetTime()); // 初始化随机种子    
 	float radius = 50.0;
-	float offset = 2.5f;
+	float offset = 10.0f;
 	for (unsigned int i = 0; i < ROCK_NUM; i++)
 	{
 		mat4 model;
@@ -397,6 +394,6 @@ void Scene::CreateAsteroid()
 		model = rotate(model, rotAngle, vec3(0.4f, 0.6f, 0.8f));
 
 		// 4. 添加到矩阵的数组中
-		modelMatrices.push_back(model);
+		instMat4.push_back(model);
 	}
 }

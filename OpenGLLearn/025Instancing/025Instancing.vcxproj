@@ -156,6 +156,9 @@
     <None Include="ShaderLighting.fs" />
     <None Include="ShaderLighting.gs" />
     <None Include="ShaderLighting.vs" />
+    <None Include="ShaderLightingInstance.fs" />
+    <None Include="ShaderLightingInstance.gs" />
+    <None Include="ShaderLightingInstance.vs" />
     <None Include="ShaderNormal.fs" />
     <None Include="ShaderNormal.gs" />
     <None Include="ShaderNormal.vs" />

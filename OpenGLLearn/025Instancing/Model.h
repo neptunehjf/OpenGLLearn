@@ -20,17 +20,18 @@ public:
     {
     }
 
-    Model(const string&& path)
+    Model(const string&& path, const vector<mat4> & instMat4 = {})
     {
+        this->instMat4 = instMat4;
         loadModel(path);
     }
-    void DrawModel(const Shader& shader)
+    void DrawModel(const Shader& shader, bool bInst = false)
     {
         for (unsigned int i = 0; i < meshes.size(); i++)
         {
             meshes[i].SetScale(m_scale);
             meshes[i].SetTranslate(m_translate);
-            meshes[i].DrawMesh(shader, GL_TRIANGLES);
+            meshes[i].DrawMesh(shader, GL_TRIANGLES, bInst);
         }    
     }
 
@@ -58,6 +59,7 @@ private:
     vector<Mesh> meshes; // 一个model由多个mesh组成，比如车的model由车头，车门，轮胎等mesh组成
     string directory;
     vector<Texture> texture_loaded; // 加载贴图开销很大，为了优化，已经加载过的texture就不要重复加载了
+    vector<mat4> instMat4;
 
     void loadModel(string path);
 
@@ -159,7 +161,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
     vector<Texture> reflection = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_reflection");;
     textures.insert(textures.end(), reflection.begin(), reflection.end());
 
-    return Mesh(vertices, indices, textures);
+    return Mesh(vertices, indices, textures, instMat4);
 }
 
 vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName)
