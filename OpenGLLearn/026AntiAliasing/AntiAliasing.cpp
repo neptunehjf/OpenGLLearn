@@ -34,7 +34,7 @@ void SetUniformToShader(Shader& shader);
 void CreateFrameBuffer(GLuint& fbo, GLuint& tbo, GLuint& rbo);
 void SetUniformBuffer();
 
-Camera myCam(vec3(-230.0f, 70.0f, -88.0f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
+Camera myCam(vec3(0.6f, 2.05f, 1.28f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
 GLFWwindow* window = NULL;
 
 // 原场景缓冲
@@ -125,8 +125,6 @@ int main()
 
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
-		if (bFaceCulling)
-			glEnable(GL_CULL_FACE);
 
 		/********************** 先用自定义帧缓冲进行离屏渲染 绑定到自定义帧缓冲，默认帧缓冲不再起作用 **********************/
 
@@ -402,6 +400,12 @@ void GetImguiValue()
 		ImGui::Checkbox("Instance Test", &bInstanceTest);
 		ImGui::TreePop();
 	}
+
+	if (ImGui::TreeNodeEx("AntiAliasing", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		ImGui::Checkbox("MSAA", &bMSAA);
+		ImGui::TreePop();
+	}
 }
 
 void SetUniformToShader(Shader& shader)
@@ -548,6 +552,11 @@ bool InitOpenGL()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	if (bMSAA)
+	{
+		glfwWindowHint(GLFW_SAMPLES, 4);
+		glEnable(GL_MULTISAMPLE); // 很多opengl驱动不需要显式地调用，但是还是调用一下保险一点
+	}
 
 	// 绘制窗口
 	window = glfwCreateWindow(windowWidth, windowHeight, "koalahjf", NULL, NULL);

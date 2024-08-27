@@ -16,7 +16,7 @@ using namespace glm;
 //研究发现，本场景中，片段着色器对帧数影响小，优化空间约等于0；面剔除对帧数的影响也基本为0.
 //最后发现几何着色器会把图元拆解成顶点，每个顶点都会吊一次片段着色器，最后又要把顶点装配成图元，这里的开销是很大的。
 //删除几何着色器后帧数达到了120多帧，优化成功。
-#define ROCK_NUM 100000
+#define ROCK_NUM 10000
 
 /************** Imgui变量 **************/
 float posValue = 0.0f;
@@ -51,5 +51,6 @@ bool bFaceCulling = 0;
 float normalLen = 0.1;
 bool bInstanceTest = 0;
 bool bSkyBox = 0;
+bool bMSAA = false;
 /************** Imgui变量 **************/
 

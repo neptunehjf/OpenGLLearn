@@ -192,7 +192,8 @@ void Scene::DrawScene()
 	glClearColor(bkgColor.r, bkgColor.g, bkgColor.b, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //离屏渲染不需要glClear(GL_COLOR_BUFFER_BIT);
 
-	glEnable(GL_CULL_FACE);
+	if (bFaceCulling)
+		glEnable(GL_CULL_FACE);
 
 	// 绘制地板
 	//plane.DrawMesh(lightShader);
@@ -227,7 +228,8 @@ void Scene::DrawScene()
 		// 绘制天空盒
 		skybox.DrawMesh(cubemapShader, GL_TRIANGLES);
 	}
-	glEnable(GL_CULL_FACE);
+	if (bFaceCulling)
+		glEnable(GL_CULL_FACE);
 
 	planet.DrawModel(lightShader);
 
