@@ -32,9 +32,10 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void GetImguiValue();
 void SetUniformToShader(Shader& shader);
 void CreateFrameBuffer(GLuint& fbo, GLuint& tbo, GLuint& rbo);
+void CreateFrameBuffer_MSAA(GLuint& fbo, GLuint& tbo, GLuint& rbo);
 void SetUniformBuffer();
 
-Camera myCam(vec3(0.6f, 2.05f, 1.28f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
+Camera myCam(vec3(-0.0389f, 2.0516f, 0.94123f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
 GLFWwindow* window = NULL;
 
 // 原场景缓冲
@@ -72,9 +73,9 @@ int main()
 	scene.CreateScene(&myCam);
 
 	// 原场景缓冲
-	CreateFrameBuffer(fbo1, tbo1, rbo1);
+	CreateFrameBuffer_MSAA(fbo1, tbo1, rbo1);
 	// 后视镜缓冲
-	CreateFrameBuffer(fbo2, tbo2, rbo2);
+	//CreateFrameBuffer(fbo2, tbo2, rbo2);
 
 	// Uniform缓冲
 	// 
@@ -125,6 +126,10 @@ int main()
 
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
+		if (bMSAA)
+			glEnable(GL_MULTISAMPLE); // 很多opengl驱动不需要显式地调用，但是还是调用一下保险一点
+		else 
+			glDisable(GL_MULTISAMPLE);
 
 		/********************** 先用自定义帧缓冲进行离屏渲染 绑定到自定义帧缓冲，默认帧缓冲不再起作用 **********************/
 
@@ -141,26 +146,26 @@ int main()
 		scene.DrawScene();
 
 		// 后视镜场景
-		myCam.yawValue += 180.0;
-		SetUniformBuffer();
-		SetUniformToShader(scene.lightShader);
-		SetUniformToShader(scene.screenShader);
-		SetUniformToShader(scene.cubemapShader);
-		SetUniformToShader(scene.reflectShader);
-		SetUniformToShader(scene.refractShader);
-		SetUniformToShader(scene.normalShader);
-		SetUniformToShader(scene.lightInstShader);
-		glBindFramebuffer(GL_FRAMEBUFFER, fbo2); 
-		scene.DrawScene();
-		myCam.yawValue -= 180.0;
-		SetUniformBuffer();
-		SetUniformToShader(scene.lightShader);
-		SetUniformToShader(scene.screenShader);
-		SetUniformToShader(scene.cubemapShader);
-		SetUniformToShader(scene.reflectShader);
-		SetUniformToShader(scene.refractShader);
-		SetUniformToShader(scene.normalShader);
-		SetUniformToShader(scene.lightInstShader);
+		//myCam.yawValue += 180.0;
+		//SetUniformBuffer();
+		//SetUniformToShader(scene.lightShader);
+		//SetUniformToShader(scene.screenShader);
+		//SetUniformToShader(scene.cubemapShader);
+		//SetUniformToShader(scene.reflectShader);
+		//SetUniformToShader(scene.refractShader);
+		//SetUniformToShader(scene.normalShader);
+		//SetUniformToShader(scene.lightInstShader);
+		//glBindFramebuffer(GL_FRAMEBUFFER, fbo2); 
+		//scene.DrawScene();
+		//myCam.yawValue -= 180.0;
+		//SetUniformBuffer();
+		//SetUniformToShader(scene.lightShader);
+		//SetUniformToShader(scene.screenShader);
+		//SetUniformToShader(scene.cubemapShader);
+		//SetUniformToShader(scene.reflectShader);
+		//SetUniformToShader(scene.refractShader);
+		//SetUniformToShader(scene.normalShader);
+		//SetUniformToShader(scene.lightInstShader);
 
 		/********************** 默认帧缓冲输出前面绘制时写入 **********************/
 		// 关掉自定义缓冲的读写，就切换成了默认缓冲
@@ -172,23 +177,27 @@ int main()
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT); //离屏渲染不需要glClear(GL_COLOR_BUFFER_BIT);
 
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo1);
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+		glBlitFramebuffer(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
 		// 主屏幕
-		const vector<Texture> screenTexture =
-		{
-			{tbo1, "texture_diffuse"},
-			{t_dummy, "texture_specular"}
-		};
-		scene.screen.SetTextures(screenTexture);
-		scene.screen.DrawMesh(scene.screenShader, GL_TRIANGLES);
+		//const vector<Texture> screenTexture =
+		//{
+		//	{tbo1, "texture_diffuse"},
+		//	{t_dummy, "texture_specular"}
+		//};
+		//scene.screen.SetTextures(screenTexture);
+		//scene.screen.DrawMesh(scene.screenShader, GL_TRIANGLES);
 
 		// 后视镜
-		const vector<Texture> mirrorTexture =
-		{
-			{tbo2, "texture_diffuse"},
-			{t_dummy, "texture_specular"}
-		};
-		scene.mirror.SetTextures(mirrorTexture);
-		scene.mirror.DrawMesh(scene.screenShader, GL_TRIANGLES);
+		//const vector<Texture> mirrorTexture =
+		//{
+		//	{tbo2, "texture_diffuse"},
+		//	{t_dummy, "texture_specular"}
+		//};
+		//scene.mirror.SetTextures(mirrorTexture);
+		//scene.mirror.DrawMesh(scene.screenShader, GL_TRIANGLES);
 
 		// imgui在默认缓冲中绘制，因为我不想imgui也有后期处理效果
 		ImGui::Render();
@@ -492,7 +501,7 @@ void SetUniformToShader(Shader& shader)
 void CreateFrameBuffer(GLuint& fbo, GLuint& tbo, GLuint& rbo)
 {
 	// 首先创建一个帧缓冲对象 （由color stencil depth组成。默认缓冲区也有。只不过这次自己创建缓冲区，可以实现一些有意思的功能）
-	// 只有默认缓冲才能输出图像，用自建的缓冲不会输出任何图像，因此可以用来离屏渲染
+	// 只有默认缓冲才能输出图像(因为和GLFW窗口绑定)，用自建的缓冲不会输出任何图像，因此可以用来离屏渲染
 	glGenFramebuffers(1, &fbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 	
@@ -516,6 +525,41 @@ void CreateFrameBuffer(GLuint& fbo, GLuint& tbo, GLuint& rbo)
 	// 渲染缓冲对象 作为一个GL_DEPTH_STENCIL_ATTACHMENT附件 附加到 帧缓冲上
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
 	
+	// 检查帧缓冲对象完整性
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	{
+		cout << "Error: Framebuffer is not complete!" << endl;
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+//创建自定义帧缓冲
+void CreateFrameBuffer_MSAA(GLuint& fbo, GLuint& tbo, GLuint& rbo)
+{
+	// 首先创建一个帧缓冲对象 （由color stencil depth组成。默认缓冲区也有。只不过这次自己创建缓冲区，可以实现一些有意思的功能）
+	// 只有默认缓冲才能输出图像(因为和GLFW窗口绑定)，用自建的缓冲不会输出任何图像，因此可以用来离屏渲染
+	glGenFramebuffers(1, &fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+	// 生成MSAA纹理附件 对应color缓冲
+	glGenTextures(1, &tbo);
+	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, tbo);
+	glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, MSAA_SAMPLE_NUM, GL_RGB, WINDOW_WIDTH, WINDOW_HEIGHT, true);
+	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
+
+	// MSAA纹理缓冲对象  作为一个GL_COLOR_ATTACHMENT0附件 附加到 帧缓冲对象
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, tbo, 0);
+
+	// 生成渲染缓冲对象 对应stencil，depth缓冲
+	glGenRenderbuffers(1, &rbo);
+	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+	glRenderbufferStorageMultisample(GL_RENDERBUFFER, MSAA_SAMPLE_NUM, GL_DEPTH24_STENCIL8, windowWidth, windowHeight);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+	// 渲染缓冲对象 作为一个GL_DEPTH_STENCIL_ATTACHMENT附件 附加到 帧缓冲上
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
 	// 检查帧缓冲对象完整性
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	{
@@ -552,11 +596,7 @@ bool InitOpenGL()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	if (bMSAA)
-	{
-		glfwWindowHint(GLFW_SAMPLES, 4);
-		glEnable(GL_MULTISAMPLE); // 很多opengl驱动不需要显式地调用，但是还是调用一下保险一点
-	}
+	glfwWindowHint(GLFW_SAMPLES, MSAA_SAMPLE_NUM); // 和窗口绑定的采样点，显然，窗口对应的是默认帧缓冲
 
 	// 绘制窗口
 	window = glfwCreateWindow(windowWidth, windowHeight, "koalahjf", NULL, NULL);

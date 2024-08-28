@@ -18,6 +18,8 @@ using namespace glm;
 //删除几何着色器后帧数达到了120多帧，优化成功。
 #define ROCK_NUM 10000
 
+#define MSAA_SAMPLE_NUM 4
+
 /************** Imgui变量 **************/
 float posValue = 0.0f;
 vec3 bkgColor = vec3(0.0f, 0.0f, 0.0f);
@@ -37,7 +39,7 @@ int item = 0;
 int material_shininess = 32;
 int postProcessType = 0;
 float sampleOffsetBase = 300.0f;
-float imgui_speed = 100.0f;
+float imgui_speed = 5.0f;
 float imgui_camNear = 0.1f;
 float imgui_camFar = 500.0f;
 float pointSize = 1.0f;
@@ -51,6 +53,6 @@ bool bFaceCulling = 0;
 float normalLen = 0.1;
 bool bInstanceTest = 0;
 bool bSkyBox = 0;
-bool bMSAA = false;
+bool bMSAA = true;
 /************** Imgui变量 **************/
 
