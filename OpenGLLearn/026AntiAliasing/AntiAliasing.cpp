@@ -48,6 +48,11 @@ GLuint fbo2 = 0; // 自定义帧缓冲对象
 GLuint tbo2 = 0; // 纹理缓冲对象（附件）
 GLuint rbo2 = 0; // 渲染缓冲对象（附件）
 
+// 中间缓冲
+GLuint fbo3 = 0; // 自定义帧缓冲对象
+GLuint tbo3 = 0; // 纹理缓冲对象（附件）
+GLuint rbo3 = 0; // 渲染缓冲对象（附件）
+
 // Uniform缓冲
 GLuint ubo = 0;
 
@@ -76,6 +81,8 @@ int main()
 	CreateFrameBuffer_MSAA(fbo1, tbo1, rbo1);
 	// 后视镜缓冲
 	CreateFrameBuffer(fbo2, tbo2, rbo2);
+	// 中间缓冲
+	CreateFrameBuffer(fbo3, tbo3, rbo3);
 
 	// Uniform缓冲
 	// 
@@ -145,6 +152,12 @@ int main()
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo1);
 		scene.DrawScene();
 
+		// 用中间fbo的方式实现，实际上中间FBO就是一个只带1个采样点的普通帧缓冲。用Blit操作把MSAA FBO复制进去，然后就可以用中间FBO的TBO来后期处理了。
+		// 缺点是，如果在此基础上进行后处理去计算颜色，是以1个采样点的纹理为基础来计算的，会重新导致锯齿
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo1);
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo3);
+		glBlitFramebuffer(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
 		// 后视镜场景
 		myCam.yawValue += 180.0;
 		SetUniformBuffer();
@@ -177,18 +190,14 @@ int main()
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT); //离屏渲染不需要glClear(GL_COLOR_BUFFER_BIT);
 
-		glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo1);
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-		glBlitFramebuffer(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-
 		// 主屏幕
-		//const vector<Texture> screenTexture =
-		//{
-		//	{tbo1, "texture_diffuse"},
-		//	{t_dummy, "texture_specular"}
-		//};
-		//scene.screen.SetTextures(screenTexture);
-		//scene.screen.DrawMesh(scene.screenShader, GL_TRIANGLES);
+		const vector<Texture> screenTexture =
+		{
+			{tbo3, "texture_diffuse"},
+			{t_dummy, "texture_specular"}
+		};
+		scene.screen.SetTextures(screenTexture);
+		scene.screen.DrawMesh(scene.screenShader, GL_TRIANGLES);
 
 		// 后视镜
 		const vector<Texture> mirrorTexture =
