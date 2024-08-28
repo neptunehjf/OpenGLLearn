@@ -75,7 +75,7 @@ int main()
 	// 原场景缓冲
 	CreateFrameBuffer_MSAA(fbo1, tbo1, rbo1);
 	// 后视镜缓冲
-	//CreateFrameBuffer(fbo2, tbo2, rbo2);
+	CreateFrameBuffer(fbo2, tbo2, rbo2);
 
 	// Uniform缓冲
 	// 
@@ -146,26 +146,26 @@ int main()
 		scene.DrawScene();
 
 		// 后视镜场景
-		//myCam.yawValue += 180.0;
-		//SetUniformBuffer();
-		//SetUniformToShader(scene.lightShader);
-		//SetUniformToShader(scene.screenShader);
-		//SetUniformToShader(scene.cubemapShader);
-		//SetUniformToShader(scene.reflectShader);
-		//SetUniformToShader(scene.refractShader);
-		//SetUniformToShader(scene.normalShader);
-		//SetUniformToShader(scene.lightInstShader);
-		//glBindFramebuffer(GL_FRAMEBUFFER, fbo2); 
-		//scene.DrawScene();
-		//myCam.yawValue -= 180.0;
-		//SetUniformBuffer();
-		//SetUniformToShader(scene.lightShader);
-		//SetUniformToShader(scene.screenShader);
-		//SetUniformToShader(scene.cubemapShader);
-		//SetUniformToShader(scene.reflectShader);
-		//SetUniformToShader(scene.refractShader);
-		//SetUniformToShader(scene.normalShader);
-		//SetUniformToShader(scene.lightInstShader);
+		myCam.yawValue += 180.0;
+		SetUniformBuffer();
+		SetUniformToShader(scene.lightShader);
+		SetUniformToShader(scene.screenShader);
+		SetUniformToShader(scene.cubemapShader);
+		SetUniformToShader(scene.reflectShader);
+		SetUniformToShader(scene.refractShader);
+		SetUniformToShader(scene.normalShader);
+		SetUniformToShader(scene.lightInstShader);
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo2); 
+		scene.DrawScene();
+		myCam.yawValue -= 180.0;
+		SetUniformBuffer();
+		SetUniformToShader(scene.lightShader);
+		SetUniformToShader(scene.screenShader);
+		SetUniformToShader(scene.cubemapShader);
+		SetUniformToShader(scene.reflectShader);
+		SetUniformToShader(scene.refractShader);
+		SetUniformToShader(scene.normalShader);
+		SetUniformToShader(scene.lightInstShader);
 
 		/********************** 默认帧缓冲输出前面绘制时写入 **********************/
 		// 关掉自定义缓冲的读写，就切换成了默认缓冲
@@ -191,13 +191,13 @@ int main()
 		//scene.screen.DrawMesh(scene.screenShader, GL_TRIANGLES);
 
 		// 后视镜
-		//const vector<Texture> mirrorTexture =
-		//{
-		//	{tbo2, "texture_diffuse"},
-		//	{t_dummy, "texture_specular"}
-		//};
-		//scene.mirror.SetTextures(mirrorTexture);
-		//scene.mirror.DrawMesh(scene.screenShader, GL_TRIANGLES);
+		const vector<Texture> mirrorTexture =
+		{
+			{tbo2, "texture_diffuse"},
+			{t_dummy, "texture_specular"}
+		};
+		scene.mirror.SetTextures(mirrorTexture);
+		scene.mirror.DrawMesh(scene.screenShader, GL_TRIANGLES);
 
 		// imgui在默认缓冲中绘制，因为我不想imgui也有后期处理效果
 		ImGui::Render();
@@ -554,7 +554,8 @@ void CreateFrameBuffer_MSAA(GLuint& fbo, GLuint& tbo, GLuint& rbo)
 	// 生成渲染缓冲对象 对应stencil，depth缓冲
 	glGenRenderbuffers(1, &rbo);
 	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-	glRenderbufferStorageMultisample(GL_RENDERBUFFER, MSAA_SAMPLE_NUM, GL_DEPTH24_STENCIL8, windowWidth, windowHeight);
+	// stencil，depth和color缓冲应该都要对应MSAA，如果color是对应了MSAA 而stencil，depth没有对应MSAA，stencil depth和color是不匹配的，导致错误
+	glRenderbufferStorageMultisample(GL_RENDERBUFFER, MSAA_SAMPLE_NUM, GL_DEPTH24_STENCIL8, windowWidth, windowHeight); 
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
 	// 渲染缓冲对象 作为一个GL_DEPTH_STENCIL_ATTACHMENT附件 附加到 帧缓冲上
