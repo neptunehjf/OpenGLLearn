@@ -35,7 +35,7 @@ void CreateFrameBuffer(GLuint& fbo, GLuint& tbo, GLuint& rbo);
 void CreateFrameBuffer_MSAA(GLuint& fbo, GLuint& tbo, GLuint& rbo);
 void SetUniformBuffer();
 
-Camera myCam(vec3(-0.0389f, 2.0516f, 0.94123f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
+Camera myCam(vec3(-30.24f, 56.7f, -164.94f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
 GLFWwindow* window = NULL;
 
 // 原场景缓冲
@@ -137,6 +137,10 @@ int main()
 			glEnable(GL_MULTISAMPLE); // 很多opengl驱动不需要显式地调用，但是还是调用一下保险一点
 		else 
 			glDisable(GL_MULTISAMPLE);
+
+		curTime = glfwGetTime();
+		deltaTime = curTime - preTime;
+		preTime = curTime;
 
 		/********************** 先用自定义帧缓冲进行离屏渲染 绑定到自定义帧缓冲，默认帧缓冲不再起作用 **********************/
 
@@ -492,7 +496,21 @@ void SetUniformToShader(Shader& shader)
 	shader.SetInt("split_flag", (int)bSplitScreen);
 	shader.SetFloat("magnitude", explodeMag);
 	shader.SetFloat("normal_len", normalLen);
-	
+
+	// ShaderLightingInstance 
+	// 因为model矩阵变换是基于单位矩阵进行的，想要在已经变换后的model矩阵的基础上，再进行model矩阵变换有点困难
+	mat4 model = mat4(1.0f);
+	//float angle = (float)i / (float)ROCK_NUM * 360.0f;
+	//model = translate(model, vec3(0.0f, 0.0f, 0.0f));
+
+	//float _scale = (rand() % 20) / 100.0f + 0.05;
+	//model = scale(model, vec3(0.2));
+
+	float rotAngle = float(curTime * ROTATE_SPEED_ROCK);
+	model = rotate(model, rotAngle, vec3(0.0f, 1.0f, 0.0f));
+
+	shader.SetMat4("extra_model", model);
+
 	for (int i = 0; i < 4; i++)
 	{
 		stringstream ss;

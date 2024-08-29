@@ -51,6 +51,7 @@ public:
 	void SetTextures(const vector<Texture>& textures);
 	void AddTextures(const vector<Texture>& textures);
 	void SetInstMat4();
+	void AddRotate(float angle, vec3 axis);
 
 protected:  //只允许子类访问
 	vec3 m_scale;
@@ -402,6 +403,7 @@ void Mesh::DrawMesh(const Shader& shader, GLuint element, bool bInst)
 		mat4 model = mat4(1.0f);
 		model = translate(model, m_translate);
 		model = scale(model, m_scale);
+		model = rotate(model, m_rotateAngle, m_rotateAxis);
 		shader.SetMat4("uni_model", model);
 		glDrawElements(element, indices.size(), GL_UNSIGNED_INT, 0);
 	}
@@ -484,6 +486,12 @@ void Mesh::SetTranslate(vec3 translate)
 void Mesh::SetRotate(float angle, vec3 axis)
 {
 	m_rotateAngle = angle;
+	m_rotateAxis = axis;
+}
+
+void Mesh::AddRotate(float angle, vec3 axis)
+{
+	m_rotateAngle += angle;
 	m_rotateAxis = axis;
 }
 

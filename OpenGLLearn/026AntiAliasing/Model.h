@@ -31,6 +31,7 @@ public:
         {
             meshes[i].SetScale(m_scale);
             meshes[i].SetTranslate(m_translate);
+            meshes[i].SetRotate(m_rotateAngle, m_rotateAxis);
             meshes[i].DrawMesh(shader, GL_TRIANGLES, bInst);
         }    
     }

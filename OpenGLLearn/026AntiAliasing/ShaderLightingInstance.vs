@@ -12,6 +12,8 @@ layout (std140) uniform Matrix
 	mat4 uni_projection;	
 };
 
+uniform mat4 extra_model;
+
 out VS_OUT
 {
 	vec3 fragPos;
@@ -21,9 +23,9 @@ out VS_OUT
 
 void main()
 {
-  gl_Position = uni_projection * uni_view * aInstAsteriod * vec4(aPos, 1.0);  // 注意矩阵变换的顺序是从右向左
+  gl_Position = uni_projection * uni_view * extra_model * aInstAsteriod * vec4(aPos, 1.0);  // 注意矩阵变换的顺序是从右向左
 
-  vs_out.fragPos = vec3(aInstAsteriod * vec4(aPos, 1.0));
+  vs_out.fragPos = vec3(extra_model * aInstAsteriod * vec4(aPos, 1.0));
   vs_out.normal = mat3(transpose(inverse(aInstAsteriod))) * aNormal;
   vs_out.texCoord = aTexCoord;
 }

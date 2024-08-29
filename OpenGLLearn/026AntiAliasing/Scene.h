@@ -231,6 +231,11 @@ void Scene::DrawScene()
 	if (bFaceCulling)
 		glEnable(GL_CULL_FACE);
 
+	// 虽然每帧固定旋转一定角度很方便，但是会导致旋转速度受帧数影响，一般不用这种方法
+	// planet.AddRotate(ROTATE_SPEED_PLANET * deltaTime, vec3(0.0f, 1.0f, 0.0f)); 
+	
+	// 一般用每秒固定旋转一定角度的方式，这样虽然帧率低的时候会卡，但是不会影响游戏逻辑
+	planet.AddRotate(ROTATE_SPEED_PLANET * deltaTime, vec3(0.0f, 1.0f, 0.0f));
 	planet.DrawModel(lightShader);
 
 	rock.DrawModel(lightInstShader, true);
@@ -378,7 +383,7 @@ void Scene::CreateAsteroid()
 	float offset = 30.0f;
 	for (unsigned int i = 0; i < ROCK_NUM; i++)
 	{
-		mat4 model;
+		mat4 model = mat4(1.0f);
 		// 1. 位移：分布在半径为 'radius' 的圆形上，偏移的范围是 [-offset, offset]
 		float angle = (float)i / (float)ROCK_NUM * 360.0f;
 		float displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
@@ -401,3 +406,37 @@ void Scene::CreateAsteroid()
 		instMat4.push_back(model);
 	}
 }
+
+// 开销巨大废弃
+//void Scene::UpdateAsteroid()
+//{
+//	instMat4.clear();
+//
+//	float radius = 150.0;
+//	float offset = 30.0f;
+//
+//	for (unsigned int i = 0; i < ROCK_NUM; i++)
+//	{
+//		mat4 model = mat4(1.0f);
+//		// 1. 位移：分布在半径为 'radius' 的圆形上，偏移的范围是 [-offset, offset]
+//		float angle = (float)i / (float)ROCK_NUM * 360.0f;
+//		float displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
+//		float x = sin(angle) * radius + displacement;
+//		displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
+//		float y = displacement * 0.4f; // 让行星带的高度比x和z的宽度要小
+//		displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
+//		float z = cos(angle) * radius + displacement;
+//		model = translate(model, vec3(x, y, z) + vec3(40.0f, 45.0f, 40.0f));
+//
+//		// 2. 缩放：在 0.05 和 0.25f 之间缩放
+//		float _scale = (rand() % 20) / 100.0f + 0.05;
+//		model = scale(model, vec3(_scale));
+//
+//		// 3. 旋转：绕着一个（半）随机选择的旋转轴向量进行随机的旋转
+//		float rotAngle = (rand() % 360);
+//		model = rotate(model, rotAngle + (float)(curTime * ROTATE_SPEED_ROCK), vec3(0.4f, 0.6f, 0.8f));
+//
+//		// 4. 添加到矩阵的数组中
+//		instMat4.push_back(model);
+//	}
+//}
