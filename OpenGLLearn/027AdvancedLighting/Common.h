@@ -16,7 +16,7 @@ using namespace glm;
 //研究发现，本场景中，片段着色器对帧数影响小，优化空间约等于0；面剔除对帧数的影响也基本为0.
 //最后发现几何着色器会把图元拆解成顶点，每个顶点都会吊一次片段着色器，最后又要把顶点装配成图元，这里的开销是很大的。
 //删除几何着色器后帧数达到了120多帧，优化成功。
-#define ROCK_NUM 10000
+#define ROCK_NUM 1000
 
 #define MSAA_SAMPLE_NUM 4
 
@@ -31,19 +31,19 @@ double curTime = 0.0;
 float posValue = 0.0f;
 vec3 bkgColor = vec3(0.0f, 0.0f, 0.0f);
 vec3 dirLight_direction = vec3(-1.0f, -1.0f, -1.0f);
-vec3 dirLight_ambient = vec3(0.2f);
-vec3 dirLight_diffuse = vec3(0.8f);
+vec3 dirLight_ambient = vec3(0.0f);
+vec3 dirLight_diffuse = vec3(0.2f);
 vec3 dirLight_specular = vec3(1.0f);
-vec3 pointLight_ambient = vec3(0.2f);
-vec3 pointLight_diffuse = vec3(0.8f);
-vec3 pointLight_specular = vec3(1.0f);
-vec3 spotLight_ambient = vec3(0.2f);
-vec3 spotLight_diffuse = vec3(0.8f);
-vec3 spotLight_specular = vec3(1.0f);
+vec3 pointLight_ambient = vec3(0.0f);
+vec3 pointLight_diffuse = vec3(0.0f);
+vec3 pointLight_specular = vec3(0.0f);
+vec3 spotLight_ambient = vec3(0.0f);
+vec3 spotLight_diffuse = vec3(0.0f);
+vec3 spotLight_specular = vec3(0.0f);
 float spotLight_innerCos = 5.0f;
 float spotLight_outerCos = 8.0f;
 int item = 0;
-int material_shininess = 32;
+int material_shininess = 1;
 int postProcessType = 0;
 float sampleOffsetBase = 300.0f;
 float imgui_speed = 5.0f;

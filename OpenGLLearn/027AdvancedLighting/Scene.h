@@ -73,11 +73,13 @@ void Scene::CreateScene(Camera* myCam)
 	GLuint t_marble = 0;
 	GLuint t_dummy = 0;
 	GLuint t_window = 0;
+	GLuint t_wood = 0;
 
 	LoadTexture("Resource/Texture/metal.png", t_metal, GL_REPEAT, GL_REPEAT);
 	LoadTexture("Resource/Texture/marble.jpg", t_marble, GL_REPEAT, GL_REPEAT);
 	LoadTexture("Resource/Texture/dummy.png", t_dummy, GL_REPEAT, GL_REPEAT);  //自己做的占位贴图，占一个sampler位置，否则会被其他mesh的高光贴图替代
 	LoadTexture("Resource/Texture/window.png", t_window, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+	LoadTexture("Resource/Texture/wood.png", t_wood, GL_REPEAT, GL_REPEAT);
 
 	stbi_set_flip_vertically_on_load(false);
 	const vector<string> cubemapFaces = {
@@ -92,8 +94,8 @@ void Scene::CreateScene(Camera* myCam)
 
 	const vector<Texture> planeTexture =
 	{
-		{t_metal, "texture_diffuse"},
-		{t_dummy, "texture_specular"}
+		{t_wood, "texture_diffuse"},
+		{t_wood, "texture_specular"}
 	};
 
 	const vector<Texture> cubeTexture =
@@ -134,7 +136,7 @@ void Scene::CreateScene(Camera* myCam)
 	}
 
 	plane = Mesh(g_planeVertices, g_planeIndices, planeTexture);
-	plane.SetScale(vec3(100.0f, 0.0f, 100.0f));
+	plane.SetScale(vec3(10.0f, 1.0f, 10.0f));
 	cubeReflect = Mesh(g_cubeVertices, g_cubeIndices, skyboxTexture);
 	cubeMarble = Mesh(g_cubeVertices, g_cubeIndices, cubeTexture);
 	square = Mesh(g_squareVertices, g_squareIndices, windowTexture);
@@ -189,7 +191,7 @@ void Scene::DrawScene()
 		glEnable(GL_CULL_FACE);
 
 	// 绘制地板
-	//plane.DrawMesh(lightShader);
+	plane.DrawMesh(lightShader, GL_TRIANGLES);
 
 	// 绘制立方体
 	cubeReflect.SetTranslate(vec3(1.0f, 1.5f, 1.0f));

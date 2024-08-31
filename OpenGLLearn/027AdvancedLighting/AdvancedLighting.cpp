@@ -35,7 +35,7 @@ void CreateFrameBuffer(GLuint& fbo, GLuint& tbo, GLuint& rbo);
 void CreateFrameBuffer_MSAA(GLuint& fbo, GLuint& tbo, GLuint& rbo);
 void SetUniformBuffer();
 
-Camera myCam(vec3(-1.26f, 6.18f, 7.74f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
+Camera myCam(vec3(-19.9f, 2.3f, 35.4f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
 GLFWwindow* window = NULL;
 
 // 原场景缓冲
@@ -187,6 +187,7 @@ int main()
 		SetUniformToShader(scene.refractShader);
 		SetUniformToShader(scene.normalShader);
 		SetUniformToShader(scene.lightInstShader);
+		myCam.yawValue = myCam.yawValue - ((int)myCam.yawValue / 360) * 360;
 
 		/********************** 默认帧缓冲输出前面绘制时写入 **********************/
 		// 关掉自定义缓冲的读写，就切换成了默认缓冲
