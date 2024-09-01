@@ -9,6 +9,7 @@ in GS_OUT
 
 uniform vec3 uni_viewPos;
 uniform samplerCube texture_cubemap1;
+uniform int light_model;
 
 struct Material
 {
@@ -99,8 +100,21 @@ vec4 calcDirLight(vec4 diffuseColor, vec4 specularColor)
 	
 	// 镜面光照specular
 	vec3 viewDir = normalize(uni_viewPos - vs_in.fragPos);
-	vec3 reflectDir = normalize(reflect(-lightDir, norm));
-	float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+
+	float spec = 0.0f;
+	// Phong
+	if (light_model == 0)
+	{
+		vec3 reflectDir = normalize(reflect(-lightDir, norm));
+		spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+	}
+	// Blinn-Phong
+	else if (light_model == 1)
+	{
+		vec3 halfwayDir = normalize(lightDir + viewDir);
+		spec = pow(max(dot(halfwayDir, norm), 0.0), material.shininess);
+	}
+
 	vec4 specular = spec * vec4(dirLight.specular, 1.0) * specularColor;
 
 	color = ambient + diffuse + specular;
@@ -125,8 +139,19 @@ vec4 calcPointLight(vec4 diffuseColor, vec4 specularColor)
 		vec4 diffuse = diff * vec4(pointLight[i].diffuse, 1.0) * diffuseColor;
 	
 		// 镜面光照specular
-		vec3 reflectDir = normalize(reflect(-lightDir, norm));
-		float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+		float spec = 0.0f;
+		// Phong
+		if (light_model == 0)
+		{
+			vec3 reflectDir = normalize(reflect(-lightDir, norm));
+			spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+		}
+		// Blinn-Phong
+		else if (light_model == 1)
+		{
+			vec3 halfwayDir = normalize(lightDir + viewDir);
+			spec = pow(max(dot(halfwayDir, norm), 0.0), material.shininess);
+		}
 		vec4 specular = spec * vec4(pointLight[i].specular, 1.0) * specularColor;
 
 		// 片段离光源的距离
@@ -167,8 +192,19 @@ vec4 calcSpotLight(vec4 diffuseColor, vec4 specularColor)
 	
 	// 镜面光照specular
 	vec3 viewDir = normalize(uni_viewPos - vs_in.fragPos);
-	vec3 reflectDir = normalize(reflect(-lightDir, norm));
-	float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+	float spec = 0.0f;
+	// Phong
+	if (light_model == 0)
+	{
+		vec3 reflectDir = normalize(reflect(-lightDir, norm));
+		spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+	}
+	// Blinn-Phong
+	else if (light_model == 1)
+	{
+		vec3 halfwayDir = normalize(lightDir + viewDir);
+		spec = pow(max(dot(halfwayDir, norm), 0.0), material.shininess);
+	}
 	specular = intensity * spec * vec4(spotLight.specular, 1.0) * specularColor;
 
 	color = ambient + diffuse + specular;

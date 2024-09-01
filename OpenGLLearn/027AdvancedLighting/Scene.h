@@ -74,12 +74,14 @@ void Scene::CreateScene(Camera* myCam)
 	GLuint t_dummy = 0;
 	GLuint t_window = 0;
 	GLuint t_wood = 0;
+	//GLuint t_white = 0;
 
 	LoadTexture("Resource/Texture/metal.png", t_metal, GL_REPEAT, GL_REPEAT);
 	LoadTexture("Resource/Texture/marble.jpg", t_marble, GL_REPEAT, GL_REPEAT);
 	LoadTexture("Resource/Texture/dummy.png", t_dummy, GL_REPEAT, GL_REPEAT);  //自己做的占位贴图，占一个sampler位置，否则会被其他mesh的高光贴图替代
 	LoadTexture("Resource/Texture/window.png", t_window, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
 	LoadTexture("Resource/Texture/wood.png", t_wood, GL_REPEAT, GL_REPEAT);
+	//LoadTexture("Resource/Texture/AllWhite.png", t_white, GL_REPEAT, GL_REPEAT);
 
 	stbi_set_flip_vertically_on_load(false);
 	const vector<string> cubemapFaces = {

@@ -35,7 +35,7 @@ void CreateFrameBuffer(GLuint& fbo, GLuint& tbo, GLuint& rbo);
 void CreateFrameBuffer_MSAA(GLuint& fbo, GLuint& tbo, GLuint& rbo);
 void SetUniformBuffer();
 
-Camera myCam(vec3(-19.9f, 2.3f, 35.4f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
+Camera myCam(vec3(-18.5f, 7.1f, 27.7f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
 GLFWwindow* window = NULL;
 
 // 原场景缓冲
@@ -354,8 +354,12 @@ void GetImguiValue()
 		ImGui::TreePop();
 	}
 
-	if (ImGui::TreeNodeEx("Lighting"))
+	if (ImGui::TreeNodeEx("Lighting", ImGuiTreeNodeFlags_DefaultOpen))
 	{
+		// 光照模型
+		const char* LightModels[] = { "Phong", "Blinn-Phong" };
+		ImGui::Combo("Light Fade Distance", &iLightModel, LightModels, IM_ARRAYSIZE(LightModels));
+
 		// clear color
 		ImGui::ColorEdit3("background", (float*)&bkgColor);
 
@@ -495,6 +499,7 @@ void SetUniformToShader(Shader& shader)
 	shader.SetInt("split_flag", (int)bSplitScreen);
 	shader.SetFloat("magnitude", explodeMag);
 	shader.SetFloat("normal_len", normalLen);
+	shader.SetInt("light_model", iLightModel);
 
 	// ShaderLightingInstance 
 	// 因为model矩阵变换是基于单位矩阵进行的，想要在已经变换后的model矩阵的基础上，再进行model矩阵变换有点困难

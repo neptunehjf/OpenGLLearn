@@ -43,7 +43,7 @@ vec3 spotLight_specular = vec3(0.0f);
 float spotLight_innerCos = 5.0f;
 float spotLight_outerCos = 8.0f;
 int item = 0;
-int material_shininess = 1;
+int material_shininess = 256;
 int postProcessType = 0;
 float sampleOffsetBase = 300.0f;
 float imgui_speed = 5.0f;
@@ -61,5 +61,6 @@ float normalLen = 0.1;
 bool bInstanceTest = 0;
 bool bSkyBox = 1;
 bool bMSAA = true;
+int iLightModel = 1; //{ "Phong", "Blinn-Phong" }
 /************** Imgui±‰¡ø **************/
 
