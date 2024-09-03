@@ -27,16 +27,18 @@ double preTime = 0.0;
 double deltaTime = 0.0;
 double curTime = 0.0;
 
+const vec3 lampPos[4] = { vec3(20.0f, 3.0f, 0.0f) , vec3(20.0f, 3.0f, -10.0f) , vec3(20.0f, 3.0f, -20.0f) , vec3(20.0f, 3.0f, -30.0f) };
+
 /************** Imgui变量 **************/
-float posValue = 0.0f;
+//float posValue = 0.0f;
 vec3 bkgColor = vec3(0.0f, 0.0f, 0.0f);
 vec3 dirLight_direction = vec3(-1.0f, -1.0f, -1.0f);
 vec3 dirLight_ambient = vec3(0.0f);
-vec3 dirLight_diffuse = vec3(0.2f);
-vec3 dirLight_specular = vec3(1.0f);
-vec3 pointLight_ambient = vec3(0.0f);
-vec3 pointLight_diffuse = vec3(0.0f);
-vec3 pointLight_specular = vec3(0.0f);
+vec3 dirLight_diffuse = vec3(0.0f);
+vec3 dirLight_specular = vec3(0.0f);
+vec3 pointLight_ambient = vec3(0.2f);
+vec3 pointLight_diffuse = vec3(0.8f);
+vec3 pointLight_specular = vec3(1.0f);
 vec3 spotLight_ambient = vec3(0.0f);
 vec3 spotLight_diffuse = vec3(0.0f);
 vec3 spotLight_specular = vec3(0.0f);
@@ -46,7 +48,7 @@ int item = 0;
 int material_shininess = 256;
 int postProcessType = 0;
 float sampleOffsetBase = 300.0f;
-float imgui_speed = 5.0f;
+float imgui_speed = 100.0f;
 float imgui_camNear = 0.1f;
 float imgui_camFar = 500.0f;
 float pointSize = 1.0f;
@@ -62,5 +64,7 @@ bool bInstanceTest = 0;
 bool bSkyBox = 1;
 bool bMSAA = true;
 int iLightModel = 1; //{ "Phong", "Blinn-Phong" }
+bool bGammaCorrection = true;
+int iAtteFormula = 0;
 /************** Imgui变量 **************/
 

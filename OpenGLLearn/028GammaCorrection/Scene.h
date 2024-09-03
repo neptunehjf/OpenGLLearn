@@ -32,11 +32,10 @@ public:
 	Mesh screen;
 	Mesh mirror;
 	Mesh particle; 
-	Mesh GMTest;
 	Model nanosuit;
-	Mesh InstanceTest;
 	Model planet;
 	Model rock;
+	Mesh lamp;
 
 	vector<vec3> squarePositions;
 	vector<mat4> instMat4;
@@ -49,12 +48,11 @@ public:
 	GLuint LoadCubemap(const vector<string>& cubemapFaces);
 	void DeleteScene();
 	void CreateAsteroid();
+	void CreateShader();
 };
 
-void Scene::CreateScene(Camera* myCam)
+void Scene::CreateShader()
 {
-	this->myCam = myCam;
-
 	// 创建shader 不能声明全局变量，因为shader的相关操作必须在glfw初始化完成后
 	lightShader = Shader("ShaderLighting.vs", "ShaderLighting.fs", "ShaderLighting.gs");
 	screenShader = Shader("ShaderPostProcess.vs", "ShaderPostProcess.fs");
@@ -63,7 +61,11 @@ void Scene::CreateScene(Camera* myCam)
 	refractShader = Shader("ShaderRefraction.vs", "ShaderRefraction.fs");
 	normalShader = Shader("ShaderNormal.vs", "ShaderNormal.fs", "ShaderNormal.gs");
 	lightInstShader = Shader("ShaderLightingInstance.vs", "ShaderLightingInstance.fs");
+}
 
+void Scene::CreateScene(Camera* myCam)
+{
+	this->myCam = myCam;
 	/* 加载贴图 */
 	// 翻转y轴，使图片和opengl坐标一致  但是如果assimp 导入模型时设置了aiProcess_FlipUVs，就不能重复设置了
 	stbi_set_flip_vertically_on_load(true);
@@ -74,14 +76,14 @@ void Scene::CreateScene(Camera* myCam)
 	GLuint t_dummy = 0;
 	GLuint t_window = 0;
 	GLuint t_wood = 0;
-	//GLuint t_white = 0;
+	GLuint t_white = 0;
 
 	LoadTexture("Resource/Texture/metal.png", t_metal, GL_REPEAT, GL_REPEAT);
 	LoadTexture("Resource/Texture/marble.jpg", t_marble, GL_REPEAT, GL_REPEAT);
 	LoadTexture("Resource/Texture/dummy.png", t_dummy, GL_REPEAT, GL_REPEAT);  //自己做的占位贴图，占一个sampler位置，否则会被其他mesh的高光贴图替代
 	LoadTexture("Resource/Texture/window.png", t_window, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
 	LoadTexture("Resource/Texture/wood.png", t_wood, GL_REPEAT, GL_REPEAT);
-	//LoadTexture("Resource/Texture/AllWhite.png", t_white, GL_REPEAT, GL_REPEAT);
+	LoadTexture("Resource/Texture/AllWhite.png", t_white, GL_REPEAT, GL_REPEAT);
 
 	stbi_set_flip_vertically_on_load(false);
 	const vector<string> cubemapFaces = {
@@ -123,6 +125,12 @@ void Scene::CreateScene(Camera* myCam)
 		{t_dummy, "texture_specular"}
 	};
 
+	const vector<Texture> lampTexture =
+	{
+		{t_white, "texture_diffuse"},
+		{t_dummy, "texture_specular"}
+	};
+
 	vector<vec2> instanceArray;
 	int index = 0;
 	float offset = 0.1f;
@@ -146,6 +154,8 @@ void Scene::CreateScene(Camera* myCam)
 	screen = Mesh(g_screenVertices, g_screenIndices, dummyTexture);
 	mirror = Mesh(g_mirrorVertices, g_mirrorIndices, dummyTexture);
 	particle = Mesh(g_particleVertices, g_particleIndices, dummyTexture);
+	lamp = Mesh(g_cubeVertices, g_cubeIndices, lampTexture);
+	lamp.SetScale(vec3(1.0f));
 	
 	squarePositions.push_back(glm::vec3(-1.5f, 1.0f, -0.48f));
 	squarePositions.push_back(glm::vec3(1.5f, 1.0f, 0.51f));
@@ -237,6 +247,15 @@ void Scene::DrawScene()
 
 	rock.DrawModel(lightInstShader, true);
 
+	lamp.SetTranslate(lampPos[0]);
+	lamp.DrawMesh(lightShader, GL_TRIANGLES);
+	lamp.SetTranslate(lampPos[1]);
+	lamp.DrawMesh(lightShader, GL_TRIANGLES);
+	lamp.SetTranslate(lampPos[2]);
+	lamp.DrawMesh(lightShader, GL_TRIANGLES);
+	lamp.SetTranslate(lampPos[3]);
+	lamp.DrawMesh(lightShader, GL_TRIANGLES);
+
 	// 按窗户离摄像机间的距离排序，map默认是升序排序，也就是从近到远
 	// 必须放在render loop里，因为摄像机是实时改变的
 	map<float, vec3> sorted;
@@ -274,18 +293,31 @@ bool Scene::LoadTexture(const string&& filePath, GLuint& texture, const GLint pa
 	int width, height, channel;
 	unsigned char* data = stbi_load(filePath.c_str(), &width, &height, &channel, 0);
 
+	GLenum informat = 0;
 	GLenum format = 0;
 	if (channel == 1)
+	{
+		informat = GL_RED;
 		format = GL_RED;
+	}
 	else if (channel == 3)
+	{
+		informat = GL_SRGB; //如果启用了gamma校正，则输出在线性空间，所以在读取贴图的时候要转为线性空间贴图，不然颜色会不对
 		format = GL_RGB;
+	}
 	else if (channel == 4)
+	{
+		informat = GL_SRGB_ALPHA;
 		format = GL_RGBA;
+	}
 
+	if (!bGammaCorrection)
+		informat = format;
+		
 	if (data)
 	{
 		// 贴图数据 内存 -> 显存
-		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+		glTexImage2D(GL_TEXTURE_2D, 0, informat, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 		// 生成多级渐进贴图
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
@@ -322,18 +354,31 @@ GLuint Scene::LoadCubemap(const vector<string>& cubemapFaces)
 		int width, height, channel;
 		unsigned char* data = stbi_load(cubemapFaces[i].c_str(), &width, &height, &channel, 0);
 
+		GLenum informat = 0;
 		GLenum format = 0;
 		if (channel == 1)
+		{
+			informat = GL_RED;
 			format = GL_RED;
+		}
 		else if (channel == 3)
+		{
+			informat = GL_SRGB; //如果启用了gamma校正，则输出在线性空间，所以在读取贴图的时候要转为线性空间贴图，不然颜色会不对
 			format = GL_RGB;
+		}
 		else if (channel == 4)
+		{
+			informat = GL_SRGB_ALPHA;
 			format = GL_RGBA;
+		}
+
+		if (!bGammaCorrection)
+			informat = format;
 
 		if (data)
 		{
 			// 贴图数据 内存 -> 显存
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, informat, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 		}
 		else
 		{

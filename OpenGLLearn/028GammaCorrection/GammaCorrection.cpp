@@ -35,7 +35,7 @@ void CreateFrameBuffer(GLuint& fbo, GLuint& tbo, GLuint& rbo);
 void CreateFrameBuffer_MSAA(GLuint& fbo, GLuint& tbo, GLuint& rbo);
 void SetUniformBuffer();
 
-Camera myCam(vec3(-18.5f, 7.1f, 27.7f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
+Camera myCam(vec3(-12.67f, 15.99f, -4.0f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
 GLFWwindow* window = NULL;
 
 // 原场景缓冲
@@ -75,7 +75,8 @@ int main()
 	ImGui_ImplOpenGL3_Init();
 	
 	Scene scene;
-	scene.CreateScene(&myCam);
+	scene.CreateShader();
+	//scene.CreateScene(&myCam);
 
 	// 原场景缓冲
 	CreateFrameBuffer_MSAA(fbo1, tbo1, rbo1);
@@ -111,9 +112,26 @@ int main()
 		{t_dummy, "texture_specular"}
 	};
 
+	bool bLastGamma = false;
+
 	//渲染循环
 	while (!glfwWindowShouldClose(window))
 	{
+		if (bGammaCorrection)
+		{
+			glEnable(GL_FRAMEBUFFER_SRGB); //颜色写到帧缓冲之前会被gamma校正
+			if (!bLastGamma)
+				scene.CreateScene(&myCam);
+			bLastGamma = true;
+		}
+		else if (!bGammaCorrection)
+		{
+			glDisable(GL_FRAMEBUFFER_SRGB); 
+			if (bLastGamma)
+				scene.CreateScene(&myCam);
+			bLastGamma = false;
+		}
+
 		//输入
 		processInput(window);
 		glfwPollEvents();
@@ -217,6 +235,7 @@ int main()
 		scene.mirror.SetTextures(mirrorTexture);
 		scene.mirror.DrawMesh(scene.screenShader, GL_TRIANGLES);
 
+		glDisable(GL_FRAMEBUFFER_SRGB); //imgui界面不需要gamma校正
 		// imgui在默认缓冲中绘制，因为我不想imgui也有后期处理效果
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -358,7 +377,7 @@ void GetImguiValue()
 	{
 		// 光照模型
 		const char* LightModels[] = { "Phong", "Blinn-Phong" };
-		ImGui::Combo("Light Fade Distance", &iLightModel, LightModels, IM_ARRAYSIZE(LightModels));
+		ImGui::Combo("Light Model", &iLightModel, LightModels, IM_ARRAYSIZE(LightModels));
 
 		// clear color
 		ImGui::ColorEdit3("background", (float*)&bkgColor);
@@ -370,12 +389,18 @@ void GetImguiValue()
 		ImGui::ColorEdit3("dirLight specular", (float*)&dirLight_specular);
 
 		// point light
-		const char* itemArray[] = { "50", "100", "200","600" };
-		ImGui::SliderFloat("pointLight position", &posValue, 0.0f, 10.0f);
+		const char* itemArray[] = { "50", "100", "200", "600" };
+		const char* atteFormulas[] = { "default", "linear", "quadratic" };
+		//ImGui::SliderFloat("pointLight position", &posValue, 0.0f, 10.0f);
 		ImGui::ColorEdit3("pointLight ambient", (float*)&pointLight_ambient);
 		ImGui::ColorEdit3("pointLight diffuse", (float*)&pointLight_diffuse);
 		ImGui::ColorEdit3("pointLight specular", (float*)&pointLight_specular);
-		ImGui::Combo("Light Fade Distance", &item, itemArray, IM_ARRAYSIZE(itemArray));
+		ImGui::Combo("Attenuation Formula", &iAtteFormula, atteFormulas, IM_ARRAYSIZE(atteFormulas));
+
+		if (iAtteFormula == 0)
+		{
+			ImGui::Combo("Light Fade Distance", &item, itemArray, IM_ARRAYSIZE(itemArray));
+		}
 
 		// spotLight
 		ImGui::ColorEdit3("spotLight ambient", (float*)&spotLight_ambient);
@@ -433,6 +458,12 @@ void GetImguiValue()
 	if (ImGui::TreeNodeEx("AntiAliasing", ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		ImGui::Checkbox("MSAA", &bMSAA);
+		ImGui::TreePop();
+	}
+
+	if (ImGui::TreeNodeEx("Gamma Correction", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		ImGui::Checkbox("Gamma Correction", &bGammaCorrection);
 		ImGui::TreePop();
 	}
 }
@@ -500,6 +531,7 @@ void SetUniformToShader(Shader& shader)
 	shader.SetFloat("magnitude", explodeMag);
 	shader.SetFloat("normal_len", normalLen);
 	shader.SetInt("light_model", iLightModel);
+	shader.SetInt("atte_formula", iAtteFormula);
 
 	// ShaderLightingInstance 
 	// 因为model矩阵变换是基于单位矩阵进行的，想要在已经变换后的model矩阵的基础上，再进行model矩阵变换有点困难
@@ -521,8 +553,8 @@ void SetUniformToShader(Shader& shader)
 		ss << "pointLight[" << i << "].";
 		string prefix = ss.str();
 
-		vec3 lightPos = vec3(5 * cos(posValue + i * 10), 10.0f, 5 * sin(posValue + i * 10));
-		shader.SetVec3(prefix + "lightPos", lightPos);
+		//vec3 lightPos = vec3(5 * cos(posValue + i * 10), 10.0f, 5 * sin(posValue + i * 10));
+		shader.SetVec3(prefix + "lightPos", lampPos[i]);
 		shader.SetVec3(prefix + "ambient", pointLight_ambient);
 		shader.SetVec3(prefix + "diffuse", pointLight_diffuse);
 		shader.SetVec3(prefix + "specular", pointLight_specular);

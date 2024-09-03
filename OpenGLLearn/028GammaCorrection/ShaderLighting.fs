@@ -10,6 +10,7 @@ in GS_OUT
 uniform vec3 uni_viewPos;
 uniform samplerCube texture_cubemap1;
 uniform int light_model;
+uniform int atte_formula;
 
 struct Material
 {
@@ -49,7 +50,7 @@ struct SpotLight
 	vec3 specular;
 };
 
-#define POINT_LIGHT_NUM 1
+#define POINT_LIGHT_NUM 4
 
 uniform Material material;
 uniform DirectionLight dirLight;
@@ -157,7 +158,13 @@ vec4 calcPointLight(vec4 diffuseColor, vec4 specularColor)
 		// 片段离光源的距离
 		float distance = length(pointLight[i].lightPos - vs_in.fragPos);
 		// 计算光照衰减，这里是一个点光源的衰减模型。距离较小时衰减得慢（一次项影响大）；距离较大时衰减得快（二次项影响大）；然后缓慢接近0（分母是无穷大，衰减到0）
-		float lightFade = 1 / (pointLight[i].constant + pointLight[i].linear * distance + pointLight[i].quadratic * distance * distance);
+		float lightFade = 1.0;
+		if (atte_formula == 0)
+			lightFade = 1.0 / (pointLight[i].constant + pointLight[i].linear * distance + pointLight[i].quadratic * distance * distance);
+		else if (atte_formula == 1)
+			lightFade = 1.0 / (0.1 * distance);
+		else if (atte_formula == 2)
+			lightFade = 1.0 / (0.1 * distance * distance); //如果不启用gamma校正，lightFade经过显示器输出会变成lightFade的2.2次方，因此算法就不对了
 		// 应用光照衰减
 		ambient  *= lightFade;
 		diffuse  *= lightFade;

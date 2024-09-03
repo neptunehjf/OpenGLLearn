@@ -217,18 +217,31 @@ GLuint Model::TextureFromFile(const string&& filePath, const string&& directory)
     string file = directory + "/" + filePath;
     unsigned char* data = stbi_load(file.c_str(), &width, &height, &channel, 0);
 
+    GLenum informat = 0;
     GLenum format = 0;
     if (channel == 1)
+    {
+        informat = GL_RED;
         format = GL_RED;
+    }
     else if (channel == 3)
+    {
+        informat = GL_SRGB;
         format = GL_RGB;
+    }
     else if (channel == 4)
+    {
+        informat = GL_SRGB_ALPHA;
         format = GL_RGBA;
+    }
+
+    if (!bGammaCorrection)
+        informat = format;
 
     if (data)
     {
         // 贴图数据 内存 -> 显存
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glTexImage2D(GL_TEXTURE_2D, 0, informat, width, height, 0, format, GL_UNSIGNED_BYTE, data);
         // 生成多级渐进贴图
         glGenerateMipmap(GL_TEXTURE_2D);
     }
