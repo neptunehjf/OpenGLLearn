@@ -164,7 +164,10 @@ vec4 calcPointLight(vec4 diffuseColor, vec4 specularColor)
 		else if (atte_formula == 1)
 			lightFade = 1.0 / (0.1 * distance);
 		else if (atte_formula == 2)
-			lightFade = 1.0 / (0.1 * distance * distance); //如果不启用gamma校正，lightFade经过显示器输出会变成lightFade的2.2次方，因此算法就不对了
+			lightFade = 1.0 / (0.1 * distance * distance); // 如果不启用gamma校正，lightFade经过显示器输出会变成lightFade的2.2次方，因此算法就不对了
+														   // 不启用gamma校正，则因为贴图自身有gamma校正也可以正常显示，但涉及到复杂算法就不一样了
+														   // 不启用gamma校正，相当于只有贴图gamma校正，光照算法却没有gamma校正，是错误的
+														   // 启用gamma校正，贴图和算法一起在最后gamma校正，是正确的
 		// 应用光照衰减
 		ambient  *= lightFade;
 		diffuse  *= lightFade;
