@@ -168,6 +168,8 @@ vec4 calcPointLight(vec4 diffuseColor, vec4 specularColor)
 														   // 不启用gamma校正，则因为贴图自身有gamma校正也可以正常显示，但涉及到复杂算法就不一样了
 														   // 不启用gamma校正，相当于只有贴图gamma校正，光照算法却没有gamma校正，是错误的
 														   // 启用gamma校正，贴图和算法一起在最后gamma校正，是正确的
+														   // 说白了，就是空间转换与算法的先后问题，之前在3D空间进行矩阵计算也遇到过。
+														   // 是先把贴图转为非线性空间，在非线性空间进行光照算法计算，还是把贴图转成线性空间，在线性空间进行计算，最后转成非线性空间(gamma校正)
 		// 应用光照衰减
 		ambient  *= lightFade;
 		diffuse  *= lightFade;
