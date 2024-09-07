@@ -33,6 +33,7 @@ void GetImguiValue();
 void SetUniformToShader(Shader& shader);
 void CreateFrameBuffer(GLuint& fbo, GLuint& tbo, GLuint& rbo);
 void CreateFrameBuffer_MSAA(GLuint& fbo, GLuint& tbo, GLuint& rbo);
+void CreateFrameBuffer_Depthmap(GLuint& fbo, GLuint& tbo);
 void SetUniformBuffer();
 
 Camera myCam(vec3(-12.67f, 15.99f, -4.0f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
@@ -52,6 +53,10 @@ GLuint rbo2 = 0; // 渲染缓冲对象（附件）
 GLuint fbo3 = 0; // 自定义帧缓冲对象
 GLuint tbo3 = 0; // 纹理缓冲对象（附件）
 GLuint rbo3 = 0; // 渲染缓冲对象（附件）
+
+// 中间缓冲
+GLuint fbo_depthmap = 0; // 自定义帧缓冲对象
+GLuint tbo_depthmap = 0; // 纹理缓冲对象（附件）
 
 // Uniform缓冲
 GLuint ubo = 0;
@@ -84,6 +89,8 @@ int main()
 	CreateFrameBuffer(fbo2, tbo2, rbo2);
 	// 中间缓冲
 	CreateFrameBuffer(fbo3, tbo3, rbo3);
+	// depthmap缓冲
+	CreateFrameBuffer_Depthmap(fbo_depthmap, tbo_depthmap);
 
 	// Uniform缓冲
 	// 
@@ -103,14 +110,6 @@ int main()
 	glBindBuffer(GL_UNIFORM_BUFFER, ubo);
 	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(mat4), NULL, GL_STATIC_DRAW); // 只有4->16的情况才要考虑内存对齐。NULL表示只分配内存，不写入数据。
 	glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo);
-
-	GLuint t_dummy = 0;
-	// 用于不需要texture的mesh
-	const vector<Texture> dummyTexture =
-	{
-		{t_dummy, "texture_diffuse"},
-		{t_dummy, "texture_specular"}
-	};
 
 	bool bLastGamma = false;
 
@@ -161,8 +160,28 @@ int main()
 		preTime = curTime;
 
 		/********************** 先用自定义帧缓冲进行离屏渲染 绑定到自定义帧缓冲，默认帧缓冲不再起作用 **********************/
+		
+		// 绘制depthmmap 
+		//
+		// 用Camera类创建平行光源的视角view
+		Camera dirLightCam(-100.0f * dirLight_direction, vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
+		dirLightCam.setCamView();
+		// view
+		mat4 view = dirLightCam.getCamView();
+		// projection
+		float near_plane = 1.0f, far_plane = 7.5f;
+		mat4 projection = ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+		mat4 dirLightSpace = projection * view;
+
+		// Set Uniform To Shader
+		scene.depthmapShader.SetMat4("dirLightSpace", dirLightSpace);
+
+		glViewport(0, 0, SHADOW_RESOLUTION_WIDTH, SHADOW_RESOLUTION_WIDTH);
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo_depthmap);
+		scene.DrawScene(true);
 
 		// 原场景
+		glViewport(0, 0, windowWidth, windowHeight);
 		SetUniformBuffer();
 		SetUniformToShader(scene.lightShader);
 		SetUniformToShader(scene.screenShader);
@@ -217,6 +236,7 @@ int main()
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT); //离屏渲染不需要glClear(GL_COLOR_BUFFER_BIT);
 
+		GLuint t_dummy = 0;
 		// 主屏幕
 		const vector<Texture> screenTexture =
 		{
@@ -601,7 +621,41 @@ void CreateFrameBuffer(GLuint& fbo, GLuint& tbo, GLuint& rbo)
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-//创建自定义帧缓冲
+//创建自定义帧缓冲 depthmap
+void CreateFrameBuffer_Depthmap(GLuint& fbo, GLuint& tbo)
+{
+	// 首先创建一个帧缓冲对象 （由color stencil depth组成。默认缓冲区也有。只不过这次自己创建缓冲区，可以实现一些有意思的功能）
+	// 只有默认缓冲才能输出图像(因为和GLFW窗口绑定)，用自建的缓冲不会输出任何图像，因此可以用来离屏渲染
+	glGenFramebuffers(1, &fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+	// 生成纹理附件 对应color缓冲
+	glGenTextures(1, &tbo);
+	glBindTexture(GL_TEXTURE_2D, tbo);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_RESOLUTION_WIDTH, SHADOW_RESOLUTION_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	// 纹理缓冲对象  作为一个GL_COLOR_ATTACHMENT0附件 附加到 帧缓冲对象
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, tbo, 0);
+
+	// 颜色缓冲的独写对象改为GL_NONE，也就是不会读写颜色缓冲
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+
+	// 检查帧缓冲对象完整性
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	{
+		cout << "Error: Framebuffer is not complete!" << endl;
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+//创建自定义帧缓冲MSAA
 void CreateFrameBuffer_MSAA(GLuint& fbo, GLuint& tbo, GLuint& rbo)
 {
 	// 首先创建一个帧缓冲对象 （由color stencil depth组成。默认缓冲区也有。只不过这次自己创建缓冲区，可以实现一些有意思的功能）

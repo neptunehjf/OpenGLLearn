@@ -23,6 +23,7 @@ public:
 	Shader refractShader;
 	Shader normalShader;
 	Shader lightInstShader;
+	Shader depthmapShader;
 
 	Mesh cubeReflect;
 	Mesh cubeMarble;
@@ -43,7 +44,7 @@ public:
 	Camera* myCam;
 
 	void CreateScene(Camera* myCam);
-	void DrawScene();
+	void DrawScene(bool bDepthmap = false);
 	bool LoadTexture(const string&& filePath, GLuint& texture, const GLint param_s, const GLint param_t);
 	GLuint LoadCubemap(const vector<string>& cubemapFaces);
 	void DeleteScene();
@@ -61,6 +62,7 @@ void Scene::CreateShader()
 	refractShader = Shader("ShaderRefraction.vs", "ShaderRefraction.fs");
 	normalShader = Shader("ShaderNormal.vs", "ShaderNormal.fs", "ShaderNormal.gs");
 	lightInstShader = Shader("ShaderLightingInstance.vs", "ShaderLightingInstance.fs");
+	depthmapShader = Shader("ShaderDepthMap.vs", "ShaderDepthMap.fs");
 }
 
 void Scene::CreateScene(Camera* myCam)
@@ -181,7 +183,7 @@ void Scene::CreateScene(Camera* myCam)
 
 }
 
-void Scene::DrawScene()
+void Scene::DrawScene(bool bDepthmap)
 {
 	if (bBlending)
 	{
@@ -203,30 +205,66 @@ void Scene::DrawScene()
 		glEnable(GL_CULL_FACE);
 
 	// 绘制地板
-	plane.DrawMesh(lightShader, GL_TRIANGLES);
+	if (bDepthmap)
+		plane.DrawMesh(depthmapShader, GL_TRIANGLES);
+	else
+		plane.DrawMesh(lightShader, GL_TRIANGLES);
 
 	// 绘制立方体
 	cubeReflect.SetTranslate(vec3(1.0f, 1.5f, 1.0f));
-	cubeReflect.DrawMesh(reflectShader, GL_TRIANGLES);
-	cubeReflect.DrawMesh(normalShader, GL_TRIANGLES);
+	if (bDepthmap)
+		cubeReflect.DrawMesh(depthmapShader, GL_TRIANGLES);
+	else
+	{
+		cubeReflect.DrawMesh(reflectShader, GL_TRIANGLES);
+		cubeReflect.DrawMesh(normalShader, GL_TRIANGLES);
+	}
+
 	cubeReflect.SetTranslate(vec3(0.0f, 1.5f, -1.0f));
-	cubeReflect.DrawMesh(refractShader, GL_TRIANGLES);
-	cubeReflect.DrawMesh(normalShader, GL_TRIANGLES);
+	if (bDepthmap)
+		cubeReflect.DrawMesh(depthmapShader, GL_TRIANGLES);
+	else
+	{
+		cubeReflect.DrawMesh(refractShader, GL_TRIANGLES);
+		cubeReflect.DrawMesh(normalShader, GL_TRIANGLES);
+	}
 
 	cubeMarble.SetTranslate(vec3(3.0f, 1.5f, 0.0f));
-	cubeMarble.DrawMesh(lightShader, GL_TRIANGLES);
-	cubeMarble.DrawMesh(normalShader, GL_TRIANGLES);
+	if (bDepthmap)
+		cubeMarble.DrawMesh(depthmapShader, GL_TRIANGLES);
+	else
+	{
+		cubeMarble.DrawMesh(lightShader, GL_TRIANGLES);
+		cubeMarble.DrawMesh(normalShader, GL_TRIANGLES);
+	}
 
 	glDisable(GL_BLEND);
 	// 绘制人物
 	nanosuit.SetScale(vec3(0.1f));
 	nanosuit.SetTranslate(vec3(1.0f, 1.0f, 0.0f));
-	nanosuit.DrawModel(lightShader);
-	nanosuit.DrawModel(normalShader);
+	if (bDepthmap)
+		nanosuit.DrawModel(depthmapShader);
+	else
+	{
+		nanosuit.DrawModel(lightShader);
+		nanosuit.DrawModel(normalShader);
+	}
+
 	nanosuit.SetTranslate(vec3(0.0f, 1.0f, -3.0f));
-	nanosuit.DrawModel(reflectShader);
+	if (bDepthmap)
+		nanosuit.DrawModel(depthmapShader);
+	else
+	{
+		nanosuit.DrawModel(reflectShader);
+	}
 	nanosuit.SetTranslate(vec3(3.0f, 1.0f, -3.0f));
-	nanosuit.DrawModel(refractShader);
+	if (bDepthmap)
+		nanosuit.DrawModel(depthmapShader);
+	else
+	{
+		nanosuit.DrawModel(refractShader);
+	}
+	
 	glEnable(GL_BLEND);
 
 	glDisable(GL_CULL_FACE);
@@ -243,18 +281,38 @@ void Scene::DrawScene()
 	
 	// 一般用每秒固定旋转一定角度的方式，这样虽然帧率低的时候会卡，但是不会影响游戏逻辑
 	planet.AddRotate(ROTATE_SPEED_PLANET * deltaTime, vec3(0.0f, 1.0f, 0.0f));
-	planet.DrawModel(lightShader);
+	if (bDepthmap)
+		planet.DrawModel(depthmapShader);
+	else
+	{
+		planet.DrawModel(lightShader);
+	}
 
-	rock.DrawModel(lightInstShader, true);
+	if (bDepthmap)
+		rock.DrawModel(depthmapShader, true);
+	else
+		rock.DrawModel(lightInstShader, true);
 
 	lamp.SetTranslate(lampPos[0]);
-	lamp.DrawMesh(lightShader, GL_TRIANGLES);
+	if (bDepthmap)
+		lamp.DrawMesh(depthmapShader, GL_TRIANGLES);
+	else
+		lamp.DrawMesh(lightShader, GL_TRIANGLES);
 	lamp.SetTranslate(lampPos[1]);
-	lamp.DrawMesh(lightShader, GL_TRIANGLES);
+	if (bDepthmap)
+		lamp.DrawMesh(depthmapShader, GL_TRIANGLES);
+	else
+		lamp.DrawMesh(lightShader, GL_TRIANGLES);
 	lamp.SetTranslate(lampPos[2]);
-	lamp.DrawMesh(lightShader, GL_TRIANGLES);
+	if (bDepthmap)
+		lamp.DrawMesh(depthmapShader, GL_TRIANGLES);
+	else
+		lamp.DrawMesh(lightShader, GL_TRIANGLES);
 	lamp.SetTranslate(lampPos[3]);
-	lamp.DrawMesh(lightShader, GL_TRIANGLES);
+	if (bDepthmap)
+		lamp.DrawMesh(depthmapShader, GL_TRIANGLES);
+	else
+		lamp.DrawMesh(lightShader, GL_TRIANGLES);
 
 	// 按窗户离摄像机间的距离排序，map默认是升序排序，也就是从近到远
 	// 必须放在render loop里，因为摄像机是实时改变的
@@ -268,7 +326,10 @@ void Scene::DrawScene()
 	for (map<float, vec3>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); it++)
 	{
 		square.SetTranslate(it->second);
-		square.DrawMesh(lightShader, GL_TRIANGLES);
+		if (bDepthmap)
+			square.DrawMesh(lightShader, GL_TRIANGLES);
+		else
+			square.DrawMesh(depthmapShader, GL_TRIANGLES);
 	}
 
 	/* 一些功能测试 */

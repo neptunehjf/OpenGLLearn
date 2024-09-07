@@ -23,11 +23,17 @@ using namespace glm;
 #define ROTATE_SPEED_PLANET 0.1f
 #define ROTATE_SPEED_ROCK 0.1f
 
+#define SHADOW_RESOLUTION_WIDTH 1024
+#define SHADOW_RESOLUTION_HEIGHT 1024
+
 double preTime = 0.0;
 double deltaTime = 0.0;
 double curTime = 0.0;
 
 const vec3 lampPos[4] = { vec3(20.0f, 3.0f, 0.0f) , vec3(20.0f, 3.0f, -10.0f) , vec3(20.0f, 3.0f, -20.0f) , vec3(20.0f, 3.0f, -30.0f) };
+
+float windowWidth = WINDOW_WIDTH;
+float windowHeight = WINDOW_HEIGHT;
 
 /************** Imgui±‰¡ø **************/
 //float posValue = 0.0f;
@@ -53,8 +59,6 @@ float imgui_camNear = 0.1f;
 float imgui_camFar = 500.0f;
 float pointSize = 1.0f;
 bool bSplitScreen = 0;
-float windowWidth = WINDOW_WIDTH;
-float windowHeight = WINDOW_HEIGHT;
 bool bGMTest = 0;
 float explodeMag = 0.0;
 bool bBlending = 1;

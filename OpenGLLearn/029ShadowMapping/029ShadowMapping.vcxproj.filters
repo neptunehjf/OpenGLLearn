@@ -89,6 +89,12 @@
     <None Include="ShaderRefraction.vs">
       <Filter>Shader</Filter>
     </None>
+    <None Include="ShaderDepthMap.fs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="ShaderDepthMap.vs">
+      <Filter>Shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ShadowMapping.cpp">

@@ -148,6 +148,8 @@
   <ItemGroup>
     <None Include="ShaderCubemap.fs" />
     <None Include="ShaderCubemap.vs" />
+    <None Include="ShaderDepthMap.fs" />
+    <None Include="ShaderDepthMap.vs" />
     <None Include="ShaderLighting.fs" />
     <None Include="ShaderLighting.gs" />
     <None Include="ShaderLighting.vs" />
