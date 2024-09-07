@@ -24,6 +24,7 @@ public:
 	Shader normalShader;
 	Shader lightInstShader;
 	Shader depthmapShader;
+	Shader depthmapDisplayShader;
 
 	Mesh cubeReflect;
 	Mesh cubeMarble;
@@ -63,6 +64,7 @@ void Scene::CreateShader()
 	normalShader = Shader("ShaderNormal.vs", "ShaderNormal.fs", "ShaderNormal.gs");
 	lightInstShader = Shader("ShaderLightingInstance.vs", "ShaderLightingInstance.fs");
 	depthmapShader = Shader("ShaderDepthMap.vs", "ShaderDepthMap.fs");
+	depthmapDisplayShader = Shader("ShaderDepthmapDisplay.vs", "ShaderDepthmapDisplay.fs");
 }
 
 void Scene::CreateScene(Camera* myCam)
@@ -150,7 +152,7 @@ void Scene::CreateScene(Camera* myCam)
 	plane = Mesh(g_planeVertices, g_planeIndices, planeTexture);
 	plane.SetScale(vec3(10.0f, 1.0f, 10.0f));
 	cubeReflect = Mesh(g_cubeVertices, g_cubeIndices, skyboxTexture);
-	cubeMarble = Mesh(g_cubeVertices, g_cubeIndices, cubeTexture);
+	cubeMarble = Mesh(g_cubeVertices, g_cubeIndices, lampTexture);
 	square = Mesh(g_squareVertices, g_squareIndices, windowTexture);
 	skybox = Mesh(g_skyboxVertices, g_skyboxIndices, skyboxTexture);
 	screen = Mesh(g_screenVertices, g_screenIndices, dummyTexture);

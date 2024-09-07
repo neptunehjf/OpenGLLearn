@@ -162,21 +162,21 @@ int main()
 		/********************** 先用自定义帧缓冲进行离屏渲染 绑定到自定义帧缓冲，默认帧缓冲不再起作用 **********************/
 		
 		// 绘制depthmmap 
-		//
-		// 用Camera类创建平行光源的视角view
-		Camera dirLightCam(-100.0f * dirLight_direction, vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
-		dirLightCam.setCamView();
+
 		// view
-		mat4 view = dirLightCam.getCamView();
+		mat4 view = lookAt(-dirLight_direction, vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
+
 		// projection
-		float near_plane = 1.0f, far_plane = 7.5f;
+		float near_plane = 1.0f, far_plane = 37.5f;
 		mat4 projection = ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+
 		mat4 dirLightSpace = projection * view;
 
 		// Set Uniform To Shader
+		scene.depthmapShader.Use();
 		scene.depthmapShader.SetMat4("dirLightSpace", dirLightSpace);
 
-		glViewport(0, 0, SHADOW_RESOLUTION_WIDTH, SHADOW_RESOLUTION_WIDTH);
+		glViewport(0, 0, SHADOW_RESOLUTION_WIDTH, SHADOW_RESOLUTION_HEIGHT);
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo_depthmap);
 		scene.DrawScene(true);
 
@@ -233,15 +233,16 @@ int main()
 		glDisable(GL_DEPTH_TEST);
 		
 		// 清空各个缓冲区
-		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+		glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT); //离屏渲染不需要glClear(GL_COLOR_BUFFER_BIT);
 
-		GLuint t_dummy = 0;
 		// 主屏幕
+		GLuint t_dummy = 0;
 		const vector<Texture> screenTexture =
 		{
 			{tbo3, "texture_diffuse"},
 			{t_dummy, "texture_specular"}
+
 		};
 		scene.screen.SetTextures(screenTexture);
 		scene.screen.DrawMesh(scene.screenShader, GL_TRIANGLES);
@@ -254,6 +255,17 @@ int main()
 		};
 		scene.mirror.SetTextures(mirrorTexture);
 		scene.mirror.DrawMesh(scene.screenShader, GL_TRIANGLES);
+
+		glViewport(0, 0, SHADOW_RESOLUTION_WIDTH, SHADOW_RESOLUTION_HEIGHT);
+		const vector<Texture> depthmapTexture =
+		{
+			{tbo_depthmap, "texture_diffuse"},
+			{t_dummy, "texture_specular"}
+
+		};
+		scene.screen.SetTextures(depthmapTexture);
+		scene.screen.DrawMesh(scene.depthmapDisplayShader, GL_TRIANGLES);
+		glViewport(0, 0, windowWidth, windowHeight);
 
 		glDisable(GL_FRAMEBUFFER_SRGB); //imgui界面不需要gamma校正
 		// imgui在默认缓冲中绘制，因为我不想imgui也有后期处理效果
@@ -403,7 +415,7 @@ void GetImguiValue()
 		ImGui::ColorEdit3("background", (float*)&bkgColor);
 
 		// direction light
-		ImGui::ColorEdit3("dirLight direction", (float*)&dirLight_direction);
+		ImGui::DragFloat3("dirLight direction", (float*)&dirLight_direction);
 		ImGui::ColorEdit3("dirLight ambient", (float*)&dirLight_ambient);
 		ImGui::ColorEdit3("dirLight diffuse", (float*)&dirLight_diffuse);
 		ImGui::ColorEdit3("dirLight specular", (float*)&dirLight_specular);
@@ -531,7 +543,7 @@ void SetUniformToShader(Shader& shader)
 
 	//相机位置是要实时更新的，而且启动了shader1之后又启动了shader2，shader1的设置会无效化
 	shader.SetVec3("uni_viewPos", myCam.camPos);
-	shader.SetVec3("dirLight.direction", vec3(-1.0f, -1.0f, -1.0f));
+	shader.SetVec3("dirLight.direction", dirLight_direction);
 	shader.SetVec3("dirLight.ambient", dirLight_ambient);
 	shader.SetVec3("dirLight.diffuse", dirLight_diffuse);
 	shader.SetVec3("dirLight.specular", dirLight_specular);

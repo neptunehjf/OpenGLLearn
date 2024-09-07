@@ -150,6 +150,8 @@
     <None Include="ShaderCubemap.vs" />
     <None Include="ShaderDepthMap.fs" />
     <None Include="ShaderDepthMap.vs" />
+    <None Include="ShaderDepthmapDisplay.fs" />
+    <None Include="ShaderDepthmapDisplay.vs" />
     <None Include="ShaderLighting.fs" />
     <None Include="ShaderLighting.gs" />
     <None Include="ShaderLighting.vs" />
