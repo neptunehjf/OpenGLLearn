@@ -327,9 +327,9 @@ void Scene::DrawScene(bool bDepthmap)
 	{
 		square.SetTranslate(it->second);
 		if (bDepthmap)
-			square.DrawMesh(lightShader, GL_TRIANGLES);
-		else
 			square.DrawMesh(depthmapShader, GL_TRIANGLES);
+		else
+			square.DrawMesh(lightShader, GL_TRIANGLES);
 	}
 
 	/* 一些功能测试 */
