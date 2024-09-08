@@ -54,7 +54,7 @@ GLuint fbo3 = 0; // 自定义帧缓冲对象
 GLuint tbo3 = 0; // 纹理缓冲对象（附件）
 GLuint rbo3 = 0; // 渲染缓冲对象（附件）
 
-// 中间缓冲
+// 深度缓冲
 GLuint fbo_depthmap = 0; // 自定义帧缓冲对象
 GLuint tbo_depthmap = 0; // 纹理缓冲对象（附件）
 
@@ -201,7 +201,7 @@ int main()
 		// MSAA纹理本身其实也可以直接传到着色器进行采样，因为MSAA纹理格式和普通纹理不一样，所以不能像普通纹理对象直接用。
 		// 可以用sampler2DMS的方式传入，可以获取到每个采样点，主要用于自定义抗锯齿算法
 		// 只是单纯渲染场景的话，用glBlitFramebuffer就够了
-		glBlitFramebuffer(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+		glBlitFramebuffer(0, 0, windowWidth, windowHeight, 0, 0, windowWidth, windowHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
 		// 后视镜场景
 		myCam.yawValue += 180.0;
@@ -307,10 +307,15 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	glDeleteFramebuffers(1, &fbo2);
 	glDeleteFramebuffers(1, &tbo2);
 	glDeleteFramebuffers(1, &rbo2);
+	glDeleteFramebuffers(1, &fbo3);
+	glDeleteFramebuffers(1, &tbo3);
+	glDeleteFramebuffers(1, &rbo3);
 	// 原场景缓冲
-	CreateFrameBuffer(fbo1, tbo1, rbo1);
+	CreateFrameBuffer_MSAA(fbo1, tbo1, rbo1);
 	// 后视镜缓冲
 	CreateFrameBuffer(fbo2, tbo2, rbo2);
+	// 中间缓冲
+	CreateFrameBuffer(fbo3, tbo3, rbo3);
 
 	glViewport(0, 0, width, height);
 }
@@ -678,7 +683,7 @@ void CreateFrameBuffer_MSAA(GLuint& fbo, GLuint& tbo, GLuint& rbo)
 	// 生成MSAA纹理附件 对应color缓冲
 	glGenTextures(1, &tbo);
 	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, tbo);
-	glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, MSAA_SAMPLE_NUM, GL_RGB, WINDOW_WIDTH, WINDOW_HEIGHT, true);
+	glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, MSAA_SAMPLE_NUM, GL_RGB, windowWidth, windowHeight, true);
 	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
 
 	// MSAA纹理缓冲对象  作为一个GL_COLOR_ATTACHMENT0附件 附加到 帧缓冲对象
