@@ -5,12 +5,14 @@ in GS_OUT
 	vec3 fragPos;
 	vec3 normal;
 	vec2 texCoord;
-} vs_in;
+	vec4 fragPosLightSpace;
+} gs_in;
 
 uniform vec3 uni_viewPos;
 uniform samplerCube texture_cubemap1;
 uniform int light_model;
 uniform int atte_formula;
+uniform sampler2D shadowmap;
 
 struct Material
 {
@@ -69,9 +71,9 @@ float far  = 100.0;
 
 void main()
 {
-	vec4 diffuseColor = texture(material.texture_diffuse1, vs_in.texCoord);
-	vec4 specularColor = texture(material.texture_specular1, vs_in.texCoord);
-	vec4 reflectionColor = texture(material.texture_reflection1, vs_in.texCoord);
+	vec4 diffuseColor = texture(material.texture_diffuse1, gs_in.texCoord);
+	vec4 specularColor = texture(material.texture_specular1, gs_in.texCoord);
+	vec4 reflectionColor = texture(material.texture_reflection1, gs_in.texCoord);
 
     vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
 
@@ -94,13 +96,13 @@ vec4 calcDirLight(vec4 diffuseColor, vec4 specularColor)
 	vec4 ambient = vec4(dirLight.ambient, 1.0) * diffuseColor;
 
 	// 漫反射光照diffuse
-	vec3 norm = normalize(vs_in.normal);
+	vec3 norm = normalize(gs_in.normal);
 	vec3 lightDir = normalize(-dirLight.direction);
 	float diff = max(dot(norm, lightDir), 0.0);
 	vec4 diffuse = diff * vec4(dirLight.diffuse, 1.0) * diffuseColor;
 	
 	// 镜面光照specular
-	vec3 viewDir = normalize(uni_viewPos - vs_in.fragPos);
+	vec3 viewDir = normalize(uni_viewPos - gs_in.fragPos);
 
 	float spec = 0.0f;
 	// Phong
@@ -118,7 +120,22 @@ vec4 calcDirLight(vec4 diffuseColor, vec4 specularColor)
 
 	vec4 specular = spec * vec4(dirLight.specular, 1.0) * specularColor;
 
-	color = ambient + diffuse + specular;
+	// Shadow Mapping
+	//
+	// 因为归一化是在赋值glPosition才做的，这里没有经过glPosition，所以要手动归一化到[-1, 1]
+	// 对正交投影没意义，因为本身就是[-1, 1]，w也是一直1；而透视投影归一化前的范围是[-w, w]，所以要除以w
+	vec3 projCoords = gs_in.fragPosLightSpace.xyz / gs_in.fragPosLightSpace.w;
+	// 归一化坐标[-1, 1] 转化成 屏幕坐标[0, 1]
+	projCoords = projCoords * 0.5 + 0.5;
+	// 取得在光源视角下屏幕坐标xy位置在shadowmap对应的深度值
+	float closestDepth = texture(shadowmap, projCoords.xy).r;
+	// 取得当前片段在光源视角下的深度值
+	float currentDepth = projCoords.z;
+	//
+	// 判断当前片段是否在阴影中
+	float shadow = currentDepth > closestDepth ? 1.0 : 0.0;
+
+	color = ambient + (1.0 - shadow) * (diffuse + specular);
 
 	return color;
 }
@@ -126,8 +143,8 @@ vec4 calcDirLight(vec4 diffuseColor, vec4 specularColor)
 vec4 calcPointLight(vec4 diffuseColor, vec4 specularColor)
 {
 	vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
-	vec3 norm = normalize(vs_in.normal);
-	vec3 viewDir = normalize(uni_viewPos - vs_in.fragPos);
+	vec3 norm = normalize(gs_in.normal);
+	vec3 viewDir = normalize(uni_viewPos - gs_in.fragPos);
 
 	for (int i = 0; i < POINT_LIGHT_NUM; i++)
 	{
@@ -135,7 +152,7 @@ vec4 calcPointLight(vec4 diffuseColor, vec4 specularColor)
 	    vec4 ambient = vec4(pointLight[i].ambient, 1.0) * diffuseColor;
 
 		// 漫反射光照diffuse
-		vec3 lightDir = normalize(pointLight[i].lightPos - vs_in.fragPos);
+		vec3 lightDir = normalize(pointLight[i].lightPos - gs_in.fragPos);
 		float diff = max(dot(norm, lightDir), 0.0);
 		vec4 diffuse = diff * vec4(pointLight[i].diffuse, 1.0) * diffuseColor;
 	
@@ -156,7 +173,7 @@ vec4 calcPointLight(vec4 diffuseColor, vec4 specularColor)
 		vec4 specular = spec * vec4(pointLight[i].specular, 1.0) * specularColor;
 
 		// 片段离光源的距离
-		float distance = length(pointLight[i].lightPos - vs_in.fragPos);
+		float distance = length(pointLight[i].lightPos - gs_in.fragPos);
 		// 计算光照衰减，这里是一个点光源的衰减模型。距离较小时衰减得慢（一次项影响大）；距离较大时衰减得快（二次项影响大）；然后缓慢接近0（分母是无穷大，衰减到0）
 		float lightFade = 1.0;
 		if (atte_formula == 0)
@@ -191,19 +208,19 @@ vec4 calcSpotLight(vec4 diffuseColor, vec4 specularColor)
 	vec4 diffuse = vec4(0.0, 0.0, 0.0, 1.0);
 	vec4 specular = vec4(0.0, 0.0, 0.0, 1.0);
 
-	vec3 lightDir = normalize(spotLight.lightPos - vs_in.fragPos); //片段到spotlight的方向
+	vec3 lightDir = normalize(spotLight.lightPos - gs_in.fragPos); //片段到spotlight的方向
 	float theta = max(dot(-lightDir, normalize(spotLight.direction)), 0.0); //spotDir与聚光源的轴方向 ，注意调用normalize转成单位向量
 
 	// 计算边缘的光照衰减
 	float intensity = clamp((theta - spotLight.outerCos) / (spotLight.innerCos - spotLight.outerCos), 0.0, 1.0); //用clamp就不需要ifelse了
 
 	// 漫反射光照diffuse
-	vec3 norm = normalize(vs_in.normal);
+	vec3 norm = normalize(gs_in.normal);
 	float diff = max(dot(norm, lightDir), 0.0);
 	diffuse = intensity * diff * vec4(spotLight.diffuse, 1.0) * diffuseColor;
 	
 	// 镜面光照specular
-	vec3 viewDir = normalize(uni_viewPos - vs_in.fragPos);
+	vec3 viewDir = normalize(uni_viewPos - gs_in.fragPos);
 	float spec = 0.0f;
 	// Phong
 	if (light_model == 0)
@@ -227,8 +244,8 @@ vec4 calcSpotLight(vec4 diffuseColor, vec4 specularColor)
 vec4 calcReflectionLight(vec4 reflectionColor)
 {
 	// 反射光reflection
-	vec3 I = normalize(vs_in.fragPos - uni_viewPos);
-	vec3 R = normalize(reflect(I, normalize(vs_in.normal)));
+	vec3 I = normalize(gs_in.fragPos - uni_viewPos);
+	vec3 R = normalize(reflect(I, normalize(gs_in.normal)));
 	vec4 color = reflectionColor * vec4(texture(texture_cubemap1, R).rgb, 1.0);
 
 	return color;

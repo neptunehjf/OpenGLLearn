@@ -5,6 +5,7 @@ layout(location = 1) in vec3 aNormal;
 layout(location = 2) in vec2 aTexCoord;
 
 uniform mat4 uni_model;
+uniform mat4 dirLightSpace;
 
 layout (std140) uniform Matrix
 {
@@ -19,7 +20,8 @@ out VS_OUT
 	vec2 texCoord;
 	vec4 position;
 	mat4 view;
-	mat4 projection;	
+	mat4 projection;
+	vec4 fragPosLightSpace;
 } vs_out;
 
 void main()
@@ -32,4 +34,5 @@ void main()
   vs_out.position = uni_model * vec4(aPos, 1.0);
   vs_out.view = uni_view;
   vs_out.projection = uni_projection;
+  vs_out.fragPosLightSpace = dirLightSpace * vec4(vs_out.fragPos, 1.0);
 }

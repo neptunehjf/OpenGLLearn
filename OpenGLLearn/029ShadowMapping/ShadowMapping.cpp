@@ -162,12 +162,12 @@ int main()
 		/********************** 先用自定义帧缓冲进行离屏渲染 绑定到自定义帧缓冲，默认帧缓冲不再起作用 **********************/
 		
 		// 绘制depthmmap 
-
+		// 
 		// view
 		mat4 view = lookAt(-dirLight_direction, vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 
 		// projection
-		float near_plane = 1.0f, far_plane = 37.5f;
+		float near_plane = 1.0f, far_plane = 40.0f;
 		mat4 projection = ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
 
 		mat4 dirLightSpace = projection * view;
@@ -179,6 +179,12 @@ int main()
 		glViewport(0, 0, SHADOW_RESOLUTION_WIDTH, SHADOW_RESOLUTION_HEIGHT);
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo_depthmap);
 		scene.DrawScene(true);
+
+		scene.lightShader.Use();
+		scene.lightShader.SetMat4("dirLightSpace", dirLightSpace);
+		scene.lightShader.SetInt("shadowmap", 30);
+		glActiveTexture(GL_TEXTURE30);
+		glBindTexture(GL_TEXTURE_2D, fbo_depthmap);
 
 		// 原场景
 		glViewport(0, 0, windowWidth, windowHeight);

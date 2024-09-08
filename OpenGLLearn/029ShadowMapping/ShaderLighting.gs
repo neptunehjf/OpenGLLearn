@@ -11,13 +11,15 @@ in VS_OUT
     vec4 position;
     mat4 view;
 	mat4 projection;	
+    vec4 fragPosLightSpace;
 } gs_in[];
 
 out GS_OUT
 {
 	vec3 fragPos;
 	vec3 normal;
-	vec2 texCoord;	
+	vec2 texCoord;
+    vec4 fragPosLightSpace;
 } gs_out;
 
 uniform float magnitude;
@@ -46,18 +48,21 @@ void main()
     gs_out.fragPos = gs_in[0].fragPos;
     gs_out.normal = gs_in[0].normal;
     gs_out.texCoord = gs_in[0].texCoord;
+    gs_out.fragPosLightSpace = gs_in[0].fragPosLightSpace;
     EmitVertex();   
 
     gl_Position = gs_in[1].projection * gs_in[1].view * explode(gs_in[1].position, normal);    // 2
     gs_out.fragPos = gs_in[1].fragPos;
     gs_out.normal = gs_in[1].normal;
     gs_out.texCoord = gs_in[1].texCoord;
+    gs_out.fragPosLightSpace = gs_in[1].fragPosLightSpace;
     EmitVertex();
 
     gl_Position = gs_in[2].projection * gs_in[2].view * explode(gs_in[2].position, normal);    // 3
     gs_out.fragPos = gs_in[2].fragPos;
     gs_out.normal = gs_in[2].normal;
     gs_out.texCoord = gs_in[2].texCoord;
+    gs_out.fragPosLightSpace = gs_in[2].fragPosLightSpace;
     EmitVertex();
 
     EndPrimitive();    
