@@ -133,8 +133,15 @@ vec4 calcDirLight(vec4 diffuseColor, vec4 specularColor)
 	float currentDepth = projCoords.z;
 	//
 	// 判断当前片段是否在阴影中
-	float shadow = currentDepth > closestDepth ? 1.0 : 0.0;
-
+	float bias = 0.005;
+	float shadow  = 0.0;
+	if (currentDepth > 1.0) // 超过视锥范围视为无阴影
+		shadow  = 0.0;
+	else
+	{
+		shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+	}
+	
 	color = ambient + (1.0 - shadow) * (diffuse + specular);
 
 	return color;
