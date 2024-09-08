@@ -149,8 +149,9 @@ void Scene::CreateScene(Camera* myCam)
 		}
 	}
 
-	plane = Mesh(g_planeVertices, g_planeIndices, planeTexture);
-	plane.SetScale(vec3(10.0f, 1.0f, 10.0f));
+	plane = Mesh(g_3DPlaneVertices, g_3DPlaneIndices, planeTexture);
+	plane.SetScale(vec3(100.0f, 0.1f, 100.0f));
+	plane.SetTranslate(vec3(0.0f, 1.0f, 0.0f));
 	cubeReflect = Mesh(g_cubeVertices, g_cubeIndices, skyboxTexture);
 	cubeMarble = Mesh(g_cubeVertices, g_cubeIndices, lampTexture);
 	square = Mesh(g_squareVertices, g_squareIndices, windowTexture);

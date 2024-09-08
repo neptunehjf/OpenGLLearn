@@ -178,7 +178,10 @@ int main()
 
 		glViewport(0, 0, SHADOW_RESOLUTION_WIDTH, SHADOW_RESOLUTION_HEIGHT);
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo_depthmap);
+		
+		glCullFace(GL_FRONT); //因为shadow acne只有在一个表面能同时被我们眼睛和光线看到的情况下才可能发生，因此直接将光线看到的表面引导到其他面去，就可以从本质上预防shadow acne。
 		scene.DrawScene(true);
+		glCullFace(GL_BACK);
 
 		scene.lightShader.Use();
 		scene.lightShader.SetMat4("dirLightSpace", dirLightSpace);
@@ -457,7 +460,7 @@ void GetImguiValue()
 		ImGui::TreePop();
 	}
 
-	if (ImGui::TreeNodeEx("Test and Blend"))
+	if (ImGui::TreeNodeEx("Test and Blend", ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		ImGui::Checkbox("Blending", &bBlending);
 		ImGui::Checkbox("Face Culling", &bFaceCulling);

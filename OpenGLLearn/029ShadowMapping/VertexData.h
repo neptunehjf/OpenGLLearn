@@ -17,6 +17,57 @@ const vector<GLuint> g_planeIndices =
 };
 
 // 默认是面在法线方向上是逆时针的情况下，是正面。
+const vector<Vertex> g_3DPlaneVertices =
+{
+    //位置                         //法线                     //纹理坐标
+    // Back face
+    {vec3(-0.5f, -0.5f, -0.5f),  vec3(0.0f, 0.0f, -1.0f),  vec2(0.0f, 0.0f)}, // Bottom-right
+    {vec3(0.5f,  0.5f, -0.5f),  vec3(0.0f, 0.0f, -1.0f),  vec2(5.0f, 5.0f)},  // top-left
+    {vec3(0.5f, -0.5f, -0.5f),  vec3(0.0f, 0.0f, -1.0f),  vec2(5.0f, 0.0f)},  // bottom-left         
+    {vec3(-0.5f,  0.5f, -0.5f),  vec3(0.0f, 0.0f, -1.0f),  vec2(0.0f, 5.0f)}, // top-right
+    // Front face
+    {vec3(-0.5f, -0.5f,  0.5f),  vec3(0.0f, 0.0f,  1.0f),  vec2(0.0f, 0.0f)}, // bottom-left
+    {vec3(0.5f, -0.5f,  0.5f),  vec3(0.0f, 0.0f,  1.0f),  vec2(5.0f, 0.0f)}, // bottom-right
+    {vec3(0.5f,  0.5f,  0.5f),  vec3(0.0f, 0.0f,  1.0f),  vec2(5.0f, 5.0f)}, // top-right
+    {vec3(-0.5f,  0.5f,  0.5f),  vec3(0.0f, 0.0f,  1.0f),  vec2(0.0f, 5.0f)}, // top-left
+    // Left face
+    {vec3(-0.5f,  0.5f,  0.5f),  vec3(-1.0f, 0.0f, 0.0f),  vec2(5.0f, 0.0f)}, // top-right
+    {vec3(-0.5f,  0.5f, -0.5f),  vec3(-1.0f, 0.0f, 0.0f),  vec2(5.0f, 5.0f)}, // top-left
+    {vec3(-0.5f, -0.5f, -0.5f),  vec3(-1.0f, 0.0f, 0.0f),  vec2(0.0f, 5.0f)}, // bottom-left
+    {vec3(-0.5f, -0.5f,  0.5f),  vec3(-1.0f, 0.0f, 0.0f),  vec2(0.0f, 0.0f)}, // bottom-right
+    // Right face
+    {vec3(0.5f,  0.5f,  0.5f),  vec3(1.0f,  0.0f, 0.0f),  vec2(5.0f, 0.0f)}, // top-left
+    {vec3(0.5f, -0.5f, -0.5f),  vec3(1.0f,  0.0f, 0.0f),  vec2(0.0f, 5.0f)}, // bottom-right
+    {vec3(0.5f,  0.5f, -0.5f),  vec3(1.0f,  0.0f, 0.0f),  vec2(5.0f, 5.0f)}, // top-right         
+    {vec3(0.5f, -0.5f,  0.5f),  vec3(1.0f,  0.0f, 0.0f),  vec2(0.0f, 0.0f)}, // bottom-left     
+    // Bottom face
+    {vec3(-0.5f, -0.5f, -0.5f),  vec3(0.0f, -1.0f, 0.0f),  vec2(0.0f, 5.0f)}, // top-right
+    {vec3(0.5f, -0.5f, -0.5f),  vec3(0.0f, -1.0f, 0.0f),  vec2(5.0f, 5.0f)}, // top-left
+    {vec3(0.5f, -0.5f,  0.5f),  vec3(0.0f, -1.0f, 0.0f),  vec2(5.0f, 0.0f)}, // bottom-left
+    {vec3(-0.5f, -0.5f,  0.5f),  vec3(0.0f, -1.0f, 0.0f),  vec2(0.0f, 0.0f)}, // bottom-right
+    // Top face
+    {vec3(-0.5f,  0.5f, -0.5f),  vec3(0.0f,  1.0f, 0.0f),  vec2(0.0f, 5.0f)}, // top-left
+    {vec3(0.5f,  0.5f,  0.5f),  vec3(0.0f,  1.0f, 0.0f),  vec2(5.0f, 0.0f)}, // bottom-right
+    {vec3(0.5f,  0.5f, -0.5f),  vec3(0.0f,  1.0f, 0.0f),  vec2(5.0f, 5.0f)}, // top-right     
+    {vec3(-0.5f,  0.5f,  0.5f),  vec3(0.0f,  1.0f, 0.0f),  vec2(0.0f, 0.0f)}  // bottom-left  
+};
+const vector<GLuint> g_3DPlaneIndices =
+{
+    0, 1, 2,
+    0, 3, 1,
+    4, 5, 6,
+    4, 6, 7,
+    8, 9, 10,
+    8, 10, 11,
+    12, 13, 14,
+    12, 15, 13,
+    16, 17, 18,
+    16, 18, 19,
+    20, 21, 22,
+    20, 23, 21
+};
+
+// 默认是面在法线方向上是逆时针的情况下，是正面。
 const vector<Vertex> g_cubeVertices = 
 {
 	//位置                         //法线                     //纹理坐标
