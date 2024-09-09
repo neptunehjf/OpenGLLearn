@@ -4,8 +4,8 @@ using namespace std;
 using namespace glm;
 
 
-#define WINDOW_WIDTH 1920
-#define WINDOW_HEIGHT 1080
+#define WINDOW_WIDTH 2560
+#define WINDOW_HEIGHT 1440
 
 #define CHARACTRER_SCALE_DEFAULT 0.1f
 #define CHARACTRER_SCALE_OUTLINE 0.103f
@@ -61,8 +61,8 @@ float pointSize = 1.0f;
 bool bSplitScreen = 0;
 bool bGMTest = 0;
 float explodeMag = 0.0;
-bool bBlending = 1;
-bool bFaceCulling = 1;
+bool bBlending = true;
+bool bFaceCulling = false;
 float normalLen = 0.1;
 bool bInstanceTest = 0;
 bool bSkyBox = 1;
@@ -70,5 +70,9 @@ bool bMSAA = true;
 int iLightModel = 1; //{ "Phong", "Blinn-Phong" }
 bool bGammaCorrection = true;
 int iAtteFormula = 0;
+bool bShadow = true;
+bool bDisDepthmap = false;
+bool bBias = true;
+bool bFrontFaceCulling = false;
 /************** Imgui±‰¡ø **************/
 

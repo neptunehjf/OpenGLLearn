@@ -161,33 +161,43 @@ int main()
 
 		/********************** 先用自定义帧缓冲进行离屏渲染 绑定到自定义帧缓冲，默认帧缓冲不再起作用 **********************/
 		
-		// 绘制depthmmap 
-		// 
-		// view
-		mat4 view = lookAt(-dirLight_direction, vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
+		if (bShadow)
+		{
+			// 绘制depthmmap 
+			// 
+			// view
+			mat4 view = lookAt(-dirLight_direction, vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 
-		// projection
-		float near_plane = 1.0f, far_plane = 20.0f;
-		mat4 projection = ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+			// projection
+			float near_plane = 1.0f, far_plane = 20.0f;
+			mat4 projection = ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
 
-		mat4 dirLightSpace = projection * view;
+			mat4 dirLightSpace = projection * view;
 
-		// Set Uniform To Shader
-		scene.depthmapShader.Use();
-		scene.depthmapShader.SetMat4("dirLightSpace", dirLightSpace);
+			// Set Uniform To Shader
+			scene.depthmapShader.Use();
+			scene.depthmapShader.SetMat4("dirLightSpace", dirLightSpace);
 
-		glViewport(0, 0, SHADOW_RESOLUTION_WIDTH, SHADOW_RESOLUTION_HEIGHT);
-		glBindFramebuffer(GL_FRAMEBUFFER, fbo_depthmap);
-		
-		glCullFace(GL_FRONT); //因为shadow acne只有在一个表面能同时被我们眼睛和光线看到的情况下才可能发生，因此直接将光线看到的表面引导到其他面去，就可以从本质上预防shadow acne。
-		scene.DrawScene(true);
-		glCullFace(GL_BACK);
+			glViewport(0, 0, SHADOW_RESOLUTION_WIDTH, SHADOW_RESOLUTION_HEIGHT);
+			glBindFramebuffer(GL_FRAMEBUFFER, fbo_depthmap);
 
-		scene.lightShader.Use();
-		scene.lightShader.SetMat4("dirLightSpace", dirLightSpace);
-		scene.lightShader.SetInt("shadowmap", 30);
-		glActiveTexture(GL_TEXTURE30);
-		glBindTexture(GL_TEXTURE_2D, fbo_depthmap);
+			if (bFrontFaceCulling)
+			{
+				glCullFace(GL_FRONT); //因为shadow acne只有在一个表面能同时被我们眼睛和光线看到的情况下才可能发生，因此直接将光线看到的表面引导到其他面去，就可以从本质上预防shadow acne。
+				scene.DrawScene(true);
+				glCullFace(GL_BACK);
+			}
+			else
+			{
+				scene.DrawScene(true);
+			}
+
+			scene.lightShader.Use();
+			scene.lightShader.SetMat4("dirLightSpace", dirLightSpace);
+			scene.lightShader.SetInt("shadowmap", 30);
+			glActiveTexture(GL_TEXTURE30);
+			glBindTexture(GL_TEXTURE_2D, fbo_depthmap);
+		}
 
 		// 原场景
 		glViewport(0, 0, windowWidth, windowHeight);
@@ -265,16 +275,20 @@ int main()
 		scene.mirror.SetTextures(mirrorTexture);
 		scene.mirror.DrawMesh(scene.screenShader, GL_TRIANGLES);
 
-		glViewport(0, 0, SHADOW_RESOLUTION_WIDTH, SHADOW_RESOLUTION_HEIGHT);
-		const vector<Texture> depthmapTexture =
+		
+		if (bShadow && bDisDepthmap)
 		{
-			{tbo_depthmap, "texture_diffuse"},
-			{t_dummy, "texture_specular"}
+			glViewport(0, 0, SHADOW_RESOLUTION_WIDTH, SHADOW_RESOLUTION_HEIGHT);
+			const vector<Texture> depthmapTexture =
+			{
+				{tbo_depthmap, "texture_diffuse"},
+				{t_dummy, "texture_specular"}
 
-		};
-		scene.screen.SetTextures(depthmapTexture);
-		scene.screen.DrawMesh(scene.depthmapDisplayShader, GL_TRIANGLES);
-		glViewport(0, 0, windowWidth, windowHeight);
+			};
+			scene.screen.SetTextures(depthmapTexture);
+			scene.screen.DrawMesh(scene.depthmapDisplayShader, GL_TRIANGLES);
+			glViewport(0, 0, windowWidth, windowHeight);
+		}
 
 		glDisable(GL_FRAMEBUFFER_SRGB); //imgui界面不需要gamma校正
 		// imgui在默认缓冲中绘制，因为我不想imgui也有后期处理效果
@@ -512,6 +526,17 @@ void GetImguiValue()
 		ImGui::Checkbox("Gamma Correction", &bGammaCorrection);
 		ImGui::TreePop();
 	}
+
+	if (ImGui::TreeNodeEx("Shadow Mapping", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		ImGui::Checkbox("Enable Shadow", &bShadow);
+		ImGui::Checkbox("Display Shadowmap", &bDisDepthmap);
+		ImGui::Checkbox("Enable Bias", &bBias);
+		ImGui::Checkbox("Enable Front Face Culling", &bFrontFaceCulling);
+
+		ImGui::TreePop();
+	}
+
 }
 
 void SetUniformToShader(Shader& shader)
@@ -578,6 +603,8 @@ void SetUniformToShader(Shader& shader)
 	shader.SetFloat("normal_len", normalLen);
 	shader.SetInt("light_model", iLightModel);
 	shader.SetInt("atte_formula", iAtteFormula);
+	shader.SetBool("bShadow", bShadow);
+	shader.SetBool("bBias", bBias);
 
 	// ShaderLightingInstance 
 	// 因为model矩阵变换是基于单位矩阵进行的，想要在已经变换后的model矩阵的基础上，再进行model矩阵变换有点困难

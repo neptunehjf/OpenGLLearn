@@ -13,6 +13,8 @@ uniform samplerCube texture_cubemap1;
 uniform int light_model;
 uniform int atte_formula;
 uniform sampler2D shadowmap;
+uniform bool bShadow;
+uniform bool bBias;
 
 struct Material
 {
@@ -61,10 +63,11 @@ uniform SpotLight spotLight;
 
 out vec4 fragColor;
 
-vec4 calcDirLight(vec4 diffuseColor, vec4 specularColor);
-vec4 calcPointLight(vec4 diffuseColor, vec4 specularColor);
-vec4 calcSpotLight(vec4 diffuseColor, vec4 specularColor);
-vec4 calcReflectionLight(vec4 reflectionColor);
+vec4 CalcDirLight(vec4 diffuseColor, vec4 specularColor);
+vec4 CalcPointLight(vec4 diffuseColor, vec4 specularColor);
+vec4 CalcSpotLight(vec4 diffuseColor, vec4 specularColor);
+vec4 CalcReflectionLight(vec4 reflectionColor);
+float CalcShadow(vec3 norm, vec3 lightDir);
 
 float near = 0.1; 
 float far  = 100.0; 
@@ -77,10 +80,10 @@ void main()
 
     vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
 
-	color += calcDirLight(diffuseColor, specularColor);
-	color += calcPointLight(diffuseColor, specularColor);
-	color += calcSpotLight(diffuseColor, specularColor);
-	color += calcReflectionLight(reflectionColor);
+	color += CalcDirLight(diffuseColor, specularColor);
+	color += CalcPointLight(diffuseColor, specularColor);
+	color += CalcSpotLight(diffuseColor, specularColor);
+	color += CalcReflectionLight(reflectionColor);
 
 	// 因为向量相加会使alpha超过1从而失去意义，所以要重新计算
 	color.a = diffuseColor.a;
@@ -88,7 +91,7 @@ void main()
 	fragColor = color;
 }
 
-vec4 calcDirLight(vec4 diffuseColor, vec4 specularColor)
+vec4 CalcDirLight(vec4 diffuseColor, vec4 specularColor)
 {
 	vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
 
@@ -120,45 +123,16 @@ vec4 calcDirLight(vec4 diffuseColor, vec4 specularColor)
 
 	vec4 specular = spec * vec4(dirLight.specular, 1.0) * specularColor;
 
-	// Shadow Mapping
-	//
-	// 因为归一化是在赋值glPosition才做的，这里没有经过glPosition，所以要手动归一化到[-1, 1]
-	// 对正交投影没意义，因为本身就是[-1, 1]，w也是一直1；而透视投影归一化前的范围是[-w, w]，所以要除以w
-	vec3 projCoords = gs_in.fragPosLightSpace.xyz / gs_in.fragPosLightSpace.w;
-	// 归一化坐标[-1, 1] 转化成 屏幕坐标[0, 1]
-	projCoords = projCoords * 0.5 + 0.5;
-	// 取得在光源视角下屏幕坐标xy位置在shadowmap对应的深度值
-	float closestDepth = texture(shadowmap, projCoords.xy).r;
-	// 取得当前片段在光源视角下的深度值
-	float currentDepth = projCoords.z;
-	//
-	// 判断当前片段是否在阴影中
-	//float bias = max(0.05 * (1.0 - dot(norm, lightDir)), 0.005);
-	float bias = 0.000; // bias过大，可能会导致该有阴影的地方没阴影了，最经典的就是人物的脚没有阴影，这个就是Peter-Panning现象
-	float shadow  = 0.0;
-	if (currentDepth > 1.0) // 超过视锥范围视为无阴影
-		shadow  = 0.0;
-	else
-	{
-		//shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
-		vec2 texelSize = 1.0 / textureSize(shadowmap, 0);
-		for(int x = -1; x <= 1; ++x)
-		{
-			for(int y = -1; y <= 1; ++y)
-			{
-				float pcfDepth = texture(shadowmap, projCoords.xy + vec2(x, y) * texelSize).r; 
-				shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;        
-			}    
-		}
-		shadow /= 9.0;
-	}
+	float shadow = 0.0;
+	if (bShadow)
+		shadow = CalcShadow(norm, lightDir);
 	
 	color = ambient + (1.0 - shadow) * (diffuse + specular);
 
 	return color;
 }
 
-vec4 calcPointLight(vec4 diffuseColor, vec4 specularColor)
+vec4 CalcPointLight(vec4 diffuseColor, vec4 specularColor)
 {
 	vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
 	vec3 norm = normalize(gs_in.normal);
@@ -215,7 +189,7 @@ vec4 calcPointLight(vec4 diffuseColor, vec4 specularColor)
 	return color;
 }
 
-vec4 calcSpotLight(vec4 diffuseColor, vec4 specularColor)
+vec4 CalcSpotLight(vec4 diffuseColor, vec4 specularColor)
 {
 	vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
 
@@ -259,7 +233,7 @@ vec4 calcSpotLight(vec4 diffuseColor, vec4 specularColor)
 	return color;
 }
 
-vec4 calcReflectionLight(vec4 reflectionColor)
+vec4 CalcReflectionLight(vec4 reflectionColor)
 {
 	// 反射光reflection
 	vec3 I = normalize(gs_in.fragPos - uni_viewPos);
@@ -267,4 +241,42 @@ vec4 calcReflectionLight(vec4 reflectionColor)
 	vec4 color = reflectionColor * vec4(texture(texture_cubemap1, R).rgb, 1.0);
 
 	return color;
+}
+
+float CalcShadow(vec3 norm, vec3 lightDir)
+{
+	// Shadow Mapping
+	//
+	// 因为归一化是在赋值glPosition才做的，这里没有经过glPosition，所以要手动归一化到[-1, 1]
+	// 对正交投影没意义，因为本身就是[-1, 1]，w也是一直1；而透视投影归一化前的范围是[-w, w]，所以要除以w
+	vec3 projCoords = gs_in.fragPosLightSpace.xyz / gs_in.fragPosLightSpace.w;
+	// 归一化坐标[-1, 1] 转化成 屏幕坐标[0, 1]
+	projCoords = projCoords * 0.5 + 0.5;
+	// 取得在光源视角下屏幕坐标xy位置在shadowmap对应的深度值
+	float closestDepth = texture(shadowmap, projCoords.xy).r;
+	// 取得当前片段在光源视角下的深度值
+	float currentDepth = projCoords.z;
+
+	float bias = 0.000; // bias过大，可能会导致该有阴影的地方没阴影了，最经典的就是人物的脚没有阴影，这个就是Peter-Panning现象
+	float shadow  = 0.0;
+	if (currentDepth > 1.0) // 超过视锥范围视为无阴影
+		shadow  = 0.0;
+	else
+	{
+		if (bBias)
+			bias = max(0.01 * (1.0 - dot(norm, lightDir)), 0.005);
+		vec2 texelSize = 1.0 / textureSize(shadowmap, 0);
+		for(int x = -1; x <= 1; ++x)
+		{
+			for(int y = -1; y <= 1; ++y)
+			{
+				// PCF算法 柔化阴影锯齿
+				float pcfDepth = texture(shadowmap, projCoords.xy + vec2(x, y) * texelSize).r; 
+				shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;        
+			}    
+		}
+		shadow /= 9.0;
+	}
+
+	return shadow;
 }
