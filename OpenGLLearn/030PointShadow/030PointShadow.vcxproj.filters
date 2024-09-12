@@ -130,5 +130,14 @@
     <None Include="ShaderRefraction.vs">
       <Filter>Shader</Filter>
     </None>
+    <None Include="..\029ShadowMapping\ShaderDepthCubemap.vs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="..\029ShadowMapping\ShaderDepthCubemap.fs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="..\029ShadowMapping\ShaderDepthCubemap.gs">
+      <Filter>Shader</Filter>
+    </None>
   </ItemGroup>
 </Project>

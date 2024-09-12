@@ -12,9 +12,12 @@ uniform vec3 uni_viewPos;
 uniform samplerCube texture_cubemap1;
 uniform int light_model;
 uniform int atte_formula;
-uniform sampler2D shadowmap;
+uniform sampler2D depthMap;
 uniform bool bShadow;
 uniform bool bBias;
+uniform vec3 PtLightPos; // Point Light Position
+uniform samplerCube depthCubemap;
+uniform float farPlane;
 
 struct Material
 {
@@ -67,7 +70,8 @@ vec4 CalcDirLight(vec4 diffuseColor, vec4 specularColor);
 vec4 CalcPointLight(vec4 diffuseColor, vec4 specularColor);
 vec4 CalcSpotLight(vec4 diffuseColor, vec4 specularColor);
 vec4 CalcReflectionLight(vec4 reflectionColor);
-float CalcShadow(vec3 norm, vec3 lightDir);
+float CalcDirLtShadow(vec3 norm, vec3 lightDir);
+float CalcPtLtShadow();
 
 float near = 0.1; 
 float far  = 100.0; 
@@ -125,8 +129,10 @@ vec4 CalcDirLight(vec4 diffuseColor, vec4 specularColor)
 
 	float shadow = 0.0;
 	if (bShadow)
-		shadow = CalcShadow(norm, lightDir);
-	
+	{
+		shadow = CalcDirLtShadow(norm, lightDir);
+	}
+		
 	color = ambient + (1.0 - shadow) * (diffuse + specular);
 
 	return color;
@@ -243,17 +249,17 @@ vec4 CalcReflectionLight(vec4 reflectionColor)
 	return color;
 }
 
-float CalcShadow(vec3 norm, vec3 lightDir)
+float CalcDirLtShadow(vec3 norm, vec3 lightDir)
 {
-	// Shadow Mapping
+	// Direction Light Shadow Mapping
 	//
 	// 因为归一化是在赋值glPosition才做的，这里没有经过glPosition，所以要手动归一化到[-1, 1]
 	// 对正交投影没意义，因为本身就是[-1, 1]，w也是一直1；而透视投影归一化前的范围是[-w, w]，所以要除以w
 	vec3 projCoords = gs_in.fragPosLightSpace.xyz / gs_in.fragPosLightSpace.w;
 	// 归一化坐标[-1, 1] 转化成 屏幕坐标[0, 1]
 	projCoords = projCoords * 0.5 + 0.5;
-	// 取得在光源视角下屏幕坐标xy位置在shadowmap对应的深度值
-	float closestDepth = texture(shadowmap, projCoords.xy).r;
+	// 取得在光源视角下屏幕坐标xy位置在depthMap对应的深度值
+	float closestDepth = texture(depthMap, projCoords.xy).r;
 	// 取得当前片段在光源视角下的深度值
 	float currentDepth = projCoords.z;
 
@@ -265,18 +271,37 @@ float CalcShadow(vec3 norm, vec3 lightDir)
 	{
 		if (bBias)
 			bias = max(0.01 * (1.0 - dot(norm, lightDir)), 0.005);
-		vec2 texelSize = 1.0 / textureSize(shadowmap, 0);
+		vec2 texelSize = 1.0 / textureSize(depthMap, 0);
 		for(int x = -1; x <= 1; ++x)
 		{
 			for(int y = -1; y <= 1; ++y)
 			{
 				// PCF算法 柔化阴影锯齿
-				float pcfDepth = texture(shadowmap, projCoords.xy + vec2(x, y) * texelSize).r; 
+				float pcfDepth = texture(depthMap, projCoords.xy + vec2(x, y) * texelSize).r; 
 				shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;        
 			}    
 		}
 		shadow /= 9.0;
 	}
+
+	return shadow;
+}
+
+float CalcPtLtShadow()
+{
+	// Point Light Shadow Mapping
+	vec3 lightToFrag = gs_in.fragPos - PtLightPos;
+
+	// 要渲染的片段的深度
+	float currentDepth = length(lightToFrag);
+
+	// 里光源最近的片段的深度
+	float closestDepth = texture(depthCubemap, lightToFrag).r;
+	// 从[0,1]的范围转化成原来的范围
+	closestDepth *= farPlane;
+
+	float bias = 0.05;
+	float shadow = currentDepth > closestDepth ? 1.0 : 0.0;
 
 	return shadow;
 }

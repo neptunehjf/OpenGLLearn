@@ -25,6 +25,7 @@ public:
 	Shader lightInstShader;
 	Shader depthmapShader;
 	Shader depthmapDisplayShader;
+	Shader depthCubemapShader;
 
 	Mesh cubeReflect;
 	Mesh cubeMarble;
@@ -45,7 +46,7 @@ public:
 	Camera* myCam;
 
 	void CreateScene(Camera* myCam);
-	void DrawScene(bool bDepthmap = false);
+	void DrawScene(bool bDepthmap = false, bool bDepthCubemap = false);
 	bool LoadTexture(const string&& filePath, GLuint& texture, const GLint param_s, const GLint param_t);
 	GLuint LoadCubemap(const vector<string>& cubemapFaces);
 	void DeleteScene();
@@ -65,6 +66,7 @@ void Scene::CreateShader()
 	lightInstShader = Shader("ShaderLightingInstance.vs", "ShaderLightingInstance.fs");
 	depthmapShader = Shader("ShaderDepthMap.vs", "ShaderDepthMap.fs");
 	depthmapDisplayShader = Shader("ShaderDepthmapDisplay.vs", "ShaderDepthmapDisplay.fs");
+	//depthCubemapShader = Shader("ShaderDepthCubemap.vs", "ShaderDepthCubemap.fs", "ShaderDepthCubemap.gs");
 }
 
 void Scene::CreateScene(Camera* myCam)
@@ -186,7 +188,7 @@ void Scene::CreateScene(Camera* myCam)
 
 }
 
-void Scene::DrawScene(bool bDepthmap)
+void Scene::DrawScene(bool bDepthmap, bool bDepthCubemap)
 {
 	if (bBlending)
 	{
@@ -210,6 +212,8 @@ void Scene::DrawScene(bool bDepthmap)
 	// ªÊ÷∆µÿ∞Â
 	if (bDepthmap)
 		plane.DrawMesh(depthmapShader, GL_TRIANGLES);
+	else if (bDepthCubemap)
+		plane.DrawMesh(depthCubemapShader, GL_TRIANGLES);
 	else
 		plane.DrawMesh(lightShader, GL_TRIANGLES);
 
@@ -217,6 +221,8 @@ void Scene::DrawScene(bool bDepthmap)
 	cubeReflect.SetTranslate(vec3(1.0f, 1.5f, 1.0f));
 	if (bDepthmap)
 		cubeReflect.DrawMesh(depthmapShader, GL_TRIANGLES);
+	else if (bDepthCubemap)
+		cubeReflect.DrawMesh(depthCubemapShader, GL_TRIANGLES);
 	else
 	{
 		cubeReflect.DrawMesh(reflectShader, GL_TRIANGLES);
@@ -226,6 +232,8 @@ void Scene::DrawScene(bool bDepthmap)
 	cubeReflect.SetTranslate(vec3(0.0f, 1.5f, -1.0f));
 	if (bDepthmap)
 		cubeReflect.DrawMesh(depthmapShader, GL_TRIANGLES);
+	else if (bDepthCubemap)
+		cubeReflect.DrawMesh(depthCubemapShader, GL_TRIANGLES);
 	else
 	{
 		cubeReflect.DrawMesh(refractShader, GL_TRIANGLES);
@@ -235,6 +243,8 @@ void Scene::DrawScene(bool bDepthmap)
 	cubeMarble.SetTranslate(vec3(3.0f, 1.5f, 0.0f));
 	if (bDepthmap)
 		cubeMarble.DrawMesh(depthmapShader, GL_TRIANGLES);
+	else if (bDepthCubemap)
+		cubeMarble.DrawMesh(depthCubemapShader, GL_TRIANGLES);
 	else
 	{
 		cubeMarble.DrawMesh(lightShader, GL_TRIANGLES);
@@ -247,6 +257,8 @@ void Scene::DrawScene(bool bDepthmap)
 	nanosuit.SetTranslate(vec3(1.0f, 1.0f, 0.0f));
 	if (bDepthmap)
 		nanosuit.DrawModel(depthmapShader);
+	else if (bDepthCubemap)
+		nanosuit.DrawModel(depthCubemapShader);
 	else
 	{
 		nanosuit.DrawModel(lightShader);
@@ -256,6 +268,8 @@ void Scene::DrawScene(bool bDepthmap)
 	nanosuit.SetTranslate(vec3(0.0f, 1.0f, -3.0f));
 	if (bDepthmap)
 		nanosuit.DrawModel(depthmapShader);
+	else if (bDepthCubemap)
+		nanosuit.DrawModel(depthCubemapShader);
 	else
 	{
 		nanosuit.DrawModel(reflectShader);
@@ -263,6 +277,8 @@ void Scene::DrawScene(bool bDepthmap)
 	nanosuit.SetTranslate(vec3(3.0f, 1.0f, -3.0f));
 	if (bDepthmap)
 		nanosuit.DrawModel(depthmapShader);
+	else if (bDepthCubemap)
+		nanosuit.DrawModel(depthCubemapShader);
 	else
 	{
 		nanosuit.DrawModel(refractShader);
@@ -286,6 +302,8 @@ void Scene::DrawScene(bool bDepthmap)
 	planet.AddRotate(ROTATE_SPEED_PLANET * deltaTime, vec3(0.0f, 1.0f, 0.0f));
 	if (bDepthmap)
 		planet.DrawModel(depthmapShader);
+	else if (bDepthCubemap)
+		planet.DrawModel(depthCubemapShader);
 	else
 	{
 		planet.DrawModel(lightShader);
@@ -293,27 +311,27 @@ void Scene::DrawScene(bool bDepthmap)
 
 	if (bDepthmap)
 		rock.DrawModel(depthmapShader, true);
+	else if (bDepthCubemap)
+		rock.DrawModel(depthCubemapShader, true);
 	else
 		rock.DrawModel(lightInstShader, true);
 
-	lamp.SetTranslate(lampPos[0]);
+	for (int i = 0; i < 4; i++)
+	{
+		lamp.SetTranslate(lampPos[i]);
+		if (bDepthmap)
+			lamp.DrawMesh(depthmapShader, GL_TRIANGLES);
+		else if (bDepthCubemap)
+			lamp.DrawMesh(depthCubemapShader, GL_TRIANGLES);
+		else
+			lamp.DrawMesh(lightShader, GL_TRIANGLES);
+	}
+
+	lamp.SetTranslate(lampWithShadowPos);
 	if (bDepthmap)
 		lamp.DrawMesh(depthmapShader, GL_TRIANGLES);
-	else
-		lamp.DrawMesh(lightShader, GL_TRIANGLES);
-	lamp.SetTranslate(lampPos[1]);
-	if (bDepthmap)
-		lamp.DrawMesh(depthmapShader, GL_TRIANGLES);
-	else
-		lamp.DrawMesh(lightShader, GL_TRIANGLES);
-	lamp.SetTranslate(lampPos[2]);
-	if (bDepthmap)
-		lamp.DrawMesh(depthmapShader, GL_TRIANGLES);
-	else
-		lamp.DrawMesh(lightShader, GL_TRIANGLES);
-	lamp.SetTranslate(lampPos[3]);
-	if (bDepthmap)
-		lamp.DrawMesh(depthmapShader, GL_TRIANGLES);
+	else if (bDepthCubemap)
+		lamp.DrawMesh(depthCubemapShader, GL_TRIANGLES);
 	else
 		lamp.DrawMesh(lightShader, GL_TRIANGLES);
 
@@ -331,6 +349,8 @@ void Scene::DrawScene(bool bDepthmap)
 		square.SetTranslate(it->second);
 		if (bDepthmap)
 			square.DrawMesh(depthmapShader, GL_TRIANGLES);
+		else if (bDepthCubemap)
+			square.DrawMesh(depthCubemapShader, GL_TRIANGLES);
 		else
 			square.DrawMesh(lightShader, GL_TRIANGLES);
 	}
