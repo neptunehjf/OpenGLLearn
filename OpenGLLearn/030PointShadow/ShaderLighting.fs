@@ -320,29 +320,34 @@ float CalcPtLtShadow()
 
 	float bias = fBiasPtShadow;
 	float shadow = 0.0;
-	float samples = 3.0;
+	int samples = 20;
 	float offset = 0.1;
+	float radius = 0.05;
+
+	vec3 sampleOffsetDirections[20] = vec3[]
+	(
+	   vec3( 1,  1,  1), vec3( 1, -1,  1), vec3(-1, -1,  1), vec3(-1,  1,  1), 
+	   vec3( 1,  1, -1), vec3( 1, -1, -1), vec3(-1, -1, -1), vec3(-1,  1, -1),
+	   vec3( 1,  1,  0), vec3( 1, -1,  0), vec3(-1, -1,  0), vec3(-1,  1,  0),
+	   vec3( 1,  0,  1), vec3(-1,  0,  1), vec3( 1,  0, -1), vec3(-1,  0, -1),
+	   vec3( 0,  1,  1), vec3( 0, -1,  1), vec3( 0, -1, -1), vec3( 0,  1, -1)
+	);
 
 	if (currentDepth > 1.0 * farPlane) // 超过视锥范围视为无阴影
 		shadow = 0.0;
 	else
 	{
-		for (float x = -offset; x < offset; x += ((2 * offset) / samples) )
+		for (int i = 0; i < samples; i++)
 		{
-			for (float y = -offset; y < offset; y += ((2 * offset) / samples) )
-			{
-				for (float z = -offset; z < offset; z += ((2 * offset) / samples) )
-				{
-					// 离光源最近的片段的深度
-					float closestDepth = texture(depthCubemap, lightToFrag + vec3(x, y, z)).r;
-					// 从[0,1]的范围转化成原来的范围
-					closestDepth *= farPlane;
-					if (currentDepth - bias > closestDepth)
-						shadow += 1.0;
-				}
-			}
+			// 离光源最近的片段的深度
+			float closestDepth = texture(depthCubemap, lightToFrag + sampleOffsetDirections[i] * radius).r;
+			// 从[0,1]的范围转化成原来的范围
+			closestDepth *= farPlane;
+			if (currentDepth - bias > closestDepth)
+				shadow += 1.0;
 		}
-		shadow /= (samples * samples * samples);
+
+		shadow /= samples;
 	}
 
 	return shadow;

@@ -76,7 +76,7 @@ bool bFrontFaceCulling = false;
 vec3 lampWithShadowPos = { 0.0f, 3.0f, 0.0f };
 bool bDepthCubemapDebug = false;
 float fBiasDirShadow = 0.005f;
-float fBiasPtShadow = 0.1f;
+float fBiasPtShadow = 0.5f;
 float fFarPlanePt = 20.0f;
 /************** Imgui±‰¡ø **************/
 
