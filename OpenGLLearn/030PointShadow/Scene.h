@@ -209,13 +209,8 @@ void Scene::DrawScene(bool bDepthmap, bool bDepthCubemap)
 	if (bFaceCulling)
 		glEnable(GL_CULL_FACE);
 
-	// 绘制地板
-	if (bDepthmap)
-		plane.DrawMesh(depthmapShader, GL_TRIANGLES);
-	else if (bDepthCubemap)
-		plane.DrawMesh(depthCubemapShader, GL_TRIANGLES);
-	else
-		plane.DrawMesh(lightShader, GL_TRIANGLES);
+	// 绘制地板 
+	plane.DrawMesh(lightShader, GL_TRIANGLES); // 对地板不绘制深度图
 
 	// 绘制立方体
 	cubeReflect.SetTranslate(vec3(1.0f, 1.5f, 1.0f));

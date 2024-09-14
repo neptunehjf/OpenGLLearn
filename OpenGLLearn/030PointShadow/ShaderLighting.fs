@@ -318,19 +318,32 @@ float CalcPtLtShadow()
 	// 要渲染的片段的深度
 	float currentDepth = length(lightToFrag);
 
-	// 里光源最近的片段的深度
-	float closestDepth = texture(depthCubemap, lightToFrag).r;
-	// 从[0,1]的范围转化成原来的范围
-	closestDepth *= farPlane;
-
-
 	float bias = fBiasPtShadow;
 	float shadow = 0.0;
+	float samples = 3.0;
+	float offset = 0.1;
 
 	if (currentDepth > 1.0 * farPlane) // 超过视锥范围视为无阴影
 		shadow = 0.0;
 	else
-		shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+	{
+		for (float x = -offset; x < offset; x += ((2 * offset) / samples) )
+		{
+			for (float y = -offset; y < offset; y += ((2 * offset) / samples) )
+			{
+				for (float z = -offset; z < offset; z += ((2 * offset) / samples) )
+				{
+					// 离光源最近的片段的深度
+					float closestDepth = texture(depthCubemap, lightToFrag + vec3(x, y, z)).r;
+					// 从[0,1]的范围转化成原来的范围
+					closestDepth *= farPlane;
+					if (currentDepth - bias > closestDepth)
+						shadow += 1.0;
+				}
+			}
+		}
+		shadow /= (samples * samples * samples);
+	}
 
 	return shadow;
 }
