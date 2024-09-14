@@ -157,11 +157,11 @@
     <ClInclude Include="VertexData.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\029ShadowMapping\ShaderDepthCubemap.fs" />
-    <None Include="..\029ShadowMapping\ShaderDepthCubemap.gs" />
-    <None Include="..\029ShadowMapping\ShaderDepthCubemap.vs" />
     <None Include="ShaderCubemap.fs" />
     <None Include="ShaderCubemap.vs" />
+    <None Include="ShaderDepthCubemap.fs" />
+    <None Include="ShaderDepthCubemap.gs" />
+    <None Include="ShaderDepthCubemap.vs" />
     <None Include="ShaderDepthMap.fs" />
     <None Include="ShaderDepthMap.vs" />
     <None Include="ShaderDepthmapDisplay.fs" />

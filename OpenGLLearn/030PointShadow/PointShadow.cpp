@@ -176,7 +176,7 @@ int main()
 		if (bShadow)
 		{
 			DrawDepthMap();
-			//DrawDepthCubemap(lampWithShadowPos);
+			DrawDepthCubemap(lampWithShadowPos);
 		}
 
 		// 原场景
@@ -368,7 +368,7 @@ void GetImguiValue()
 		// point light
 		const char* itemArray[] = { "50", "100", "200", "600" };
 		const char* atteFormulas[] = { "default", "linear", "quadratic" };
-		//ImGui::SliderFloat("pointLight position", &posValue, 0.0f, 10.0f);
+		ImGui::DragFloat3("PointLightWithShadow Position", (float*)&lampWithShadowPos);
 		ImGui::ColorEdit3("pointLight ambient", (float*)&pointLight_ambient);
 		ImGui::ColorEdit3("pointLight diffuse", (float*)&pointLight_diffuse);
 		ImGui::ColorEdit3("pointLight specular", (float*)&pointLight_specular);
@@ -447,9 +447,13 @@ void GetImguiValue()
 	if (ImGui::TreeNodeEx("Shadow Mapping", ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		ImGui::Checkbox("Enable Shadow", &bShadow);
-		ImGui::Checkbox("Display Shadowmap", &bDisDepthmap);
-		ImGui::Checkbox("Enable Bias", &bBias);
-		ImGui::Checkbox("Enable Front Face Culling", &bFrontFaceCulling);
+		ImGui::Checkbox("Depthmap Debug", &bDisDepthmap);
+		ImGui::Checkbox("Depth Cubemap Debug", &bDepthCubemapDebug);
+
+		ImGui::SliderFloat("Directional Shadow Bias", &fBiasDirShadow, 0.000f, 0.020f);
+		ImGui::SliderFloat("Point Shadow Far Plane", &fFarPlanePt, 0.0f, 200.0f);
+		ImGui::SliderFloat("Point Shadow Bias", &fBiasPtShadow, 0.000f, 1.0f);
+		ImGui::Checkbox("Enable Front Face Culling", &bFrontFaceCulling); 
 
 		ImGui::TreePop();
 	}
@@ -521,7 +525,8 @@ void SetUniformToShader(Shader& shader)
 	shader.SetInt("light_model", iLightModel);
 	shader.SetInt("atte_formula", iAtteFormula);
 	shader.SetBool("bShadow", bShadow);
-	shader.SetBool("bBias", bBias);
+	shader.SetFloat("fBiasDirShadow", fBiasDirShadow);
+	shader.SetFloat("fBiasPtShadow", fBiasPtShadow);
 
 	// ShaderLightingInstance 
 	// 因为model矩阵变换是基于单位矩阵进行的，想要在已经变换后的model矩阵的基础上，再进行model矩阵变换有点困难
@@ -552,6 +557,14 @@ void SetUniformToShader(Shader& shader)
 		shader.SetFloat(prefix + "linear", linear);
 		shader.SetFloat(prefix + "quadratic", quadratic);
 	}
+
+	shader.SetVec3("pointLight[4].lightPos", lampWithShadowPos); 
+	shader.SetVec3("pointLight[4].ambient", pointLight_ambient);
+	shader.SetVec3("pointLight[4].diffuse", pointLight_diffuse);
+	shader.SetVec3("pointLight[4].specular", pointLight_specular);
+	shader.SetFloat("pointLight[4].constant", 1.0f);
+	shader.SetFloat("pointLight[4].linear", linear);
+	shader.SetFloat("pointLight[4].quadratic", quadratic);
 }
 
 //创建自定义帧缓冲
@@ -646,11 +659,11 @@ void CreateFrameBuffer_DepthCubemap(GLuint& fbo, GLuint& tbo)
 	for (uint i = 0; i < 6; i++)
 	{
 		// 深度图的数据类型应该是 GL_FLOAT
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_DEPTH_COMPONENT, SHADOW_RESOLUTION_WIDTH, SHADOW_RESOLUTION_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, SHADOW_RESOLUTION_WIDTH, SHADOW_RESOLUTION_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 	}
 
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
@@ -804,7 +817,7 @@ void DrawDepthMap()
 	scene.lightShader.SetMat4("dirLightSpace", dirLightSpace);
 	scene.lightShader.SetInt("depthMap", 30);
 	glActiveTexture(GL_TEXTURE30);
-	glBindTexture(GL_TEXTURE_2D, fbo_depthmap);
+	glBindTexture(GL_TEXTURE_2D, tbo_depthmap);
 }
 
 void DrawDepthCubemap(vec3 lightPos)
@@ -814,30 +827,31 @@ void DrawDepthCubemap(vec3 lightPos)
 	// projection
 	float aspect = (float)SHADOW_RESOLUTION_WIDTH / (float)SHADOW_RESOLUTION_HEIGHT;
 	float near = 1.0f;
-	float far = 25.0f;
+	float far = fFarPlanePt;
 	mat4 projection = perspective(radians(90.0f), aspect, near, far);
 
 	// view
-	mat4 view = lookAt(-dirLight_direction, vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
-
 	vector<mat4> transforms;
-	transforms.push_back(projection * lookAt(lightPos, vec3( 1.0f,  0.0f,  0.0f), vec3(0.0f, -1.0f, 0.0f)));
-	transforms.push_back(projection * lookAt(lightPos, vec3(-1.0f,  0.0f,  0.0f), vec3(0.0f, -1.0f, 0.0f)));
-	transforms.push_back(projection * lookAt(lightPos, vec3( 0.0f,  1.0f,  0.0f), vec3(0.0f,  0.0f, 1.0f)));
-	transforms.push_back(projection * lookAt(lightPos, vec3( 0.0f, -1.0f,  0.0f), vec3(0.0f,  0.0f,-1.0f)));
-	transforms.push_back(projection * lookAt(lightPos, vec3( 0.0f,  0.0f,  1.0f), vec3(0.0f, -1.0f, 0.0f)));
-	transforms.push_back(projection * lookAt(lightPos, vec3( 0.0f,  0.0f, -1.0f), vec3(0.0f, -1.0f, 0.0f)));
+	transforms.push_back(projection * lookAt(lightPos, lightPos + vec3( 1.0f,  0.0f,  0.0f), vec3(0.0f, -1.0f, 0.0f)));
+	transforms.push_back(projection * lookAt(lightPos, lightPos + vec3(-1.0f,  0.0f,  0.0f), vec3(0.0f, -1.0f, 0.0f)));
+	transforms.push_back(projection * lookAt(lightPos, lightPos + vec3( 0.0f,  1.0f,  0.0f), vec3(0.0f,  0.0f, 1.0f)));
+	transforms.push_back(projection * lookAt(lightPos, lightPos + vec3( 0.0f, -1.0f,  0.0f), vec3(0.0f,  0.0f,-1.0f)));
+	transforms.push_back(projection * lookAt(lightPos, lightPos + vec3( 0.0f,  0.0f,  1.0f), vec3(0.0f, -1.0f, 0.0f)));
+	transforms.push_back(projection * lookAt(lightPos, lightPos + vec3( 0.0f,  0.0f, -1.0f), vec3(0.0f, -1.0f, 0.0f)));
 	
 	// Set Uniform To Shader
-	scene.depthmapShader.Use();
+	scene.depthCubemapShader.Use();
 
 	for (int i = 0; i < 6; i++)
 	{
 		stringstream ss;
-		ss << "ptLightSpace[" << i << "].";
+		ss << "ptLightSpace[" << i << "]";
 		string target = ss.str();
-		scene.depthmapShader.SetMat4(target, transforms[i]);
+		scene.depthCubemapShader.SetMat4(target, transforms[i]);
 	}
+
+	scene.depthCubemapShader.SetVec3("lightPos", lightPos);
+	scene.depthCubemapShader.SetFloat("farPlane", far);
 
 	glViewport(0, 0, SHADOW_RESOLUTION_WIDTH, SHADOW_RESOLUTION_HEIGHT);
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo_depthCubemap);
@@ -855,10 +869,11 @@ void DrawDepthCubemap(vec3 lightPos)
 
 	scene.lightShader.Use();
 	scene.lightShader.SetVec3("PtLightPos", lightPos);
-	scene.lightShader.SetInt("depthCubemap", 31);
+	scene.lightShader.SetInt("depthCubemap", 20);
 	scene.lightShader.SetFloat("farPlane", far);
-	glActiveTexture(GL_TEXTURE31);
-	glBindTexture(GL_TEXTURE_2D, fbo_depthCubemap);
+	scene.lightShader.SetBool("bDepthCubemapDebug", bDepthCubemapDebug);
+	glActiveTexture(GL_TEXTURE20);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, fbo_depthCubemap);
 }
 
 void SetAllUniformValues()

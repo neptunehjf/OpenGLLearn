@@ -14,10 +14,12 @@ uniform int light_model;
 uniform int atte_formula;
 uniform sampler2D depthMap;
 uniform bool bShadow;
-uniform bool bBias;
 uniform vec3 PtLightPos; // Point Light Position
 uniform samplerCube depthCubemap;
 uniform float farPlane;
+uniform bool bDepthCubemapDebug;
+uniform float fBiasDirShadow;
+uniform float fBiasPtShadow;
 
 struct Material
 {
@@ -57,7 +59,7 @@ struct SpotLight
 	vec3 specular;
 };
 
-#define POINT_LIGHT_NUM 4
+#define POINT_LIGHT_NUM 5
 
 uniform Material material;
 uniform DirectionLight dirLight;
@@ -91,8 +93,16 @@ void main()
 
 	// 因为向量相加会使alpha超过1从而失去意义，所以要重新计算
 	color.a = diffuseColor.a;
+
 	// 各分量颜色混合
 	fragColor = color;
+
+	if (bShadow && bDepthCubemapDebug)
+	{
+		vec3 lightToFrag = gs_in.fragPos - PtLightPos;
+		float closestDepth = texture(depthCubemap, lightToFrag).r;
+		fragColor = vec4(vec3(closestDepth / farPlane), 1.0);
+	}
 }
 
 vec4 CalcDirLight(vec4 diffuseColor, vec4 specularColor)
@@ -143,6 +153,11 @@ vec4 CalcPointLight(vec4 diffuseColor, vec4 specularColor)
 	vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
 	vec3 norm = normalize(gs_in.normal);
 	vec3 viewDir = normalize(uni_viewPos - gs_in.fragPos);
+	vec4 ambientTotal = vec4(0.0, 0.0, 0.0, 1.0);
+	vec4 diffuseTotal = vec4(0.0, 0.0, 0.0, 1.0);
+	vec4 specularTotal = vec4(0.0, 0.0, 0.0, 1.0);
+
+	float shadow = 0.0;
 
 	for (int i = 0; i < POINT_LIGHT_NUM; i++)
 	{
@@ -189,7 +204,17 @@ vec4 CalcPointLight(vec4 diffuseColor, vec4 specularColor)
 		ambient  *= lightFade;
 		diffuse  *= lightFade;
 		specular *= lightFade;
+
 		color += (ambient + diffuse + specular);
+		ambientTotal += ambient;
+		diffuseTotal += diffuse;
+		specularTotal += specular;
+	}
+
+	if (bShadow)
+	{
+		shadow = CalcPtLtShadow();
+		color = (ambientTotal + (1.0 - shadow) * (diffuseTotal + specularTotal));
 	}
 
 	return color;
@@ -263,14 +288,12 @@ float CalcDirLtShadow(vec3 norm, vec3 lightDir)
 	// 取得当前片段在光源视角下的深度值
 	float currentDepth = projCoords.z;
 
-	float bias = 0.000; // bias过大，可能会导致该有阴影的地方没阴影了，最经典的就是人物的脚没有阴影，这个就是Peter-Panning现象
+	float bias = fBiasDirShadow; // bias过大，可能会导致该有阴影的地方没阴影了，最经典的就是人物的脚没有阴影，这个就是Peter-Panning现象
 	float shadow  = 0.0;
 	if (currentDepth > 1.0) // 超过视锥范围视为无阴影
 		shadow  = 0.0;
 	else
 	{
-		if (bBias)
-			bias = max(0.01 * (1.0 - dot(norm, lightDir)), 0.005);
 		vec2 texelSize = 1.0 / textureSize(depthMap, 0);
 		for(int x = -1; x <= 1; ++x)
 		{
@@ -300,8 +323,14 @@ float CalcPtLtShadow()
 	// 从[0,1]的范围转化成原来的范围
 	closestDepth *= farPlane;
 
-	float bias = 0.05;
-	float shadow = currentDepth > closestDepth ? 1.0 : 0.0;
+
+	float bias = fBiasPtShadow;
+	float shadow = 0.0;
+
+	if (currentDepth > 1.0 * farPlane) // 超过视锥范围视为无阴影
+		shadow = 0.0;
+	else
+		shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
 
 	return shadow;
 }

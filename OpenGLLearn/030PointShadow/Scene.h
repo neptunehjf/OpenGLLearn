@@ -66,7 +66,7 @@ void Scene::CreateShader()
 	lightInstShader = Shader("ShaderLightingInstance.vs", "ShaderLightingInstance.fs");
 	depthmapShader = Shader("ShaderDepthMap.vs", "ShaderDepthMap.fs");
 	depthmapDisplayShader = Shader("ShaderDepthmapDisplay.vs", "ShaderDepthmapDisplay.fs");
-	//depthCubemapShader = Shader("ShaderDepthCubemap.vs", "ShaderDepthCubemap.fs", "ShaderDepthCubemap.gs");
+	depthCubemapShader = Shader("ShaderDepthCubemap.vs", "ShaderDepthCubemap.fs", "ShaderDepthCubemap.gs");
 }
 
 void Scene::CreateScene(Camera* myCam)

@@ -31,7 +31,6 @@ double deltaTime = 0.0;
 double curTime = 0.0;
 
 const vec3 lampPos[4] = { vec3(20.0f, 3.0f, 0.0f) , vec3(20.0f, 3.0f, -10.0f) , vec3(20.0f, 3.0f, -20.0f) , vec3(20.0f, 3.0f, -30.0f) };
-const vec3 lampWithShadowPos = { 5.0f, 5.0f, 5.0f };
 
 float windowWidth = WINDOW_WIDTH;
 float windowHeight = WINDOW_HEIGHT;
@@ -41,10 +40,10 @@ float windowHeight = WINDOW_HEIGHT;
 vec3 bkgColor = vec3(0.0f, 0.0f, 0.0f);
 vec3 dirLight_direction = vec3(-5.0f, -5.0f, -5.0f);
 vec3 dirLight_ambient = vec3(0.0f);
-vec3 dirLight_diffuse = vec3(1.0f);
+vec3 dirLight_diffuse = vec3(0.0f);
 vec3 dirLight_specular = vec3(0.0f);
 vec3 pointLight_ambient = vec3(0.0f);
-vec3 pointLight_diffuse = vec3(0.0f);
+vec3 pointLight_diffuse = vec3(1.0f);
 vec3 pointLight_specular = vec3(0.0f);
 vec3 spotLight_ambient = vec3(0.0f);
 vec3 spotLight_diffuse = vec3(0.0f);
@@ -73,7 +72,11 @@ bool bGammaCorrection = true;
 int iAtteFormula = 0;
 bool bShadow = true;
 bool bDisDepthmap = false;
-bool bBias = true;
 bool bFrontFaceCulling = false;
+vec3 lampWithShadowPos = { 0.0f, 3.0f, 0.0f };
+bool bDepthCubemapDebug = false;
+float fBiasDirShadow = 0.005f;
+float fBiasPtShadow = 0.5f;
+float fFarPlanePt = 20.0f;
 /************** Imgui±‰¡ø **************/
 
