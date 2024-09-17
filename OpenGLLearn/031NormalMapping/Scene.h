@@ -27,8 +27,8 @@ public:
 	Shader depthmapDisplayShader;
 	Shader depthCubemapShader;
 
-	Mesh cubeReflect;
-	Mesh cubeMarble;
+	Mesh cubeCubemap;
+	Mesh cube;
 	Mesh skybox;
 	Mesh square;
 	Mesh plane;
@@ -39,6 +39,8 @@ public:
 	Model planet;
 	Model rock;
 	Mesh lamp;
+	Mesh PosZSquare;
+	Mesh PosYSquare;
 
 	vector<vec3> squarePositions;
 	vector<mat4> instMat4;
@@ -83,6 +85,8 @@ void Scene::CreateScene(Camera* myCam)
 	GLuint t_window = 0;
 	GLuint t_wood = 0;
 	GLuint t_white = 0;
+	GLuint t_brick = 0;
+	GLuint t_brick_normal = 0;
 
 	LoadTexture("Resource/Texture/metal.png", t_metal, GL_REPEAT, GL_REPEAT);
 	LoadTexture("Resource/Texture/marble.jpg", t_marble, GL_REPEAT, GL_REPEAT);
@@ -90,6 +94,8 @@ void Scene::CreateScene(Camera* myCam)
 	LoadTexture("Resource/Texture/window.png", t_window, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
 	LoadTexture("Resource/Texture/wood.png", t_wood, GL_REPEAT, GL_REPEAT);
 	LoadTexture("Resource/Texture/AllWhite.png", t_white, GL_REPEAT, GL_REPEAT);
+	LoadTexture("Resource/Texture/brickwall.jpg", t_brick, GL_REPEAT, GL_REPEAT);
+	LoadTexture("Resource/Texture/brickwall_normal.jpg", t_brick_normal, GL_REPEAT, GL_REPEAT);
 
 	stbi_set_flip_vertically_on_load(false);
 	const vector<string> cubemapFaces = {
@@ -137,6 +143,13 @@ void Scene::CreateScene(Camera* myCam)
 		{t_dummy, "texture_specular"}
 	};
 
+	const vector<Texture> brickTexture =
+	{
+		{t_brick, "texture_diffuse"},
+		{t_dummy, "texture_specular"},
+		{t_brick_normal, "texture_normal"},
+	};
+
 	vector<vec2> instanceArray;
 	int index = 0;
 	float offset = 0.1f;
@@ -154,8 +167,8 @@ void Scene::CreateScene(Camera* myCam)
 	plane = Mesh(g_3DPlaneVertices, g_3DPlaneIndices, planeTexture);
 	plane.SetScale(vec3(100.0f, 0.1f, 100.0f));
 	plane.SetTranslate(vec3(0.0f, 1.0f, 0.0f));
-	cubeReflect = Mesh(g_cubeVertices, g_cubeIndices, skyboxTexture);
-	cubeMarble = Mesh(g_cubeVertices, g_cubeIndices, lampTexture);
+	cubeCubemap = Mesh(g_cubeVertices, g_cubeIndices, skyboxTexture);
+	cube = Mesh(g_cubeVertices, g_cubeIndices, brickTexture);
 	square = Mesh(g_squareVertices, g_squareIndices, windowTexture);
 	skybox = Mesh(g_skyboxVertices, g_skyboxIndices, skyboxTexture);
 	screen = Mesh(g_screenVertices, g_screenIndices, dummyTexture);
@@ -163,6 +176,8 @@ void Scene::CreateScene(Camera* myCam)
 	particle = Mesh(g_particleVertices, g_particleIndices, dummyTexture);
 	lamp = Mesh(g_cubeVertices, g_cubeIndices, lampTexture);
 	lamp.SetScale(vec3(1.0f));
+	PosZSquare = Mesh(g_squareVertices, g_squareIndices, brickTexture);
+	PosYSquare = Mesh(g_planeVertices, g_planeIndices, brickTexture);
 	
 	squarePositions.push_back(glm::vec3(-1.5f, 1.0f, -0.48f));
 	squarePositions.push_back(glm::vec3(1.5f, 1.0f, 0.51f));
@@ -213,37 +228,37 @@ void Scene::DrawScene(bool bDepthmap, bool bDepthCubemap)
 	plane.DrawMesh(lightShader, GL_TRIANGLES); // 对地板不绘制深度图
 
 	// 绘制立方体
-	cubeReflect.SetTranslate(vec3(1.0f, 1.5f, 1.0f));
+	cubeCubemap.SetTranslate(vec3(1.0f, 1.5f, 1.0f));
 	if (bDepthmap)
-		cubeReflect.DrawMesh(depthmapShader, GL_TRIANGLES);
+		cubeCubemap.DrawMesh(depthmapShader, GL_TRIANGLES);
 	else if (bDepthCubemap)
-		cubeReflect.DrawMesh(depthCubemapShader, GL_TRIANGLES);
+		cubeCubemap.DrawMesh(depthCubemapShader, GL_TRIANGLES);
 	else
 	{
-		cubeReflect.DrawMesh(reflectShader, GL_TRIANGLES);
-		cubeReflect.DrawMesh(normalShader, GL_TRIANGLES);
+		cubeCubemap.DrawMesh(reflectShader, GL_TRIANGLES);
+		cubeCubemap.DrawMesh(normalShader, GL_TRIANGLES);
 	}
 
-	cubeReflect.SetTranslate(vec3(0.0f, 1.5f, -1.0f));
+	cubeCubemap.SetTranslate(vec3(0.0f, 1.5f, -1.0f));
 	if (bDepthmap)
-		cubeReflect.DrawMesh(depthmapShader, GL_TRIANGLES);
+		cubeCubemap.DrawMesh(depthmapShader, GL_TRIANGLES);
 	else if (bDepthCubemap)
-		cubeReflect.DrawMesh(depthCubemapShader, GL_TRIANGLES);
+		cubeCubemap.DrawMesh(depthCubemapShader, GL_TRIANGLES);
 	else
 	{
-		cubeReflect.DrawMesh(refractShader, GL_TRIANGLES);
-		cubeReflect.DrawMesh(normalShader, GL_TRIANGLES);
+		cubeCubemap.DrawMesh(refractShader, GL_TRIANGLES);
+		cubeCubemap.DrawMesh(normalShader, GL_TRIANGLES);
 	}
 
-	cubeMarble.SetTranslate(vec3(3.0f, 1.5f, 0.0f));
+	cube.SetTranslate(vec3(3.0f, 1.5f, 0.0f));
 	if (bDepthmap)
-		cubeMarble.DrawMesh(depthmapShader, GL_TRIANGLES);
+		cube.DrawMesh(depthmapShader, GL_TRIANGLES);
 	else if (bDepthCubemap)
-		cubeMarble.DrawMesh(depthCubemapShader, GL_TRIANGLES);
+		cube.DrawMesh(depthCubemapShader, GL_TRIANGLES);
 	else
 	{
-		cubeMarble.DrawMesh(lightShader, GL_TRIANGLES);
-		cubeMarble.DrawMesh(normalShader, GL_TRIANGLES);
+		cube.DrawMesh(lightShader, GL_TRIANGLES);
+		cube.DrawMesh(normalShader, GL_TRIANGLES);
 	}
 
 	glDisable(GL_BLEND);
@@ -329,6 +344,29 @@ void Scene::DrawScene(bool bDepthmap, bool bDepthCubemap)
 		lamp.DrawMesh(depthCubemapShader, GL_TRIANGLES);
 	else
 		lamp.DrawMesh(lightShader, GL_TRIANGLES);
+
+	PosZSquare.SetTranslate(vec3(6.0f, 1.0f, 6.0f));
+	if (bDepthmap)
+		PosZSquare.DrawMesh(depthmapShader, GL_TRIANGLES);
+	else if (bDepthCubemap)
+		PosZSquare.DrawMesh(depthCubemapShader, GL_TRIANGLES);
+	else
+	{
+		PosZSquare.DrawMesh(lightShader, GL_TRIANGLES);
+		PosZSquare.DrawMesh(normalShader, GL_TRIANGLES);
+	}
+		
+
+	PosYSquare.SetTranslate(vec3(6, 5, 6));
+	if (bDepthmap)
+		PosYSquare.DrawMesh(depthmapShader, GL_TRIANGLES);
+	else if (bDepthCubemap)
+		PosYSquare.DrawMesh(depthCubemapShader, GL_TRIANGLES);
+	else
+	{
+		PosYSquare.DrawMesh(lightShader, GL_TRIANGLES);
+		PosYSquare.DrawMesh(normalShader, GL_TRIANGLES);
+	}
 
 	// 按窗户离摄像机间的距离排序，map默认是升序排序，也就是从近到远
 	// 必须放在render loop里，因为摄像机是实时改变的
@@ -481,8 +519,8 @@ void Scene::DeleteScene()
 {
 	nanosuit.DeleteModel();
 	plane.DeleteMesh();
-	cubeReflect.DeleteMesh();
-	cubeMarble.DeleteMesh();
+	cubeCubemap.DeleteMesh();
+	cube.DeleteMesh();
 	skybox.DeleteMesh();
 	square.DeleteMesh();
 	screen.DeleteMesh();

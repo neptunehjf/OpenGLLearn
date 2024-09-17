@@ -20,12 +20,14 @@ uniform float farPlane;
 uniform bool bDepthCubemapDebug;
 uniform float fBiasDirShadow;
 uniform float fBiasPtShadow;
+uniform bool bNormalMap;
 
 struct Material
 {
 	sampler2D texture_diffuse1;
 	sampler2D texture_specular1;
 	sampler2D texture_reflection1;
+	sampler2D texture_normal1;
 	int shininess;
 };
 
@@ -113,7 +115,18 @@ vec4 CalcDirLight(vec4 diffuseColor, vec4 specularColor)
 	vec4 ambient = vec4(dirLight.ambient, 1.0) * diffuseColor;
 
 	// 漫反射光照diffuse
-	vec3 norm = normalize(gs_in.normal);
+	vec3 norm;
+	// 如果有法线贴图，则用法线贴图的法线
+	if (bNormalMap)
+	{
+		norm = texture(material.texture_normal1, gs_in.texCoord).rgb;
+		// 法线贴图的法线是以RGB形式存储的，每个分量范围是[0, 1], 要转成[-1, 1]的形式（因为单位向量的各分量的范围是[-1, 1]）
+		norm = normalize(2 * (norm - 0.5)); //不用忘记normalize
+	}
+	// 如果没有有法线贴图，则用顶点数据的法线
+	else
+		norm = normalize(gs_in.normal);
+
 	vec3 lightDir = normalize(-dirLight.direction);
 	float diff = max(dot(norm, lightDir), 0.0);
 	vec4 diffuse = diff * vec4(dirLight.diffuse, 1.0) * diffuseColor;
@@ -151,13 +164,25 @@ vec4 CalcDirLight(vec4 diffuseColor, vec4 specularColor)
 vec4 CalcPointLight(vec4 diffuseColor, vec4 specularColor)
 {
 	vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
-	vec3 norm = normalize(gs_in.normal);
 	vec3 viewDir = normalize(uni_viewPos - gs_in.fragPos);
 	vec4 ambientTotal = vec4(0.0, 0.0, 0.0, 1.0);
 	vec4 diffuseTotal = vec4(0.0, 0.0, 0.0, 1.0);
 	vec4 specularTotal = vec4(0.0, 0.0, 0.0, 1.0);
 
 	float shadow = 0.0;
+
+	vec3 norm;
+	// 如果有法线贴图，则用法线贴图的法线
+	if (bNormalMap)
+	{
+		norm = texture(material.texture_normal1, gs_in.texCoord).rgb;
+		// 法线贴图的法线是以RGB形式存储的，每个分量范围是[0, 1], 要转成[-1, 1]的形式（因为单位向量的各分量的范围是[-1, 1]）
+		norm = normalize(2 * (norm - 0.5)); //不用忘记normalize
+	}
+	// 如果没有有法线贴图，则用顶点数据的法线
+	else
+		norm = normalize(gs_in.normal);
+
 
 	for (int i = 0; i < POINT_LIGHT_NUM; i++)
 	{
@@ -238,7 +263,18 @@ vec4 CalcSpotLight(vec4 diffuseColor, vec4 specularColor)
 	float intensity = clamp((theta - spotLight.outerCos) / (spotLight.innerCos - spotLight.outerCos), 0.0, 1.0); //用clamp就不需要ifelse了
 
 	// 漫反射光照diffuse
-	vec3 norm = normalize(gs_in.normal);
+	vec3 norm;
+	// 如果有法线贴图，则用法线贴图的法线
+	if (bNormalMap)
+	{
+		norm = texture(material.texture_normal1, gs_in.texCoord).rgb;
+		// 法线贴图的法线是以RGB形式存储的，每个分量范围是[0, 1], 要转成[-1, 1]的形式（因为单位向量的各分量的范围是[-1, 1]）
+		norm = normalize(2 * (norm - 0.5)); //不用忘记normalize
+	}
+	// 如果没有有法线贴图，则用顶点数据的法线
+	else
+		norm = normalize(gs_in.normal);
+
 	float diff = max(dot(norm, lightDir), 0.0);
 	diffuse = intensity * diff * vec4(spotLight.diffuse, 1.0) * diffuseColor;
 	

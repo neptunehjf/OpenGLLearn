@@ -36,14 +36,14 @@ public:
         }    
     }
 
-    void UniversalDrawModel(const Shader& shader)
-    {
-        for (unsigned int i = 0; i < meshes.size(); i++)
-        {
-            meshes[i].SetModel(m_model);
-            meshes[i].UniversalDrawMesh(shader, GL_TRIANGLES);
-        }
-    }
+    //void UniversalDrawModel(const Shader& shader)
+    //{
+    //    for (unsigned int i = 0; i < meshes.size(); i++)
+    //    {
+    //        meshes[i].SetModel(m_model);
+    //        meshes[i].UniversalDrawMesh(shader, GL_TRIANGLES);
+    //    }
+    //}
 
     void DeleteModel()
     {

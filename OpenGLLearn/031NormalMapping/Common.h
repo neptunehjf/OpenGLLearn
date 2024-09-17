@@ -4,8 +4,8 @@ using namespace std;
 using namespace glm;
 
 
-#define WINDOW_WIDTH 2560
-#define WINDOW_HEIGHT 1440
+#define WINDOW_WIDTH 1920
+#define WINDOW_HEIGHT 1080
 
 #define CHARACTRER_SCALE_DEFAULT 0.1f
 #define CHARACTRER_SCALE_OUTLINE 0.103f
@@ -39,14 +39,14 @@ float windowHeight = WINDOW_HEIGHT;
 //float posValue = 0.0f;
 vec3 bkgColor = vec3(0.0f, 0.0f, 0.0f);
 vec3 dirLight_direction = vec3(-5.0f, -5.0f, -5.0f);
-vec3 dirLight_ambient = vec3(0.0f);
-vec3 dirLight_diffuse = vec3(0.0f);
+vec3 dirLight_ambient = vec3(0.2f);
+vec3 dirLight_diffuse = vec3(0.8f);
 vec3 dirLight_specular = vec3(0.0f);
 vec3 pointLight_ambient = vec3(0.0f);
 vec3 pointLight_diffuse = vec3(1.0f);
 vec3 pointLight_specular = vec3(0.0f);
 vec3 spotLight_ambient = vec3(0.0f);
-vec3 spotLight_diffuse = vec3(0.0f);
+vec3 spotLight_diffuse = vec3(1.0f);
 vec3 spotLight_specular = vec3(0.0f);
 float spotLight_innerCos = 5.0f;
 float spotLight_outerCos = 8.0f;
