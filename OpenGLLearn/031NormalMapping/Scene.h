@@ -94,10 +94,12 @@ void Scene::CreateScene(Camera* myCam)
 	LoadTexture("Resource/Texture/window.png", t_window, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
 	LoadTexture("Resource/Texture/wood.png", t_wood, GL_REPEAT, GL_REPEAT);
 	LoadTexture("Resource/Texture/AllWhite.png", t_white, GL_REPEAT, GL_REPEAT);
-	LoadTexture("Resource/Texture/brickwall.jpg", t_brick, GL_REPEAT, GL_REPEAT);
-	LoadTexture("Resource/Texture/brickwall_normal.jpg", t_brick_normal, GL_REPEAT, GL_REPEAT);
 
 	stbi_set_flip_vertically_on_load(false);
+	LoadTexture("Resource/Texture/brickwall.jpg", t_brick, GL_REPEAT, GL_REPEAT);
+	//bDebug = true;
+	LoadTexture("Resource/Texture/brickwall_normal.jpg", t_brick_normal, GL_REPEAT, GL_REPEAT);
+
 	const vector<string> cubemapFaces = {
 	"Resource/Texture/skybox/left.jpg",
 	"Resource/Texture/skybox/right.jpg",
@@ -147,7 +149,7 @@ void Scene::CreateScene(Camera* myCam)
 	{
 		{t_brick, "texture_diffuse"},
 		{t_dummy, "texture_specular"},
-		{t_brick_normal, "texture_normal"},
+		{t_brick_normal, "texture_normal"}
 	};
 
 	vector<vec2> instanceArray;
@@ -345,7 +347,9 @@ void Scene::DrawScene(bool bDepthmap, bool bDepthCubemap)
 	else
 		lamp.DrawMesh(lightShader, GL_TRIANGLES);
 
-	PosZSquare.SetTranslate(vec3(6.0f, 1.0f, 6.0f));
+	PosZSquare.SetScale(vec3(6.0f, 6.0f, 1.0f));
+	PosZSquare.SetTranslate(vec3(6.0f, 6.0f, 6.0f));
+
 	if (bDepthmap)
 		PosZSquare.DrawMesh(depthmapShader, GL_TRIANGLES);
 	else if (bDepthCubemap)
@@ -357,7 +361,7 @@ void Scene::DrawScene(bool bDepthmap, bool bDepthCubemap)
 	}
 		
 
-	PosYSquare.SetTranslate(vec3(6, 5, 6));
+	PosYSquare.SetTranslate(vec3(6.0f, 5.0f, 6.0f));
 	if (bDepthmap)
 		PosYSquare.DrawMesh(depthmapShader, GL_TRIANGLES);
 	else if (bDepthCubemap)
@@ -409,6 +413,21 @@ bool Scene::LoadTexture(const string&& filePath, GLuint& texture, const GLint pa
 	// 加载贴图，转换为像素数据
 	int width, height, channel;
 	unsigned char* data = stbi_load(filePath.c_str(), &width, &height, &channel, 0);
+
+	if (bDebug)
+	{
+		for (uint i = 0; i < height; i++)
+		{
+			cout << endl;
+			for (uint j = 0; j < width; j++)
+			{
+				unsigned char ch = data[i * width + j];
+				printf("%4d ", ch);
+			}
+		}
+		cout << endl;
+	}
+
 
 	GLenum informat = 0;
 	GLenum format = 0;

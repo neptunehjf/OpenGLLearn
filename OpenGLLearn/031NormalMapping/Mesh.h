@@ -391,8 +391,9 @@ void Mesh::DrawMesh(const Shader& shader, GLuint element, bool bInst)
 		{
 			//cout << "texture_normal" << endl;
 			normalN++;
-			shader.SetInt(type + to_string(normalN), i);
-			shader.SetBool("bNormalMap", true);
+			shader.SetInt("material." + type + to_string(normalN), i);
+			if (bEnableNormalMap)
+				shader.SetBool("bNormalMap", true);
 		}
 
 		//cout << i << endl << endl;

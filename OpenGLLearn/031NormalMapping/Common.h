@@ -39,15 +39,15 @@ float windowHeight = WINDOW_HEIGHT;
 //float posValue = 0.0f;
 vec3 bkgColor = vec3(0.0f, 0.0f, 0.0f);
 vec3 dirLight_direction = vec3(-5.0f, -5.0f, -5.0f);
-vec3 dirLight_ambient = vec3(0.2f);
-vec3 dirLight_diffuse = vec3(0.8f);
+vec3 dirLight_ambient = vec3(0.0f);
+vec3 dirLight_diffuse = vec3(0.0f);
 vec3 dirLight_specular = vec3(0.0f);
 vec3 pointLight_ambient = vec3(0.0f);
 vec3 pointLight_diffuse = vec3(1.0f);
 vec3 pointLight_specular = vec3(0.0f);
 vec3 spotLight_ambient = vec3(0.0f);
 vec3 spotLight_diffuse = vec3(1.0f);
-vec3 spotLight_specular = vec3(0.0f);
+vec3 spotLight_specular = vec3(1.0f);
 float spotLight_innerCos = 5.0f;
 float spotLight_outerCos = 8.0f;
 int item = 0;
@@ -78,5 +78,7 @@ bool bDepthCubemapDebug = false;
 float fBiasDirShadow = 0.005f;
 float fBiasPtShadow = 0.5f;
 float fFarPlanePt = 20.0f;
+bool bEnableNormalMap = true;
+bool bDebug = false;
 /************** Imgui±‰¡ø **************/
 

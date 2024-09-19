@@ -350,7 +350,7 @@ void GetImguiValue()
 		ImGui::TreePop();
 	}
 
-	if (ImGui::TreeNodeEx("Lighting", ImGuiTreeNodeFlags_DefaultOpen))
+	if (ImGui::TreeNodeEx("Lighting"))
 	{
 		// π‚’’ƒ£–Õ
 		const char* LightModels[] = { "Phong", "Blinn-Phong" };
@@ -391,7 +391,7 @@ void GetImguiValue()
 		ImGui::TreePop();
 	}
 
-	if (ImGui::TreeNodeEx("Test and Blend", ImGuiTreeNodeFlags_DefaultOpen))
+	if (ImGui::TreeNodeEx("Test and Blend"))
 	{
 		ImGui::Checkbox("Blending", &bBlending);
 		ImGui::Checkbox("Face Culling", &bFaceCulling);
@@ -407,7 +407,7 @@ void GetImguiValue()
 		ImGui::TreePop();
 	}
 
-	if (ImGui::TreeNodeEx("Skybox", ImGuiTreeNodeFlags_DefaultOpen))
+	if (ImGui::TreeNodeEx("Skybox"))
 	{
 		ImGui::Checkbox("Skybox", &bSkyBox);
 		ImGui::TreePop();
@@ -427,24 +427,24 @@ void GetImguiValue()
 		ImGui::TreePop();
 	}
 
-	if (ImGui::TreeNodeEx("Instance", ImGuiTreeNodeFlags_DefaultOpen))
+	if (ImGui::TreeNodeEx("Instance"))
 	{
 		ImGui::TreePop();
 	}
 
-	if (ImGui::TreeNodeEx("AntiAliasing", ImGuiTreeNodeFlags_DefaultOpen))
+	if (ImGui::TreeNodeEx("AntiAliasing"))
 	{
 		ImGui::Checkbox("MSAA", &bMSAA);
 		ImGui::TreePop();
 	}
 
-	if (ImGui::TreeNodeEx("Gamma Correction", ImGuiTreeNodeFlags_DefaultOpen))
+	if (ImGui::TreeNodeEx("Gamma Correction"))
 	{
 		ImGui::Checkbox("Gamma Correction", &bGammaCorrection);
 		ImGui::TreePop();
 	}
 
-	if (ImGui::TreeNodeEx("Shadow Mapping", ImGuiTreeNodeFlags_DefaultOpen))
+	if (ImGui::TreeNodeEx("Shadow Mapping"))
 	{
 		ImGui::Checkbox("Enable Shadow", &bShadow);
 		ImGui::Checkbox("Depthmap Debug", &bDisDepthmap);
@@ -454,6 +454,20 @@ void GetImguiValue()
 		ImGui::SliderFloat("Point Shadow Far Plane", &fFarPlanePt, 0.0f, 200.0f);
 		ImGui::SliderFloat("Point Shadow Bias", &fBiasPtShadow, 0.000f, 1.0f);
 		ImGui::Checkbox("Enable Front Face Culling", &bFrontFaceCulling); 
+
+		ImGui::TreePop();
+	}
+
+	if (ImGui::TreeNodeEx("Normal Mapping", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		ImGui::Checkbox("Enable Normal Mapping", &bEnableNormalMap);
+
+		ImGui::TreePop();
+	}
+
+	if (ImGui::TreeNodeEx("Debug", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		ImGui::Checkbox("Enable Debug", &bDebug);
 
 		ImGui::TreePop();
 	}

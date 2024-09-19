@@ -105,6 +105,14 @@ void main()
 		float closestDepth = texture(depthCubemap, lightToFrag).r;
 		fragColor = vec4(vec3(closestDepth / farPlane), 1.0);
 	}
+
+	// debug
+	//vec3 norm;
+	//if (bNormalMap)
+	//{
+	//	norm = texture(material.texture_normal1, gs_in.texCoord).rgb;
+	//	fragColor = vec4(norm, 1.0);
+	//}
 }
 
 vec4 CalcDirLight(vec4 diffuseColor, vec4 specularColor)
