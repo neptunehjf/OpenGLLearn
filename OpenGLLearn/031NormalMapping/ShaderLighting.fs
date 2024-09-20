@@ -6,6 +6,7 @@ in GS_OUT
 	vec3 normal;
 	vec2 texCoord;
 	vec4 fragPosLightSpace;
+	mat3 TBN;
 } gs_in;
 
 uniform vec3 uni_viewPos;
@@ -76,6 +77,7 @@ vec4 CalcSpotLight(vec4 diffuseColor, vec4 specularColor);
 vec4 CalcReflectionLight(vec4 reflectionColor);
 float CalcDirLtShadow(vec3 norm, vec3 lightDir);
 float CalcPtLtShadow();
+vec3 GetNormal();
 
 float near = 0.1; 
 float far  = 100.0; 
@@ -123,17 +125,7 @@ vec4 CalcDirLight(vec4 diffuseColor, vec4 specularColor)
 	vec4 ambient = vec4(dirLight.ambient, 1.0) * diffuseColor;
 
 	// 漫反射光照diffuse
-	vec3 norm;
-	// 如果有法线贴图，则用法线贴图的法线
-	if (bNormalMap)
-	{
-		norm = texture(material.texture_normal1, gs_in.texCoord).rgb;
-		// 法线贴图的法线是以RGB形式存储的，每个分量范围是[0, 1], 要转成[-1, 1]的形式（因为单位向量的各分量的范围是[-1, 1]）
-		norm = normalize(2 * (norm - 0.5)); //不用忘记normalize
-	}
-	// 如果没有有法线贴图，则用顶点数据的法线
-	else
-		norm = normalize(gs_in.normal);
+	vec3 norm = GetNormal();
 
 	vec3 lightDir = normalize(-dirLight.direction);
 	float diff = max(dot(norm, lightDir), 0.0);
@@ -179,18 +171,7 @@ vec4 CalcPointLight(vec4 diffuseColor, vec4 specularColor)
 
 	float shadow = 0.0;
 
-	vec3 norm;
-	// 如果有法线贴图，则用法线贴图的法线
-	if (bNormalMap)
-	{
-		norm = texture(material.texture_normal1, gs_in.texCoord).rgb;
-		// 法线贴图的法线是以RGB形式存储的，每个分量范围是[0, 1], 要转成[-1, 1]的形式（因为单位向量的各分量的范围是[-1, 1]）
-		norm = normalize(2 * (norm - 0.5)); //不用忘记normalize
-	}
-	// 如果没有有法线贴图，则用顶点数据的法线
-	else
-		norm = normalize(gs_in.normal);
-
+	vec3 norm = GetNormal();
 
 	for (int i = 0; i < POINT_LIGHT_NUM; i++)
 	{
@@ -271,17 +252,7 @@ vec4 CalcSpotLight(vec4 diffuseColor, vec4 specularColor)
 	float intensity = clamp((theta - spotLight.outerCos) / (spotLight.innerCos - spotLight.outerCos), 0.0, 1.0); //用clamp就不需要ifelse了
 
 	// 漫反射光照diffuse
-	vec3 norm;
-	// 如果有法线贴图，则用法线贴图的法线
-	if (bNormalMap)
-	{
-		norm = texture(material.texture_normal1, gs_in.texCoord).rgb;
-		// 法线贴图的法线是以RGB形式存储的，每个分量范围是[0, 1], 要转成[-1, 1]的形式（因为单位向量的各分量的范围是[-1, 1]）
-		norm = normalize(2 * (norm - 0.5)); //不用忘记normalize
-	}
-	// 如果没有有法线贴图，则用顶点数据的法线
-	else
-		norm = normalize(gs_in.normal);
+	vec3 norm = GetNormal();
 
 	float diff = max(dot(norm, lightDir), 0.0);
 	diffuse = intensity * diff * vec4(spotLight.diffuse, 1.0) * diffuseColor;
@@ -395,4 +366,22 @@ float CalcPtLtShadow()
 	}
 
 	return shadow;
+}
+
+vec3 GetNormal()
+{
+	vec3 norm;
+	// 如果有法线贴图，则用法线贴图的法线
+	if (bNormalMap)
+	{
+		norm = texture(material.texture_normal1, gs_in.texCoord).rgb;
+		// 法线贴图的法线是以RGB形式存储的，每个分量范围是[0, 1], 要转成[-1, 1]的形式（因为单位向量的各分量的范围是[-1, 1]）
+		norm = normalize(2 * (norm - 0.5)); //不用忘记normalize
+		norm = normalize(gs_in.TBN * norm);
+	}
+	// 如果没有有法线贴图，则用顶点数据的法线
+	else
+		norm = normalize(gs_in.normal);
+
+	return norm;
 }

@@ -52,8 +52,12 @@ public:
 	bool LoadTexture(const string&& filePath, GLuint& texture, const GLint param_s, const GLint param_t);
 	GLuint LoadCubemap(const vector<string>& cubemapFaces);
 	void DeleteScene();
-	void CreateAsteroid();
 	void CreateShader();
+
+private:
+	void CreateAsteroid();
+	void CreateNMVertices(vector<VertexNM>& verticesNM);
+	void CalcTangent(vector<VertexNM>& vertices);
 };
 
 void Scene::CreateShader()
@@ -97,7 +101,6 @@ void Scene::CreateScene(Camera* myCam)
 
 	stbi_set_flip_vertically_on_load(false);
 	LoadTexture("Resource/Texture/brickwall.jpg", t_brick, GL_REPEAT, GL_REPEAT);
-	//bDebug = true;
 	LoadTexture("Resource/Texture/brickwall_normal.jpg", t_brick_normal, GL_REPEAT, GL_REPEAT);
 
 	const vector<string> cubemapFaces = {
@@ -179,7 +182,17 @@ void Scene::CreateScene(Camera* myCam)
 	lamp = Mesh(g_cubeVertices, g_cubeIndices, lampTexture);
 	lamp.SetScale(vec3(1.0f));
 	PosZSquare = Mesh(g_squareVertices, g_squareIndices, brickTexture);
-	PosYSquare = Mesh(g_planeVertices, g_planeIndices, brickTexture);
+
+	if (bEnableNormalMap)
+	{
+		CreateNMVertices(g_planeVerticesNM);
+		PosYSquare = Mesh(g_planeVerticesNM, brickTexture);
+	}
+	else
+	{
+		PosYSquare = Mesh(g_planeVertices, g_planeIndices, brickTexture);
+	}
+
 	
 	squarePositions.push_back(glm::vec3(-1.5f, 1.0f, -0.48f));
 	squarePositions.push_back(glm::vec3(1.5f, 1.0f, 0.51f));
@@ -579,36 +592,58 @@ void Scene::CreateAsteroid()
 	}
 }
 
-// 开销巨大废弃
-//void Scene::UpdateAsteroid()
-//{
-//	instMat4.clear();
-//
-//	float radius = 150.0;
-//	float offset = 30.0f;
-//
-//	for (unsigned int i = 0; i < ROCK_NUM; i++)
-//	{
-//		mat4 model = mat4(1.0f);
-//		// 1. 位移：分布在半径为 'radius' 的圆形上，偏移的范围是 [-offset, offset]
-//		float angle = (float)i / (float)ROCK_NUM * 360.0f;
-//		float displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
-//		float x = sin(angle) * radius + displacement;
-//		displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
-//		float y = displacement * 0.4f; // 让行星带的高度比x和z的宽度要小
-//		displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
-//		float z = cos(angle) * radius + displacement;
-//		model = translate(model, vec3(x, y, z) + vec3(40.0f, 45.0f, 40.0f));
-//
-//		// 2. 缩放：在 0.05 和 0.25f 之间缩放
-//		float _scale = (rand() % 20) / 100.0f + 0.05;
-//		model = scale(model, vec3(_scale));
-//
-//		// 3. 旋转：绕着一个（半）随机选择的旋转轴向量进行随机的旋转
-//		float rotAngle = (rand() % 360);
-//		model = rotate(model, rotAngle + (float)(curTime * ROTATE_SPEED_ROCK), vec3(0.4f, 0.6f, 0.8f));
-//
-//		// 4. 添加到矩阵的数组中
-//		instMat4.push_back(model);
-//	}
-//}
+// 参数vertices的大小必须是三角形的3个顶点信息
+void Scene::CalcTangent(vector<VertexNM>& vertices)
+{
+	if (vertices.size() != 3)
+	{
+		cout << "CalcTangent Error: Vertices size is not 3!" << endl;
+		return;
+	}
+
+	// 取出顶点和UV信息
+	vec3 pos1 = vertices[0].position;
+	vec3 pos2 = vertices[1].position;
+	vec3 pos3 = vertices[2].position;
+	vec2 uv1 = vertices[0].texCoord;
+	vec2 uv2 = vertices[1].texCoord;
+	vec2 uv3 = vertices[2].texCoord;
+
+	// 1 计算 edge 和 deltaUV
+	vec3 edge1 = pos2 - pos1;
+	vec3 edge2 = pos3 - pos1;
+	vec2 deltaUV1 = uv2 - uv1;
+	vec2 deltaUV2 = uv3 - uv1;
+
+	// 2 计算Tangent 和 Bittangent
+	GLfloat f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+	vec3 tangent, bitTangent;
+	tangent.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+	tangent.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+	tangent.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+	tangent = normalize(tangent);
+	vertices[0].tangent = tangent;
+	vertices[1].tangent = tangent;
+	vertices[2].tangent = tangent;
+
+	bitTangent.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+	bitTangent.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+	bitTangent.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+	bitTangent = normalize(bitTangent);
+	vertices[0].bitTangent = bitTangent;
+	vertices[1].bitTangent = bitTangent;
+	vertices[2].bitTangent = bitTangent;
+}
+
+void Scene::CreateNMVertices(vector<VertexNM>& verticesNM)
+{
+	// 计算TBN Matrix，把法线贴图的法线从切线空间（始终朝向+Z）转为 local空间，再转为 world空间
+	for (uint i = 0; i < verticesNM.size(); i += 3)
+	{
+		vector<VertexNM> tbn_vertices;
+		tbn_vertices.push_back(verticesNM[i]);
+		tbn_vertices.push_back(verticesNM[i + 1]);
+		tbn_vertices.push_back(verticesNM[i + 2]);
+		CalcTangent(tbn_vertices);
+	}
+}

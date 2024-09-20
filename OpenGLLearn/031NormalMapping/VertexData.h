@@ -16,6 +16,17 @@ const vector<GLuint> g_planeIndices =
     0, 2, 3
 };
 
+vector<VertexNM> g_planeVerticesNM = {
+    // positions                 // normal                  // texture Coords     // tangent初始化0		     // bitTangent初始化0
+    {vec3(5.0f, 1.0f,  5.0f),    vec3(0.0f,  1.0f,  0.0f),  vec2(5.0f, 0.0f),     vec3(0.0f,  0.0f,  0.0f),   vec3(0.0f,  0.0f,  0.0f)},  // 0
+    {vec3(-5.0f, 1.0f,  5.0f),   vec3(0.0f,  1.0f,  0.0f),  vec2(0.0f, 0.0f),     vec3(0.0f,  0.0f,  0.0f),   vec3(0.0f,  0.0f,  0.0f)},  // 1
+    {vec3(-5.0f, 1.0f, -5.0f),   vec3(0.0f,  1.0f,  0.0f),  vec2(0.0f, 5.0f),     vec3(0.0f,  0.0f,  0.0f),   vec3(0.0f,  0.0f,  0.0f)},  // 2
+
+    {vec3(5.0f, 1.0f,  5.0f),    vec3(0.0f,  1.0f,  0.0f),  vec2(5.0f, 0.0f),     vec3(0.0f,  0.0f,  0.0f),   vec3(0.0f,  0.0f,  0.0f)},  // 0
+    {vec3(-5.0f, 1.0f, -5.0f),   vec3(0.0f,  1.0f,  0.0f),  vec2(0.0f, 5.0f),     vec3(0.0f,  0.0f,  0.0f),   vec3(0.0f,  0.0f,  0.0f)},  // 2
+    {vec3(5.0f, 1.0f, -5.0f),    vec3(0.0f,  1.0f,  0.0f),  vec2(5.0f, 5.0f),     vec3(0.0f,  0.0f,  0.0f),   vec3(0.0f,  0.0f,  0.0f)}   // 3
+};
+
 // 默认是面在法线方向上是逆时针的情况下，是正面。
 const vector<Vertex> g_3DPlaneVertices =
 {
@@ -130,7 +141,6 @@ const vector<GLuint> g_squareIndices =
 	0, 1, 2,
 	0, 2, 3
 };
-
 
 // 这里normal没有意义，但是为了复用之前的代码，加了normal
 const vector<Vertex> g_screenVertices = {

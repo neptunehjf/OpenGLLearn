@@ -124,6 +124,7 @@ int main()
 	glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo);
 
 	bool bLastGamma = false;
+	bool bLastNM = false;
 
 	//‰÷»æ—≠ª∑
 	while (!glfwWindowShouldClose(window))
@@ -141,6 +142,17 @@ int main()
 			if (bLastGamma)
 				scene.CreateScene(&myCam);
 			bLastGamma = false;
+		}
+
+		if (!bLastNM && bEnableNormalMap)
+		{
+			scene.CreateScene(&myCam);
+			bLastNM = true;
+		}
+		if (bLastNM && !bEnableNormalMap)
+		{
+			scene.CreateScene(&myCam);
+			bLastNM = false;
 		}
 
 		// ‰»Î

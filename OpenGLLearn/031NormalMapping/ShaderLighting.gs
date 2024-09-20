@@ -12,6 +12,7 @@ in VS_OUT
     mat4 view;
 	mat4 projection;	
     vec4 fragPosLightSpace;
+    mat3 TBN;
 } gs_in[];
 
 out GS_OUT
@@ -20,6 +21,7 @@ out GS_OUT
 	vec3 normal;
 	vec2 texCoord;
     vec4 fragPosLightSpace;
+    mat3 TBN;
 } gs_out;
 
 uniform float magnitude;
@@ -49,6 +51,7 @@ void main()
     gs_out.normal = gs_in[0].normal;
     gs_out.texCoord = gs_in[0].texCoord;
     gs_out.fragPosLightSpace = gs_in[0].fragPosLightSpace;
+    gs_out.TBN = gs_in[0].TBN;
     EmitVertex();   
 
     gl_Position = gs_in[1].projection * gs_in[1].view * explode(gs_in[1].position, normal);    // 2
@@ -56,6 +59,7 @@ void main()
     gs_out.normal = gs_in[1].normal;
     gs_out.texCoord = gs_in[1].texCoord;
     gs_out.fragPosLightSpace = gs_in[1].fragPosLightSpace;
+    gs_out.TBN = gs_in[1].TBN;
     EmitVertex();
 
     gl_Position = gs_in[2].projection * gs_in[2].view * explode(gs_in[2].position, normal);    // 3
@@ -63,6 +67,7 @@ void main()
     gs_out.normal = gs_in[2].normal;
     gs_out.texCoord = gs_in[2].texCoord;
     gs_out.fragPosLightSpace = gs_in[2].fragPosLightSpace;
+    gs_out.TBN = gs_in[2].TBN;
     EmitVertex();
 
     EndPrimitive();    
