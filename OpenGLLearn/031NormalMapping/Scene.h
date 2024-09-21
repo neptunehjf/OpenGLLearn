@@ -39,11 +39,12 @@ public:
 	Model planet;
 	Model rock;
 	Mesh lamp;
-	Mesh PosZSquare;
 	Mesh PosYSquare;
 
 	vector<vec3> squarePositions;
 	vector<mat4> instMat4;
+
+	vector<Texture> m_brickTexture;
 
 	Camera* myCam;
 
@@ -53,11 +54,12 @@ public:
 	GLuint LoadCubemap(const vector<string>& cubemapFaces);
 	void DeleteScene();
 	void CreateShader();
+	void UpdateNMVertices();
 
 private:
 	void CreateAsteroid();
 	void CreateNMVertices(vector<VertexNM>& verticesNM);
-	void CalcTangent(vector<VertexNM>& vertices);
+	void CalcTangent(vector<VertexNM>& vertices, vec3& tangent, vec3& bitangent);
 };
 
 void Scene::CreateShader()
@@ -155,6 +157,9 @@ void Scene::CreateScene(Camera* myCam)
 		{t_brick_normal, "texture_normal"}
 	};
 
+	// 深拷贝
+	m_brickTexture = brickTexture;
+
 	vector<vec2> instanceArray;
 	int index = 0;
 	float offset = 0.1f;
@@ -173,7 +178,7 @@ void Scene::CreateScene(Camera* myCam)
 	plane.SetScale(vec3(100.0f, 0.1f, 100.0f));
 	plane.SetTranslate(vec3(0.0f, 1.0f, 0.0f));
 	cubeCubemap = Mesh(g_cubeVertices, g_cubeIndices, skyboxTexture);
-	cube = Mesh(g_cubeVertices, g_cubeIndices, brickTexture);
+	cube = Mesh(g_cubeVertices, g_cubeIndices, lampTexture);
 	square = Mesh(g_squareVertices, g_squareIndices, windowTexture);
 	skybox = Mesh(g_skyboxVertices, g_skyboxIndices, skyboxTexture);
 	screen = Mesh(g_screenVertices, g_screenIndices, dummyTexture);
@@ -181,7 +186,6 @@ void Scene::CreateScene(Camera* myCam)
 	particle = Mesh(g_particleVertices, g_particleIndices, dummyTexture);
 	lamp = Mesh(g_cubeVertices, g_cubeIndices, lampTexture);
 	lamp.SetScale(vec3(1.0f));
-	PosZSquare = Mesh(g_squareVertices, g_squareIndices, brickTexture);
 
 	if (bEnableNormalMap)
 	{
@@ -192,7 +196,6 @@ void Scene::CreateScene(Camera* myCam)
 	{
 		PosYSquare = Mesh(g_planeVertices, g_planeIndices, brickTexture);
 	}
-
 	
 	squarePositions.push_back(glm::vec3(-1.5f, 1.0f, -0.48f));
 	squarePositions.push_back(glm::vec3(1.5f, 1.0f, 0.51f));
@@ -358,21 +361,7 @@ void Scene::DrawScene(bool bDepthmap, bool bDepthCubemap)
 	else if (bDepthCubemap)
 		lamp.DrawMesh(depthCubemapShader, GL_TRIANGLES);
 	else
-		lamp.DrawMesh(lightShader, GL_TRIANGLES);
-
-	PosZSquare.SetScale(vec3(6.0f, 6.0f, 1.0f));
-	PosZSquare.SetTranslate(vec3(6.0f, 6.0f, 6.0f));
-
-	if (bDepthmap)
-		PosZSquare.DrawMesh(depthmapShader, GL_TRIANGLES);
-	else if (bDepthCubemap)
-		PosZSquare.DrawMesh(depthCubemapShader, GL_TRIANGLES);
-	else
-	{
-		PosZSquare.DrawMesh(lightShader, GL_TRIANGLES);
-		PosZSquare.DrawMesh(normalShader, GL_TRIANGLES);
-	}
-		
+		lamp.DrawMesh(lightShader, GL_TRIANGLES);		
 
 	PosYSquare.SetTranslate(vec3(6.0f, 5.0f, 6.0f));
 	if (bDepthmap)
@@ -593,7 +582,7 @@ void Scene::CreateAsteroid()
 }
 
 // 参数vertices的大小必须是三角形的3个顶点信息
-void Scene::CalcTangent(vector<VertexNM>& vertices)
+void Scene::CalcTangent(vector<VertexNM>& vertices, vec3& tangent, vec3& bitangent)
 {
 	if (vertices.size() != 3)
 	{
@@ -615,35 +604,51 @@ void Scene::CalcTangent(vector<VertexNM>& vertices)
 	vec2 deltaUV1 = uv2 - uv1;
 	vec2 deltaUV2 = uv3 - uv1;
 
-	// 2 计算Tangent 和 Bittangent
+	// 2 计算Tangent 和 bitangent
 	GLfloat f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
-	vec3 tangent, bitTangent;
+
 	tangent.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
 	tangent.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
 	tangent.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
 	tangent = normalize(tangent);
-	vertices[0].tangent = tangent;
-	vertices[1].tangent = tangent;
-	vertices[2].tangent = tangent;
 
-	bitTangent.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
-	bitTangent.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
-	bitTangent.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
-	bitTangent = normalize(bitTangent);
-	vertices[0].bitTangent = bitTangent;
-	vertices[1].bitTangent = bitTangent;
-	vertices[2].bitTangent = bitTangent;
+	bitangent.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+	bitangent.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+	bitangent.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+	bitangent = normalize(bitangent);
 }
 
 void Scene::CreateNMVertices(vector<VertexNM>& verticesNM)
 {
-	// 计算TBN Matrix，把法线贴图的法线从切线空间（始终朝向+Z）转为 local空间，再转为 world空间
 	for (uint i = 0; i < verticesNM.size(); i += 3)
 	{
-		vector<VertexNM> tbn_vertices;
-		tbn_vertices.push_back(verticesNM[i]);
-		tbn_vertices.push_back(verticesNM[i + 1]);
-		tbn_vertices.push_back(verticesNM[i + 2]);
-		CalcTangent(tbn_vertices);
+		// 计算切线
+		vector<VertexNM> temp_vertices;
+		vec3 tangent, bitangent;
+		temp_vertices.push_back(verticesNM[i]);
+		temp_vertices.push_back(verticesNM[i + 1]);
+		temp_vertices.push_back(verticesNM[i + 2]);
+		CalcTangent(temp_vertices, tangent, bitangent);
+
+		// 计算结果存入顶点数据
+		verticesNM[i].tangent = tangent;
+		verticesNM[i].bitangent = bitangent;
+		verticesNM[i + 1].tangent = tangent;
+		verticesNM[i + 1].bitangent = bitangent;
+		verticesNM[i + 2].tangent = tangent;
+		verticesNM[i + 2].bitangent = bitangent;
+	}
+}
+
+void Scene::UpdateNMVertices()
+{
+	if (bEnableNormalMap)
+	{
+		CreateNMVertices(g_planeVerticesNM);
+		PosYSquare = Mesh(g_planeVerticesNM, m_brickTexture);
+	}
+	else
+	{
+		PosYSquare = Mesh(g_planeVertices, g_planeIndices, m_brickTexture);
 	}
 }

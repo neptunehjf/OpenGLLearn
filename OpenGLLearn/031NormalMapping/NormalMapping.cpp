@@ -123,7 +123,7 @@ int main()
 	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(mat4), NULL, GL_STATIC_DRAW); // 只有4->16的情况才要考虑内存对齐。NULL表示只分配内存，不写入数据。
 	glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo);
 
-	bool bLastGamma = false;
+	bool bLastGamma = false; 
 	bool bLastNM = false;
 
 	//渲染循环
@@ -146,12 +146,12 @@ int main()
 
 		if (!bLastNM && bEnableNormalMap)
 		{
-			scene.CreateScene(&myCam);
+			scene.UpdateNMVertices();
 			bLastNM = true;
 		}
 		if (bLastNM && !bEnableNormalMap)
 		{
-			scene.CreateScene(&myCam);
+			scene.UpdateNMVertices();
 			bLastNM = false;
 		}
 

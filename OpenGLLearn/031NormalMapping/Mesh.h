@@ -28,7 +28,7 @@ struct VertexNM
 	vec3 normal;     // 法线
 	vec2 texCoord;   // 纹理坐标
 	vec3 tangent;    // 切线
-	vec3 bitTangent; // 副切线
+	vec3 bitangent; // 副切线
 };
 #pragma pack()
 
@@ -212,7 +212,7 @@ void Mesh::SetupMeshNM()
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(3, sizeof(((VertexNM*)0)->tangent) / sizeof(GL_FLOAT), GL_FLOAT, GL_FALSE, sizeof(VertexNM), (void*)(offsetof(VertexNM, tangent)));
 	glEnableVertexAttribArray(3);
-	glVertexAttribPointer(4, sizeof(((VertexNM*)0)->bitTangent) / sizeof(GL_FLOAT), GL_FLOAT, GL_FALSE, sizeof(VertexNM), (void*)(offsetof(VertexNM, bitTangent)));
+	glVertexAttribPointer(4, sizeof(((VertexNM*)0)->bitangent) / sizeof(GL_FLOAT), GL_FLOAT, GL_FALSE, sizeof(VertexNM), (void*)(offsetof(VertexNM, bitangent)));
 	glEnableVertexAttribArray(4);
 
 	// 解绑
@@ -461,7 +461,7 @@ void Mesh::CalcTangent(const vector<Vertex>& vertices, vec3& tangent, vec3& bita
 	vec2 deltaUV1 = uv2 - uv1;
 	vec2 deltaUV2 = uv3 - uv1;
 
-	// 2 计算Tangent 和 Bittangent
+	// 2 计算Tangent 和 bitangent
 	GLfloat f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
 
 	tangent.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
