@@ -41,6 +41,10 @@ void main()
 
   // 切线空间->Local空间->World空间 
   // uni_model换成法线矩阵会更准确
+  // 理论上，法线保留在切线空间，而其他光照参数转成切线空间，也可以正确计算光照。
+  // 这样的话，一些比较固定的光照参数可以放到顶点着色器，然后转到切线空间
+  // 因为顶点着色器的调用频次要远小于片段着色器，所以优化很明显
+  // 逆矩阵开销大于置换矩阵运算。可以利用正交矩阵的置换矩阵与它的逆矩阵相等这一特性，用置换矩阵运算代替逆矩阵运算，可以减小开销
   vec3 T = normalize(vec3(transpose(inverse(uni_model)) * vec4(aTangent,   0.0)));
   vec3 B = normalize(vec3(transpose(inverse(uni_model)) * vec4(aBitTangent, 0.0)));
   vec3 N = normalize(vec3(transpose(inverse(uni_model)) * vec4(aNormal,    0.0)));
