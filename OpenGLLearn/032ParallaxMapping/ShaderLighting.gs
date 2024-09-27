@@ -13,6 +13,8 @@ in VS_OUT
 	mat4 projection;	
     vec4 fragPosLightSpace;
     mat3 TBN;
+    vec3 TangentViewPos;
+	vec3 TangentFragPos;
 } gs_in[];
 
 out GS_OUT
@@ -22,6 +24,8 @@ out GS_OUT
 	vec2 texCoord;
     vec4 fragPosLightSpace;
     mat3 TBN;
+    vec3 TangentViewPos;
+	vec3 TangentFragPos;
 } gs_out;
 
 uniform float magnitude;
@@ -52,6 +56,8 @@ void main()
     gs_out.texCoord = gs_in[0].texCoord;
     gs_out.fragPosLightSpace = gs_in[0].fragPosLightSpace;
     gs_out.TBN = gs_in[0].TBN;
+    gs_out.TangentViewPos = gs_in[0].TangentViewPos;
+    gs_out.TangentFragPos = gs_in[0].TangentFragPos;
     EmitVertex();   
 
     gl_Position = gs_in[1].projection * gs_in[1].view * explode(gs_in[1].position, normal);    // 2
@@ -60,6 +66,8 @@ void main()
     gs_out.texCoord = gs_in[1].texCoord;
     gs_out.fragPosLightSpace = gs_in[1].fragPosLightSpace;
     gs_out.TBN = gs_in[1].TBN;
+    gs_out.TangentViewPos = gs_in[1].TangentViewPos;
+    gs_out.TangentFragPos = gs_in[1].TangentFragPos;
     EmitVertex();
 
     gl_Position = gs_in[2].projection * gs_in[2].view * explode(gs_in[2].position, normal);    // 3
@@ -68,6 +76,8 @@ void main()
     gs_out.texCoord = gs_in[2].texCoord;
     gs_out.fragPosLightSpace = gs_in[2].fragPosLightSpace;
     gs_out.TBN = gs_in[2].TBN;
+    gs_out.TangentViewPos = gs_in[2].TangentViewPos;
+    gs_out.TangentFragPos = gs_in[2].TangentFragPos;
     EmitVertex();
 
     EndPrimitive();    

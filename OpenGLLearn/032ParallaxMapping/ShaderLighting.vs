@@ -8,6 +8,7 @@ layout(location = 4) in vec3 aBitTangent;
 
 uniform mat4 uni_model;
 uniform mat4 dirLightSpace;
+uniform vec3 uni_viewPos;
 
 layout (std140) uniform Matrix
 {
@@ -25,6 +26,8 @@ out VS_OUT
 	mat4 projection;
 	vec4 fragPosLightSpace;
 	mat3 TBN;
+	vec3 TangentViewPos;
+	vec3 TangentFragPos;
 } vs_out;
 
 void main()
@@ -50,4 +53,6 @@ void main()
   vec3 N = normalize(vec3(transpose(inverse(uni_model)) * vec4(aNormal,    0.0)));
   mat3 TBN = mat3(T, B, N);
   vs_out.TBN = TBN;
+  vs_out.TangentViewPos = transpose(TBN) * uni_viewPos;
+  vs_out.TangentFragPos = transpose(TBN) * vs_out.fragPos;
 }

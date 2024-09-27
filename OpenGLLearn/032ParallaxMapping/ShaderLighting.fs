@@ -7,6 +7,8 @@ in GS_OUT
 	vec2 texCoord;
 	vec4 fragPosLightSpace;
 	mat3 TBN;
+	vec3 TangentViewPos;
+	vec3 TangentFragPos;
 } gs_in;
 
 uniform vec3 uni_viewPos;
