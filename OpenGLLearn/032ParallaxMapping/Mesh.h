@@ -28,7 +28,7 @@ struct VertexNM
 	vec3 normal;     // 法线
 	vec2 texCoord;   // 纹理坐标
 	vec3 tangent;    // 切线
-	vec3 bitangent; // 副切线
+	vec3 bitangent;  // 副切线
 };
 #pragma pack()
 
@@ -234,13 +234,17 @@ void Mesh::DrawMesh(const Shader& shader, GLuint element, bool bInst)
 	uint reflectionN = 0;
 	uint cubemapN = 0;
 	uint normalN = 0;
+	uint dispN = 0;
 	string type;
 	bool bNM = false;
+	bool bDisp = false;
 
 	for (uint i = 0; i < textures.size(); i++)
 	{
 		type = textures[i].type;
 		shader.SetBool("bNormalMap", false);
+		shader.SetBool("bParallaxMap", false);
+
 		if (type == "texture_diffuse")
 		{
 			//cout << "texture_diffuse" << endl;
@@ -270,8 +274,14 @@ void Mesh::DrawMesh(const Shader& shader, GLuint element, bool bInst)
 			//cout << "texture_normal" << endl;
 			normalN++;
 			shader.SetInt("material." + type + to_string(normalN), i);
-			shader.SetBool("bNormalMap", true);
 			bNM = true;
+		}
+		else if (type == "texture_disp" && bEnableNormalMap && bEnableParallaxMap)
+		{
+			//cout << "texture_disp" << endl;
+			dispN++;
+			shader.SetInt("material." + type + to_string(dispN), i);
+			bDisp = true;
 		}
 
 		//cout << i << endl << endl;
@@ -286,6 +296,11 @@ void Mesh::DrawMesh(const Shader& shader, GLuint element, bool bInst)
 		}	
 	}
 	//cout << "***********************************" << endl;
+
+	if (bNM)
+		shader.SetInt("bNormalMap", true);
+	if (bDisp)
+		shader.SetInt("bParallaxMap", true);
 
 	if (!bInst)
 	{
@@ -310,6 +325,9 @@ void Mesh::DrawMesh(const Shader& shader, GLuint element, bool bInst)
 	specularN = 0;
 	reflectionN = 0;
 	cubemapN = 0;
+	normalN = 0;
+	dispN = 0;
+
 	for (uint i = 0; i < textures.size(); i++)
 	{
 		type = textures[i].type;
@@ -342,6 +360,12 @@ void Mesh::DrawMesh(const Shader& shader, GLuint element, bool bInst)
 			//cout << "texture_normal" << endl;
 			normalN++;
 			shader.SetInt(type + to_string(normalN), i);
+		}
+		else if (type == "texture_disp" && bEnableNormalMap && bEnableParallaxMap)
+		{
+			//cout << "texture_disp" << endl;
+			dispN++;
+			shader.SetInt("material." + type + to_string(dispN), i);
 		}
 
 		//cout << i << endl << endl;

@@ -23,7 +23,9 @@ uniform float farPlane;
 uniform bool bDepthCubemapDebug;
 uniform float fBiasDirShadow;
 uniform float fBiasPtShadow;
-uniform bool bNormalMap;
+uniform bool bNormalMap;   // 当前片段是否应用了法线贴图
+uniform bool bParallaxMap; // 当前片段是否应用了视差贴图
+uniform float height_scale;
 
 struct Material
 {
@@ -31,6 +33,7 @@ struct Material
 	sampler2D texture_specular1;
 	sampler2D texture_reflection1;
 	sampler2D texture_normal1;
+	sampler2D texture_disp1;
 	int shininess;
 };
 
@@ -79,16 +82,24 @@ vec4 CalcSpotLight(vec4 diffuseColor, vec4 specularColor);
 vec4 CalcReflectionLight(vec4 reflectionColor);
 float CalcDirLtShadow(vec3 norm, vec3 lightDir);
 float CalcPtLtShadow();
-vec3 GetNormal();
+vec3 GetNormalFromTexture();
+vec2 ParallaxMapping(vec2 texCoord, vec3 viewDir);
 
 float near = 0.1; 
 float far  = 100.0; 
+vec2 texCoord = gs_in.texCoord;
 
 void main()
 {
-	vec4 diffuseColor = texture(material.texture_diffuse1, gs_in.texCoord);
-	vec4 specularColor = texture(material.texture_specular1, gs_in.texCoord);
-	vec4 reflectionColor = texture(material.texture_reflection1, gs_in.texCoord);
+	if (bParallaxMap)
+	{
+		vec3 tangentViewDir = normalize(gs_in.TangentViewPos - gs_in.TangentFragPos);
+		texCoord = ParallaxMapping(gs_in.texCoord, tangentViewDir);
+	}
+
+	vec4 diffuseColor = texture(material.texture_diffuse1, texCoord);
+	vec4 specularColor = texture(material.texture_specular1, texCoord);
+	vec4 reflectionColor = texture(material.texture_reflection1, texCoord);
 
     vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
 
@@ -111,12 +122,12 @@ void main()
 	}
 
 	// debug
-	//vec3 norm;
+	vec3 norm;
 	//if (bNormalMap)
-	//{
-	//	norm = texture(material.texture_normal1, gs_in.texCoord).rgb;
-	//	fragColor = vec4(norm, 1.0);
-	//}
+	{
+		//norm = texture(material.texture_disp1, gs_in.texCoord).rgb;
+		//fragColor = vec4(norm, 1.0);
+	}
 }
 
 vec4 CalcDirLight(vec4 diffuseColor, vec4 specularColor)
@@ -127,7 +138,7 @@ vec4 CalcDirLight(vec4 diffuseColor, vec4 specularColor)
 	vec4 ambient = vec4(dirLight.ambient, 1.0) * diffuseColor;
 
 	// 漫反射光照diffuse
-	vec3 norm = GetNormal();
+	vec3 norm = GetNormalFromTexture();
 
 	vec3 lightDir = normalize(-dirLight.direction);
 	float diff = max(dot(norm, lightDir), 0.0);
@@ -173,7 +184,7 @@ vec4 CalcPointLight(vec4 diffuseColor, vec4 specularColor)
 
 	float shadow = 0.0;
 
-	vec3 norm = GetNormal();
+	vec3 norm = GetNormalFromTexture();
 
 	for (int i = 0; i < POINT_LIGHT_NUM; i++)
 	{
@@ -254,7 +265,7 @@ vec4 CalcSpotLight(vec4 diffuseColor, vec4 specularColor)
 	float intensity = clamp((theta - spotLight.outerCos) / (spotLight.innerCos - spotLight.outerCos), 0.0, 1.0); //用clamp就不需要ifelse了
 
 	// 漫反射光照diffuse
-	vec3 norm = GetNormal();
+	vec3 norm = GetNormalFromTexture();
 
 	float diff = max(dot(norm, lightDir), 0.0);
 	diffuse = intensity * diff * vec4(spotLight.diffuse, 1.0) * diffuseColor;
@@ -370,13 +381,13 @@ float CalcPtLtShadow()
 	return shadow;
 }
 
-vec3 GetNormal()
+vec3 GetNormalFromTexture()
 {
 	vec3 norm;
 	// 如果有法线贴图，则用法线贴图的法线
 	if (bNormalMap)
 	{
-		norm = texture(material.texture_normal1, gs_in.texCoord).rgb;
+		norm = texture(material.texture_normal1, texCoord).rgb;
 		// 法线贴图的法线是以RGB形式存储的，每个分量范围是[0, 1], 要转成[-1, 1]的形式（因为单位向量的各分量的范围是[-1, 1]）
 		norm = normalize(2 * (norm - 0.5)); //不用忘记normalize
 		norm = normalize(gs_in.TBN * norm);
@@ -386,4 +397,19 @@ vec3 GetNormal()
 		norm = normalize(gs_in.normal);
 
 	return norm;
+}
+
+vec2 ParallaxMapping(vec2 texCoord, vec3 viewDir)
+{
+	float height = texture(material.texture_disp1, texCoord).r;
+
+	// viewDir.xy / viewDir.z 是x和y方向分别与z方向的夹角的cos值
+	// height 是fragPos距离dispMap的深度的垂直距离
+	// height_scale 提供一些额外的控制
+	// p 是 实际采样的纹理坐标与原texCoord的偏移
+	vec2 p = (viewDir.xy / viewDir.z) * height * height_scale;
+
+	// 计算偏移后的纹理坐标
+	// 因为计算出来的p方向和viewDir方向一致，实际上偏移方向应该和视角方向相反，所以是减法
+	return texCoord - p;
 }

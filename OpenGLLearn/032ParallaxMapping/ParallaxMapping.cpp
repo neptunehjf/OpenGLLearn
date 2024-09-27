@@ -43,7 +43,7 @@ void DrawScreen();
 
 
 Scene scene;
-Camera myCam(vec3(-12.67f, 15.99f, -4.0f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
+Camera myCam(vec3(4.8f, 7.7f, 6.2f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
 GLFWwindow* window = NULL;
 
 // 原场景缓冲
@@ -473,6 +473,8 @@ void GetImguiValue()
 	if (ImGui::TreeNodeEx("Normal Mapping", ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		ImGui::Checkbox("Enable Normal Mapping", &bEnableNormalMap);
+		ImGui::Checkbox("Enable Parrallax Mapping", &bEnableParallaxMap);
+		ImGui::SliderFloat("Height Scale", &height_scale, 0.0f, 0.1f);
 
 		ImGui::TreePop();
 	}
@@ -553,6 +555,7 @@ void SetUniformToShader(Shader& shader)
 	shader.SetBool("bShadow", bShadow);
 	shader.SetFloat("fBiasDirShadow", fBiasDirShadow);
 	shader.SetFloat("fBiasPtShadow", fBiasPtShadow);
+	shader.SetFloat("height_scale", height_scale);
 
 	// ShaderLightingInstance 
 	// 因为model矩阵变换是基于单位矩阵进行的，想要在已经变换后的model矩阵的基础上，再进行model矩阵变换有点困难

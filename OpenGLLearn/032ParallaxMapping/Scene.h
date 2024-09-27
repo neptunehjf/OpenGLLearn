@@ -93,6 +93,9 @@ void Scene::CreateScene(Camera* myCam)
 	GLuint t_white = 0;
 	GLuint t_brick = 0;
 	GLuint t_brick_normal = 0;
+	GLuint t_brick2 = 0;
+	GLuint t_brick2_normal = 0;
+	GLuint t_brick2_disp = 0;
 
 	LoadTexture("Resource/Texture/metal.png", t_metal, GL_REPEAT, GL_REPEAT);
 	LoadTexture("Resource/Texture/marble.jpg", t_marble, GL_REPEAT, GL_REPEAT);
@@ -100,6 +103,9 @@ void Scene::CreateScene(Camera* myCam)
 	LoadTexture("Resource/Texture/window.png", t_window, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
 	LoadTexture("Resource/Texture/wood.png", t_wood, GL_REPEAT, GL_REPEAT);
 	LoadTexture("Resource/Texture/AllWhite.png", t_white, GL_REPEAT, GL_REPEAT);
+	LoadTexture("Resource/Texture/bricks2.jpg", t_brick2, GL_REPEAT, GL_REPEAT);
+	LoadTexture("Resource/Texture/bricks2_normal.jpg", t_brick2_normal, GL_REPEAT, GL_REPEAT);
+	LoadTexture("Resource/Texture/bricks2_disp.jpg", t_brick2_disp, GL_REPEAT, GL_REPEAT);
 
 	stbi_set_flip_vertically_on_load(false);
 	LoadTexture("Resource/Texture/brickwall.jpg", t_brick, GL_REPEAT, GL_REPEAT);
@@ -157,8 +163,16 @@ void Scene::CreateScene(Camera* myCam)
 		{t_brick_normal, "texture_normal"}
 	};
 
+	const vector<Texture> brick2Texture =
+	{
+		{t_brick2, "texture_diffuse"},
+		{t_dummy, "texture_specular"},
+		{t_brick2_normal, "texture_normal"},
+		{t_brick2_disp, "texture_disp"}
+	};
+
 	// Éî¿½±´
-	m_brickTexture = brickTexture;
+	m_brickTexture = brick2Texture;
 
 	vector<vec2> instanceArray;
 	int index = 0;
@@ -190,11 +204,11 @@ void Scene::CreateScene(Camera* myCam)
 	if (bEnableNormalMap)
 	{
 		CreateNMVertices(g_planeVerticesNM);
-		PosYSquare = Mesh(g_planeVerticesNM, brickTexture);
+		PosYSquare = Mesh(g_planeVerticesNM, brick2Texture);
 	}
 	else
 	{
-		PosYSquare = Mesh(g_planeVertices, g_planeIndices, brickTexture);
+		PosYSquare = Mesh(g_planeVertices, g_planeIndices, brick2Texture);
 	}
 	
 	squarePositions.push_back(glm::vec3(-1.5f, 1.0f, -0.48f));
