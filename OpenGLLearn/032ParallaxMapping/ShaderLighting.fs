@@ -99,6 +99,8 @@ void main()
 	{
 		vec3 tangentViewDir = normalize(gs_in.TangentViewPos - gs_in.TangentFragPos);
 		texCoord = ParallaxMapping(gs_in.texCoord, tangentViewDir);
+		if(texCoord.x > 5.0 || texCoord.y > 5.0 || texCoord.x < 0.0 || texCoord.y < 0.0)
+			discard;
 	}
 
 	vec4 diffuseColor = texture(material.texture_diffuse1, texCoord);
