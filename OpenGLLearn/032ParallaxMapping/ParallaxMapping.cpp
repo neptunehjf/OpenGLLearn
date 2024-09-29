@@ -475,7 +475,7 @@ void GetImguiValue()
 		ImGui::Checkbox("Enable Normal Mapping", &bEnableNormalMap);
 		ImGui::Checkbox("Enable Parrallax Mapping", &bEnableParallaxMap);
 
-		const char* aParaAlgo[] = { "simple", "steep", "occlusion" };
+		const char* aParaAlgo[] = { "Parallax Mapping", "Steep Parallax Mapping", "Parallax Occlusion Mapping" };
 		ImGui::Combo("Parallax Sample Algorithm", &iParaAlgo, aParaAlgo, IM_ARRAYSIZE(aParaAlgo));
 
 		ImGui::SliderFloat("Height Scale", &height_scale, 0.0f, 0.1f);

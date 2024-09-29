@@ -81,7 +81,7 @@ float fFarPlanePt = 20.0f;
 bool bEnableNormalMap = true;
 bool bEnableParallaxMap = true;
 bool bDebug = false;
-float height_scale = 0.03f;
-int iParaAlgo = 0;
+float height_scale = 0.1f;
+int iParaAlgo = 2;
 /************** Imgui±‰¡ø **************/
 

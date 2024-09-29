@@ -87,6 +87,7 @@ vec3 GetNormalFromTexture();
 vec2 ParallaxMapping(vec2 texCoord, vec3 viewDir);
 vec2 ParallaxMappingSimple(vec2 texCoord, vec3 viewDir);
 vec2 ParallaxMappingSteep(vec2 texCoord, vec3 viewDir);
+vec2 ParallaxMappingOcclusion(vec2 texCoord, vec3 viewDir);
 
 float near = 0.1; 
 float far  = 100.0; 
@@ -408,8 +409,8 @@ vec2 ParallaxMapping(vec2 texCoord, vec3 viewDir)
 		return ParallaxMappingSimple(texCoord, viewDir);
 	else if (iParaAlgo == 1)
 		return ParallaxMappingSteep(texCoord, viewDir);
-	//else if (iParaAlgo == 2)
-		//ParallaxMappingSteep(texCoord, viewDir);
+	else if (iParaAlgo == 2)
+		return ParallaxMappingOcclusion(texCoord, viewDir);
 }
 
 vec2 ParallaxMappingSimple(vec2 texCoord, vec3 viewDir)
@@ -458,3 +459,46 @@ vec2 ParallaxMappingSteep(vec2 texCoord, vec3 viewDir)
 	return currentTexCoord;
 }
 
+vec2 ParallaxMappingOcclusion(vec2 texCoord, vec3 viewDir)
+{
+	// 求深度图上临界的两个点的连线 与 视线的交叉点，再用这个交叉点的xy坐标来采样
+
+	// 总深度层级数，越大采样越多，越精确
+	float layerNum = 10.0;
+	// 每层的深度差
+	float deltaLayer = 1.0  / layerNum;
+	// 采样的纹理坐标的总范围。实际viewDir是单位向量，所以xy只表示方向，长度无意义。height_scale用来代表长度，可以debug出一个合适的值
+	vec2 p = viewDir.xy * height_scale;
+	// 每层的采样的纹理坐标的差
+	vec2 deltaTexCoord = p / layerNum;
+
+	// 当前采样的层级
+	float currentLayer = 0.0;
+	// 当前采样的深度
+	float currentDepth = texture(material.texture_disp1, texCoord).r; // 深度表示高度
+	// 当前采样的纹理坐标
+	vec2 currentTexCoord = texCoord;
+
+	// 找到层级大于深度的采样点
+	while(currentLayer < currentDepth)
+	{
+		currentLayer += deltaLayer;
+		currentTexCoord -= deltaTexCoord; // 最上层的采样点不可能满足条件，所以不采样也可以
+		currentDepth = texture(material.texture_disp1, currentTexCoord).r;
+	}
+
+	// 求临界前一点的纹理坐标
+	vec2 beforeTexCoord = currentTexCoord + deltaTexCoord;
+
+	// 求临界前一点的 depth与layer的差的绝对值
+	float beforeLayer = currentLayer - deltaLayer;
+	float beforeDiff = abs(beforeLayer - texture(material.texture_disp1, beforeTexCoord).r);
+
+	// 求临界后一点的 depth与layer的差的绝对值
+	float afterDiff = abs(currentLayer - currentDepth);
+
+	// 根据两个三角形的比例关系算出
+	vec2 finalTexCoord = currentTexCoord * (beforeDiff / (beforeDiff + afterDiff)) + beforeTexCoord * (afterDiff / (beforeDiff + afterDiff));
+
+	return finalTexCoord;
+}
