@@ -474,6 +474,10 @@ void GetImguiValue()
 	{
 		ImGui::Checkbox("Enable Normal Mapping", &bEnableNormalMap);
 		ImGui::Checkbox("Enable Parrallax Mapping", &bEnableParallaxMap);
+
+		const char* aParaAlgo[] = { "simple", "steep", "occlusion" };
+		ImGui::Combo("Parallax Sample Algorithm", &iParaAlgo, aParaAlgo, IM_ARRAYSIZE(aParaAlgo));
+
 		ImGui::SliderFloat("Height Scale", &height_scale, 0.0f, 0.1f);
 
 		ImGui::TreePop();
@@ -556,6 +560,7 @@ void SetUniformToShader(Shader& shader)
 	shader.SetFloat("fBiasDirShadow", fBiasDirShadow);
 	shader.SetFloat("fBiasPtShadow", fBiasPtShadow);
 	shader.SetFloat("height_scale", height_scale);
+	shader.SetInt("iParaAlgo", iParaAlgo);
 
 	// ShaderLightingInstance 
 	// 因为model矩阵变换是基于单位矩阵进行的，想要在已经变换后的model矩阵的基础上，再进行model矩阵变换有点困难

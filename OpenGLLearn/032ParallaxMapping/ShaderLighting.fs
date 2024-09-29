@@ -26,6 +26,7 @@ uniform float fBiasPtShadow;
 uniform bool bNormalMap;   // 当前片段是否应用了法线贴图
 uniform bool bParallaxMap; // 当前片段是否应用了视差贴图
 uniform float height_scale;
+uniform int iParaAlgo; // 视差采样算法类型
 
 struct Material
 {
@@ -84,6 +85,8 @@ float CalcDirLtShadow(vec3 norm, vec3 lightDir);
 float CalcPtLtShadow();
 vec3 GetNormalFromTexture();
 vec2 ParallaxMapping(vec2 texCoord, vec3 viewDir);
+vec2 ParallaxMappingSimple(vec2 texCoord, vec3 viewDir);
+vec2 ParallaxMappingSteep(vec2 texCoord, vec3 viewDir);
 
 float near = 0.1; 
 float far  = 100.0; 
@@ -401,6 +404,16 @@ vec3 GetNormalFromTexture()
 
 vec2 ParallaxMapping(vec2 texCoord, vec3 viewDir)
 {
+	if (iParaAlgo == 0)
+		return ParallaxMappingSimple(texCoord, viewDir);
+	else if (iParaAlgo == 1)
+		return ParallaxMappingSteep(texCoord, viewDir);
+	//else if (iParaAlgo == 2)
+		//ParallaxMappingSteep(texCoord, viewDir);
+}
+
+vec2 ParallaxMappingSimple(vec2 texCoord, vec3 viewDir)
+{
 	float height = texture(material.texture_disp1, texCoord).r;
 
 	// viewDir.xy / viewDir.z 是x和y方向分别与z方向的夹角的cos值
@@ -413,3 +426,35 @@ vec2 ParallaxMapping(vec2 texCoord, vec3 viewDir)
 	// 因为计算出来的p方向和viewDir方向一致，实际上偏移方向应该和视角方向相反，所以是减法
 	return texCoord - p;
 }
+
+vec2 ParallaxMappingSteep(vec2 texCoord, vec3 viewDir)
+{
+	// currentLayer > currentDepth  return texCoord - delta
+
+	// 总深度层级数，越大采样越多，越精确
+	float layerNum = 10.0;
+	// 每层的深度差
+	float deltaLayer = 1.0  / layerNum;
+	// 采样的纹理坐标的总范围。实际viewDir是单位向量，所以xy只表示方向，长度无意义。height_scale用来代表长度，可以debug出一个合适的值
+	vec2 p = viewDir.xy * height_scale;
+	// 每层的采样的纹理坐标的差
+	vec2 deltaTexCoord = p / layerNum;
+
+	// 当前采样的层级
+	float currentLayer = 0.0;
+	// 当前采样的深度
+	float currentDepth = texture(material.texture_disp1, texCoord).r; // 深度表示高度
+	// 当前采样的纹理坐标
+	vec2 currentTexCoord = texCoord;
+
+	// 找到层级大于深度的采样点
+	while(currentLayer < currentDepth)
+	{
+		currentLayer += deltaLayer;
+		currentTexCoord -= deltaTexCoord; // 最上层的采样点不可能满足条件，所以不采样也可以
+		currentDepth = texture(material.texture_disp1, currentTexCoord).r;
+	}
+
+	return currentTexCoord;
+}
+

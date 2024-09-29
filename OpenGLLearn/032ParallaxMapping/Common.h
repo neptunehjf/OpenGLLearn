@@ -82,5 +82,6 @@ bool bEnableNormalMap = true;
 bool bEnableParallaxMap = true;
 bool bDebug = false;
 float height_scale = 0.03f;
+int iParaAlgo = 0;
 /************** Imgui±‰¡ø **************/
 
