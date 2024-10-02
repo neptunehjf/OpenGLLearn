@@ -43,7 +43,7 @@ void DrawScreen();
 
 
 Scene scene;
-Camera myCam(vec3(4.8f, 7.7f, 6.2f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
+Camera myCam(vec3(2.317f, 7.675f, -14.031f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
 GLFWwindow* window = NULL;
 
 // 原场景缓冲
@@ -125,6 +125,7 @@ int main()
 
 	bool bLastGamma = false; 
 	bool bLastNM = false;
+	bool bLastHDR = false;
 
 	//渲染循环
 	while (!glfwWindowShouldClose(window))
@@ -153,6 +154,19 @@ int main()
 		{
 			scene.UpdateNMVertices();
 			bLastNM = false;
+		}
+
+		if (bHDR)
+		{
+			if (!bLastHDR)
+				scene.CreateScene(&myCam);
+			bLastHDR = true;
+		}
+		else if (!bHDR)
+		{
+			if (bLastHDR)
+				scene.CreateScene(&myCam);
+			bLastHDR = false;
 		}
 
 		//输入
@@ -470,7 +484,7 @@ void GetImguiValue()
 		ImGui::TreePop();
 	}
 
-	if (ImGui::TreeNodeEx("Normal Mapping", ImGuiTreeNodeFlags_DefaultOpen))
+	if (ImGui::TreeNodeEx("Normal Mapping"))
 	{
 		ImGui::Checkbox("Enable Normal Mapping", &bEnableNormalMap);
 		ImGui::Checkbox("Enable Parrallax Mapping", &bEnableParallaxMap);
@@ -483,9 +497,21 @@ void GetImguiValue()
 		ImGui::TreePop();
 	}
 
-	if (ImGui::TreeNodeEx("Debug", ImGuiTreeNodeFlags_DefaultOpen))
+	if (ImGui::TreeNodeEx("Debug"))
 	{
 		ImGui::Checkbox("Enable Debug", &bDebug);
+
+		ImGui::TreePop();
+	}
+
+	if (ImGui::TreeNodeEx("HDR", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		ImGui::Checkbox("Enable HDR", &bHDR);
+		const char* aAlgro[] = { "reinhard tone mapping", "exposure tone mapping" };
+		ImGui::Combo("Tone Mapping Algorithm", &iHDRAlgro, aAlgro, IM_ARRAYSIZE(aAlgro));
+
+		if (iHDRAlgro == 1)
+			ImGui::SliderFloat("Exposure", &fExposure, 0.0f, 5.0f);
 
 		ImGui::TreePop();
 	}
@@ -561,6 +587,9 @@ void SetUniformToShader(Shader& shader)
 	shader.SetFloat("fBiasPtShadow", fBiasPtShadow);
 	shader.SetFloat("height_scale", height_scale);
 	shader.SetInt("iParaAlgo", iParaAlgo);
+	shader.SetInt("bHDR", bHDR);
+	shader.SetFloat("fExposure", fExposure);
+	shader.SetInt("iHDRAlgro", iHDRAlgro);
 
 	// ShaderLightingInstance 
 	// 因为model矩阵变换是基于单位矩阵进行的，想要在已经变换后的model矩阵的基础上，再进行model矩阵变换有点困难
@@ -612,7 +641,7 @@ void CreateFrameBuffer(GLuint& fbo, GLuint& tbo, GLuint& rbo)
 	// 生成纹理附件 对应color缓冲
 	glGenTextures(1, &tbo);
 	glBindTexture(GL_TEXTURE_2D, tbo);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, windowWidth, windowHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, windowWidth, windowHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -732,7 +761,7 @@ void CreateFrameBuffer_MSAA(GLuint& fbo, GLuint& tbo, GLuint& rbo)
 	// 生成MSAA纹理附件 对应color缓冲
 	glGenTextures(1, &tbo);
 	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, tbo);
-	glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, MSAA_SAMPLE_NUM, GL_RGB, windowWidth, windowHeight, true);
+	glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, MSAA_SAMPLE_NUM, GL_RGB16F, windowWidth, windowHeight, true);
 	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
 
 	// MSAA纹理缓冲对象  作为一个GL_COLOR_ATTACHMENT0附件 附加到 帧缓冲对象

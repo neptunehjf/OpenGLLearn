@@ -8,14 +8,23 @@ uniform int kernel_type;
 uniform float window_width;
 uniform float window_height;
 uniform bool split_flag;
+uniform bool bHDR;
+uniform float fExposure;
+uniform int iHDRAlgro;
 
 out vec4 FragColor;
 
 float[9] CopyKernel(float src[9]);
+vec3 ToneMapping(vec3 color);
 
 void main()
-{   // 原色
-    vec4 originColor = texture(texture_diffuse1, TexCoords);
+{   
+    // 原色
+    vec3 originColor = texture(texture_diffuse1, TexCoords).rgb;
+
+    // Reinhard色调映射
+    originColor = ToneMapping(originColor);
+
 
     // 反相
     //FragColor = vec4(vec3(1.0 - texture(texture_diffuse1, TexCoords)), 1.0); 
@@ -100,6 +109,7 @@ void main()
     for(int i = 0; i < 9; i++)
     {
         sampleTex[i] = vec3(texture(texture_diffuse1, TexCoords.st + sample[i]));
+        sampleTex[i] = ToneMapping(sampleTex[i]);
     }
     vec3 color = vec3(0.0);
     for(int i = 0; i < 9; i++)
@@ -108,7 +118,7 @@ void main()
     //gl_FragCoord 对应的是视口坐标（像素） 
     if ((gl_FragCoord.x < window_width / 2.0) && split_flag)
     {
-        FragColor = originColor;
+        FragColor = vec4(originColor, 1.0);
     }
     else if ((gl_FragCoord.x < window_width / 2.0 + 1.0) && split_flag) // gl_FragCoord.x == window_width / 2.0 因为误差的原因算不出来
     {
@@ -133,4 +143,27 @@ float[9] CopyKernel(float src[9])
         dst[i] = src[i];
 
     return dst;
+}
+
+vec3 ToneMapping(vec3 color)
+{
+    if (bHDR)
+    {
+        vec3 mappedColor;
+        if (iHDRAlgro == 0)
+        {
+            // Reinhard色调映射
+            mappedColor = color / (color + vec3(1.0));
+        }
+        else if (iHDRAlgro == 1)
+        {
+            // 曝光色调映射
+            mappedColor = vec3(1.0) - exp(-color * fExposure); //vec3(1.0) 减去 自然常数e的-color * fExposure次方
+        }
+
+        return mappedColor;
+    }
+    else
+        return color;
+
 }
