@@ -516,6 +516,15 @@ void GetImguiValue()
 		ImGui::TreePop();
 	}
 
+	if (ImGui::TreeNodeEx("Bloom", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		ImGui::Checkbox("Enable Bloom", &bBloom);
+
+		ImGui::TreePop();
+	}
+
+	
+
 }
 
 void SetUniformToShader(Shader& shader)
@@ -587,9 +596,10 @@ void SetUniformToShader(Shader& shader)
 	shader.SetFloat("fBiasPtShadow", fBiasPtShadow);
 	shader.SetFloat("height_scale", height_scale);
 	shader.SetInt("iParaAlgo", iParaAlgo);
-	shader.SetInt("bHDR", bHDR);
+	shader.SetBool("bHDR", bHDR);
 	shader.SetFloat("fExposure", fExposure);
 	shader.SetInt("iHDRAlgro", iHDRAlgro);
+	shader.SetBool("bBloom", bBloom);
 
 	// ShaderLightingInstance 
 	// 因为model矩阵变换是基于单位矩阵进行的，想要在已经变换后的model矩阵的基础上，再进行model矩阵变换有点困难

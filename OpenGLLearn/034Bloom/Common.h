@@ -43,7 +43,7 @@ vec3 dirLight_ambient = vec3(0.0f);
 vec3 dirLight_diffuse = vec3(0.0f);
 vec3 dirLight_specular = vec3(0.0f);
 vec3 pointLight_ambient = vec3(0.0f);
-vec3 pointLight_diffuse = vec3(200.0f);
+vec3 pointLight_diffuse = vec3(20.0f);
 vec3 pointLight_specular = vec3(0.0f);
 vec3 spotLight_ambient = vec3(0.0f);
 vec3 spotLight_diffuse = vec3(0.0f);
@@ -86,5 +86,6 @@ int iParaAlgo = 2; // { "Parallax Mapping", "Steep Parallax Mapping", "Parallax 
 bool bHDR = true;
 float fExposure = 0.3;
 int iHDRAlgro = 1; // { "reinhard tone mapping", "exposure tone mapping" }
+bool bBloom = true;
 /************** Imgui±‰¡ø **************/
 
