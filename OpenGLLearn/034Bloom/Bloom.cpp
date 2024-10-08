@@ -93,17 +93,16 @@ int main()
 	scene.CreateShader();
 	//scene.CreateScene(&myCam);
 
-	// depthmapª∫≥Â
-	CreateFrameBuffer_Depthmap(fbo_depthmap, tbo_depthmap);
-	// depthCubemapª∫≥Â
-	CreateFrameBuffer_DepthCubemap(fbo_depthCubemap, tbo_depthCubemap);
-
 	// ‘≠≥°æ∞ª∫≥Â
 	CreateFrameBuffer_MSAA(fbo_origin, tbo_origin, rbo_origin, 2);
 	// ∫Û ”æµª∫≥Â
 	CreateFrameBuffer(fbo_mirror, tbo_mirror, rbo_mirror, 1);
 	// ÷–º‰ª∫≥Â
 	CreateFrameBuffer(fbo_middle, tbo_middle, rbo_middle, 2);
+	// depthmapª∫≥Â
+	CreateFrameBuffer_Depthmap(fbo_depthmap, tbo_depthmap);
+	// depthCubemapª∫≥Â
+	CreateFrameBuffer_DepthCubemap(fbo_depthCubemap, tbo_depthCubemap);
 
 
 	// Uniformª∫≥Â
@@ -973,7 +972,7 @@ void DrawDepthCubemap(vec3 lightPos)
 	scene.lightShader.SetFloat("farPlane", far);
 	scene.lightShader.SetBool("bDepthCubemapDebug", bDepthCubemapDebug);
 	glActiveTexture(GL_TEXTURE20);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, fbo_depthCubemap);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, tbo_depthCubemap);
 }
 
 void SetAllUniformValues()

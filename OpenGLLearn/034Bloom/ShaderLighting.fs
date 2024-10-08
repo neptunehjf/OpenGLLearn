@@ -134,9 +134,6 @@ void main()
 		float closestDepth = texture(depthCubemap, lightToFrag).r;
 		FragColor = vec4(vec3(closestDepth / farPlane), 1.0);
 	}
-	
-	//debug
-	//BrightColor = vec4(1.0, 0.0, 0.0, 1.0);
 
 }
 
