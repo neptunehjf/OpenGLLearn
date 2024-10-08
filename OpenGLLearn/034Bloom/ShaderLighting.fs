@@ -1,5 +1,8 @@
 #version 330 core
 
+layout (location = 0) out vec4 FragColor;
+layout (location = 1) out vec4 BrightColor;
+
 in GS_OUT
 {
 	vec3 fragPos;
@@ -75,7 +78,6 @@ uniform DirectionLight dirLight;
 uniform PointLight pointLight[POINT_LIGHT_NUM];
 uniform SpotLight spotLight;
 
-out vec4 fragColor;
 
 vec4 CalcDirLight(vec4 diffuseColor, vec4 specularColor);
 vec4 CalcPointLight(vec4 diffuseColor, vec4 specularColor);
@@ -118,22 +120,24 @@ void main()
 	color.a = diffuseColor.a;
 
 	// 各分量颜色混合
-	fragColor = color;
+	FragColor = color;
+
+	float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
+    if(brightness > 1.0)
+        BrightColor = vec4(FragColor.rgb, 1.0);
+	else
+	    BrightColor = vec4(0.0, 0.0, 0.0, 1.0);
 
 	if (bShadow && bDepthCubemapDebug)
 	{
 		vec3 lightToFrag = gs_in.fragPos - PtLightPos;
 		float closestDepth = texture(depthCubemap, lightToFrag).r;
-		fragColor = vec4(vec3(closestDepth / farPlane), 1.0);
+		FragColor = vec4(vec3(closestDepth / farPlane), 1.0);
 	}
+	
+	//debug
+	//BrightColor = vec4(1.0, 0.0, 0.0, 1.0);
 
-	// debug
-	vec3 norm;
-	//if (bNormalMap)
-	{
-		//norm = texture(material.texture_disp1, gs_in.texCoord).rgb;
-		//fragColor = vec4(norm, 1.0);
-	}
 }
 
 vec4 CalcDirLight(vec4 diffuseColor, vec4 specularColor)

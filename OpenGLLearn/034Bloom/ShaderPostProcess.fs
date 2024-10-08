@@ -3,7 +3,14 @@
 in vec2 TexCoords;
 out vec4 FragColor;
 
-uniform sampler2D texture_diffuse1;
+struct Material
+{
+	sampler2D texture_diffuse1;
+    sampler2D texture_diffuse2; // 亮色图
+};
+
+uniform Material material;
+
 uniform float sample_offset_base; 
 uniform int kernel_type;
 uniform float window_width;
@@ -21,7 +28,8 @@ vec3 BloomBlur();
 void main()
 {   
     // 原色
-    vec3 originColor = texture(texture_diffuse1, TexCoords).rgb;
+    vec3 originColor = texture(material.texture_diffuse1, TexCoords).rgb;
+    vec3 brightColor = texture(material.texture_diffuse2, TexCoords).rgb;
     vec3 color = originColor;
 
     if (bHDR || bBloom)
@@ -36,16 +44,20 @@ void main()
         color = ToneMapping(color);
     
         FragColor = vec4(color, 1.0);
+
+        //debug
+        //FragColor = vec4(originColor, 1.0);
+
     }
     else
     {
         // PostProcess 要在 Tone Mapping之后，因为后期是基于LDR的
 
         // 反相
-        //FragColor = vec4(vec3(1.0 - texture(texture_diffuse1, TexCoords)), 1.0); 
+        //FragColor = vec4(vec3(1.0 - texture(material.texture_diffuse1, TexCoords)), 1.0); 
 
         // 黑白
-        //FragColor = texture(texture_diffuse1, TexCoords);
+        //FragColor = texture(material.texture_diffuse1, TexCoords);
         // 简单求平均数的方式，可能不够准确
         //float average = (FragColor.r + FragColor.g + FragColor.b) / 3.0;
         // 人眼会对绿色更加敏感一些，而对蓝色不那么敏感，所以为了获取物理上更精确的效果，我们需要使用加权的(Weighted)通道
@@ -123,7 +135,7 @@ void main()
         vec3 sampleTex[9];
         for(int i = 0; i < 9; i++)
         {
-            sampleTex[i] = vec3(texture(texture_diffuse1, TexCoords.st + sample[i]));
+            sampleTex[i] = vec3(texture(material.texture_diffuse1, TexCoords.st + sample[i]));
         }
         vec3 color = vec3(0.0);
         for(int i = 0; i < 9; i++)
@@ -209,12 +221,7 @@ vec3 BloomBlur()
     vec3 sampleTex[9];
     for(int i = 0; i < 9; i++)
     {
-        sampleTex[i] = vec3(texture(texture_diffuse1, TexCoords.st + sample[i]));
-
-        // 只保留亮色来进行BloomBlur
-        float brightness = dot(sampleTex[i].rgb, vec3(0.2126, 0.7152, 0.0722)); //人眼对绿色更敏感 0.2126, 0.7152, 0.0722 的权重更符合人眼
-        if (brightness < 1.0)
-	        sampleTex[i] = vec3(0.0);
+        sampleTex[i] = vec3(texture(material.texture_diffuse2, TexCoords.st + sample[i]));
     }
 
     vec3 color = vec3(0.0);

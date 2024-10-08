@@ -31,8 +31,8 @@ void mouse_callback(GLFWwindow* window, double posX, double posY);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void GetImguiValue();
 void SetUniformToShader(Shader& shader);
-void CreateFrameBuffer(GLuint& fbo, GLuint& tbo, GLuint& rbo);
-void CreateFrameBuffer_MSAA(GLuint& fbo, GLuint& tbo, GLuint& rbo);
+void CreateFrameBuffer(GLuint& fbo, GLuint* tbo, GLuint& rbo, GLuint tbo_num);
+void CreateFrameBuffer_MSAA(GLuint& fbo, GLuint* tbo, GLuint& rbo, GLuint tbo_num);
 void CreateFrameBuffer_Depthmap(GLuint& fbo, GLuint& tbo);
 void CreateFrameBuffer_DepthCubemap(GLuint& fbo, GLuint& tbo);
 void SetUniformBuffer();
@@ -48,17 +48,17 @@ GLFWwindow* window = NULL;
 
 // 原场景缓冲
 GLuint fbo_origin = 0; // 自定义帧缓冲对象
-GLuint tbo_origin = 0; // 纹理缓冲对象（附件）
+GLuint tbo_origin[2] = {}; // 纹理缓冲对象（附件）
 GLuint rbo_origin = 0; // 渲染缓冲对象（附件）
 
 // 后视镜缓冲
 GLuint fbo_mirror = 0; // 自定义帧缓冲对象
-GLuint tbo_mirror = 0; // 纹理缓冲对象（附件）
+GLuint tbo_mirror[1] = {}; // 纹理缓冲对象（附件）
 GLuint rbo_mirror = 0; // 渲染缓冲对象（附件）
 
 // 中间缓冲
 GLuint fbo_middle = 0; // 自定义帧缓冲对象
-GLuint tbo_middle = 0; // 纹理缓冲对象（附件）
+GLuint tbo_middle[2] = {}; // 纹理缓冲对象（附件）
 GLuint rbo_middle = 0; // 渲染缓冲对象（附件）
 
 // depthmap缓冲
@@ -93,16 +93,18 @@ int main()
 	scene.CreateShader();
 	//scene.CreateScene(&myCam);
 
-	// 原场景缓冲
-	CreateFrameBuffer_MSAA(fbo_origin, tbo_origin, rbo_origin);
-	// 后视镜缓冲
-	CreateFrameBuffer(fbo_mirror, tbo_mirror, rbo_mirror);
-	// 中间缓冲
-	CreateFrameBuffer(fbo_middle, tbo_middle, rbo_middle);
 	// depthmap缓冲
 	CreateFrameBuffer_Depthmap(fbo_depthmap, tbo_depthmap);
 	// depthCubemap缓冲
 	CreateFrameBuffer_DepthCubemap(fbo_depthCubemap, tbo_depthCubemap);
+
+	// 原场景缓冲
+	CreateFrameBuffer_MSAA(fbo_origin, tbo_origin, rbo_origin, 2);
+	// 后视镜缓冲
+	CreateFrameBuffer(fbo_mirror, tbo_mirror, rbo_mirror, 1);
+	// 中间缓冲
+	CreateFrameBuffer(fbo_middle, tbo_middle, rbo_middle, 2);
+
 
 	// Uniform缓冲
 	// 
@@ -209,6 +211,7 @@ int main()
 		glViewport(0, 0, windowWidth, windowHeight);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo_origin);
+
 		scene.DrawScene();
 
 		// 用中间fbo的方式实现，实际上中间FBO就是一个只带1个采样点的普通帧缓冲。用Blit操作把MSAA FBO复制进去，然后就可以用中间FBO的TBO来后期处理了。
@@ -219,7 +222,16 @@ int main()
 		// MSAA纹理本身其实也可以直接传到着色器进行采样，因为MSAA纹理格式和普通纹理不一样，所以不能像普通纹理对象直接用。
 		// 可以用sampler2DMS的方式传入，可以获取到每个采样点，主要用于自定义抗锯齿算法
 		// 只是单纯渲染场景的话，用glBlitFramebuffer就够了
+		glReadBuffer(GL_COLOR_ATTACHMENT0);
+		glDrawBuffer(GL_COLOR_ATTACHMENT0);
 		glBlitFramebuffer(0, 0, windowWidth, windowHeight, 0, 0, windowWidth, windowHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
+		glReadBuffer(GL_COLOR_ATTACHMENT1);
+		glDrawBuffer(GL_COLOR_ATTACHMENT1);
+		glBlitFramebuffer(0, 0, windowWidth, windowHeight, 0, 0, windowWidth, windowHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
+		glReadBuffer(0);
+		glDrawBuffer(0);
 
 		// 后视镜场景
 		myCam.yawValue += 180.0;
@@ -245,11 +257,9 @@ int main()
 	// 资源清理
 	scene.DeleteScene();
 	glDeleteFramebuffers(1, &fbo_origin);
-	glDeleteFramebuffers(1, &tbo_origin);
-	glDeleteFramebuffers(1, &rbo_origin);
 	glDeleteFramebuffers(1, &fbo_mirror);
-	glDeleteFramebuffers(1, &tbo_mirror);
-	glDeleteFramebuffers(1, &rbo_mirror);
+	glDeleteFramebuffers(1, &fbo_middle);
+
 	glDeleteBuffers(1, &ubo);
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
@@ -268,20 +278,15 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	// bugfix 窗口大小变化后，纹理缓冲的大小也要相应变化
 	// 删除已存在的缓冲
 	glDeleteFramebuffers(1, &fbo_origin);
-	glDeleteFramebuffers(1, &tbo_origin);
-	glDeleteFramebuffers(1, &rbo_origin);
 	glDeleteFramebuffers(1, &fbo_mirror);
-	glDeleteFramebuffers(1, &tbo_mirror);
-	glDeleteFramebuffers(1, &rbo_mirror);
 	glDeleteFramebuffers(1, &fbo_middle);
-	glDeleteFramebuffers(1, &tbo_middle);
-	glDeleteFramebuffers(1, &rbo_middle);
+
 	// 原场景缓冲
-	CreateFrameBuffer_MSAA(fbo_origin, tbo_origin, rbo_origin);
+	CreateFrameBuffer_MSAA(fbo_origin, tbo_origin, rbo_origin, 2);
 	// 后视镜缓冲
-	CreateFrameBuffer(fbo_mirror, tbo_mirror, rbo_mirror);
+	CreateFrameBuffer(fbo_mirror, tbo_mirror, rbo_mirror, 1);
 	// 中间缓冲
-	CreateFrameBuffer(fbo_middle, tbo_middle, rbo_middle);
+	CreateFrameBuffer(fbo_middle, tbo_middle, rbo_middle, 2);
 
 	glViewport(0, 0, width, height);
 }
@@ -641,7 +646,7 @@ void SetUniformToShader(Shader& shader)
 }
 
 //创建自定义帧缓冲
-void CreateFrameBuffer(GLuint& fbo, GLuint& tbo, GLuint& rbo)
+void CreateFrameBuffer(GLuint& fbo, GLuint* tbo, GLuint& rbo, GLuint tbo_num)
 {
 	// 首先创建一个帧缓冲对象 （由color stencil depth组成。默认缓冲区也有。只不过这次自己创建缓冲区，可以实现一些有意思的功能）
 	// 只有默认缓冲才能输出图像(因为和GLFW窗口绑定)，用自建的缓冲不会输出任何图像，因此可以用来离屏渲染
@@ -649,15 +654,19 @@ void CreateFrameBuffer(GLuint& fbo, GLuint& tbo, GLuint& rbo)
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 	
 	// 生成纹理附件 对应color缓冲
-	glGenTextures(1, &tbo);
-	glBindTexture(GL_TEXTURE_2D, tbo);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, windowWidth, windowHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	glGenTextures(tbo_num, tbo);
 
-	// 纹理缓冲对象  作为一个GL_COLOR_ATTACHMENT0附件 附加到 帧缓冲对象
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tbo, 0);
+	for (uint i = 0; i < tbo_num; i++)
+	{
+		glBindTexture(GL_TEXTURE_2D, tbo[i]);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, windowWidth, windowHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		// 纹理缓冲对象  作为一个GL_COLOR_ATTACHMENT0附件 附加到 帧缓冲对象
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, tbo[i], 0);	
+	}
 
 	// 生成渲染缓冲对象 对应stencil，depth缓冲
 	glGenRenderbuffers(1, &rbo);
@@ -668,6 +677,13 @@ void CreateFrameBuffer(GLuint& fbo, GLuint& tbo, GLuint& rbo)
 	// 渲染缓冲对象 作为一个GL_DEPTH_STENCIL_ATTACHMENT附件 附加到 帧缓冲上
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
 	
+	// 指定写入的颜色附件
+	if (tbo_num == 2)
+	{
+		GLuint attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+		glDrawBuffers(2, attachments);
+	}
+
 	// 检查帧缓冲对象完整性
 	int chkFlag = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	if (chkFlag != GL_FRAMEBUFFER_COMPLETE)
@@ -761,7 +777,7 @@ void CreateFrameBuffer_DepthCubemap(GLuint& fbo, GLuint& tbo)
 }
 
 //创建自定义帧缓冲MSAA
-void CreateFrameBuffer_MSAA(GLuint& fbo, GLuint& tbo, GLuint& rbo)
+void CreateFrameBuffer_MSAA(GLuint& fbo, GLuint* tbo, GLuint& rbo, GLuint tbo_num)
 {
 	// 首先创建一个帧缓冲对象 （由color stencil depth组成。默认缓冲区也有。只不过这次自己创建缓冲区，可以实现一些有意思的功能）
 	// 只有默认缓冲才能输出图像(因为和GLFW窗口绑定)，用自建的缓冲不会输出任何图像，因此可以用来离屏渲染
@@ -769,13 +785,17 @@ void CreateFrameBuffer_MSAA(GLuint& fbo, GLuint& tbo, GLuint& rbo)
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
 	// 生成MSAA纹理附件 对应color缓冲
-	glGenTextures(1, &tbo);
-	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, tbo);
-	glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, MSAA_SAMPLE_NUM, GL_RGB16F, windowWidth, windowHeight, true);
-	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
+	glGenTextures(tbo_num, tbo);
+	
+	for (uint i = 0; i < tbo_num; i++)
+	{
+		glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, tbo[i]);
+		glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, MSAA_SAMPLE_NUM, GL_RGB16F, windowWidth, windowHeight, true);
+		glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
 
-	// MSAA纹理缓冲对象  作为一个GL_COLOR_ATTACHMENT0附件 附加到 帧缓冲对象
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, tbo, 0);
+		// MSAA纹理缓冲对象  作为一个GL_COLOR_ATTACHMENT0附件 附加到 帧缓冲对象
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D_MULTISAMPLE, tbo[i], 0);
+	}
 
 	// 生成渲染缓冲对象 对应stencil，depth缓冲
 	glGenRenderbuffers(1, &rbo);
@@ -786,6 +806,13 @@ void CreateFrameBuffer_MSAA(GLuint& fbo, GLuint& tbo, GLuint& rbo)
 
 	// 渲染缓冲对象 作为一个GL_DEPTH_STENCIL_ATTACHMENT附件 附加到 帧缓冲上
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
+	// 指定写入的颜色附件
+	if (tbo_num == 2)
+	{
+		GLuint attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+		glDrawBuffers(2, attachments);
+	}
 
 	// 检查帧缓冲对象完整性
 	int chkFlag = glCheckFramebufferStatus(GL_FRAMEBUFFER);
@@ -976,17 +1003,24 @@ void DrawScreen()
 	GLuint t_dummy = 0;
 	const vector<Texture> screenTexture =
 	{
-		{tbo_middle, "texture_diffuse"},
+		{tbo_middle[0], "texture_diffuse"},
 		{t_dummy, "texture_specular"}
-
 	};
+	const vector<Texture> screenTextureBright =
+	{
+		{tbo_middle[1], "texture_diffuse"},
+		{t_dummy, "texture_specular"}
+	};
+
 	scene.screen.SetTextures(screenTexture);
+	scene.screen.AddTextures(screenTextureBright);
+
 	scene.screen.DrawMesh(scene.screenShader, GL_TRIANGLES);
 
 	// 后视镜
 	const vector<Texture> mirrorTexture =
 	{
-		{tbo_mirror, "texture_diffuse"},
+		{tbo_mirror[0], "texture_diffuse"},
 		{t_dummy, "texture_specular"}
 	};
 	scene.mirror.SetTextures(mirrorTexture);
