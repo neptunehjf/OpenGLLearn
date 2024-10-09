@@ -35,6 +35,7 @@ void CreateFrameBuffer(GLuint& fbo, GLuint* tbo, GLuint& rbo, GLuint tbo_num);
 void CreateFrameBuffer_MSAA(GLuint& fbo, GLuint* tbo, GLuint& rbo, GLuint tbo_num);
 void CreateFrameBuffer_Depthmap(GLuint& fbo, GLuint& tbo);
 void CreateFrameBuffer_DepthCubemap(GLuint& fbo, GLuint& tbo);
+void CreateFrameBuffer_pingpong();
 void SetUniformBuffer();
 void DrawDepthMap();
 void DrawDepthCubemap(vec3 lightPos);
@@ -71,6 +72,10 @@ GLuint tbo_depthCubemap = 0; // 纹理缓冲对象（附件）
 
 // Uniform缓冲
 GLuint ubo = 0;
+
+// pingpong缓冲
+GLuint fbo_pingpong[2] = {}; // 自定义帧缓冲对象
+GLuint tbo_pingpong[2] = {}; // 渲染缓冲对象（附件）
 
 int main()
 {
@@ -824,6 +829,38 @@ void CreateFrameBuffer_MSAA(GLuint& fbo, GLuint* tbo, GLuint& rbo, GLuint tbo_nu
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+//创建乒乓帧缓冲
+void CreateFrameBuffer_pingpong()
+{
+	glGenFramebuffers(2, fbo_pingpong);
+	glGenTextures(2, tbo_pingpong);
+
+	for (GLuint i = 0; i < 2; i++)
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo_pingpong[i]);
+
+		glBindTexture(GL_TEXTURE_2D, tbo_pingpong[i]);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, windowWidth, windowHeight, 0, GL_RGB, GL_FLOAT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tbo_pingpong[i], 0);
+	}
+
+	// 检查帧缓冲对象完整性
+	int chkFlag = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if (chkFlag != GL_FRAMEBUFFER_COMPLETE)
+	{
+		cout << "Error: Framebuffer is not complete!" << endl;
+		cout << "Check Flag: " << hex << chkFlag << endl;
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
 void SetUniformBuffer()
 {
 	// view矩阵 world -> view
@@ -1011,10 +1048,43 @@ void DrawScreen()
 		{t_dummy, "texture_specular"}
 	};
 
+
 	scene.screen.SetTextures(screenTexture);
 	scene.screen.AddTextures(screenTextureBright);
 
+	bool horizontal = true;
+
+	uint amount = 10;
+	for (uint i = 0; i < amount; i++)
+	{
+		// 本次循环图片输出到 fbo_pingpong[horizontal]
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo_pingpong[horizontal]);
+
+		// 设置screenShader的horizontal,判断当前应该是横向计算还是纵向计算
+		scene.screenShader.SetBool("horizontal", horizontal);
+
+		// 第一次用原来的亮度图即可，之后都是上一次循环的pingpong渲染的输出结果了
+		if (i != 0)
+		{
+			// tbo_middle[1]不变，只不过内容变成上一次循环的pingpong渲染的输出结果了
+			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo_pingpong[!horizontal]);
+			glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo_middle);
+			glReadBuffer(GL_COLOR_ATTACHMENT0);
+			glDrawBuffer(GL_COLOR_ATTACHMENT1);
+			glBlitFramebuffer(0, 0, windowWidth, windowHeight, 0, 0, windowWidth, windowHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+		}
+
+		scene.screen.DrawMesh(scene.screenShader, GL_TRIANGLES);
+
+		horizontal = !horizontal;
+	}
+
+	// 关掉自定义缓冲的读写，就切换成了默认缓冲
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	scene.screen.DrawMesh(scene.screenShader, GL_TRIANGLES);
+
 
 	// 后视镜
 	const vector<Texture> mirrorTexture =

@@ -20,6 +20,7 @@ uniform bool bHDR;
 uniform float fExposure;
 uniform int iHDRAlgro;
 uniform bool bBloom;
+uniform bool horizontal;
 
 float[9] CopyKernel(float src[9]);
 vec3 ToneMapping(vec3 color);
@@ -29,7 +30,7 @@ void main()
 {   
     // 原色
     vec3 originColor = texture(material.texture_diffuse1, TexCoords).rgb;
-    vec3 brightColor = texture(material.texture_diffuse2, TexCoords).rgb;
+
     vec3 color = originColor;
 
     if (bHDR || bBloom)
@@ -44,10 +45,6 @@ void main()
         color = ToneMapping(color);
     
         FragColor = vec4(color, 1.0);
-
-        //debug
-        //FragColor = vec4(originColor, 1.0);
-
     }
     else
     {
@@ -197,36 +194,31 @@ vec3 ToneMapping(vec3 color)
 
 vec3 BloomBlur()
 {
-    float sample_offset = 1.0 / sample_offset_base;
+    // Gaussian blur
+    vec2 sample_offset = 1.0 / textureSize(material.texture_diffuse2, 0);
+    float weight[5] = float[] (0.227027, 0.1945946, 0.1216216, 0.054054, 0.016216);
 
-    vec2 sample[9] = vec2[](
-    vec2(-sample_offset,  sample_offset), // 左上
-    vec2( 0.0f,    sample_offset), // 正上
-    vec2( sample_offset,  sample_offset), // 右上
-    vec2(-sample_offset,  0.0f),   // 左
-    vec2( 0.0f,    0.0f),   // 中
-    vec2( sample_offset,  0.0f),   // 右
-    vec2(-sample_offset, -sample_offset), // 左下
-    vec2( 0.0f,   -sample_offset), // 正下
-    vec2( sample_offset, -sample_offset)  // 右下
-    );
+    // 当前fragment
+    vec3 color = texture(material.texture_diffuse2, TexCoords).rgb * weight[0];
 
-    // 加权之和等于1才是原来的颜色，大于或小于1的话，图像会变亮/变暗。所以这里每个加权值都要除以16.0
-    float Blur[9] = float[](
-         1.0 / 16.0,  2.0 / 16.0,  1.0 / 16.0,
-         2.0 / 16.0,  4.0 / 16.0,  2.0 / 16.0,
-         1.0 / 16.0,  2.0 / 16.0,  1.0 / 16.0
-    );
-
-    vec3 sampleTex[9];
-    for(int i = 0; i < 9; i++)
+    // 因为Gaussian 波形有x和y维度可分离的特性，所以每次只计算一个维度组合起来，比直接二维计算要效率高
+    // 比如 5 x 5 的采样范围，直接二维采样要采样5 * 5 = 25次，分离计算只要 5 + 5 = 10次
+    if (horizontal)
     {
-        sampleTex[i] = vec3(texture(material.texture_diffuse2, TexCoords.st + sample[i]));
+        for (int i = 1; i < 5; i++)
+        {
+            color += texture(material.texture_diffuse2, TexCoords + vec2(sample_offset.x * i, 0.0)).rgb * weight[i];
+            color += texture(material.texture_diffuse2, TexCoords - vec2(sample_offset.x * i, 0.0)).rgb * weight[i];
+        }
     }
-
-    vec3 color = vec3(0.0);
-    for(int i = 0; i < 9; i++)
-        color += sampleTex[i] * Blur[i];
+    else
+    {
+        for (int i = 1; i < 5; i++)
+        {
+            color += texture(material.texture_diffuse2, TexCoords + vec2(0.0, sample_offset.y * i)).rgb * weight[i];
+            color += texture(material.texture_diffuse2, TexCoords - vec2(0.0, sample_offset.y * i)).rgb * weight[i];
+        }
+    }
 
     return color;
 }
