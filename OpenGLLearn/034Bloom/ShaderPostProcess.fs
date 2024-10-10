@@ -196,7 +196,7 @@ vec3 BloomBlur()
 {
     // Gaussian blur
     vec2 sample_offset = 1.0 / textureSize(material.texture_diffuse2, 0);
-    float weight[5] = float[] (0.227027, 0.1945946, 0.1216216, 0.054054, 0.016216);
+    float weight[9] = float[] (0.227027, 0.1945946, 0.1216216, 0.054054, 0.016216, 0.006216, 0.003216, 0.001216, 0.000216);
 
     // 当前fragment
     vec3 color = texture(material.texture_diffuse2, TexCoords).rgb * weight[0];
@@ -205,7 +205,7 @@ vec3 BloomBlur()
     // 比如 5 x 5 的采样范围，直接二维采样要采样5 * 5 = 25次，分离计算只要 5 + 5 = 10次
     if (horizontal)
     {
-        for (int i = 1; i < 5; i++)
+        for (int i = 1; i < 9; i++)
         {
             color += texture(material.texture_diffuse2, TexCoords + vec2(sample_offset.x * i, 0.0)).rgb * weight[i];
             color += texture(material.texture_diffuse2, TexCoords - vec2(sample_offset.x * i, 0.0)).rgb * weight[i];
@@ -213,7 +213,7 @@ vec3 BloomBlur()
     }
     else
     {
-        for (int i = 1; i < 5; i++)
+        for (int i = 1; i < 9; i++)
         {
             color += texture(material.texture_diffuse2, TexCoords + vec2(0.0, sample_offset.y * i)).rgb * weight[i];
             color += texture(material.texture_diffuse2, TexCoords - vec2(0.0, sample_offset.y * i)).rgb * weight[i];

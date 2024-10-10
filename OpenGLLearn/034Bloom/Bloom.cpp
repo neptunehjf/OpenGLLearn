@@ -44,7 +44,7 @@ void DrawScreen();
 
 
 Scene scene;
-Camera myCam(vec3(2.317f, 7.675f, -14.031f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
+Camera myCam(vec3(2.158f, 3.304f, -0.636f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
 GLFWwindow* window = NULL;
 
 // 原场景缓冲
@@ -1032,7 +1032,7 @@ void DrawScreen()
 	glDisable(GL_DEPTH_TEST);
 
 	// 清空各个缓冲区
-	glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT); //离屏渲染不需要glClear(GL_COLOR_BUFFER_BIT);
 
 	// 主屏幕
@@ -1054,7 +1054,7 @@ void DrawScreen()
 
 	bool horizontal = true;
 
-	uint amount = 10;
+	uint amount = 20;
 	for (uint i = 0; i < amount; i++)
 	{
 		// 本次循环图片输出到 fbo_pingpong[horizontal]
