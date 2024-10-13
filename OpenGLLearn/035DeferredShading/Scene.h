@@ -65,16 +65,16 @@ private:
 void Scene::CreateShader()
 {
 	// 创建shader 不能声明全局变量，因为shader的相关操作必须在glfw初始化完成后
-	lightShader = Shader("ShaderLighting.vs", "ShaderLighting.fs", "ShaderLighting.gs");
-	screenShader = Shader("ShaderPostProcess.vs", "ShaderPostProcess.fs");
-	cubemapShader = Shader("ShaderCubemap.vs", "ShaderCubemap.fs");
-	reflectShader = Shader("ShaderReflection.vs", "ShaderReflection.fs");
-	refractShader = Shader("ShaderRefraction.vs", "ShaderRefraction.fs");
-	normalShader = Shader("ShaderNormal.vs", "ShaderNormal.fs", "ShaderNormal.gs");
-	lightInstShader = Shader("ShaderLightingInstance.vs", "ShaderLightingInstance.fs");
-	depthmapShader = Shader("ShaderDepthMap.vs", "ShaderDepthMap.fs");
-	depthmapDisplayShader = Shader("ShaderDepthmapDisplay.vs", "ShaderDepthmapDisplay.fs");
-	depthCubemapShader = Shader("ShaderDepthCubemap.vs", "ShaderDepthCubemap.fs", "ShaderDepthCubemap.gs");
+	lightShader = Shader("Lighting.vs", "Lighting.fs", "Lighting.gs");
+	screenShader = Shader("PostProcess.vs", "PostProcess.fs");
+	cubemapShader = Shader("Cubemap.vs", "Cubemap.fs");
+	reflectShader = Shader("Reflection.vs", "Reflection.fs");
+	refractShader = Shader("Refraction.vs", "Refraction.fs");
+	normalShader = Shader("Normal.vs", "Normal.fs", "Normal.gs");
+	lightInstShader = Shader("LightingInstance.vs", "LightingInstance.fs");
+	depthmapShader = Shader("DepthMap.vs", "DepthMap.fs");
+	depthmapDisplayShader = Shader("DepthmapDisplay.vs", "DepthmapDisplay.fs");
+	depthCubemapShader = Shader("DepthCubemap.vs", "DepthCubemap.fs", "DepthCubemap.gs");
 }
 
 void Scene::CreateScene(Camera* myCam)

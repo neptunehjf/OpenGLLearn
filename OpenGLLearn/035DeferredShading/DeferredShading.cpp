@@ -36,6 +36,7 @@ void CreateFrameBuffer_MSAA(GLuint& fbo, GLuint* tbo, GLuint& rbo, GLuint tbo_nu
 void CreateFrameBuffer_Depthmap(GLuint& fbo, GLuint& tbo);
 void CreateFrameBuffer_DepthCubemap(GLuint& fbo, GLuint& tbo);
 void CreateFrameBuffer_pingpong();
+void CreateFrameBuffer_G();
 void SetUniformBuffer();
 void DrawDepthMap();
 void DrawDepthCubemap(vec3 lightPos);
@@ -75,7 +76,14 @@ GLuint ubo = 0;
 
 // pingpong缓冲
 GLuint fbo_pingpong[2] = {}; // 自定义帧缓冲对象
-GLuint tbo_pingpong[2] = {}; // 渲染缓冲对象（附件）
+GLuint tbo_pingpong[2] = {}; // 纹理缓冲对象（附件）
+
+// G缓冲
+GLuint fbo_G = 0;             // 自定义帧缓冲对象
+GLuint tbo_G_position = 0;    // 纹理缓冲对象（附件） 存储位置信息
+GLuint tbo_G_normal = 0;      // 纹理缓冲对象（附件） 存储法线信息
+GLuint tbo_G_abdspec = 0;     // 纹理缓冲对象（附件） 存储反照率和高光信息
+GLuint rbo_G = 0;             // 渲染缓冲对象（附件）
 
 int main()
 {
@@ -108,7 +116,8 @@ int main()
 	CreateFrameBuffer_Depthmap(fbo_depthmap, tbo_depthmap);
 	// depthCubemap缓冲
 	CreateFrameBuffer_DepthCubemap(fbo_depthCubemap, tbo_depthCubemap);
-
+	// G缓冲
+	CreateFrameBuffer_G();
 
 	// Uniform缓冲
 	// 
@@ -663,7 +672,7 @@ void CreateFrameBuffer(GLuint& fbo, GLuint* tbo, GLuint& rbo, GLuint tbo_num)
 	for (uint i = 0; i < tbo_num; i++)
 	{
 		glBindTexture(GL_TEXTURE_2D, tbo[i]);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, windowWidth, windowHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, windowWidth, windowHeight, 0, GL_RGB, GL_FLOAT, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glBindTexture(GL_TEXTURE_2D, 0);
@@ -1109,4 +1118,81 @@ void DrawScreen()
 		scene.screen.DrawMesh(scene.depthmapDisplayShader, GL_TRIANGLES);
 		glViewport(0, 0, windowWidth, windowHeight);
 	}
+}
+
+
+//创建 G-buffer
+void CreateFrameBuffer_G()
+{
+	// 首先创建一个帧缓冲对象 （由color stencil depth组成。默认缓冲区也有。只不过这次自己创建缓冲区，可以实现一些有意思的功能）
+	// 只有默认缓冲才能输出图像(因为和GLFW窗口绑定)，用自建的缓冲不会输出任何图像，因此可以用来离屏渲染
+	glGenFramebuffers(1, &fbo_G);
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo_G);
+
+	/**********************position缓冲，储存像素的位置信息*********************/
+	// 生成纹理附件 对应color缓冲
+	glGenTextures(1, &tbo_G_position);
+
+	// 设置纹理参数
+	glBindTexture(GL_TEXTURE_2D, tbo_G_position);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, windowWidth, windowHeight, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	// 纹理缓冲对象  作为一个GL_COLOR_ATTACHMENT附件 附加到 帧缓冲对象
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tbo_G_position, 0);
+
+	/**********************normal缓冲，储存像素的法线信息*********************/
+
+	// 生成纹理附件 对应color缓冲
+	glGenTextures(1, &tbo_G_normal);
+
+	// 设置纹理参数
+	glBindTexture(GL_TEXTURE_2D, tbo_G_normal);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, windowWidth, windowHeight, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	// 纹理缓冲对象  作为一个GL_COLOR_ATTACHMENT附件 附加到 帧缓冲对象
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, tbo_G_normal, 0);
+
+	/**********************albedo and specular缓冲，储存像素的反照率和高光信息*********************/
+
+	// 生成纹理附件 对应color缓冲
+	glGenTextures(1, &tbo_G_abdspec);
+
+	// 设置纹理参数
+	glBindTexture(GL_TEXTURE_2D, tbo_G_abdspec);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, windowWidth, windowHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	// 纹理缓冲对象  作为一个GL_COLOR_ATTACHMENT附件 附加到 帧缓冲对象
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, tbo_G_abdspec, 0);
+
+	// 设置渲染到本buffer的三个color附件
+	GLuint attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT0 };
+	glDrawBuffers(3, attachments);
+
+	// 生成渲染缓冲对象 对应stencil，depth缓冲
+	glGenRenderbuffers(1, &rbo_G);
+	glBindRenderbuffer(GL_RENDERBUFFER, rbo_G);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, windowWidth, windowHeight);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+	// 渲染缓冲对象 作为一个GL_DEPTH_STENCIL_ATTACHMENT附件 附加到 帧缓冲上
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo_G);
+
+	// 检查帧缓冲对象完整性
+	int chkFlag = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if (chkFlag != GL_FRAMEBUFFER_COMPLETE)
+	{
+		cout << "Error: Framebuffer is not complete!" << endl;
+		cout << "Check Flag: " << hex << chkFlag << endl;
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

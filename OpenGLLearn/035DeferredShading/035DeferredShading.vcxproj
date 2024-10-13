@@ -146,29 +146,29 @@
     <ClInclude Include="VertexData.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ShaderCubemap.fs" />
-    <None Include="ShaderCubemap.vs" />
-    <None Include="ShaderDepthCubemap.fs" />
-    <None Include="ShaderDepthCubemap.gs" />
-    <None Include="ShaderDepthCubemap.vs" />
-    <None Include="ShaderDepthMap.fs" />
-    <None Include="ShaderDepthMap.vs" />
-    <None Include="ShaderDepthmapDisplay.fs" />
-    <None Include="ShaderDepthmapDisplay.vs" />
-    <None Include="ShaderLighting.fs" />
-    <None Include="ShaderLighting.gs" />
-    <None Include="ShaderLighting.vs" />
-    <None Include="ShaderLightingInstance.fs" />
-    <None Include="ShaderLightingInstance.vs" />
-    <None Include="ShaderNormal.fs" />
-    <None Include="ShaderNormal.gs" />
-    <None Include="ShaderNormal.vs" />
-    <None Include="ShaderPostProcess.fs" />
-    <None Include="ShaderPostProcess.vs" />
-    <None Include="ShaderReflection.fs" />
-    <None Include="ShaderReflection.vs" />
-    <None Include="ShaderRefraction.fs" />
-    <None Include="ShaderRefraction.vs" />
+    <None Include="Cubemap.fs" />
+    <None Include="Cubemap.vs" />
+    <None Include="DepthCubemap.fs" />
+    <None Include="DepthCubemap.gs" />
+    <None Include="DepthCubemap.vs" />
+    <None Include="DepthMap.fs" />
+    <None Include="DepthMap.vs" />
+    <None Include="DepthmapDisplay.fs" />
+    <None Include="DepthmapDisplay.vs" />
+    <None Include="Lighting.fs" />
+    <None Include="Lighting.gs" />
+    <None Include="Lighting.vs" />
+    <None Include="LightingInstance.fs" />
+    <None Include="LightingInstance.vs" />
+    <None Include="Normal.fs" />
+    <None Include="Normal.gs" />
+    <None Include="Normal.vs" />
+    <None Include="PostProcess.fs" />
+    <None Include="PostProcess.vs" />
+    <None Include="Reflection.fs" />
+    <None Include="Reflection.vs" />
+    <None Include="Refraction.fs" />
+    <None Include="Refraction.vs" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Dependency\Src\glad\src\glad.c" />

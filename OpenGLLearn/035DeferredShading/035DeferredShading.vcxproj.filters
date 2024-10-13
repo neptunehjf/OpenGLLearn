@@ -41,73 +41,73 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ShaderCubemap.fs">
+    <None Include="Cubemap.fs">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="ShaderCubemap.vs">
+    <None Include="Cubemap.vs">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="ShaderDepthCubemap.fs">
+    <None Include="DepthCubemap.fs">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="ShaderDepthCubemap.gs">
+    <None Include="DepthCubemap.gs">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="ShaderDepthCubemap.vs">
+    <None Include="DepthCubemap.vs">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="ShaderDepthMap.fs">
+    <None Include="DepthMap.fs">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="ShaderDepthMap.vs">
+    <None Include="DepthMap.vs">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="ShaderDepthmapDisplay.fs">
+    <None Include="DepthmapDisplay.fs">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="ShaderDepthmapDisplay.vs">
+    <None Include="DepthmapDisplay.vs">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="ShaderLighting.fs">
+    <None Include="Lighting.fs">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="ShaderLighting.gs">
+    <None Include="Lighting.gs">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="ShaderLighting.vs">
+    <None Include="Lighting.vs">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="ShaderLightingInstance.fs">
+    <None Include="LightingInstance.fs">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="ShaderLightingInstance.vs">
+    <None Include="LightingInstance.vs">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="ShaderNormal.fs">
+    <None Include="Normal.fs">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="ShaderNormal.gs">
+    <None Include="Normal.gs">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="ShaderNormal.vs">
+    <None Include="Normal.vs">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="ShaderPostProcess.fs">
+    <None Include="PostProcess.fs">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="ShaderPostProcess.vs">
+    <None Include="PostProcess.vs">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="ShaderReflection.fs">
+    <None Include="Reflection.fs">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="ShaderReflection.vs">
+    <None Include="Reflection.vs">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="ShaderRefraction.fs">
+    <None Include="Refraction.fs">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="ShaderRefraction.vs">
+    <None Include="Refraction.vs">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>
