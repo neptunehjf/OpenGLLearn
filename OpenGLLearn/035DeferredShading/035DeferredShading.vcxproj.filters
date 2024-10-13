@@ -110,6 +110,12 @@
     <None Include="Refraction.vs">
       <Filter>Shader Files</Filter>
     </None>
+    <None Include="G-buffer.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="G-buffer.vs">
+      <Filter>Shader Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DeferredShading.cpp">

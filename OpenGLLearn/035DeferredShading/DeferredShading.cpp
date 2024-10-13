@@ -211,7 +211,6 @@ int main()
 		curTime = glfwGetTime();
 		deltaTime = curTime - preTime;
 		preTime = curTime;
-
 		/********************** 先用自定义帧缓冲进行离屏渲染 绑定到自定义帧缓冲，默认帧缓冲不再起作用 **********************/
 		
 		if (bShadow)
@@ -223,8 +222,11 @@ int main()
 		// 原场景
 		glViewport(0, 0, windowWidth, windowHeight);
 
-		glBindFramebuffer(GL_FRAMEBUFFER, fbo_origin);
+		/*************************Output G-Buffer Info****************************/
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo_G);
+		scene.DrawScene(false, false, true);
 
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo_origin);
 		scene.DrawScene();
 
 		// 用中间fbo的方式实现，实际上中间FBO就是一个只带1个采样点的普通帧缓冲。用Blit操作把MSAA FBO复制进去，然后就可以用中间FBO的TBO来后期处理了。
@@ -1031,6 +1033,7 @@ void SetAllUniformValues()
 	SetUniformToShader(scene.refractShader);
 	SetUniformToShader(scene.normalShader);
 	SetUniformToShader(scene.lightInstShader);
+	SetUniformToShader(scene.GBufferShader);
 }
 
 void DrawScreen()
@@ -1174,7 +1177,7 @@ void CreateFrameBuffer_G()
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, tbo_G_abdspec, 0);
 
 	// 设置渲染到本buffer的三个color附件
-	GLuint attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT0 };
+	GLuint attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
 	glDrawBuffers(3, attachments);
 
 	// 生成渲染缓冲对象 对应stencil，depth缓冲

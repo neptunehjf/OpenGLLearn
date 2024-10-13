@@ -155,6 +155,8 @@
     <None Include="DepthMap.vs" />
     <None Include="DepthmapDisplay.fs" />
     <None Include="DepthmapDisplay.vs" />
+    <None Include="G-buffer.fs" />
+    <None Include="G-buffer.vs" />
     <None Include="Lighting.fs" />
     <None Include="Lighting.gs" />
     <None Include="Lighting.vs" />

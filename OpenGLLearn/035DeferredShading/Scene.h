@@ -26,6 +26,7 @@ public:
 	Shader depthmapShader;
 	Shader depthmapDisplayShader;
 	Shader depthCubemapShader;
+	Shader GBufferShader;
 
 	Mesh cubeCubemap;
 	Mesh cube;
@@ -49,7 +50,7 @@ public:
 	Camera* myCam;
 
 	void CreateScene(Camera* myCam);
-	void DrawScene(bool bDepthmap = false, bool bDepthCubemap = false);
+	void DrawScene(bool bDepthmap = false, bool bDepthCubemap = false, bool bGBuffer = false);
 	bool LoadTexture(const string&& filePath, GLuint& texture, const GLint param_s, const GLint param_t);
 	GLuint LoadCubemap(const vector<string>& cubemapFaces);
 	void DeleteScene();
@@ -75,6 +76,7 @@ void Scene::CreateShader()
 	depthmapShader = Shader("DepthMap.vs", "DepthMap.fs");
 	depthmapDisplayShader = Shader("DepthmapDisplay.vs", "DepthmapDisplay.fs");
 	depthCubemapShader = Shader("DepthCubemap.vs", "DepthCubemap.fs", "DepthCubemap.gs");
+	GBufferShader = Shader("G-buffer.vs", "G-buffer.fs");
 }
 
 void Scene::CreateScene(Camera* myCam)
@@ -235,9 +237,9 @@ void Scene::CreateScene(Camera* myCam)
 
 }
 
-void Scene::DrawScene(bool bDepthmap, bool bDepthCubemap)
+void Scene::DrawScene(bool bDepthmap, bool bDepthCubemap, bool bGBuffer)
 {
-	if (bBlending)
+	if (bBlending && !bGBuffer)
 	{
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -256,8 +258,15 @@ void Scene::DrawScene(bool bDepthmap, bool bDepthCubemap)
 	if (bFaceCulling)
 		glEnable(GL_CULL_FACE);
 
-	// 绘制地板 
-	plane.DrawMesh(lightShader, GL_TRIANGLES); // 对地板不绘制深度图
+	// 绘制地板  // 对地板不绘制深度图
+	if (bDepthmap)
+		;
+	else if (bDepthCubemap)
+		;
+	else if (bGBuffer)
+		plane.DrawMesh(GBufferShader, GL_TRIANGLES);
+	else
+		plane.DrawMesh(lightShader, GL_TRIANGLES);
 
 	// 绘制立方体
 	cubeCubemap.SetTranslate(vec3(1.0f, 1.5f, 1.0f));
@@ -265,6 +274,8 @@ void Scene::DrawScene(bool bDepthmap, bool bDepthCubemap)
 		cubeCubemap.DrawMesh(depthmapShader, GL_TRIANGLES);
 	else if (bDepthCubemap)
 		cubeCubemap.DrawMesh(depthCubemapShader, GL_TRIANGLES);
+	else if (bGBuffer)
+		cubeCubemap.DrawMesh(GBufferShader, GL_TRIANGLES);
 	else
 	{
 		cubeCubemap.DrawMesh(reflectShader, GL_TRIANGLES);
@@ -276,6 +287,8 @@ void Scene::DrawScene(bool bDepthmap, bool bDepthCubemap)
 		cubeCubemap.DrawMesh(depthmapShader, GL_TRIANGLES);
 	else if (bDepthCubemap)
 		cubeCubemap.DrawMesh(depthCubemapShader, GL_TRIANGLES);
+	else if (bGBuffer)
+		cubeCubemap.DrawMesh(GBufferShader, GL_TRIANGLES);
 	else
 	{
 		cubeCubemap.DrawMesh(refractShader, GL_TRIANGLES);
@@ -287,6 +300,8 @@ void Scene::DrawScene(bool bDepthmap, bool bDepthCubemap)
 		cube.DrawMesh(depthmapShader, GL_TRIANGLES);
 	else if (bDepthCubemap)
 		cube.DrawMesh(depthCubemapShader, GL_TRIANGLES);
+	else if (bGBuffer)
+		cube.DrawMesh(GBufferShader, GL_TRIANGLES);
 	else
 	{
 		cube.DrawMesh(lightShader, GL_TRIANGLES);
@@ -301,6 +316,8 @@ void Scene::DrawScene(bool bDepthmap, bool bDepthCubemap)
 		nanosuit.DrawModel(depthmapShader);
 	else if (bDepthCubemap)
 		nanosuit.DrawModel(depthCubemapShader);
+	else if (bGBuffer)
+		nanosuit.DrawModel(GBufferShader);
 	else
 	{
 		nanosuit.DrawModel(lightShader);
@@ -312,6 +329,8 @@ void Scene::DrawScene(bool bDepthmap, bool bDepthCubemap)
 		nanosuit.DrawModel(depthmapShader);
 	else if (bDepthCubemap)
 		nanosuit.DrawModel(depthCubemapShader);
+	else if (bGBuffer)
+		nanosuit.DrawModel(GBufferShader);
 	else
 	{
 		nanosuit.DrawModel(reflectShader);
@@ -321,12 +340,15 @@ void Scene::DrawScene(bool bDepthmap, bool bDepthCubemap)
 		nanosuit.DrawModel(depthmapShader);
 	else if (bDepthCubemap)
 		nanosuit.DrawModel(depthCubemapShader);
+	else if (bGBuffer)
+		nanosuit.DrawModel(GBufferShader);
 	else
 	{
 		nanosuit.DrawModel(refractShader);
 	}
 	
-	glEnable(GL_BLEND);
+	if (!bGBuffer)
+		glEnable(GL_BLEND);
 
 	glDisable(GL_CULL_FACE);
 	if (bSkyBox)
@@ -346,6 +368,8 @@ void Scene::DrawScene(bool bDepthmap, bool bDepthCubemap)
 		planet.DrawModel(depthmapShader);
 	else if (bDepthCubemap)
 		planet.DrawModel(depthCubemapShader);
+	else if (bGBuffer)
+		planet.DrawModel(GBufferShader);
 	else
 	{
 		planet.DrawModel(lightShader);
@@ -355,6 +379,8 @@ void Scene::DrawScene(bool bDepthmap, bool bDepthCubemap)
 		rock.DrawModel(depthmapShader, true);
 	else if (bDepthCubemap)
 		rock.DrawModel(depthCubemapShader, true);
+	else if (bGBuffer)
+		rock.DrawModel(GBufferShader, true);
 	else
 		rock.DrawModel(lightInstShader, true);
 
@@ -365,6 +391,8 @@ void Scene::DrawScene(bool bDepthmap, bool bDepthCubemap)
 			lamp.DrawMesh(depthmapShader, GL_TRIANGLES);
 		else if (bDepthCubemap)
 			lamp.DrawMesh(depthCubemapShader, GL_TRIANGLES);
+		else if (bGBuffer)
+			lamp.DrawMesh(GBufferShader, GL_TRIANGLES);
 		else
 			lamp.DrawMesh(lightShader, GL_TRIANGLES);
 	}
@@ -374,6 +402,8 @@ void Scene::DrawScene(bool bDepthmap, bool bDepthCubemap)
 		lamp.DrawMesh(depthmapShader, GL_TRIANGLES);
 	else if (bDepthCubemap)
 		lamp.DrawMesh(depthCubemapShader, GL_TRIANGLES);
+	else if (bGBuffer)
+		lamp.DrawMesh(GBufferShader, GL_TRIANGLES);
 	else
 		lamp.DrawMesh(lightShader, GL_TRIANGLES);		
 
@@ -382,6 +412,8 @@ void Scene::DrawScene(bool bDepthmap, bool bDepthCubemap)
 		PosYSquare.DrawMesh(depthmapShader, GL_TRIANGLES);
 	else if (bDepthCubemap)
 		PosYSquare.DrawMesh(depthCubemapShader, GL_TRIANGLES);
+	else if (bGBuffer)
+		PosYSquare.DrawMesh(GBufferShader, GL_TRIANGLES);
 	else
 	{
 		PosYSquare.DrawMesh(lightShader, GL_TRIANGLES);
@@ -404,6 +436,8 @@ void Scene::DrawScene(bool bDepthmap, bool bDepthCubemap)
 			square.DrawMesh(depthmapShader, GL_TRIANGLES);
 		else if (bDepthCubemap)
 			square.DrawMesh(depthCubemapShader, GL_TRIANGLES);
+		else if (bGBuffer)
+			square.DrawMesh(GBufferShader, GL_TRIANGLES);
 		else
 			square.DrawMesh(lightShader, GL_TRIANGLES);
 	}
