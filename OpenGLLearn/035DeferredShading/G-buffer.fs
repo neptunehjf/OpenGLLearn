@@ -19,9 +19,10 @@ uniform Material material;
 
 void main()
 {
+	// 这里3个输出都没有alpha分量，所以不能开启blend
 	gPosition = FragPos;
 
-	gNormal = normalize(Normal);
+	gNormal = normalize(Normal); 
 
 	gAlbedoSpec.rgb = texture(material.texture_diffuse1, TexCoord).rgb;
 	gAlbedoSpec.a = texture(material.texture_specular1, TexCoord).r;
