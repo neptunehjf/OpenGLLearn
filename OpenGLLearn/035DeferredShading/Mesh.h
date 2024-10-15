@@ -47,8 +47,8 @@ class Mesh
 public:
 	Mesh();
 	Mesh(const vector<Vertex>& vertices, const vector<GLuint>& indices, 
-		 const vector<Texture>& textures, const vector<mat4>& instMat4 = {});
-	Mesh(const vector<VertexNM>& verticesNM, const vector<Texture>& textures);
+		 const vector<Texture>& textures = {}, const vector<mat4>& instMat4 = {});
+	Mesh(const vector<VertexNM>& verticesNM, const vector<Texture>& textures = {});
 	~Mesh();
 
 	void DrawMesh(const Shader& shader, GLuint element, bool bInst = false);
@@ -335,7 +335,7 @@ void Mesh::DrawMesh(const Shader& shader, GLuint element, bool bInst)
 		{
 			//cout << "texture_diffuse" << endl;
 			diffuseN++;
-			shader.SetInt("material." + type + to_string(diffuseN), i);   // 不清楚这里一次draw有多个贴图要怎么搞，这里代码姑且保留
+			shader.SetInt("material." + type + to_string(diffuseN), i);
 		}
 		else if (type == "texture_specular")
 		{

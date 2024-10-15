@@ -92,7 +92,6 @@ void Scene::CreateScene(Camera* myCam)
 	// 加载贴图
 	GLuint t_metal = 0;
 	GLuint t_marble = 0;
-	GLuint t_dummy = 0;
 	GLuint t_window = 0;
 	GLuint t_wood = 0;
 	GLuint t_white = 0;
@@ -104,7 +103,6 @@ void Scene::CreateScene(Camera* myCam)
 
 	LoadTexture("Resource/Texture/metal.png", t_metal, GL_REPEAT, GL_REPEAT);
 	LoadTexture("Resource/Texture/marble.jpg", t_marble, GL_REPEAT, GL_REPEAT);
-	LoadTexture("Resource/Texture/dummy.png", t_dummy, GL_REPEAT, GL_REPEAT);  //自己做的占位贴图，占一个sampler位置，否则会被其他mesh的高光贴图替代
 	LoadTexture("Resource/Texture/window.png", t_window, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
 	LoadTexture("Resource/Texture/wood.png", t_wood, GL_REPEAT, GL_REPEAT);
 	LoadTexture("Resource/Texture/AllWhite.png", t_white, GL_REPEAT, GL_REPEAT);
@@ -134,44 +132,33 @@ void Scene::CreateScene(Camera* myCam)
 
 	const vector<Texture> cubeTexture =
 	{
-		{t_marble, "texture_diffuse"},
-		{t_dummy, "texture_specular"}
+		{t_marble, "texture_diffuse"}
 	};
 
 	const vector<Texture> windowTexture =
 	{
-		{t_window, "texture_diffuse"},
-		{t_dummy, "texture_specular"}
+		{t_window, "texture_diffuse"}
 	};
 
 	const vector<Texture> skyboxTexture =
 	{
 		{t_cubemap, "texture_cubemap"}
 	};
-	// 用于不需要texture的mesh
-	const vector<Texture> dummyTexture =
-	{
-		{t_dummy, "texture_diffuse"},
-		{t_dummy, "texture_specular"}
-	};
 
 	const vector<Texture> lampTexture =
 	{
-		{t_white, "texture_diffuse"},
-		{t_dummy, "texture_specular"}
+		{t_white, "texture_diffuse"}
 	};
 
 	const vector<Texture> brickTexture =
 	{
 		{t_brick, "texture_diffuse"},
-		{t_dummy, "texture_specular"},
 		{t_brick_normal, "texture_normal"}
 	};
 
 	const vector<Texture> brick2Texture =
 	{
 		{t_brick2, "texture_diffuse"},
-		{t_dummy, "texture_specular"},
 		{t_brick2_normal, "texture_normal"},
 		{t_brick2_disp, "texture_disp"}
 	};
@@ -200,10 +187,10 @@ void Scene::CreateScene(Camera* myCam)
 	cube = Mesh(g_cubeVertices, g_cubeIndices, lampTexture);
 	square = Mesh(g_squareVertices, g_squareIndices, windowTexture);
 	skybox = Mesh(g_skyboxVertices, g_skyboxIndices, skyboxTexture);
-	screen = Mesh(g_screenVertices, g_screenIndices, dummyTexture);
-	defferedScreen = Mesh(g_screenVertices, g_screenIndices, dummyTexture);
-	mirror = Mesh(g_mirrorVertices, g_mirrorIndices, dummyTexture);
-	particle = Mesh(g_particleVertices, g_particleIndices, dummyTexture);
+	screen = Mesh(g_screenVertices, g_screenIndices);
+	defferedScreen = Mesh(g_screenVertices, g_screenIndices);
+	mirror = Mesh(g_mirrorVertices, g_mirrorIndices);
+	particle = Mesh(g_particleVertices, g_particleIndices);
 	lamp = Mesh(g_cubeVertices, g_cubeIndices, lampTexture);
 	lamp.SetScale(vec3(1.0f));
 
