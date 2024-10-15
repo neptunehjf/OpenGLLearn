@@ -42,7 +42,7 @@ void DrawDepthMap();
 void DrawDepthCubemap(vec3 lightPos);
 void SetAllUniformValues();
 void DrawScreen();
-
+void DrawSceneDeffered();
 
 Scene scene;
 Camera myCam(vec3(2.158f, 3.304f, -0.636f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
@@ -85,6 +85,11 @@ GLuint tbo_G_normal = 0;      // 纹理缓冲对象（附件） 存储法线信息
 GLuint tbo_G_abdspec = 0;     // 纹理缓冲对象（附件） 存储反照率和高光信息
 GLuint rbo_G = 0;             // 渲染缓冲对象（附件）
 
+// deffered shading 缓冲
+GLuint fbo_deffered = 0; // 自定义帧缓冲对象
+GLuint tbo_deffered[2] = {}; // 纹理缓冲对象（附件）
+GLuint rbo_deffered = 0; // 渲染缓冲对象（附件）
+
 int main()
 {
 	if (!InitOpenGL())
@@ -118,6 +123,8 @@ int main()
 	CreateFrameBuffer_DepthCubemap(fbo_depthCubemap, tbo_depthCubemap);
 	// G缓冲
 	CreateFrameBuffer_G();
+	// deferred shading 缓冲
+	CreateFrameBuffer(fbo_deffered, tbo_deffered, rbo_deffered, 2);
 
 	// Uniform缓冲
 	// 
@@ -226,12 +233,24 @@ int main()
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo_G);
 		scene.DrawScene(false, false, true);
 
-		glBindFramebuffer(GL_FRAMEBUFFER, fbo_origin);
-		scene.DrawScene();
-
+		if (!bDeferred)
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, fbo_origin);
+			scene.DrawScene();
+		}
+		else
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, fbo_deffered);
+			DrawSceneDeffered();
+		}
+			
 		// 用中间fbo的方式实现，实际上中间FBO就是一个只带1个采样点的普通帧缓冲。用Blit操作把MSAA FBO复制进去，然后就可以用中间FBO的TBO来后期处理了。
 		// 缺点是，如果在此基础上进行后处理去计算颜色，是以1个采样点的纹理为基础来计算的，可能会重新导致锯齿
-		glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo_origin);
+		if (!bDeferred)
+			glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo_origin);
+		else
+			glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo_deffered);
+
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo_middle);
 
 		// MSAA纹理本身其实也可以直接传到着色器进行采样，因为MSAA纹理格式和普通纹理不一样，所以不能像普通纹理对象直接用。
@@ -543,7 +562,12 @@ void GetImguiValue()
 		ImGui::TreePop();
 	}
 
-	
+	if (ImGui::TreeNodeEx("Deferred Shading", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		ImGui::Checkbox("Enable Deferred Shading", &bDeferred);
+
+		ImGui::TreePop();
+	}
 
 }
 
@@ -1034,6 +1058,7 @@ void SetAllUniformValues()
 	SetUniformToShader(scene.normalShader);
 	SetUniformToShader(scene.lightInstShader);
 	SetUniformToShader(scene.GBufferShader);
+	SetUniformToShader(scene.DeferredShader);
 }
 
 void DrawScreen()
@@ -1198,4 +1223,25 @@ void CreateFrameBuffer_G()
 	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void DrawSceneDeffered()
+{
+	glDisable(GL_DEPTH_TEST);
+
+	// 清空各个缓冲区
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT); //离屏渲染不需要glClear(GL_COLOR_BUFFER_BIT);
+
+	// 主屏幕
+	const vector<Texture> gBufferTexture =
+	{
+		{tbo_G_position, "texture_diffuse"},
+		{tbo_G_normal, "texture_diffuse"},
+		{tbo_G_abdspec, "texture_diffuse"}
+	};
+
+	scene.defferedScreen.SetTextures(gBufferTexture);
+
+	scene.defferedScreen.DrawMesh(scene.DeferredShader, GL_TRIANGLES);
 }

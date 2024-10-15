@@ -27,6 +27,7 @@ public:
 	Shader depthmapDisplayShader;
 	Shader depthCubemapShader;
 	Shader GBufferShader;
+	Shader DeferredShader;
 
 	Mesh cubeCubemap;
 	Mesh cube;
@@ -41,6 +42,7 @@ public:
 	Model rock;
 	Mesh lamp;
 	Mesh PosYSquare;
+	Mesh defferedScreen;
 
 	vector<vec3> squarePositions;
 	vector<mat4> instMat4;
@@ -77,6 +79,7 @@ void Scene::CreateShader()
 	depthmapDisplayShader = Shader("DepthmapDisplay.vs", "DepthmapDisplay.fs");
 	depthCubemapShader = Shader("DepthCubemap.vs", "DepthCubemap.fs", "DepthCubemap.gs");
 	GBufferShader = Shader("G-buffer.vs", "G-buffer.fs");
+	DeferredShader = Shader("DeferredShading.vs", "DeferredShading.fs");
 }
 
 void Scene::CreateScene(Camera* myCam)
@@ -198,6 +201,7 @@ void Scene::CreateScene(Camera* myCam)
 	square = Mesh(g_squareVertices, g_squareIndices, windowTexture);
 	skybox = Mesh(g_skyboxVertices, g_skyboxIndices, skyboxTexture);
 	screen = Mesh(g_screenVertices, g_screenIndices, dummyTexture);
+	defferedScreen = Mesh(g_screenVertices, g_screenIndices, dummyTexture);
 	mirror = Mesh(g_mirrorVertices, g_mirrorIndices, dummyTexture);
 	particle = Mesh(g_particleVertices, g_particleIndices, dummyTexture);
 	lamp = Mesh(g_cubeVertices, g_cubeIndices, lampTexture);

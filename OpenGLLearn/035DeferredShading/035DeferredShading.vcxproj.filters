@@ -116,6 +116,12 @@
     <None Include="G-buffer.vs">
       <Filter>Shader Files</Filter>
     </None>
+    <None Include="DeferredShading.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="DeferredShading.fs">
+      <Filter>Shader Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DeferredShading.cpp">
