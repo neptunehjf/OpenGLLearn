@@ -26,11 +26,22 @@ using namespace glm;
 #define SHADOW_RESOLUTION_WIDTH 1024
 #define SHADOW_RESOLUTION_HEIGHT 1024
 
+#define HEAVY_LIGHTS_NUM 32
+
 double preTime = 0.0;
 double deltaTime = 0.0;
 double curTime = 0.0;
 
 const vec3 lampPos[4] = { vec3(20.0f, 3.0f, 0.0f) , vec3(20.0f, 3.0f, -10.0f) , vec3(20.0f, 3.0f, -20.0f) , vec3(20.0f, 3.0f, -30.0f) };
+const vec3 heavyLightsPos[HEAVY_LIGHTS_NUM] = { vec3(0.0f, 0.0f, 0.0f) , vec3(1.0f, 0.0f, 0.0f) , vec3(2.0f, 0.0f, 0.0f) , vec3(3.0f, 0.0f, 0.0f) ,
+                                                vec3(0.0f, 0.0f, -1.0f) , vec3(1.0f, 0.0f, -1.0f) , vec3(2.0f, 0.0f, -1.0f) , vec3(3.0f, 0.0f, -1.0f) ,
+                                                vec3(0.0f, 0.0f, -2.0f) , vec3(1.0f, 0.0f, -2.0f) , vec3(2.0f, 0.0f, -2.0f) , vec3(3.0f, 0.0f, -2.0f) ,
+                                                vec3(0.0f, 0.0f, -3.0f) , vec3(1.0f, 0.0f, -3.0f) , vec3(2.0f, 0.0f, -3.0f) , vec3(3.0f, 0.0f, -3.0f) ,
+                                                vec3(0.0f, 0.0f, -4.0f) , vec3(1.0f, 0.0f, -4.0f) , vec3(2.0f, 0.0f, -4.0f) , vec3(3.0f, 0.0f, -4.0f) ,
+                                                vec3(0.0f, 0.0f, -5.0f) , vec3(1.0f, 0.0f, -5.0f) , vec3(2.0f, 0.0f, -5.0f) , vec3(3.0f, 0.0f, -5.0f) ,
+                                                vec3(0.0f, 0.0f, -6.0f) , vec3(1.0f, 0.0f, -6.0f) , vec3(2.0f, 0.0f, -6.0f) , vec3(3.0f, 0.0f, -6.0f) ,
+                                                vec3(0.0f, 0.0f, -7.0f) , vec3(1.0f, 0.0f, -7.0f) , vec3(2.0f, 0.0f, -7.0f) , vec3(3.0f, 0.0f, -7.0f) };
+
 
 float windowWidth = WINDOW_WIDTH;
 float windowHeight = WINDOW_HEIGHT;

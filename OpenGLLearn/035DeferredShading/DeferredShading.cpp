@@ -43,9 +43,10 @@ void DrawDepthCubemap(vec3 lightPos);
 void SetAllUniformValues();
 void DrawScreen();
 void DrawSceneDeffered();
+void SetHeavyLightsUniform(Shader& shader);
 
 Scene scene;
-Camera myCam(vec3(2.158f, 3.304f, -0.636f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
+Camera myCam(vec3(2.59f, 2.63f, 3.22f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
 GLFWwindow* window = NULL;
 
 // 原场景缓冲
@@ -230,16 +231,21 @@ int main()
 		glViewport(0, 0, windowWidth, windowHeight);
 
 		/*************************Output G-Buffer Info****************************/
-		glBindFramebuffer(GL_FRAMEBUFFER, fbo_G);
-		scene.DrawScene(false, false, true);
+
+		//scene.DrawScene(false, false, true);
 
 		if (!bDeferred)
 		{
+			SetHeavyLightsUniform(scene.ForwardShader);
 			glBindFramebuffer(GL_FRAMEBUFFER, fbo_origin);
-			scene.DrawScene();
+			scene.DrawScene_HeavyLights(false);
+			//scene.DrawScene();
 		}
 		else
 		{
+			SetHeavyLightsUniform(scene.DeferredShader);
+			glBindFramebuffer(GL_FRAMEBUFFER, fbo_G);
+			scene.DrawScene_HeavyLights(true);
 			glBindFramebuffer(GL_FRAMEBUFFER, fbo_deffered);
 			DrawSceneDeffered();
 		}
@@ -670,7 +676,7 @@ void SetUniformToShader(Shader& shader)
 		shader.SetVec3(prefix + "ambient", pointLight_ambient);
 		shader.SetVec3(prefix + "diffuse", pointLight_diffuse);
 		shader.SetVec3(prefix + "specular", pointLight_specular);
-		shader.SetFloat(prefix + "constant", 1.0f);
+		shader.SetFloat(prefix + "constant", constant);
 		shader.SetFloat(prefix + "linear", linear);
 		shader.SetFloat(prefix + "quadratic", quadratic);
 	}
@@ -679,7 +685,7 @@ void SetUniformToShader(Shader& shader)
 	shader.SetVec3("pointLight[4].ambient", pointLight_ambient);
 	shader.SetVec3("pointLight[4].diffuse", pointLight_diffuse);
 	shader.SetVec3("pointLight[4].specular", pointLight_specular);
-	shader.SetFloat("pointLight[4].constant", 1.0f);
+	shader.SetFloat("pointLight[4].constant", constant);
 	shader.SetFloat("pointLight[4].linear", linear);
 	shader.SetFloat("pointLight[4].quadratic", quadratic);
 }
@@ -1124,13 +1130,13 @@ void DrawScreen()
 
 
 	// 后视镜
-	const vector<Texture> mirrorTexture =
-	{
-		{tbo_mirror[0], "texture_diffuse"},
-		{t_dummy, "texture_specular"}
-	};
-	scene.mirror.SetTextures(mirrorTexture);
-	scene.mirror.DrawMesh(scene.screenShader, GL_TRIANGLES);
+	//const vector<Texture> mirrorTexture =
+	//{
+	//	{tbo_mirror[0], "texture_diffuse"},
+	//	{t_dummy, "texture_specular"}
+	//};
+	//scene.mirror.SetTextures(mirrorTexture);
+	//scene.mirror.DrawMesh(scene.screenShader, GL_TRIANGLES);
 
 
 	if (bShadow && bDisDepthmap)
@@ -1240,8 +1246,65 @@ void DrawSceneDeffered()
 		{tbo_G_normal, "texture_diffuse"},
 		{tbo_G_abdspec, "texture_diffuse"}
 	};
-
 	scene.defferedScreen.SetTextures(gBufferTexture);
-
 	scene.defferedScreen.DrawMesh(scene.DeferredShader, GL_TRIANGLES);
+
+}
+
+void SetHeavyLightsUniform(Shader &shader)
+{
+	shader.Use();
+
+	float constant = 50.0f; // 通常保持1就行了
+	float linear = 0.09f;
+	float quadratic = 0.032f;
+	switch (item)
+	{
+	case 0:
+	{
+		linear = 0.09f;
+		quadratic = 0.032f;
+		break;
+	}
+	case 1:
+	{
+		linear = 0.045f;
+		quadratic = 0.0075f;
+		break;
+	}
+	case 2:
+	{
+		linear = 0.022f;
+		quadratic = 0.0019f;
+		break;
+	}
+	case 3:
+	{
+		linear = 0.007f;
+		quadratic = 0.0002f;
+		break;
+	}
+	default:
+	{
+		cout << "Light Fade Distance Error!" << endl;
+		break;
+	}
+	}
+
+	for (int i = 0; i < 32; i++)
+	{
+		stringstream ss;
+		ss << "pointLight[" << i << "].";
+		string prefix = ss.str();
+
+		shader.SetVec3(prefix + "lightPos", heavyLightsPos[i]);
+		shader.SetVec3(prefix + "ambient", pointLight_ambient);
+		shader.SetVec3(prefix + "diffuse", pointLight_diffuse);
+		shader.SetVec3(prefix + "specular", pointLight_specular);
+		shader.SetFloat(prefix + "constant", constant);
+		shader.SetFloat(prefix + "linear", linear);
+		shader.SetFloat(prefix + "quadratic", quadratic);
+	}
+
+	shader.SetInt("material.shininess", material_shininess);
 }

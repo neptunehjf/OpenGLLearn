@@ -28,6 +28,7 @@ public:
 	Shader depthCubemapShader;
 	Shader GBufferShader;
 	Shader DeferredShader;
+	Shader ForwardShader;
 
 	Mesh cubeCubemap;
 	Mesh cube;
@@ -58,6 +59,7 @@ public:
 	void DeleteScene();
 	void CreateShader();
 	void UpdateNMVertices();
+	void DrawScene_HeavyLights(bool deferred = true);
 
 private:
 	void CreateAsteroid();
@@ -80,6 +82,7 @@ void Scene::CreateShader()
 	depthCubemapShader = Shader("DepthCubemap.vs", "DepthCubemap.fs", "DepthCubemap.gs");
 	GBufferShader = Shader("G-buffer.vs", "G-buffer.fs");
 	DeferredShader = Shader("DeferredShading.vs", "DeferredShading.fs");
+	ForwardShader = Shader("ForwardShading.vs", "ForwardShading.fs");
 }
 
 void Scene::CreateScene(Camera* myCam)
@@ -689,5 +692,36 @@ void Scene::UpdateNMVertices()
 	else
 	{
 		PosYSquare = Mesh(g_planeVertices, g_planeIndices, m_brickTexture);
+	}
+}
+
+void Scene::DrawScene_HeavyLights(bool deferred)
+{
+	// 清空各个缓冲区
+	glClearColor(bkgColor.r, bkgColor.g, bkgColor.b, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //离屏渲染不需要glClear(GL_COLOR_BUFFER_BIT);
+
+	glDisable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_ZERO);
+
+	if (bFaceCulling)
+		glEnable(GL_CULL_FACE);
+
+	plane.SetScale(vec3(100.0f, 0.1f, 100.0f));
+	plane.SetTranslate(vec3(0.0f, -1.0f, 0.0f));
+	if (deferred)
+		plane.DrawMesh(GBufferShader, GL_TRIANGLES);
+	else
+		plane.DrawMesh(ForwardShader, GL_TRIANGLES);
+
+	// 绘制人物
+	nanosuit.SetScale(vec3(0.1f));
+	for (uint i = 0; i < HEAVY_LIGHTS_NUM; i++)
+	{
+		nanosuit.SetTranslate(heavyLightsPos[i]);
+		if (deferred)
+			nanosuit.DrawModel(GBufferShader);
+		else
+			nanosuit.DrawModel(ForwardShader);
 	}
 }

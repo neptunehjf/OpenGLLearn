@@ -164,6 +164,8 @@
     <None Include="Lighting.vs" />
     <None Include="LightingInstance.fs" />
     <None Include="LightingInstance.vs" />
+    <None Include="ForwardShading.fs" />
+    <None Include="ForwardShading.vs" />
     <None Include="Normal.fs" />
     <None Include="Normal.gs" />
     <None Include="Normal.vs" />

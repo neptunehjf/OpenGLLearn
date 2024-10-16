@@ -1,6 +1,9 @@
 #version 330 core
 
+in vec3 FragPos;
+in vec3 Normal;
 in vec2 TexCoords;
+
 
 layout (location = 0) out vec4 FragColor;
 layout (location = 1) out vec4 BrightColor;
@@ -8,9 +11,8 @@ layout (location = 1) out vec4 BrightColor;
 
 struct Material
 {
-	sampler2D texture_diffuse1; // G-buffer Position vec3
-    sampler2D texture_diffuse2; // G-buffer Normal vec3
-    sampler2D texture_diffuse3; // G-buffer Albedo and Specular vec4
+	sampler2D texture_diffuse1;
+	sampler2D texture_specular1;
 	int shininess;
 };
 
@@ -39,10 +41,10 @@ vec4 CalcPointLight(vec3 fragPos, vec3 norm, vec3 diffuseColor, float specularCo
 void main()
 {   
 	// 从g-buffer缓冲获取到对应的信息
-    vec3 position  = texture(material.texture_diffuse1, TexCoords).rgb;
-	vec3 normal    = texture(material.texture_diffuse2, TexCoords).rgb;
-    vec3 albedo    = texture(material.texture_diffuse3, TexCoords).rgb;
-	float specular = texture(material.texture_diffuse3, TexCoords).a;
+    vec3 position  = FragPos;
+	vec3 normal    = normalize(Normal);
+    vec3 albedo    = texture(material.texture_diffuse1, TexCoords).rgb;
+	float specular = texture(material.texture_specular1, TexCoords).r;
 
 	// 延迟渲染，只需每个屏幕像素渲染一次就好了，可以提升很多性能
 	FragColor = CalcPointLight(position, normal, albedo, specular);
