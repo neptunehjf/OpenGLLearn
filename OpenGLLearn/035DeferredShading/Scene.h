@@ -716,12 +716,8 @@ void Scene::DrawScene_HeavyLights(bool deferred)
 
 	// »æÖÆÈËÎï
 	nanosuit.SetScale(vec3(0.1f));
-	for (uint i = 0; i < HEAVY_LIGHTS_NUM; i++)
-	{
-		nanosuit.SetTranslate(heavyLightsPos[i]);
-		if (deferred)
-			nanosuit.DrawModel(GBufferShader);
-		else
-			nanosuit.DrawModel(ForwardShader);
-	}
+	if (deferred)
+		nanosuit.DrawModel(GBufferShader);
+	else
+		nanosuit.DrawModel(ForwardShader);
 }

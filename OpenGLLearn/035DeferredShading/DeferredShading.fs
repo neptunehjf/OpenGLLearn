@@ -28,7 +28,7 @@ struct PointLight
 uniform Material material;
 uniform vec3 uni_viewPos;
 
-#define POINT_LIGHT_NUM 32
+#define POINT_LIGHT_NUM 96
 uniform PointLight pointLight[POINT_LIGHT_NUM];
 
 uniform int light_model;
