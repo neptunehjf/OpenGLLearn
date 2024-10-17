@@ -33,32 +33,31 @@ double deltaTime = 0.0;
 double curTime = 0.0;
 
 const vec3 lampPos[4] = { vec3(20.0f, 3.0f, 0.0f) , vec3(20.0f, 3.0f, -10.0f) , vec3(20.0f, 3.0f, -20.0f) , vec3(20.0f, 3.0f, -30.0f) };
-const vec3 heavyLightsPos[HEAVY_LIGHTS_NUM] = { vec3(0.0f, 0.0f, 0.0f) , vec3(1.0f, 0.0f, 0.0f) , vec3(2.0f, 0.0f, 0.0f) , vec3(3.0f, 0.0f, 0.0f) ,
-                                                vec3(0.0f, 0.0f, -1.0f) , vec3(1.0f, 0.0f, -1.0f) , vec3(2.0f, 0.0f, -1.0f) , vec3(3.0f, 0.0f, -1.0f) ,
-                                                vec3(0.0f, 0.0f, -2.0f) , vec3(1.0f, 0.0f, -2.0f) , vec3(2.0f, 0.0f, -2.0f) , vec3(3.0f, 0.0f, -2.0f) ,
-                                                vec3(0.0f, 0.0f, -3.0f) , vec3(1.0f, 0.0f, -3.0f) , vec3(2.0f, 0.0f, -3.0f) , vec3(3.0f, 0.0f, -3.0f) ,
-                                                vec3(0.0f, 0.0f, -4.0f) , vec3(1.0f, 0.0f, -4.0f) , vec3(2.0f, 0.0f, -4.0f) , vec3(3.0f, 0.0f, -4.0f) ,
-                                                vec3(0.0f, 0.0f, -5.0f) , vec3(1.0f, 0.0f, -5.0f) , vec3(2.0f, 0.0f, -5.0f) , vec3(3.0f, 0.0f, -5.0f) ,
-                                                vec3(0.0f, 0.0f, -6.0f) , vec3(1.0f, 0.0f, -6.0f) , vec3(2.0f, 0.0f, -6.0f) , vec3(3.0f, 0.0f, -6.0f) ,
-                                                vec3(0.0f, 0.0f, -7.0f) , vec3(1.0f, 0.0f, -7.0f) , vec3(2.0f, 0.0f, -7.0f) , vec3(3.0f, 0.0f, -7.0f) ,
-                                                vec3(0.0f, 1.0f, 0.0f) , vec3(1.0f, 1.0f, 0.0f) , vec3(2.0f, 1.0f, 0.0f) , vec3(3.0f, 1.0f, 0.0f) ,
-                                                vec3(0.0f, 1.0f, -1.0f) , vec3(1.0f, 1.0f, -1.0f) , vec3(2.0f, 1.0f, -1.0f) , vec3(3.0f, 1.0f, -1.0f) ,
-                                                vec3(0.0f, 1.0f, -2.0f) , vec3(1.0f, 1.0f, -2.0f) , vec3(2.0f, 1.0f, -2.0f) , vec3(3.0f, 1.0f, -2.0f) ,
-                                                vec3(0.0f, 1.0f, -3.0f) , vec3(1.0f, 1.0f, -3.0f) , vec3(2.0f, 1.0f, -3.0f) , vec3(3.0f, 1.0f, -3.0f) ,
-                                                vec3(0.0f, 1.0f, -4.0f) , vec3(1.0f, 1.0f, -4.0f) , vec3(2.0f, 1.0f, -4.0f) , vec3(3.0f, 1.0f, -4.0f) ,
-                                                vec3(0.0f, 1.0f, -5.0f) , vec3(1.0f, 1.0f, -5.0f) , vec3(2.0f, 1.0f, -5.0f) , vec3(3.0f, 1.0f, -5.0f) ,
-                                                vec3(0.0f, 1.0f, -6.0f) , vec3(1.0f, 1.0f, -6.0f) , vec3(2.0f, 1.0f, -6.0f) , vec3(3.0f, 1.0f, -6.0f) ,
-                                                vec3(0.0f, 1.0f, -7.0f) , vec3(1.0f, 1.0f, -7.0f) , vec3(2.0f, 1.0f, -7.0f) , vec3(3.0f, 1.0f, -7.0f) ,
-                                                vec3(0.0f, 2.0f, 0.0f) ,  vec3(1.0f, 2.0f, 0.0f) ,  vec3(2.0f, 2.0f, 0.0f) ,  vec3(3.0f, 2.0f, 0.0f) ,
-                                                vec3(0.0f, 2.0f, -1.0f) , vec3(1.0f, 2.0f, -1.0f) , vec3(2.0f, 2.0f, -1.0f) , vec3(3.0f, 2.0f, -1.0f) ,
-                                                vec3(0.0f, 2.0f, -2.0f) , vec3(1.0f, 2.0f, -2.0f) , vec3(2.0f, 2.0f, -2.0f) , vec3(3.0f, 2.0f, -2.0f) ,
-                                                vec3(0.0f, 2.0f, -3.0f) , vec3(1.0f, 2.0f, -3.0f) , vec3(2.0f, 2.0f, -3.0f) , vec3(3.0f, 2.0f, -3.0f) ,
-                                                vec3(0.0f, 2.0f, -4.0f) , vec3(1.0f, 2.0f, -4.0f) , vec3(2.0f, 2.0f, -4.0f) , vec3(3.0f, 2.0f, -4.0f) ,
-                                                vec3(0.0f, 2.0f, -5.0f) , vec3(1.0f, 2.0f, -5.0f) , vec3(2.0f, 2.0f, -5.0f) , vec3(3.0f, 2.0f, -5.0f) ,
-                                                vec3(0.0f, 2.0f, -6.0f) , vec3(1.0f, 2.0f, -6.0f) , vec3(2.0f, 2.0f, -6.0f) , vec3(3.0f, 2.0f, -6.0f) ,
-                                                vec3(0.0f, 2.0f, -7.0f) , vec3(1.0f, 2.0f, -7.0f) , vec3(2.0f, 2.0f, -7.0f) , vec3(3.0f, 2.0f, -7.0f) 
-                                              };
-
+//const vec3 heavyLightsPos[HEAVY_LIGHTS_NUM] = { vec3(0.0f, 0.0f, 0.0f) , vec3(1.0f, 0.0f, 0.0f) , vec3(2.0f, 0.0f, 0.0f) , vec3(3.0f, 0.0f, 0.0f) ,
+//                                                vec3(0.0f, 0.0f, -1.0f) , vec3(1.0f, 0.0f, -1.0f) , vec3(2.0f, 0.0f, -1.0f) , vec3(3.0f, 0.0f, -1.0f) ,
+//                                                vec3(0.0f, 0.0f, -2.0f) , vec3(1.0f, 0.0f, -2.0f) , vec3(2.0f, 0.0f, -2.0f) , vec3(3.0f, 0.0f, -2.0f) ,
+//                                                vec3(0.0f, 0.0f, -3.0f) , vec3(1.0f, 0.0f, -3.0f) , vec3(2.0f, 0.0f, -3.0f) , vec3(3.0f, 0.0f, -3.0f) ,
+//                                                vec3(0.0f, 0.0f, -4.0f) , vec3(1.0f, 0.0f, -4.0f) , vec3(2.0f, 0.0f, -4.0f) , vec3(3.0f, 0.0f, -4.0f) ,
+//                                                vec3(0.0f, 0.0f, -5.0f) , vec3(1.0f, 0.0f, -5.0f) , vec3(2.0f, 0.0f, -5.0f) , vec3(3.0f, 0.0f, -5.0f) ,
+//                                                vec3(0.0f, 0.0f, -6.0f) , vec3(1.0f, 0.0f, -6.0f) , vec3(2.0f, 0.0f, -6.0f) , vec3(3.0f, 0.0f, -6.0f) ,
+//                                                vec3(0.0f, 0.0f, -7.0f) , vec3(1.0f, 0.0f, -7.0f) , vec3(2.0f, 0.0f, -7.0f) , vec3(3.0f, 0.0f, -7.0f) ,
+//                                                vec3(0.0f, 1.0f, 0.0f) , vec3(1.0f, 1.0f, 0.0f) , vec3(2.0f, 1.0f, 0.0f) , vec3(3.0f, 1.0f, 0.0f) ,
+//                                                vec3(0.0f, 1.0f, -1.0f) , vec3(1.0f, 1.0f, -1.0f) , vec3(2.0f, 1.0f, -1.0f) , vec3(3.0f, 1.0f, -1.0f) ,
+//                                                vec3(0.0f, 1.0f, -2.0f) , vec3(1.0f, 1.0f, -2.0f) , vec3(2.0f, 1.0f, -2.0f) , vec3(3.0f, 1.0f, -2.0f) ,
+//                                                vec3(0.0f, 1.0f, -3.0f) , vec3(1.0f, 1.0f, -3.0f) , vec3(2.0f, 1.0f, -3.0f) , vec3(3.0f, 1.0f, -3.0f) ,
+//                                                vec3(0.0f, 1.0f, -4.0f) , vec3(1.0f, 1.0f, -4.0f) , vec3(2.0f, 1.0f, -4.0f) , vec3(3.0f, 1.0f, -4.0f) ,
+//                                                vec3(0.0f, 1.0f, -5.0f) , vec3(1.0f, 1.0f, -5.0f) , vec3(2.0f, 1.0f, -5.0f) , vec3(3.0f, 1.0f, -5.0f) ,
+//                                                vec3(0.0f, 1.0f, -6.0f) , vec3(1.0f, 1.0f, -6.0f) , vec3(2.0f, 1.0f, -6.0f) , vec3(3.0f, 1.0f, -6.0f) ,
+//                                                vec3(0.0f, 1.0f, -7.0f) , vec3(1.0f, 1.0f, -7.0f) , vec3(2.0f, 1.0f, -7.0f) , vec3(3.0f, 1.0f, -7.0f) ,
+//                                                vec3(0.0f, 2.0f, 0.0f) ,  vec3(1.0f, 2.0f, 0.0f) ,  vec3(2.0f, 2.0f, 0.0f) ,  vec3(3.0f, 2.0f, 0.0f) ,
+//                                                vec3(0.0f, 2.0f, -1.0f) , vec3(1.0f, 2.0f, -1.0f) , vec3(2.0f, 2.0f, -1.0f) , vec3(3.0f, 2.0f, -1.0f) ,
+//                                                vec3(0.0f, 2.0f, -2.0f) , vec3(1.0f, 2.0f, -2.0f) , vec3(2.0f, 2.0f, -2.0f) , vec3(3.0f, 2.0f, -2.0f) ,
+//                                                vec3(0.0f, 2.0f, -3.0f) , vec3(1.0f, 2.0f, -3.0f) , vec3(2.0f, 2.0f, -3.0f) , vec3(3.0f, 2.0f, -3.0f) ,
+//                                                vec3(0.0f, 2.0f, -4.0f) , vec3(1.0f, 2.0f, -4.0f) , vec3(2.0f, 2.0f, -4.0f) , vec3(3.0f, 2.0f, -4.0f) ,
+//                                                vec3(0.0f, 2.0f, -5.0f) , vec3(1.0f, 2.0f, -5.0f) , vec3(2.0f, 2.0f, -5.0f) , vec3(3.0f, 2.0f, -5.0f) ,
+//                                                vec3(0.0f, 2.0f, -6.0f) , vec3(1.0f, 2.0f, -6.0f) , vec3(2.0f, 2.0f, -6.0f) , vec3(3.0f, 2.0f, -6.0f) ,
+//                                                vec3(0.0f, 2.0f, -7.0f) , vec3(1.0f, 2.0f, -7.0f) , vec3(2.0f, 2.0f, -7.0f) , vec3(3.0f, 2.0f, -7.0f) 
+//                                              };
 
 float windowWidth = WINDOW_WIDTH;
 float windowHeight = WINDOW_HEIGHT;
@@ -71,7 +70,7 @@ vec3 dirLight_ambient = vec3(0.0f);
 vec3 dirLight_diffuse = vec3(0.0f);
 vec3 dirLight_specular = vec3(0.0f);
 vec3 pointLight_ambient = vec3(0.0f);
-vec3 pointLight_diffuse = vec3(30.0f);
+vec3 pointLight_diffuse = vec3(0.0f);
 vec3 pointLight_specular = vec3(0.0f);
 vec3 spotLight_ambient = vec3(0.0f);
 vec3 spotLight_diffuse = vec3(0.0f);

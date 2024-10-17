@@ -29,6 +29,7 @@ public:
 	Shader GBufferShader;
 	Shader DeferredShader;
 	Shader ForwardShader;
+	Shader DeferredLampShader;
 
 	Mesh cubeCubemap;
 	Mesh cube;
@@ -44,6 +45,8 @@ public:
 	Mesh lamp;
 	Mesh PosYSquare;
 	Mesh defferedScreen;
+	vector<vec3> lightPositions;
+	vector<vec3> lightColors;
 
 	vector<vec3> squarePositions;
 	vector<mat4> instMat4;
@@ -59,12 +62,14 @@ public:
 	void DeleteScene();
 	void CreateShader();
 	void UpdateNMVertices();
-	void DrawScene_HeavyLights(bool deferred = true);
+	void DrawScene_DeferredTest(bool deferred = true);
+	
 
 private:
 	void CreateAsteroid();
 	void CreateNMVertices(vector<VertexNM>& verticesNM);
 	void CalcTangent(vector<VertexNM>& vertices, vec3& tangent, vec3& bitangent);
+	void CreateLightsInfo();
 };
 
 void Scene::CreateShader()
@@ -83,6 +88,7 @@ void Scene::CreateShader()
 	GBufferShader = Shader("G-buffer.vs", "G-buffer.fs");
 	DeferredShader = Shader("DeferredShading.vs", "DeferredShading.fs");
 	ForwardShader = Shader("ForwardShading.vs", "ForwardShading.fs");
+	DeferredLampShader = Shader("DeferredLamp.vs", "DeferredLamp.fs");
 }
 
 void Scene::CreateScene(Camera* myCam)
@@ -229,6 +235,7 @@ void Scene::CreateScene(Camera* myCam)
 	CreateAsteroid();
 	rock = Model("Resource/Model/rock/rock.obj", instMat4);
 
+	CreateLightsInfo();
 }
 
 void Scene::DrawScene(bool bDepthmap, bool bDepthCubemap, bool bGBuffer)
@@ -695,7 +702,8 @@ void Scene::UpdateNMVertices()
 	}
 }
 
-void Scene::DrawScene_HeavyLights(bool deferred)
+// 用于测试deferred shading对GPU的渲染效率，因此只渲染一个地板，减少CPU对测试的影响
+void Scene::DrawScene_DeferredTest(bool deferred)
 {
 	// 清空各个缓冲区
 	glClearColor(bkgColor.r, bkgColor.g, bkgColor.b, 1.0f);
@@ -708,16 +716,28 @@ void Scene::DrawScene_HeavyLights(bool deferred)
 		glEnable(GL_CULL_FACE);
 
 	plane.SetScale(vec3(100.0f, 0.1f, 100.0f));
-	plane.SetTranslate(vec3(0.0f, -1.0f, 0.0f));
+	plane.SetTranslate(vec3(0.0f, 0.0f, 0.0f));
 	if (deferred)
 		plane.DrawMesh(GBufferShader, GL_TRIANGLES);
 	else
 		plane.DrawMesh(ForwardShader, GL_TRIANGLES);
+}
 
-	// 绘制人物
-	nanosuit.SetScale(vec3(0.1f));
-	if (deferred)
-		nanosuit.DrawModel(GBufferShader);
-	else
-		nanosuit.DrawModel(ForwardShader);
+// 创建大量灯源，用于deferred shading测试
+void Scene::CreateLightsInfo()
+{
+	srand(13);
+	for (uint i = 0; i < HEAVY_LIGHTS_NUM; i++)
+	{
+		// calculate slightly random offsets
+		float xPos = static_cast<float>(((rand() % 100) / 100.0) * 6.0 - 3.0);
+		float yPos = static_cast<float>(((rand() % 100) / 100.0) * 6.0 - 4.0);
+		float zPos = static_cast<float>(((rand() % 100) / 100.0) * 6.0 - 3.0);
+		lightPositions.push_back(vec3(xPos, yPos, zPos));
+		// also calculate random color
+		float rColor = static_cast<float>(((rand() % 100) / 200.0f) + 0.5); // between 0.5 and 1.0
+		float gColor = static_cast<float>(((rand() % 100) / 200.0f) + 0.5); // between 0.5 and 1.0
+		float bColor = static_cast<float>(((rand() % 100) / 200.0f) + 0.5); // between 0.5 and 1.0
+		lightColors.push_back(vec3(rColor, gColor, bColor));
+	}
 }

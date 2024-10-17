@@ -238,14 +238,14 @@ int main()
 		{
 			SetHeavyLightsUniform(scene.ForwardShader);
 			glBindFramebuffer(GL_FRAMEBUFFER, fbo_origin);
-			scene.DrawScene_HeavyLights(false);
+			scene.DrawScene_DeferredTest(false);
 			//scene.DrawScene();
 		}
 		else
 		{
 			SetHeavyLightsUniform(scene.DeferredShader);
 			glBindFramebuffer(GL_FRAMEBUFFER, fbo_G);
-			scene.DrawScene_HeavyLights(true);
+			scene.DrawScene_DeferredTest(true);
 			glBindFramebuffer(GL_FRAMEBUFFER, fbo_deffered);
 			DrawSceneDeffered();
 		}
@@ -1249,13 +1249,25 @@ void DrawSceneDeffered()
 	scene.defferedScreen.SetTextures(gBufferTexture);
 	scene.defferedScreen.DrawMesh(scene.DeferredShader, GL_TRIANGLES);
 
+	// 想要实现按mesh渲染，只用deferred shading是行不通的，因为deferred shading只能按屏幕像素渲染，分不清是哪个mesh
+	// 当然也可以为每个mesh指定一个纯色贴图，但是太麻烦且纯色贴图最后还是会再进行一次光照计算，所以也不是纯色
+	// 这时候可以把deferred shading和 forward shading结合使用
+    // 比如，每个光源都draw一个纯色的立方体（而不是计算光照），以下代码就是在deferred shading之后进行forward shading
+	for (uint i = 0; i < HEAVY_LIGHTS_NUM; i++)
+	{
+		scene.DeferredLampShader.SetVec3("lightColor", scene.lightColors[i]);
+		scene.cube.SetScale(vec3(0.1f));
+		scene.cube.SetTranslate(scene.lightPositions[i]);
+
+		scene.cube.DrawMesh(scene.DeferredLampShader, GL_TRIANGLES);
+	}
 }
 
 void SetHeavyLightsUniform(Shader &shader)
 {
 	shader.Use();
 
-	float constant = 50.0f; // 通常保持1就行了
+	float constant = 1.0f; // 通常保持1就行了
 	float linear = 0.09f;
 	float quadratic = 0.032f;
 	switch (item)
@@ -1297,9 +1309,9 @@ void SetHeavyLightsUniform(Shader &shader)
 		ss << "pointLight[" << i << "].";
 		string prefix = ss.str();
 
-		shader.SetVec3(prefix + "lightPos", heavyLightsPos[i]);
+		shader.SetVec3(prefix + "lightPos", scene.lightPositions[i]);
 		shader.SetVec3(prefix + "ambient", pointLight_ambient);
-		shader.SetVec3(prefix + "diffuse", pointLight_diffuse);
+		shader.SetVec3(prefix + "diffuse", scene.lightColors[i]);
 		shader.SetVec3(prefix + "specular", pointLight_specular);
 		shader.SetFloat(prefix + "constant", constant);
 		shader.SetFloat(prefix + "linear", linear);

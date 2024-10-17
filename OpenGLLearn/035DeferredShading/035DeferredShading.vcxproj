@@ -148,6 +148,8 @@
   <ItemGroup>
     <None Include="Cubemap.fs" />
     <None Include="Cubemap.vs" />
+    <None Include="DeferredLamp.fs" />
+    <None Include="DeferredLamp.vs" />
     <None Include="DeferredShading.fs" />
     <None Include="DeferredShading.vs" />
     <None Include="DepthCubemap.fs" />

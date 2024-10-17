@@ -128,6 +128,12 @@
     <None Include="ForwardShading.vs">
       <Filter>Shader Files</Filter>
     </None>
+    <None Include="DeferredLamp.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="DeferredLamp.vs">
+      <Filter>Shader Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DeferredShading.cpp">
