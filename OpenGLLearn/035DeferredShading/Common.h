@@ -93,6 +93,7 @@ bool bFaceCulling = false;
 float normalLen = 0.1;
 bool bInstanceTest = 0;
 bool bSkyBox = true;
+bool bBackMirror = false;
 bool bMSAA = true;
 int iLightModel = 1; //{ "Phong", "Blinn-Phong" }
 bool bGammaCorrection = true;
@@ -115,7 +116,8 @@ float fExposure = 0.3;
 int iHDRAlgro = 1; // { "reinhard tone mapping", "exposure tone mapping" }
 bool bBloom = false;
 bool bDeferred = true;
-bool bCombined = true;
-bool bBackMirror = false;
+bool bCombined = false;
+bool bLightVolume = true;
+int iGPUPressure = 2; // 用来给GPU压力，测试用的
 /************** Imgui变量 **************/
 

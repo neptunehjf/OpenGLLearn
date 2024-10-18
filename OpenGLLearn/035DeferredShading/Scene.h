@@ -47,6 +47,7 @@ public:
 	Mesh defferedScreen;
 	vector<vec3> lightPositions;
 	vector<vec3> lightColors;
+	vector<float> lightRadius;
 
 	vector<vec3> squarePositions;
 	vector<mat4> instMat4;
@@ -757,5 +758,15 @@ void Scene::CreateLightsInfo()
 		float gColor = static_cast<float>(((rand() % 100) / 200.0f) + 0.5); // between 0.5 and 1.0
 		float bColor = static_cast<float>(((rand() % 100) / 200.0f) + 0.5); // between 0.5 and 1.0
 		lightColors.push_back(vec3(rColor, gColor, bColor));
+
+		// calculate light radius
+		GLfloat constant = 1.0;
+		GLfloat linear = 0.7;
+		GLfloat quadratic = 1.8;
+		GLfloat lightMax = std::fmaxf(std::fmaxf(rColor, gColor), bColor);
+		GLfloat radius =
+			(-linear + std::sqrtf(linear * linear - 4 * quadratic * (constant - (256.0 / 5.0) * lightMax)))
+			/ (2 * quadratic);
+		lightRadius.push_back(radius);
 	}
 }

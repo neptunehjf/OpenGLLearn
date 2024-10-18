@@ -573,7 +573,11 @@ void GetImguiValue()
 	{
 		ImGui::Checkbox("Enable Deferred Shading", &bDeferred);
 		if (bDeferred)
+		{
 			ImGui::Checkbox("Combine With Forward Shading", &bCombined);
+		}
+		ImGui::Checkbox("Light Volume", &bLightVolume);
+		ImGui::SliderInt("GPU Pressure", &iGPUPressure, 1, 10);
 
 		ImGui::TreePop();
 	}
@@ -1238,8 +1242,10 @@ void CreateFrameBuffer_G()
 
 void DrawSceneDeffered()
 {
+	glDisable(GL_DEPTH_TEST);
+
 	// 清空各个缓冲区
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT); //离屏渲染不需要glClear(GL_COLOR_BUFFER_BIT);
 
 	// 主屏幕
@@ -1254,6 +1260,8 @@ void DrawSceneDeffered()
 
 	if (bDeferred && bCombined)
 	{
+		glEnable(GL_DEPTH_TEST);
+
 		// 取出G-buffer中的深度信息
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo_G);
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo_deffered);
@@ -1329,7 +1337,13 @@ void SetHeavyLightsUniform(Shader &shader)
 		shader.SetFloat(prefix + "constant", constant);
 		shader.SetFloat(prefix + "linear", linear);
 		shader.SetFloat(prefix + "quadratic", quadratic);
+		shader.SetFloat(prefix + "radius", scene.lightRadius[i]);
 	}
 
 	shader.SetInt("material.shininess", material_shininess);
+
+	shader.SetBool("bLightVolume", bLightVolume);
+
+	shader.SetInt("iGPUPressure", iGPUPressure);
+
 }

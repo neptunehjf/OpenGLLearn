@@ -23,6 +23,7 @@ struct PointLight
 	float constant;  // 光源衰减模型的常数部分，通常为1，为了保证分母一定比分子大，不然可能出现光照反而变强的情况
 	float linear;    // 一次项系数，距离较小时，一次项影响大。系数越小衰减越慢
 	float quadratic; // 二次项系数，距离较大时，二次项影响大。系数越小衰减越慢
+	float radius;    // for light vomlume optimization
 };
 
 uniform Material material;
@@ -33,6 +34,10 @@ uniform PointLight pointLight[POINT_LIGHT_NUM];
 
 uniform int light_model;
 uniform int atte_formula;
+
+uniform bool bLightVolume;
+
+uniform int iGPUPressure;
 
 vec4 CalcPointLight(vec3 fragPos, vec3 norm, vec3 diffuseColor, float specularColor);
 
@@ -45,7 +50,13 @@ void main()
 	float specular = texture(material.texture_diffuse3, TexCoords).a;
 
 	// 延迟渲染，只需每个屏幕像素渲染一次就好了，可以提升很多性能
-	FragColor = CalcPointLight(position, normal, albedo, specular);
+
+	// 用iGPUPressure来给GPU压力。当然也可传入大量光源，但是比较麻烦。
+	for (int i = 0; i < iGPUPressure; i++)
+	{
+		FragColor = vec4(1.0);
+		FragColor = CalcPointLight(position, normal, albedo, specular);
+	}
 
 	// HDR用
 	float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
@@ -62,6 +73,11 @@ vec4 CalcPointLight(vec3 fragPos, vec3 norm, vec3 diffuseColor, float specularCo
 
 	for (int i = 0; i < POINT_LIGHT_NUM; i++)
 	{
+		// 光体积以外的片段不计算光照
+		float distance = length(pointLight[i].lightPos - fragPos);
+        if(bLightVolume && distance > pointLight[i].radius)
+			continue;
+
 		// 环境光照ambient
 	    vec4 ambient = vec4(pointLight[i].ambient * diffuseColor, 1.0);
 
@@ -86,8 +102,6 @@ vec4 CalcPointLight(vec3 fragPos, vec3 norm, vec3 diffuseColor, float specularCo
 		}
 		vec4 specular = spec * vec4(pointLight[i].specular, 1.0) * specularColor;
 
-		// 片段离光源的距离
-		float distance = length(pointLight[i].lightPos - fragPos);
 		// 计算光照衰减，这里是一个点光源的衰减模型。距离较小时衰减得慢（一次项影响大）；距离较大时衰减得快（二次项影响大）；然后缓慢接近0（分母是无穷大，衰减到0）
 		float lightFade = 1.0;
 		if (atte_formula == 0)
