@@ -238,14 +238,14 @@ int main()
 		{
 			SetHeavyLightsUniform(scene.ForwardShader);
 			glBindFramebuffer(GL_FRAMEBUFFER, fbo_origin);
-			scene.DrawScene_DeferredTest(false);
+			scene.DrawScene_DeferredTest();
 			//scene.DrawScene();
 		}
 		else
 		{
 			SetHeavyLightsUniform(scene.DeferredShader);
 			glBindFramebuffer(GL_FRAMEBUFFER, fbo_G);
-			scene.DrawScene_DeferredTest(true);
+			scene.DrawScene_DeferredTest();
 			glBindFramebuffer(GL_FRAMEBUFFER, fbo_deffered);
 			DrawSceneDeffered();
 		}
@@ -481,6 +481,7 @@ void GetImguiValue()
 	if (ImGui::TreeNodeEx("Skybox"))
 	{
 		ImGui::Checkbox("Skybox", &bSkyBox);
+		ImGui::Checkbox("Show Back Mirror", &bBackMirror);
 		ImGui::TreePop();
 	}
 
@@ -571,6 +572,8 @@ void GetImguiValue()
 	if (ImGui::TreeNodeEx("Deferred Shading", ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		ImGui::Checkbox("Enable Deferred Shading", &bDeferred);
+		if (bDeferred)
+			ImGui::Checkbox("Combine With Forward Shading", &bCombined);
 
 		ImGui::TreePop();
 	}
@@ -1130,14 +1133,16 @@ void DrawScreen()
 
 
 	// 后视镜
-	//const vector<Texture> mirrorTexture =
-	//{
-	//	{tbo_mirror[0], "texture_diffuse"},
-	//	{t_dummy, "texture_specular"}
-	//};
-	//scene.mirror.SetTextures(mirrorTexture);
-	//scene.mirror.DrawMesh(scene.screenShader, GL_TRIANGLES);
-
+	if (bBackMirror)
+	{
+		const vector<Texture> mirrorTexture =
+		{
+			{tbo_mirror[0], "texture_diffuse"},
+			{t_dummy, "texture_specular"}
+		};
+		scene.mirror.SetTextures(mirrorTexture);
+		scene.mirror.DrawMesh(scene.screenShader, GL_TRIANGLES);
+	}
 
 	if (bShadow && bDisDepthmap)
 	{
@@ -1233,8 +1238,6 @@ void CreateFrameBuffer_G()
 
 void DrawSceneDeffered()
 {
-	glDisable(GL_DEPTH_TEST);
-
 	// 清空各个缓冲区
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT); //离屏渲染不需要glClear(GL_COLOR_BUFFER_BIT);
@@ -1249,17 +1252,27 @@ void DrawSceneDeffered()
 	scene.defferedScreen.SetTextures(gBufferTexture);
 	scene.defferedScreen.DrawMesh(scene.DeferredShader, GL_TRIANGLES);
 
-	// 想要实现按mesh渲染，只用deferred shading是行不通的，因为deferred shading只能按屏幕像素渲染，分不清是哪个mesh
-	// 当然也可以为每个mesh指定一个纯色贴图，但是太麻烦且纯色贴图最后还是会再进行一次光照计算，所以也不是纯色
-	// 这时候可以把deferred shading和 forward shading结合使用
-    // 比如，每个光源都draw一个纯色的立方体（而不是计算光照），以下代码就是在deferred shading之后进行forward shading
-	for (uint i = 0; i < HEAVY_LIGHTS_NUM; i++)
+	if (bDeferred && bCombined)
 	{
-		scene.DeferredLampShader.SetVec3("lightColor", scene.lightColors[i]);
-		scene.cube.SetScale(vec3(0.1f));
-		scene.cube.SetTranslate(scene.lightPositions[i]);
+		// 取出G-buffer中的深度信息
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo_G);
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo_deffered);
+		glBlitFramebuffer(0, 0, windowWidth, windowHeight, 0, 0, windowWidth, windowHeight, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 
-		scene.cube.DrawMesh(scene.DeferredLampShader, GL_TRIANGLES);
+		// 想要实现按mesh渲染，只用deferred shading是行不通的，因为deferred shading只能按屏幕像素渲染，分不清是哪个mesh
+		// 当然也可以为每个mesh指定一个纯色贴图，但是太麻烦且纯色贴图最后还是会再进行一次光照计算，所以也不是纯色
+		// 这时候可以把deferred shading和 forward shading结合使用
+		// 比如，每个光源都draw一个纯色的立方体（而不是计算光照），以下代码就是在deferred shading之后进行forward shading
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo_deffered);
+
+		for (uint i = 0; i < HEAVY_LIGHTS_NUM; i++)
+		{
+			scene.DeferredLampShader.SetVec3("lightColor", scene.lightColors[i]);
+			scene.cube.SetScale(vec3(0.1f));
+			scene.cube.SetTranslate(scene.lightPositions[i]);
+
+			scene.cube.DrawMesh(scene.DeferredLampShader, GL_TRIANGLES);
+		}
 	}
 }
 

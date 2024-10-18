@@ -62,7 +62,7 @@ public:
 	void DeleteScene();
 	void CreateShader();
 	void UpdateNMVertices();
-	void DrawScene_DeferredTest(bool deferred = true);
+	void DrawScene_DeferredTest();
 	
 
 private:
@@ -702,8 +702,8 @@ void Scene::UpdateNMVertices()
 	}
 }
 
-// 用于测试deferred shading对GPU的渲染效率，因此只渲染一个地板，减少CPU对测试的影响
-void Scene::DrawScene_DeferredTest(bool deferred)
+// 用于测试deferred shading对GPU的渲染效率，因此只渲染少量Mesh，减少CPU对测试的影响
+void Scene::DrawScene_DeferredTest()
 {
 	// 清空各个缓冲区
 	glClearColor(bkgColor.r, bkgColor.g, bkgColor.b, 1.0f);
@@ -717,10 +717,28 @@ void Scene::DrawScene_DeferredTest(bool deferred)
 
 	plane.SetScale(vec3(100.0f, 0.1f, 100.0f));
 	plane.SetTranslate(vec3(0.0f, 0.0f, 0.0f));
-	if (deferred)
+	if (bDeferred)
 		plane.DrawMesh(GBufferShader, GL_TRIANGLES);
 	else
 		plane.DrawMesh(ForwardShader, GL_TRIANGLES);
+
+	nanosuit.SetScale(vec3(0.1f));
+	nanosuit.SetTranslate(vec3(0.0f, 0.0f, 0.0f));
+	if (bDeferred)
+		nanosuit.DrawModel(GBufferShader);
+	else
+		nanosuit.DrawModel(ForwardShader);
+
+	// 与Combined Shading做对照
+	for (uint i = 0; i < HEAVY_LIGHTS_NUM; i++)
+	{
+		cube.SetScale(vec3(0.1f));
+		cube.SetTranslate(lightPositions[i]);
+		if (bDeferred)
+			cube.DrawMesh(GBufferShader, GL_TRIANGLES);
+		else
+			cube.DrawMesh(ForwardShader, GL_TRIANGLES);
+	}
 }
 
 // 创建大量灯源，用于deferred shading测试

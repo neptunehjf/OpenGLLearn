@@ -115,5 +115,7 @@ float fExposure = 0.3;
 int iHDRAlgro = 1; // { "reinhard tone mapping", "exposure tone mapping" }
 bool bBloom = false;
 bool bDeferred = true;
+bool bCombined = true;
+bool bBackMirror = false;
 /************** Imgui±‰¡ø **************/
 
