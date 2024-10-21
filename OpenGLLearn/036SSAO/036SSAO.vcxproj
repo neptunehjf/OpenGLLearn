@@ -148,25 +148,6 @@
     <ClInclude Include="VertexData.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Cubemap.fs" />
-    <None Include="DeferredLamp.fs" />
-    <None Include="DeferredShading.fs" />
-    <None Include="DepthCubemap.fs" />
-    <None Include="DepthCubemap.gs" />
-    <None Include="DepthMap.fs" />
-    <None Include="DepthmapDisplay.fs" />
-    <None Include="ForwardShading.fs" />
-    <None Include="G-buffer.fs" />
-    <None Include="Lighting.fs" />
-    <None Include="Lighting.gs" />
-    <None Include="LightingInstance.fs" />
-    <None Include="Normal.fs" />
-    <None Include="Normal.gs" />
-    <None Include="PostProcess.fs" />
-    <None Include="Reflection.fs" />
-    <None Include="Refraction.fs" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="..\Dependency\Src\glad\src\glad.c" />
     <ClCompile Include="..\Dependency\Src\imgui\imgui.cpp" />
     <ClCompile Include="..\Dependency\Src\imgui\imgui_demo.cpp" />
@@ -176,6 +157,41 @@
     <ClCompile Include="..\Dependency\Src\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\Dependency\Src\imgui\imgui_widgets.cpp" />
     <ClCompile Include="SSAO.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Cubemap.fs" />
+    <None Include="Cubemap.vs" />
+    <None Include="DeferredLamp.fs" />
+    <None Include="DeferredLamp.vs" />
+    <None Include="DeferredShading.fs" />
+    <None Include="DeferredShading.vs" />
+    <None Include="DepthCubemap.fs" />
+    <None Include="DepthCubemap.gs" />
+    <None Include="DepthCubemap.vs" />
+    <None Include="DepthMap.fs" />
+    <None Include="DepthMap.vs" />
+    <None Include="DepthmapDisplay.fs" />
+    <None Include="DepthmapDisplay.vs" />
+    <None Include="ForwardShading.fs" />
+    <None Include="ForwardShading.vs" />
+    <None Include="G-buffer-SSAO.fs" />
+    <None Include="G-buffer-SSAO.vs" />
+    <None Include="G-buffer.fs" />
+    <None Include="G-buffer.vs" />
+    <None Include="Lighting.fs" />
+    <None Include="Lighting.gs" />
+    <None Include="Lighting.vs" />
+    <None Include="LightingInstance.fs" />
+    <None Include="LightingInstance.vs" />
+    <None Include="Normal.fs" />
+    <None Include="Normal.gs" />
+    <None Include="Normal.vs" />
+    <None Include="PostProcess.fs" />
+    <None Include="PostProcess.vs" />
+    <None Include="Reflection.fs" />
+    <None Include="Reflection.vs" />
+    <None Include="Refraction.fs" />
+    <None Include="Refraction.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

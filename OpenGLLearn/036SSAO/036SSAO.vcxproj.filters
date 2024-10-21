@@ -41,59 +41,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Reflection.fs">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="Refraction.fs">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="DepthCubemap.gs">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="Lighting.gs">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="Normal.gs">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="Cubemap.fs">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="DeferredLamp.fs">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="DeferredShading.fs">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="DepthCubemap.fs">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="DepthMap.fs">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="DepthmapDisplay.fs">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="ForwardShading.fs">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="G-buffer.fs">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="Lighting.fs">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="LightingInstance.fs">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="Normal.fs">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="PostProcess.fs">
-      <Filter>Shader Files</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="SSAO.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -121,5 +68,106 @@
     <ClCompile Include="..\Dependency\Src\imgui\imgui_demo.cpp">
       <Filter>Dependency Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Refraction.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Refraction.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Reflection.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Reflection.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="PostProcess.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="PostProcess.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Normal.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Normal.gs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Normal.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="LightingInstance.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="LightingInstance.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Lighting.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Lighting.gs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Lighting.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="G-buffer-SSAO.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="G-buffer-SSAO.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="G-buffer.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="G-buffer.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="ForwardShading.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="ForwardShading.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="DepthmapDisplay.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="DepthmapDisplay.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="DepthMap.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="DepthMap.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="DepthCubemap.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="DepthCubemap.gs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="DepthCubemap.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="DeferredShading.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="DeferredShading.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="DeferredLamp.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="DeferredLamp.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Cubemap.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Cubemap.fs">
+      <Filter>Shader Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

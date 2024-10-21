@@ -117,7 +117,8 @@ int iHDRAlgro = 1; // { "reinhard tone mapping", "exposure tone mapping" }
 bool bBloom = false;
 bool bDeferred = true;
 bool bCombined = false;
-bool bLightVolume = true;
-int iGPUPressure = 2; // 用来给GPU压力，测试用的
+bool bLightVolume = false;
+int iGPUPressure = 1; // 用来给GPU压力，测试用的
+bool bSSAO = true;
 /************** Imgui变量 **************/
 

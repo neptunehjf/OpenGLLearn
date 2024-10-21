@@ -37,6 +37,7 @@ void CreateFrameBuffer_Depthmap(GLuint& fbo, GLuint& tbo);
 void CreateFrameBuffer_DepthCubemap(GLuint& fbo, GLuint& tbo);
 void CreateFrameBuffer_pingpong();
 void CreateFrameBuffer_G();
+void CreateFrameBuffer_G_SSAO();
 void SetUniformBuffer();
 void DrawDepthMap();
 void DrawDepthCubemap(vec3 lightPos);
@@ -91,6 +92,13 @@ GLuint fbo_deffered = 0; // 自定义帧缓冲对象
 GLuint tbo_deffered[2] = {}; // 纹理缓冲对象（附件）
 GLuint rbo_deffered = 0; // 渲染缓冲对象（附件）
 
+// G缓冲 SSAO
+GLuint fbo_SSAO = 0;                // 自定义帧缓冲对象
+GLuint tbo_SSAO_posdepth = 0;       // 纹理缓冲对象（附件） 存储位置信息
+GLuint tbo_SSAO_normal = 0;         // 纹理缓冲对象（附件） 存储法线信息
+GLuint tbo_SSAO_albedo = 0;         // 纹理缓冲对象（附件） 存储反照率和高光信息
+GLuint rbo_SSAO = 0;                // 渲染缓冲对象（附件）
+ 
 int main()
 {
 	if (!InitOpenGL())
@@ -126,6 +134,8 @@ int main()
 	CreateFrameBuffer_G();
 	// deferred shading 缓冲
 	CreateFrameBuffer(fbo_deffered, tbo_deffered, rbo_deffered, 2);
+	// G缓冲 SSAO
+	CreateFrameBuffer_G_SSAO();
 
 	// Uniform缓冲
 	// 
@@ -229,7 +239,6 @@ int main()
 
 		// 原场景
 		glViewport(0, 0, windowWidth, windowHeight);
-
 		/*************************Output G-Buffer Info****************************/
 
 		//scene.DrawScene(false, false, true);
@@ -248,6 +257,13 @@ int main()
 			scene.DrawScene_DeferredTest();
 			glBindFramebuffer(GL_FRAMEBUFFER, fbo_deffered);
 			DrawSceneDeffered();
+		}
+
+		/*************************Output G-Buffer SSAO Info****************************/
+		if (bSSAO)
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, fbo_SSAO);
+			scene.DrawScene_SSAOTest();
 		}
 			
 		// 用中间fbo的方式实现，实际上中间FBO就是一个只带1个采样点的普通帧缓冲。用Blit操作把MSAA FBO复制进去，然后就可以用中间FBO的TBO来后期处理了。
@@ -582,6 +598,13 @@ void GetImguiValue()
 		ImGui::TreePop();
 	}
 
+	if (ImGui::TreeNodeEx("Screen Based Ambient Occlusion", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		ImGui::Checkbox("Enable SSAO", &bSSAO);
+
+		ImGui::TreePop();
+	}
+
 }
 
 void SetUniformToShader(Shader& shader)
@@ -657,6 +680,8 @@ void SetUniformToShader(Shader& shader)
 	shader.SetFloat("fExposure", fExposure);
 	shader.SetInt("iHDRAlgro", iHDRAlgro);
 	shader.SetBool("bBloom", bBloom);
+	shader.SetFloat("near", myCam.camNear);
+	shader.SetFloat("far", myCam.camFar);
 
 	// ShaderLightingInstance 
 	// 因为model矩阵变换是基于单位矩阵进行的，想要在已经变换后的model矩阵的基础上，再进行model矩阵变换有点困难
@@ -1072,6 +1097,7 @@ void SetAllUniformValues()
 	SetUniformToShader(scene.lightInstShader);
 	SetUniformToShader(scene.GBufferShader);
 	SetUniformToShader(scene.DeferredShader);
+	SetUniformToShader(scene.GBufferSSAOShader);
 }
 
 void DrawScreen()
@@ -1163,7 +1189,6 @@ void DrawScreen()
 	}
 }
 
-
 //创建 G-buffer
 void CreateFrameBuffer_G()
 {
@@ -1181,6 +1206,8 @@ void CreateFrameBuffer_G()
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, windowWidth, windowHeight, 0, GL_RGB, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // 用GL_CLAMP_TO_EDGE防止采样到屏幕空间之外的深度值
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	// 纹理缓冲对象  作为一个GL_COLOR_ATTACHMENT附件 附加到 帧缓冲对象
@@ -1196,6 +1223,8 @@ void CreateFrameBuffer_G()
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, windowWidth, windowHeight, 0, GL_RGB, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // 用GL_CLAMP_TO_EDGE防止采样到屏幕空间之外的深度值
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	// 纹理缓冲对象  作为一个GL_COLOR_ATTACHMENT附件 附加到 帧缓冲对象
@@ -1208,9 +1237,11 @@ void CreateFrameBuffer_G()
 
 	// 设置纹理参数
 	glBindTexture(GL_TEXTURE_2D, tbo_G_abdspec);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, windowWidth, windowHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, windowWidth, windowHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // 用GL_CLAMP_TO_EDGE防止采样到屏幕空间之外的深度值
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	// 纹理缓冲对象  作为一个GL_COLOR_ATTACHMENT附件 附加到 帧缓冲对象
@@ -1228,6 +1259,88 @@ void CreateFrameBuffer_G()
 
 	// 渲染缓冲对象 作为一个GL_DEPTH_STENCIL_ATTACHMENT附件 附加到 帧缓冲上
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo_G);
+
+	// 检查帧缓冲对象完整性
+	int chkFlag = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if (chkFlag != GL_FRAMEBUFFER_COMPLETE)
+	{
+		cout << "Error: Framebuffer is not complete!" << endl;
+		cout << "Check Flag: " << hex << chkFlag << endl;
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+//创建 G-buffer SSAO
+void CreateFrameBuffer_G_SSAO()
+{
+	// 首先创建一个帧缓冲对象 （由color stencil depth组成。默认缓冲区也有。只不过这次自己创建缓冲区，可以实现一些有意思的功能）
+	// 只有默认缓冲才能输出图像(因为和GLFW窗口绑定)，用自建的缓冲不会输出任何图像，因此可以用来离屏渲染
+	glGenFramebuffers(1, &fbo_SSAO);
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo_SSAO);
+
+	/**********************posdepth缓冲，储存像素的位置信息和深度信息*********************/
+	// 生成纹理附件 对应color缓冲
+	glGenTextures(1, &tbo_SSAO_posdepth);
+
+	// 设置纹理参数
+	glBindTexture(GL_TEXTURE_2D, tbo_SSAO_posdepth);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, windowWidth, windowHeight, 0, GL_RGBA, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // 用GL_CLAMP_TO_EDGE防止采样到屏幕空间之外的深度值
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	// 纹理缓冲对象  作为一个GL_COLOR_ATTACHMENT附件 附加到 帧缓冲对象
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tbo_SSAO_posdepth, 0);
+
+	/**********************normal缓冲，储存像素的法线信息*********************/
+
+	// 生成纹理附件 对应color缓冲
+	glGenTextures(1, &tbo_SSAO_normal);
+
+	// 设置纹理参数
+	glBindTexture(GL_TEXTURE_2D, tbo_SSAO_normal);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, windowWidth, windowHeight, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // 用GL_CLAMP_TO_EDGE防止采样到屏幕空间之外的深度值
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	// 纹理缓冲对象  作为一个GL_COLOR_ATTACHMENT附件 附加到 帧缓冲对象
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, tbo_SSAO_normal, 0);
+
+	/**********************albedo and specular缓冲，储存像素的反照率和高光信息*********************/
+
+	// 生成纹理附件 对应color缓冲
+	glGenTextures(1, &tbo_SSAO_albedo);
+
+	// 设置纹理参数
+	glBindTexture(GL_TEXTURE_2D, tbo_SSAO_albedo);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, windowWidth, windowHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // 用GL_CLAMP_TO_EDGE防止采样到屏幕空间之外的深度值
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	// 纹理缓冲对象  作为一个GL_COLOR_ATTACHMENT附件 附加到 帧缓冲对象
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, tbo_SSAO_albedo, 0);
+
+	// 设置渲染到本buffer的三个color附件
+	GLuint attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+	glDrawBuffers(3, attachments);
+
+	// 生成渲染缓冲对象 对应stencil，depth缓冲
+	glGenRenderbuffers(1, &rbo_SSAO);
+	glBindRenderbuffer(GL_RENDERBUFFER, rbo_SSAO);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, windowWidth, windowHeight);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+	// 渲染缓冲对象 作为一个GL_DEPTH_STENCIL_ATTACHMENT附件 附加到 帧缓冲上
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo_SSAO);
 
 	// 检查帧缓冲对象完整性
 	int chkFlag = glCheckFramebufferStatus(GL_FRAMEBUFFER);

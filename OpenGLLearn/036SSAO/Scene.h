@@ -30,6 +30,7 @@ public:
 	Shader DeferredShader;
 	Shader ForwardShader;
 	Shader DeferredLampShader;
+	Shader GBufferSSAOShader;
 
 	Mesh cubeCubemap;
 	Mesh cube;
@@ -64,7 +65,7 @@ public:
 	void CreateShader();
 	void UpdateNMVertices();
 	void DrawScene_DeferredTest();
-	
+	void DrawScene_SSAOTest();
 
 private:
 	void CreateAsteroid();
@@ -90,6 +91,7 @@ void Scene::CreateShader()
 	DeferredShader = Shader("DeferredShading.vs", "DeferredShading.fs");
 	ForwardShader = Shader("ForwardShading.vs", "ForwardShading.fs");
 	DeferredLampShader = Shader("DeferredLamp.vs", "DeferredLamp.fs");
+	GBufferSSAOShader = Shader("G-buffer-SSAO.vs", "G-buffer-SSAO.fs");
 }
 
 void Scene::CreateScene(Camera* myCam)
@@ -713,6 +715,9 @@ void Scene::DrawScene_DeferredTest()
 	glDisable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ZERO);
 
+	// 如果想要把深度图写入rbo，必须打开深度测试。
+	glEnable(GL_DEPTH_TEST);
+
 	if (bFaceCulling)
 		glEnable(GL_CULL_FACE);
 
@@ -769,4 +774,37 @@ void Scene::CreateLightsInfo()
 			/ (2 * quadratic);
 		lightRadius.push_back(radius);
 	}
+}
+
+void Scene::DrawScene_SSAOTest()
+{
+	// 清空各个缓冲区
+	glClearColor(bkgColor.r, bkgColor.g, bkgColor.b, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	// GL_BLEND enable时，可能由于没有aplha通道，导致看不见物体，所以要关闭。
+	glDisable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_ZERO);
+
+	// 如果想要把深度图写入rbo，必须打开深度测试。但是这里不加也行，因为在FS手动把深度写入了color附件
+	glEnable(GL_DEPTH_TEST);
+
+	if (bFaceCulling)
+		glEnable(GL_CULL_FACE);
+
+	plane.SetScale(vec3(100.0f, 0.1f, 100.0f));
+	plane.SetTranslate(vec3(0.0f, 0.0f, 0.0f));
+	if (bSSAO)
+		plane.DrawMesh(GBufferSSAOShader, GL_TRIANGLES);
+	else
+		plane.DrawMesh(ForwardShader, GL_TRIANGLES);
+
+	nanosuit.SetScale(vec3(0.1f));
+	//nanosuit.SetTranslate(vec3(0.0f, 1.0f, 0.0f));
+	//nanosuit.SetRotate(-90.0f, vec3(1.0f, 0.0f, 0.0f));
+
+	if (bSSAO)
+		nanosuit.DrawModel(GBufferSSAOShader);
+	else
+		nanosuit.DrawModel(ForwardShader);
 }
