@@ -8,6 +8,7 @@
 #include "Mesh.h"
 #include "Model.h"
 #include "Camera.h"
+#include <random>
 
 class Scene
 {
@@ -57,6 +58,11 @@ public:
 
 	Camera* myCam;
 
+	// SSAO采样kernel
+	vector<vec3> ssaoKernel;
+	// SSAO采样Noise
+	vector<vec3> ssaoNoise;
+
 	void CreateScene(Camera* myCam);
 	void DrawScene(bool bDepthmap = false, bool bDepthCubemap = false, bool bGBuffer = false);
 	bool LoadTexture(const string&& filePath, GLuint& texture, const GLint param_s, const GLint param_t);
@@ -72,6 +78,10 @@ private:
 	void CreateNMVertices(vector<VertexNM>& verticesNM);
 	void CalcTangent(vector<VertexNM>& vertices, vec3& tangent, vec3& bitangent);
 	void CreateLightsInfo();
+	void CreateSSAOSamples();
+	GLfloat lerp(GLfloat a, GLfloat b, GLfloat f);
+	void CreateSSAONoise();
+	void CreateSSAONoiseTexture();
 };
 
 void Scene::CreateShader()
@@ -807,4 +817,76 @@ void Scene::DrawScene_SSAOTest()
 		nanosuit.DrawModel(GBufferSSAOShader);
 	else
 		nanosuit.DrawModel(ForwardShader);
+}
+
+// 创建SSAO采样点
+void Scene::CreateSSAOSamples()
+{
+	uniform_real_distribution<GLfloat> randomFloats(0.0f, 1.0f); // 随机浮点数，范围0.0 - 1.0
+	default_random_engine generator;
+
+	for (uint i = 0; i < iSSAOSampleNum; i++)
+	{
+		// 以下坐标基于Tangent空间
+		vec3 sample(randomFloats(generator) * 2.0f - 1.0f, // x分量在 -1.0到1.0之间随机
+					randomFloats(generator) * 2.0f - 1.0f, // y分量在 -1.0到1.0之间随机
+					randomFloats(generator));              // z分量在 0到1.0之间随机
+		// 转为方向向量
+		sample = normalize(sample);
+		// 长度随机
+		sample *= randomFloats(generator);
+
+		// i越小采样点离片段越近
+		GLfloat scale = (GLfloat)i / (GLfloat)iSSAOSampleNum;
+
+		// 原函数是自变量是一次项的情况，是线性函数，但是这里自变量是二次项，所以视为i的二次函数
+		// 曲线特征是大部分y值都集中在较小的地方，因此比较适合在离片段较近的地方采样
+		scale = lerp(0.1f, 1.0f, scale * scale);
+		// 采样点分布调整为主要集中在片段附近
+		sample *= scale;
+
+		ssaoKernel.push_back(sample);
+	}
+}
+
+// 返回a到b之间的自变量为f的线性插值
+GLfloat Scene::lerp(GLfloat a, GLfloat b, GLfloat f)
+{
+	return a + f * (b - a);
+}
+
+// 用绕z轴旋转采样点的方式，创建SSAO噪声
+void Scene::CreateSSAONoise()
+{
+	uniform_real_distribution<GLfloat> randomFloats(0.0, 1.0); // 随机浮点数，范围0.0 - 1.0
+	default_random_engine generator;
+
+	// 是一个平面Noise，这里用vec2也可以吧
+	vector<vec3> ssaoNoise;
+
+	// iSSAONoise * iSSAONoise的正方形
+	uint num = iSSAONoise * iSSAONoise;
+
+	for (uint i = 0; i < num; i++)
+	{
+		// 以下坐标基于Tangent空间
+		vec3 noise(randomFloats(generator) * 2.0f - 1.0f, // x分量在 -1.0到1.0之间随机
+				   randomFloats(generator) * 2.0f - 1.0f, // y分量在 -1.0到1.0之间随机
+				   0.0f);                                 // z分量保持0，因为是基于z轴旋转
+		ssaoNoise.push_back(noise);
+	}
+}
+
+void Scene::CreateSSAONoiseTexture()
+{
+	GLuint noiseTexture;
+	glGenTextures(1, &noiseTexture);
+	glBindTexture(GL_TEXTURE_2D, noiseTexture);
+	// Noise数据写入图片
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, iSSAONoise, iSSAONoise, 0, GL_RGB, GL_FLOAT, &ssaoNoise[0]);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	// 因为要把Noise Texture平铺在屏幕上，所以要用GL_REPEAT
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 }

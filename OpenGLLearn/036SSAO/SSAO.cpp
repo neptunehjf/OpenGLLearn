@@ -601,10 +601,12 @@ void GetImguiValue()
 	if (ImGui::TreeNodeEx("Screen Based Ambient Occlusion", ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		ImGui::Checkbox("Enable SSAO", &bSSAO);
+		ImGui::SliderInt("SSAO Samples Number", &iSSAOSampleNum, 1, 200);
+		ImGui::Checkbox("Enable Nosie", &bSSAONoise);
+		ImGui::SliderInt("Noise Strength", &iSSAONoise, 2, 20);
 
 		ImGui::TreePop();
 	}
-
 }
 
 void SetUniformToShader(Shader& shader)

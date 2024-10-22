@@ -120,5 +120,8 @@ bool bCombined = false;
 bool bLightVolume = false;
 int iGPUPressure = 1; // 用来给GPU压力，测试用的
 bool bSSAO = true;
+int iSSAOSampleNum = 64;
+bool bSSAONoise = true;
+int iSSAONoise = 4; // 正方形噪声采样图的边长
 /************** Imgui变量 **************/
 
