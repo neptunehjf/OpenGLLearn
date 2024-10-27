@@ -169,5 +169,11 @@
     <None Include="Cubemap.fs">
       <Filter>Shader Files</Filter>
     </None>
+    <None Include="SSAO.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="SSAO.fs">
+      <Filter>Shader Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

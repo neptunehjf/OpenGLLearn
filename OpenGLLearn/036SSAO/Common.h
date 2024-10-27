@@ -123,5 +123,6 @@ bool bSSAO = true;
 int iSSAOSampleNum = 64;
 bool bSSAONoise = true;
 int iSSAONoise = 4; // 正方形噪声采样图的边长
+float fRadius = 1.0f;
 /************** Imgui变量 **************/
 

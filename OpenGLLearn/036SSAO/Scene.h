@@ -32,6 +32,7 @@ public:
 	Shader ForwardShader;
 	Shader DeferredLampShader;
 	Shader GBufferSSAOShader;
+	Shader SSAOShader;
 
 	Mesh cubeCubemap;
 	Mesh cube;
@@ -47,6 +48,7 @@ public:
 	Mesh lamp;
 	Mesh PosYSquare;
 	Mesh defferedScreen;
+	Mesh SSAOScreen;
 	vector<vec3> lightPositions;
 	vector<vec3> lightColors;
 	vector<float> lightRadius;
@@ -62,6 +64,7 @@ public:
 	vector<vec3> ssaoKernel;
 	// SSAO采样Noise
 	vector<vec3> ssaoNoise;
+	GLuint noiseTexture;
 
 	void CreateScene(Camera* myCam);
 	void DrawScene(bool bDepthmap = false, bool bDepthCubemap = false, bool bGBuffer = false);
@@ -102,6 +105,7 @@ void Scene::CreateShader()
 	ForwardShader = Shader("ForwardShading.vs", "ForwardShading.fs");
 	DeferredLampShader = Shader("DeferredLamp.vs", "DeferredLamp.fs");
 	GBufferSSAOShader = Shader("G-buffer-SSAO.vs", "G-buffer-SSAO.fs");
+	SSAOShader = Shader("SSAO.vs", "SSAO.fs");
 }
 
 void Scene::CreateScene(Camera* myCam)
@@ -211,6 +215,7 @@ void Scene::CreateScene(Camera* myCam)
 	skybox = Mesh(g_skyboxVertices, g_skyboxIndices, skyboxTexture);
 	screen = Mesh(g_screenVertices, g_screenIndices);
 	defferedScreen = Mesh(g_screenVertices, g_screenIndices);
+	SSAOScreen = Mesh(g_screenVertices, g_screenIndices);
 	mirror = Mesh(g_mirrorVertices, g_mirrorIndices);
 	particle = Mesh(g_particleVertices, g_particleIndices);
 	lamp = Mesh(g_cubeVertices, g_cubeIndices, lampTexture);
@@ -739,7 +744,8 @@ void Scene::DrawScene_DeferredTest()
 		plane.DrawMesh(ForwardShader, GL_TRIANGLES);
 
 	nanosuit.SetScale(vec3(0.1f));
-	nanosuit.SetTranslate(vec3(0.0f, 0.0f, 0.0f));
+	nanosuit.SetRotate(-190.0f, vec3(1.0f, 0.0f, 0.0f));
+	nanosuit.SetTranslate(vec3(0.0f, 0.1f, 0.0f));
 	if (bDeferred)
 		nanosuit.DrawModel(GBufferShader);
 	else
@@ -810,13 +816,17 @@ void Scene::DrawScene_SSAOTest()
 		plane.DrawMesh(ForwardShader, GL_TRIANGLES);
 
 	nanosuit.SetScale(vec3(0.1f));
-	//nanosuit.SetTranslate(vec3(0.0f, 1.0f, 0.0f));
-	//nanosuit.SetRotate(-90.0f, vec3(1.0f, 0.0f, 0.0f));
+	nanosuit.SetRotate(-190.0f, vec3(1.0f, 0.0f, 0.0f));
+	nanosuit.SetTranslate(vec3(0.0f, 0.1f, 0.0f));
 
 	if (bSSAO)
 		nanosuit.DrawModel(GBufferSSAOShader);
 	else
 		nanosuit.DrawModel(ForwardShader);
+
+	CreateSSAOSamples();
+	CreateSSAONoise();
+	CreateSSAONoiseTexture();
 }
 
 // 创建SSAO采样点
@@ -861,9 +871,6 @@ void Scene::CreateSSAONoise()
 	uniform_real_distribution<GLfloat> randomFloats(0.0, 1.0); // 随机浮点数，范围0.0 - 1.0
 	default_random_engine generator;
 
-	// 是一个平面Noise，这里用vec2也可以吧
-	vector<vec3> ssaoNoise;
-
 	// iSSAONoise * iSSAONoise的正方形
 	uint num = iSSAONoise * iSSAONoise;
 
@@ -879,7 +886,6 @@ void Scene::CreateSSAONoise()
 
 void Scene::CreateSSAONoiseTexture()
 {
-	GLuint noiseTexture;
 	glGenTextures(1, &noiseTexture);
 	glBindTexture(GL_TEXTURE_2D, noiseTexture);
 	// Noise数据写入图片

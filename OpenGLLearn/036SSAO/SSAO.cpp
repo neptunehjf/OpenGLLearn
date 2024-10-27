@@ -38,16 +38,18 @@ void CreateFrameBuffer_DepthCubemap(GLuint& fbo, GLuint& tbo);
 void CreateFrameBuffer_pingpong();
 void CreateFrameBuffer_G();
 void CreateFrameBuffer_G_SSAO();
+void CreateFrameBuffer_SSAO_Output();
 void SetUniformBuffer();
 void DrawDepthMap();
 void DrawDepthCubemap(vec3 lightPos);
 void SetAllUniformValues();
 void DrawScreen();
 void DrawSceneDeffered();
+void DrawSceneSSAO();
 void SetHeavyLightsUniform(Shader& shader);
 
 Scene scene;
-Camera myCam(vec3(2.59f, 2.63f, 3.22f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
+Camera myCam(vec3(0.7f, 1.12f, -1.44f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
 GLFWwindow* window = NULL;
 
 // 原场景缓冲
@@ -92,12 +94,16 @@ GLuint fbo_deffered = 0; // 自定义帧缓冲对象
 GLuint tbo_deffered[2] = {}; // 纹理缓冲对象（附件）
 GLuint rbo_deffered = 0; // 渲染缓冲对象（附件）
 
-// G缓冲 SSAO
+// G缓冲 SSAO input (是G缓冲的输出，SSAO处理的输入)
 GLuint fbo_SSAO = 0;                // 自定义帧缓冲对象
 GLuint tbo_SSAO_posdepth = 0;       // 纹理缓冲对象（附件） 存储位置信息
 GLuint tbo_SSAO_normal = 0;         // 纹理缓冲对象（附件） 存储法线信息
-GLuint tbo_SSAO_albedo = 0;         // 纹理缓冲对象（附件） 存储反照率和高光信息
+GLuint tbo_SSAO_albedo = 0;         // 纹理缓冲对象（附件） 存储反照率信息
 GLuint rbo_SSAO = 0;                // 渲染缓冲对象（附件）
+
+// SSAO缓冲 SSAO output (是SSAO处理的输出)
+GLuint fbo_SSAO_out = 0;                // 自定义帧缓冲对象
+GLuint tbo_SSAO_out = 0;                // 纹理缓冲对象（附件） 存储occlusion信息
  
 int main()
 {
@@ -118,7 +124,6 @@ int main()
 	ImGui_ImplOpenGL3_Init();
 	
 	scene.CreateShader();
-	//scene.CreateScene(&myCam);
 
 	// 原场景缓冲
 	CreateFrameBuffer_MSAA(fbo_origin, tbo_origin, rbo_origin, 2);
@@ -136,6 +141,8 @@ int main()
 	CreateFrameBuffer(fbo_deffered, tbo_deffered, rbo_deffered, 2);
 	// G缓冲 SSAO
 	CreateFrameBuffer_G_SSAO();
+	// SSAO输出 缓冲
+	CreateFrameBuffer_SSAO_Output();
 
 	// Uniform缓冲
 	// 
@@ -264,6 +271,8 @@ int main()
 		{
 			glBindFramebuffer(GL_FRAMEBUFFER, fbo_SSAO);
 			scene.DrawScene_SSAOTest();
+			glBindFramebuffer(GL_FRAMEBUFFER, fbo_SSAO_out);
+			DrawSceneSSAO();
 		}
 			
 		// 用中间fbo的方式实现，实际上中间FBO就是一个只带1个采样点的普通帧缓冲。用Blit操作把MSAA FBO复制进去，然后就可以用中间FBO的TBO来后期处理了。
@@ -601,9 +610,10 @@ void GetImguiValue()
 	if (ImGui::TreeNodeEx("Screen Based Ambient Occlusion", ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		ImGui::Checkbox("Enable SSAO", &bSSAO);
-		ImGui::SliderInt("SSAO Samples Number", &iSSAOSampleNum, 1, 200);
+		ImGui::SliderInt("SSAO Samples Number", &iSSAOSampleNum, 1, 256);
 		ImGui::Checkbox("Enable Nosie", &bSSAONoise);
 		ImGui::SliderInt("Noise Strength", &iSSAONoise, 2, 20);
+		ImGui::SliderFloat("Radius", &fRadius, 2, 20);
 
 		ImGui::TreePop();
 	}
@@ -684,7 +694,17 @@ void SetUniformToShader(Shader& shader)
 	shader.SetBool("bBloom", bBloom);
 	shader.SetFloat("near", myCam.camNear);
 	shader.SetFloat("far", myCam.camFar);
+	shader.SetInt("samples_num", iSSAOSampleNum);
+	for (int i = 0; i < iSSAOSampleNum; i++)
+	{
+		stringstream ss;
+		ss << "samples[" << i << "]";
+		string prefix = ss.str();
 
+		shader.SetVec3(prefix, scene.ssaoKernel[i]);
+	}
+	shader.SetFloat("fRadius", fRadius);
+	
 	// ShaderLightingInstance 
 	// 因为model矩阵变换是基于单位矩阵进行的，想要在已经变换后的model矩阵的基础上，再进行model矩阵变换有点困难
 	mat4 model = mat4(1.0f);
@@ -1100,6 +1120,7 @@ void SetAllUniformValues()
 	SetUniformToShader(scene.GBufferShader);
 	SetUniformToShader(scene.DeferredShader);
 	SetUniformToShader(scene.GBufferSSAOShader);
+	SetUniformToShader(scene.SSAOShader);
 }
 
 void DrawScreen()
@@ -1399,6 +1420,25 @@ void DrawSceneDeffered()
 	}
 }
 
+void DrawSceneSSAO()
+{
+	glDisable(GL_DEPTH_TEST);
+
+	// 清空各个缓冲区
+	glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	// 主屏幕
+	const vector<Texture> gBufferTexture =
+	{
+		{tbo_SSAO_posdepth, "texture_diffuse"},
+		{tbo_SSAO_normal, "texture_diffuse"},
+		{scene.noiseTexture, "texture_diffuse"}
+	};
+	scene.SSAOScreen.SetTextures(gBufferTexture);
+	scene.SSAOScreen.DrawMesh(scene.SSAOShader, GL_TRIANGLES);
+}
+
 void SetHeavyLightsUniform(Shader &shader)
 {
 	shader.Use();
@@ -1461,4 +1501,38 @@ void SetHeavyLightsUniform(Shader &shader)
 
 	shader.SetInt("iGPUPressure", iGPUPressure);
 
+}
+
+//创建SSAO输出 缓冲区
+void CreateFrameBuffer_SSAO_Output()
+{
+	glGenFramebuffers(1, &fbo_SSAO_out);
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo_SSAO_out);
+
+	/**********************color缓冲，储存像素的Occlusion信息*********************/
+	// 生成纹理附件 对应color缓冲
+	glGenTextures(1, &tbo_SSAO_out);
+
+	// 设置纹理参数
+	glBindTexture(GL_TEXTURE_2D, tbo_SSAO_out);
+	// Occlusion用单通道float即可
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, windowWidth, windowHeight, 0, GL_RGB, GL_FLOAT, NULL); // Q: 倒数第三个参数用GL_RED也行吧？
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	// 纹理缓冲对象  作为一个GL_COLOR_ATTACHMENT附件 附加到 帧缓冲对象
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tbo_SSAO_out, 0);
+
+	// 不需要render buffer object
+
+	// 检查帧缓冲对象完整性
+	int chkFlag = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if (chkFlag != GL_FRAMEBUFFER_COMPLETE)
+	{
+		cout << "Error: Framebuffer is not complete!" << endl;
+		cout << "Check Flag: " << hex << chkFlag << endl;
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

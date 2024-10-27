@@ -192,6 +192,8 @@
     <None Include="Reflection.vs" />
     <None Include="Refraction.fs" />
     <None Include="Refraction.vs" />
+    <None Include="SSAO.fs" />
+    <None Include="SSAO.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
