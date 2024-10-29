@@ -613,7 +613,7 @@ void GetImguiValue()
 		ImGui::SliderInt("SSAO Samples Number", &iSSAOSampleNum, 1, 256);
 		ImGui::Checkbox("Enable Nosie", &bSSAONoise);
 		ImGui::SliderInt("Noise Strength", &iSSAONoise, 2, 20);
-		ImGui::SliderFloat("Radius", &fRadius, 2, 20);
+		ImGui::SliderFloat("Radius", &fRadius, 0.1, 20);
 
 		ImGui::TreePop();
 	}
