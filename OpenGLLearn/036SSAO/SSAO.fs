@@ -12,6 +12,7 @@ struct Material
 
 layout (std140) uniform Matrix
 {
+	mat4 view;
 	mat4 projection;	
 };
 

@@ -345,6 +345,10 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	glDeleteFramebuffers(1, &fbo_origin);
 	glDeleteFramebuffers(1, &fbo_mirror);
 	glDeleteFramebuffers(1, &fbo_middle);
+	glDeleteFramebuffers(1, &fbo_G);
+	glDeleteFramebuffers(1, &fbo_deffered);
+	glDeleteFramebuffers(1, &fbo_SSAO);
+	glDeleteFramebuffers(1, &fbo_SSAO_out);
 
 	// 原场景缓冲
 	CreateFrameBuffer_MSAA(fbo_origin, tbo_origin, rbo_origin, 2);
@@ -352,6 +356,14 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	CreateFrameBuffer(fbo_mirror, tbo_mirror, rbo_mirror, 1);
 	// 中间缓冲
 	CreateFrameBuffer(fbo_middle, tbo_middle, rbo_middle, 2);
+	// G缓冲
+	CreateFrameBuffer_G();
+	// deferred shading 缓冲
+	CreateFrameBuffer(fbo_deffered, tbo_deffered, rbo_deffered, 2);
+	// G缓冲 SSAO
+	CreateFrameBuffer_G_SSAO();
+	// SSAO输出 缓冲
+	CreateFrameBuffer_SSAO_Output();
 
 	glViewport(0, 0, width, height);
 }
@@ -1227,8 +1239,8 @@ void CreateFrameBuffer_G()
 	// 设置纹理参数
 	glBindTexture(GL_TEXTURE_2D, tbo_G_position);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, windowWidth, windowHeight, 0, GL_RGB, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // 用GL_CLAMP_TO_EDGE防止采样到屏幕空间之外的深度值
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -1244,8 +1256,8 @@ void CreateFrameBuffer_G()
 	// 设置纹理参数
 	glBindTexture(GL_TEXTURE_2D, tbo_G_normal);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, windowWidth, windowHeight, 0, GL_RGB, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // 用GL_CLAMP_TO_EDGE防止采样到屏幕空间之外的深度值
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -1261,8 +1273,8 @@ void CreateFrameBuffer_G()
 	// 设置纹理参数
 	glBindTexture(GL_TEXTURE_2D, tbo_G_abdspec);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, windowWidth, windowHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // 用GL_CLAMP_TO_EDGE防止采样到屏幕空间之外的深度值
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -1309,8 +1321,8 @@ void CreateFrameBuffer_G_SSAO()
 	// 设置纹理参数
 	glBindTexture(GL_TEXTURE_2D, tbo_SSAO_posdepth);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, windowWidth, windowHeight, 0, GL_RGBA, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // 用GL_CLAMP_TO_EDGE防止采样到屏幕空间之外的深度值
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -1326,8 +1338,8 @@ void CreateFrameBuffer_G_SSAO()
 	// 设置纹理参数
 	glBindTexture(GL_TEXTURE_2D, tbo_SSAO_normal);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, windowWidth, windowHeight, 0, GL_RGB, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // 用GL_CLAMP_TO_EDGE防止采样到屏幕空间之外的深度值
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -1343,8 +1355,8 @@ void CreateFrameBuffer_G_SSAO()
 	// 设置纹理参数
 	glBindTexture(GL_TEXTURE_2D, tbo_SSAO_albedo);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, windowWidth, windowHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // 用GL_CLAMP_TO_EDGE防止采样到屏幕空间之外的深度值
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -1517,8 +1529,8 @@ void CreateFrameBuffer_SSAO_Output()
 	glBindTexture(GL_TEXTURE_2D, tbo_SSAO_out);
 	// Occlusion用单通道float即可
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, windowWidth, windowHeight, 0, GL_RGB, GL_FLOAT, NULL); // Q: 倒数第三个参数用GL_RED也行吧？
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	// 纹理缓冲对象  作为一个GL_COLOR_ATTACHMENT附件 附加到 帧缓冲对象
