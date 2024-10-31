@@ -33,6 +33,7 @@ public:
 	Shader DeferredLampShader;
 	Shader GBufferSSAOShader;
 	Shader SSAOShader;
+	Shader SSAOBlurShader;
 
 	Mesh cubeCubemap;
 	Mesh cube;
@@ -49,6 +50,7 @@ public:
 	Mesh PosYSquare;
 	Mesh defferedScreen;
 	Mesh SSAOScreen;
+	Mesh SSAOBlurScreen;
 	vector<vec3> lightPositions;
 	vector<vec3> lightColors;
 	vector<float> lightRadius;
@@ -106,6 +108,7 @@ void Scene::CreateShader()
 	DeferredLampShader = Shader("DeferredLamp.vs", "DeferredLamp.fs");
 	GBufferSSAOShader = Shader("G-buffer-SSAO.vs", "G-buffer-SSAO.fs");
 	SSAOShader = Shader("SSAO.vs", "SSAO.fs");
+	SSAOBlurShader = Shader("SSAO_Blur.vs", "SSAO_Blur.fs");
 }
 
 void Scene::CreateScene(Camera* myCam)
@@ -216,6 +219,7 @@ void Scene::CreateScene(Camera* myCam)
 	screen = Mesh(g_screenVertices, g_screenIndices);
 	defferedScreen = Mesh(g_screenVertices, g_screenIndices);
 	SSAOScreen = Mesh(g_screenVertices, g_screenIndices);
+	SSAOBlurScreen = Mesh(g_screenVertices, g_screenIndices);
 	mirror = Mesh(g_mirrorVertices, g_mirrorIndices);
 	particle = Mesh(g_particleVertices, g_particleIndices);
 	lamp = Mesh(g_cubeVertices, g_cubeIndices, lampTexture);

@@ -175,5 +175,11 @@
     <None Include="SSAO.fs">
       <Filter>Shader Files</Filter>
     </None>
+    <None Include="SSAO_Blur.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="SSAO_Blur.fs">
+      <Filter>Shader Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -39,6 +39,7 @@ void CreateFrameBuffer_pingpong();
 void CreateFrameBuffer_G();
 void CreateFrameBuffer_G_SSAO();
 void CreateFrameBuffer_SSAO_Output();
+void CreateFrameBuffer_SSAO_Blur();
 void SetUniformBuffer();
 void DrawDepthMap();
 void DrawDepthCubemap(vec3 lightPos);
@@ -46,6 +47,7 @@ void SetAllUniformValues();
 void DrawScreen();
 void DrawSceneDeffered();
 void DrawSceneSSAO();
+void DrawSceneSSAOBlur();
 void SetHeavyLightsUniform(Shader& shader);
 
 Scene scene;
@@ -104,7 +106,11 @@ GLuint rbo_SSAO = 0;                // 渲染缓冲对象（附件）
 // SSAO缓冲 SSAO output (是SSAO处理的输出)
 GLuint fbo_SSAO_out = 0;                // 自定义帧缓冲对象
 GLuint tbo_SSAO_out = 0;                // 纹理缓冲对象（附件） 存储occlusion信息
- 
+
+// SSAO blur缓冲 用来平滑噪声
+GLuint fbo_SSAO_blur = 0;                // 自定义帧缓冲对象
+GLuint tbo_SSAO_blur = 0;                // 纹理缓冲对象（附件） 存储平滑噪声后的occlusion信息
+
 int main()
 {
 	if (!InitOpenGL())
@@ -143,6 +149,8 @@ int main()
 	CreateFrameBuffer_G_SSAO();
 	// SSAO输出 缓冲
 	CreateFrameBuffer_SSAO_Output();
+	// SSAO模糊缓冲
+	CreateFrameBuffer_SSAO_Blur();
 
 	// Uniform缓冲
 	// 
@@ -273,6 +281,8 @@ int main()
 			scene.DrawScene_SSAOTest();
 			glBindFramebuffer(GL_FRAMEBUFFER, fbo_SSAO_out);
 			DrawSceneSSAO();
+			glBindFramebuffer(GL_FRAMEBUFFER, fbo_SSAO_blur);
+			DrawSceneSSAOBlur();
 		}
 			
 		// 用中间fbo的方式实现，实际上中间FBO就是一个只带1个采样点的普通帧缓冲。用Blit操作把MSAA FBO复制进去，然后就可以用中间FBO的TBO来后期处理了。
@@ -364,6 +374,8 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	CreateFrameBuffer_G_SSAO();
 	// SSAO输出 缓冲
 	CreateFrameBuffer_SSAO_Output();
+	// SSAO模糊缓冲
+	CreateFrameBuffer_SSAO_Blur();
 
 	glViewport(0, 0, width, height);
 }
@@ -707,6 +719,7 @@ void SetUniformToShader(Shader& shader)
 	shader.SetFloat("near", myCam.camNear);
 	shader.SetFloat("far", myCam.camFar);
 	shader.SetInt("samples_num", iSSAOSampleNum);
+	shader.SetInt("iSSAONoise", iSSAONoise);
 	for (int i = 0; i < iSSAOSampleNum; i++)
 	{
 		stringstream ss;
@@ -1133,6 +1146,7 @@ void SetAllUniformValues()
 	SetUniformToShader(scene.DeferredShader);
 	SetUniformToShader(scene.GBufferSSAOShader);
 	SetUniformToShader(scene.SSAOShader);
+	SetUniformToShader(scene.SSAOBlurShader);
 }
 
 void DrawScreen()
@@ -1451,6 +1465,23 @@ void DrawSceneSSAO()
 	scene.SSAOScreen.DrawMesh(scene.SSAOShader, GL_TRIANGLES);
 }
 
+void DrawSceneSSAOBlur()
+{
+	glDisable(GL_DEPTH_TEST);
+
+	// 清空各个缓冲区
+	glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	// 主屏幕
+	const vector<Texture> SSAOTexture =
+	{
+		{tbo_SSAO_out, "texture_diffuse"}
+	};
+	scene.SSAOBlurScreen.SetTextures(SSAOTexture);
+	scene.SSAOBlurScreen.DrawMesh(scene.SSAOBlurShader, GL_TRIANGLES);
+}
+
 void SetHeavyLightsUniform(Shader &shader)
 {
 	shader.Use();
@@ -1535,6 +1566,40 @@ void CreateFrameBuffer_SSAO_Output()
 
 	// 纹理缓冲对象  作为一个GL_COLOR_ATTACHMENT附件 附加到 帧缓冲对象
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tbo_SSAO_out, 0);
+
+	// 不需要render buffer object
+
+	// 检查帧缓冲对象完整性
+	int chkFlag = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if (chkFlag != GL_FRAMEBUFFER_COMPLETE)
+	{
+		cout << "Error: Framebuffer is not complete!" << endl;
+		cout << "Check Flag: " << hex << chkFlag << endl;
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+//创建SSAO模糊 缓冲区
+void CreateFrameBuffer_SSAO_Blur()
+{
+	glGenFramebuffers(1, &fbo_SSAO_blur);
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo_SSAO_blur);
+
+	/**********************color缓冲，储存模糊后的Occlusion信息*********************/
+	// 生成纹理附件 对应color缓冲
+	glGenTextures(1, &tbo_SSAO_blur);
+
+	// 设置纹理参数
+	glBindTexture(GL_TEXTURE_2D, tbo_SSAO_blur);
+	// Occlusion用单通道float即可
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, windowWidth, windowHeight, 0, GL_RGB, GL_FLOAT, NULL); // Q: 倒数第三个参数用GL_RED也行吧？
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	// 纹理缓冲对象  作为一个GL_COLOR_ATTACHMENT附件 附加到 帧缓冲对象
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tbo_SSAO_blur, 0);
 
 	// 不需要render buffer object
 
