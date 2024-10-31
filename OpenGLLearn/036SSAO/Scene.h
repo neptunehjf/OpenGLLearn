@@ -732,7 +732,6 @@ void Scene::DrawScene_DeferredTest()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //离屏渲染不需要glClear(GL_COLOR_BUFFER_BIT);
 
 	glDisable(GL_BLEND);
-	glBlendFunc(GL_ONE, GL_ZERO);
 
 	// 如果想要把深度图写入rbo，必须打开深度测试。
 	glEnable(GL_DEPTH_TEST);
@@ -804,7 +803,6 @@ void Scene::DrawScene_SSAOTest()
 
 	// GL_BLEND enable时，可能由于没有aplha通道，导致看不见物体，所以要关闭。
 	glDisable(GL_BLEND);
-	glBlendFunc(GL_ONE, GL_ZERO);
 
 	// 如果想要把深度图写入rbo，必须打开深度测试。但是这里不加也行，因为在FS手动把深度写入了color附件
 	glEnable(GL_DEPTH_TEST);
@@ -814,19 +812,13 @@ void Scene::DrawScene_SSAOTest()
 
 	plane.SetScale(vec3(100.0f, 0.1f, 100.0f));
 	plane.SetTranslate(vec3(0.0f, 0.0f, 0.0f));
-	if (bSSAO)
-		plane.DrawMesh(GBufferSSAOShader, GL_TRIANGLES);
-	else
-		plane.DrawMesh(ForwardShader, GL_TRIANGLES);
+	plane.DrawMesh(GBufferSSAOShader, GL_TRIANGLES);
 
 	nanosuit.SetScale(vec3(0.1f));
 	nanosuit.SetRotate(-190.0f, vec3(1.0f, 0.0f, 0.0f));
 	nanosuit.SetTranslate(vec3(0.0f, 0.1f, 0.0f));
+	nanosuit.DrawModel(GBufferSSAOShader);
 
-	if (bSSAO)
-		nanosuit.DrawModel(GBufferSSAOShader);
-	else
-		nanosuit.DrawModel(ForwardShader);
 
 	CreateSSAOSamples();
 	CreateSSAONoise();
