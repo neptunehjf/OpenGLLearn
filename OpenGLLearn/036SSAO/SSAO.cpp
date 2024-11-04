@@ -283,6 +283,8 @@ int main()
 			DrawSceneSSAO();
 			glBindFramebuffer(GL_FRAMEBUFFER, fbo_SSAO_blur);
 			DrawSceneSSAOBlur();
+			glBindFramebuffer(GL_FRAMEBUFFER, fbo_deffered);
+			DrawSceneDeffered();
 		}
 			
 		// 用中间fbo的方式实现，实际上中间FBO就是一个只带1个采样点的普通帧缓冲。用Blit操作把MSAA FBO复制进去，然后就可以用中间FBO的TBO来后期处理了。
@@ -718,6 +720,7 @@ void SetUniformToShader(Shader& shader)
 	shader.SetBool("bBloom", bBloom);
 	shader.SetFloat("near", myCam.camNear);
 	shader.SetFloat("far", myCam.camFar);
+	shader.SetBool("bSSAO", bSSAO);
 	shader.SetInt("samples_num", iSSAOSampleNum);
 	shader.SetInt("iSSAONoise", iSSAONoise);
 	for (int i = 0; i < iSSAOSampleNum; i++)
@@ -1415,7 +1418,8 @@ void DrawSceneDeffered()
 	{
 		{tbo_G_position, "texture_diffuse"},
 		{tbo_G_normal, "texture_diffuse"},
-		{tbo_G_abdspec, "texture_diffuse"}
+		{tbo_G_abdspec, "texture_diffuse"},
+		{tbo_SSAO_blur, "texture_diffuse"}
 	};
 	scene.defferedScreen.SetTextures(gBufferTexture);
 	scene.defferedScreen.DrawMesh(scene.DeferredShader, GL_TRIANGLES);

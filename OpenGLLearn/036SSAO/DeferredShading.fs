@@ -11,6 +11,7 @@ struct Material
 	sampler2D texture_diffuse1; // G-buffer Position vec3
     sampler2D texture_diffuse2; // G-buffer Normal vec3
     sampler2D texture_diffuse3; // G-buffer Albedo and Specular vec4
+	sampler2D texture_diffuse4; // Blurred SSAO Texture
 	int shininess;
 };
 
@@ -39,6 +40,8 @@ uniform bool bLightVolume;
 
 uniform int iGPUPressure;
 
+uniform bool bSSAO;
+
 vec4 CalcPointLight(vec3 fragPos, vec3 norm, vec3 diffuseColor, float specularColor);
 
 void main()
@@ -48,6 +51,7 @@ void main()
 	vec3 normal    = texture(material.texture_diffuse2, TexCoords).rgb;
     vec3 albedo    = texture(material.texture_diffuse3, TexCoords).rgb;
 	float specular = texture(material.texture_diffuse3, TexCoords).a;
+	float occlusion = texture(material.texture_diffuse4, TexCoords).r;
 
 	// 延迟渲染，只需每个屏幕像素渲染一次就好了，可以提升很多性能
 
@@ -56,9 +60,11 @@ void main()
 	{
 		FragColor = vec4(1.0);
 		FragColor = CalcPointLight(position, normal, albedo, specular);
+		if (bSSAO)
+			FragColor *= occlusion;
 	}
 
-	// HDR用
+	// Bloom用
 	float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
     if(brightness > 1.0)
         BrightColor = vec4(FragColor.rgb, 1.0);
