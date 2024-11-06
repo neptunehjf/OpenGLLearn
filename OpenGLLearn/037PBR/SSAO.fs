@@ -1,6 +1,7 @@
 #version 330 core
 
 in vec2 TexCoords;
+in mat4 Projection;
 out float FragColor;
 
 struct Material
@@ -8,12 +9,6 @@ struct Material
 	sampler2D texture_diffuse1;  // G-Buffer Position and Depth
 	sampler2D texture_diffuse2;  // G-Buffer Normal
 	sampler2D texture_diffuse3;  // G-Buffer Noise Texture
-};
-
-layout (std140) uniform Matrix
-{
-	mat4 view;
-	mat4 projection;	
 };
 
 uniform Material material;
@@ -53,7 +48,7 @@ void main()
 
 		// 获取样本位置（屏幕空间）
 		vec4 offset = vec4(sample, 1.0);
-		offset = projection * offset;   // 观察->裁剪空间
+		offset = Projection * offset;   // 观察->裁剪空间
 		offset.xyz /= offset.w; // 透视划分（-1.0 到 1.0）
 		offset.xyz = offset.xyz * 0.5 + 0.5; // 变换到0.0 - 1.0的值域
 
