@@ -151,6 +151,12 @@
     <None Include="DepthmapDisplay.vs">
       <Filter>Shader Files</Filter>
     </None>
+    <None Include="PBR.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="PBR.vs">
+      <Filter>Shader Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="PBR.cpp">
