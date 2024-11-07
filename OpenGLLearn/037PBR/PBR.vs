@@ -16,7 +16,7 @@ out vec3 Normal;
 
 void main()
 {
-    TexCoords = aTexCoords;
+    TexCoords = aTexCoord;
     WorldPos = vec3(uni_model * vec4(aPos, 1.0));
     Normal = mat3(transpose(inverse(view * uni_model))) * aNormal;
 

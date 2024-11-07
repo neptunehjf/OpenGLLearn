@@ -34,6 +34,7 @@ public:
 	Shader GBufferSSAOShader;
 	Shader SSAOShader;
 	Shader SSAOBlurShader;
+	Shader PBRShader;
 
 	Mesh cubeCubemap;
 	Mesh cube;
@@ -51,6 +52,7 @@ public:
 	Mesh defferedScreen;
 	Mesh SSAOScreen;
 	Mesh SSAOBlurScreen;
+	Mesh sphere;
 	vector<vec3> lightPositions;
 	vector<vec3> lightColors;
 	vector<float> lightRadius;
@@ -87,6 +89,7 @@ private:
 	GLfloat lerp(GLfloat a, GLfloat b, GLfloat f);
 	void CreateSSAONoise();
 	void CreateSSAONoiseTexture();
+	Mesh CreateSphereMesh(const vector<Texture>& texture);
 };
 
 void Scene::CreateShader()
@@ -109,6 +112,7 @@ void Scene::CreateShader()
 	GBufferSSAOShader = Shader("G-buffer-SSAO.vs", "G-buffer-SSAO.fs");
 	SSAOShader = Shader("SSAO.vs", "SSAO.fs");
 	SSAOBlurShader = Shader("SSAO_Blur.vs", "SSAO_Blur.fs");
+	PBRShader = Shader("PBR.vs", "PBR.fs");
 }
 
 void Scene::CreateScene(Camera* myCam)
@@ -129,6 +133,7 @@ void Scene::CreateScene(Camera* myCam)
 	GLuint t_brick2 = 0;
 	GLuint t_brick2_normal = 0;
 	GLuint t_brick2_disp = 0;
+	GLuint t_plastic_albedo = 0;
 
 	LoadTexture("Resource/Texture/metal.png", t_metal, GL_REPEAT, GL_REPEAT);
 	LoadTexture("Resource/Texture/marble.jpg", t_marble, GL_REPEAT, GL_REPEAT);
@@ -138,6 +143,7 @@ void Scene::CreateScene(Camera* myCam)
 	LoadTexture("Resource/Texture/bricks2.jpg", t_brick2, GL_REPEAT, GL_REPEAT);
 	LoadTexture("Resource/Texture/bricks2_normal.jpg", t_brick2_normal, GL_REPEAT, GL_REPEAT);
 	LoadTexture("Resource/Texture/bricks2_disp.jpg", t_brick2_disp, GL_REPEAT, GL_REPEAT);
+	LoadTexture("Resource/Texture/pbr/plastic/albedo.png", t_plastic_albedo, GL_REPEAT, GL_REPEAT);
 
 	stbi_set_flip_vertically_on_load(false);
 	LoadTexture("Resource/Texture/brickwall.jpg", t_brick, GL_REPEAT, GL_REPEAT);
@@ -192,6 +198,11 @@ void Scene::CreateScene(Camera* myCam)
 		{t_brick2_disp, "texture_disp"}
 	};
 
+	const vector<Texture> plasticTexture =
+	{
+		{t_plastic_albedo, "texture_diffuse"}
+	};
+
 	// 深拷贝
 	m_brickTexture = brick2Texture;
 
@@ -224,6 +235,7 @@ void Scene::CreateScene(Camera* myCam)
 	particle = Mesh(g_particleVertices, g_particleIndices);
 	lamp = Mesh(g_cubeVertices, g_cubeIndices, lampTexture);
 	lamp.SetScale(vec3(1.0f));
+	sphere = CreateSphereMesh(plasticTexture);
 
 	if (bEnableNormalMap)
 	{
@@ -891,4 +903,76 @@ void Scene::CreateSSAONoiseTexture()
 	// 因为要把Noise Texture平铺在屏幕上，所以要用GL_REPEAT
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+}
+
+Mesh Scene::CreateSphereMesh(const vector<Texture>& texture)
+{
+	vector<vec3> positions;
+	vector<vec2> uv;
+	vector<vec3> normals;
+	vector<unsigned int> indices;
+
+	const unsigned int X_SEGMENTS = 64;
+	const unsigned int Y_SEGMENTS = 64;
+	const float PI = 3.14159265359f;
+	for (unsigned int x = 0; x <= X_SEGMENTS; ++x)
+	{
+		for (unsigned int y = 0; y <= Y_SEGMENTS; ++y)
+		{
+			float xSegment = (float)x / (float)X_SEGMENTS;
+			float ySegment = (float)y / (float)Y_SEGMENTS;
+			float xPos = std::cos(xSegment * 2.0f * PI) * std::sin(ySegment * PI);
+			float yPos = std::cos(ySegment * PI);
+			float zPos = std::sin(xSegment * 2.0f * PI) * std::sin(ySegment * PI);
+
+			positions.push_back(vec3(xPos, yPos, zPos));
+			uv.push_back(vec2(xSegment, ySegment));
+			normals.push_back(vec3(xPos, yPos, zPos));
+		}
+	}
+
+	// Q: 这里为什么要分奇偶来得到下标有点没搞懂，以后有时间研究一下吧
+	bool oddRow = false;
+	for (unsigned int y = 0; y < Y_SEGMENTS; ++y)
+	{
+		if (!oddRow) // even rows: y == 0, y == 2; and so on
+		{
+			for (unsigned int x = 0; x <= X_SEGMENTS; ++x)
+			{
+				indices.push_back(y * (X_SEGMENTS + 1) + x);
+				indices.push_back((y + 1) * (X_SEGMENTS + 1) + x);
+			}
+		}
+		else
+		{
+			for (int x = X_SEGMENTS; x >= 0; --x)
+			{
+				indices.push_back((y + 1) * (X_SEGMENTS + 1) + x);
+				indices.push_back(y * (X_SEGMENTS + 1) + x);
+			}
+		}
+		oddRow = !oddRow;
+	}
+
+	vector<float> data;
+	for (unsigned int i = 0; i < positions.size(); ++i)
+	{
+		data.push_back(positions[i].x);
+		data.push_back(positions[i].y);
+		data.push_back(positions[i].z);
+		if (normals.size() > 0)
+		{
+			data.push_back(normals[i].x);
+			data.push_back(normals[i].y);
+			data.push_back(normals[i].z);
+		}
+		if (uv.size() > 0)
+		{
+			data.push_back(uv[i].x);
+			data.push_back(uv[i].y);
+		}
+	}
+
+	//因为Vertex设置了#pragma pack(1)，所以内存是1字节对齐的，所以可以直接把vector<float>转成vector<Vertex>来用
+	return Mesh(*((vector<Vertex> *)&data), indices, texture);
 }
