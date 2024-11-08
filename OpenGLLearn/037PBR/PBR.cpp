@@ -50,6 +50,7 @@ void DrawSceneSSAO();
 void DrawSceneSSAOBlur();
 void SetHeavyLightsUniform(Shader& shader);
 void SetPBRUniform();
+void SetPBRWithTextureUniform();
 
 Scene scene;
 Camera myCam(vec3(0.16f, 2.61f, 2.86f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
@@ -1166,6 +1167,7 @@ void SetAllUniformValues()
 	SetUniformToShader(scene.SSAOShader);
 	SetUniformToShader(scene.SSAOBlurShader);
 	SetPBRUniform();
+	SetPBRWithTextureUniform();
 }
 
 void DrawScreen()
@@ -1602,6 +1604,38 @@ void SetPBRUniform()
 	}
 
 	scene.PBRShader.SetVec3("camPos", myCam.camPos);
+}
+
+void SetPBRWithTextureUniform()
+{
+	scene.PBRWithTextureShader.Use();
+
+	vec3 lightPositions[] = {
+		vec3(-10.0f,  10.0f, 10.0f),
+		vec3(10.0f,  10.0f, 10.0f),
+		vec3(-10.0f, -10.0f, 10.0f),
+		vec3(10.0f, -10.0f, 10.0f),
+	};
+	vec3 lightColors[] = {
+		vec3(300.0f, 300.0f, 300.0f),
+		vec3(300.0f, 300.0f, 300.0f),
+		vec3(300.0f, 300.0f, 300.0f),
+		vec3(300.0f, 300.0f, 300.0f)
+	};
+
+	for (int i = 0; i < 4; i++)
+	{
+		stringstream ss1, ss2;
+		ss1 << "lightPositions[" << i << "]";
+		ss2 << "lightColors[" << i << "]";
+		string lp = ss1.str();
+		string lc = ss2.str();
+
+		scene.PBRWithTextureShader.SetVec3(lp, lightPositions[i]);
+		scene.PBRWithTextureShader.SetVec3(lc, lightColors[i]);
+	}
+
+	scene.PBRWithTextureShader.SetVec3("camPos", myCam.camPos);
 }
 
 //创建SSAO输出 缓冲区

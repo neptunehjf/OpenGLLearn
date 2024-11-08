@@ -35,6 +35,7 @@ public:
 	Shader SSAOShader;
 	Shader SSAOBlurShader;
 	Shader PBRShader;
+	Shader PBRWithTextureShader;
 
 	Mesh cubeCubemap;
 	Mesh cube;
@@ -114,6 +115,7 @@ void Scene::CreateShader()
 	SSAOShader = Shader("SSAO.vs", "SSAO.fs");
 	SSAOBlurShader = Shader("SSAO_Blur.vs", "SSAO_Blur.fs");
 	PBRShader = Shader("PBR.vs", "PBR.fs");
+	PBRWithTextureShader = Shader("PBRWithTexture.vs", "PBRWithTexture.fs");
 }
 
 void Scene::CreateScene(Camera* myCam)
@@ -135,6 +137,10 @@ void Scene::CreateScene(Camera* myCam)
 	GLuint t_brick2_normal = 0;
 	GLuint t_brick2_disp = 0;
 	GLuint t_plastic_albedo = 0;
+	GLuint t_rusted_iron_albedo = 0;
+	GLuint t_rusted_iron_metallic = 0;
+	GLuint t_rusted_iron_roughness = 0;
+	GLuint t_rusted_iron_ao = 0;
 
 	LoadTexture("Resource/Texture/metal.png", t_metal, GL_REPEAT, GL_REPEAT);
 	LoadTexture("Resource/Texture/marble.jpg", t_marble, GL_REPEAT, GL_REPEAT);
@@ -145,6 +151,10 @@ void Scene::CreateScene(Camera* myCam)
 	LoadTexture("Resource/Texture/bricks2_normal.jpg", t_brick2_normal, GL_REPEAT, GL_REPEAT);
 	LoadTexture("Resource/Texture/bricks2_disp.jpg", t_brick2_disp, GL_REPEAT, GL_REPEAT);
 	LoadTexture("Resource/Texture/pbr/plastic/albedo.png", t_plastic_albedo, GL_REPEAT, GL_REPEAT);
+	LoadTexture("Resource/Texture/pbr/rusted_iron/albedo.png", t_rusted_iron_albedo, GL_REPEAT, GL_REPEAT);
+	LoadTexture("Resource/Texture/pbr/rusted_iron/metallic.png", t_rusted_iron_metallic, GL_REPEAT, GL_REPEAT);
+	LoadTexture("Resource/Texture/pbr/rusted_iron/roughness.png", t_rusted_iron_roughness, GL_REPEAT, GL_REPEAT);
+	LoadTexture("Resource/Texture/pbr/rusted_iron/ao.png", t_rusted_iron_ao, GL_REPEAT, GL_REPEAT);
 
 	stbi_set_flip_vertically_on_load(false);
 	LoadTexture("Resource/Texture/brickwall.jpg", t_brick, GL_REPEAT, GL_REPEAT);
@@ -204,6 +214,14 @@ void Scene::CreateScene(Camera* myCam)
 		{t_plastic_albedo, "texture_diffuse"}
 	};
 
+	const vector<Texture> rustyIronTexture =
+	{
+		{t_rusted_iron_albedo, "texture_diffuse"},
+		{t_rusted_iron_metallic, "texture_diffuse"},
+		{t_rusted_iron_roughness, "texture_diffuse"},
+		{t_rusted_iron_ao, "texture_diffuse"}
+	};
+
 	// Éî¿½±´
 	m_brickTexture = brick2Texture;
 
@@ -236,7 +254,7 @@ void Scene::CreateScene(Camera* myCam)
 	particle = Mesh(g_particleVertices, g_particleIndices);
 	lamp = Mesh(g_cubeVertices, g_cubeIndices, lampTexture);
 	lamp.SetScale(vec3(1.0f));
-	sphere = CreateSphereMesh(plasticTexture);
+	sphere = CreateSphereMesh(rustyIronTexture);
 
 	if (bEnableNormalMap)
 	{
@@ -992,9 +1010,7 @@ void Scene::DrawScene_PBR()
 	if (bFaceCulling)
 		glEnable(GL_CULL_FACE);
 
-	//plane.SetScale(vec3(100.0f, 0.1f, 100.0f));
-	//plane.SetTranslate(vec3(0.0f, 0.0f, 0.0f));
-	//plane.DrawMesh(PBRShader, GL_TRIANGLES);
 
-	sphere.DrawMesh(PBRShader, GL_TRIANGLE_STRIP);
+	sphere.DrawMesh(PBRWithTextureShader, GL_TRIANGLE_STRIP);
+
 }

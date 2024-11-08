@@ -103,7 +103,7 @@ float fRadius = 1.0f;
 /* PBR */
 float metallic = 0.5f;
 float roughness = 0.2f;
-float ao = 0.5f;
+float ao = 1.0f;
 /* PBR */
 
 /************** Imgui±‰¡ø **************/

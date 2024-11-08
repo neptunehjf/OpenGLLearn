@@ -175,6 +175,8 @@
     <None Include="Normal.vs" />
     <None Include="PBR.fs" />
     <None Include="PBR.vs" />
+    <None Include="PBRWithTexture.fs" />
+    <None Include="PBRWithTexture.vs" />
     <None Include="PostProcess.fs" />
     <None Include="PostProcess.vs" />
     <None Include="Reflection.fs" />
