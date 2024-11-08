@@ -49,9 +49,10 @@ void DrawSceneDeffered();
 void DrawSceneSSAO();
 void DrawSceneSSAOBlur();
 void SetHeavyLightsUniform(Shader& shader);
+void SetPBRUniform();
 
 Scene scene;
-Camera myCam(vec3(0.7f, 1.12f, -1.44f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
+Camera myCam(vec3(0.16f, 2.61f, 2.86f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
 GLFWwindow* window = NULL;
 
 // 原场景缓冲
@@ -255,37 +256,38 @@ int main()
 		// 原场景
 		glViewport(0, 0, windowWidth, windowHeight);
 		/*************************Output G-Buffer Info****************************/
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo_origin);
+		SetAllUniformValues();
+		scene.DrawScene_PBR();
 
-		//scene.DrawScene(false, false, true);
-
-		if (!bDeferred)
-		{
-			SetHeavyLightsUniform(scene.ForwardShader);
-			glBindFramebuffer(GL_FRAMEBUFFER, fbo_origin);
-			scene.DrawScene_DeferredTest();
-			//scene.DrawScene();
-		}
-		else
-		{
-			SetHeavyLightsUniform(scene.DeferredShader);
-			glBindFramebuffer(GL_FRAMEBUFFER, fbo_G);
-			scene.DrawScene_DeferredTest();
-			glBindFramebuffer(GL_FRAMEBUFFER, fbo_deffered);
-			DrawSceneDeffered();
-		}
+		//if (!bDeferred)
+		//{
+		//	SetHeavyLightsUniform(scene.ForwardShader);
+		//	glBindFramebuffer(GL_FRAMEBUFFER, fbo_origin);
+		//	scene.DrawScene_DeferredTest();
+		//	//scene.DrawScene();
+		//}
+		//else
+		//{
+		//	SetHeavyLightsUniform(scene.DeferredShader);
+		//	glBindFramebuffer(GL_FRAMEBUFFER, fbo_G);
+		//	scene.DrawScene_DeferredTest();
+		//	glBindFramebuffer(GL_FRAMEBUFFER, fbo_deffered);
+		//	DrawSceneDeffered();
+		//}
 
 		/*************************Output G-Buffer SSAO Info****************************/
-		if (bSSAO)
-		{
-			glBindFramebuffer(GL_FRAMEBUFFER, fbo_SSAO);
-			scene.DrawScene_SSAOTest();
-			glBindFramebuffer(GL_FRAMEBUFFER, fbo_SSAO_out);
-			DrawSceneSSAO();
-			glBindFramebuffer(GL_FRAMEBUFFER, fbo_SSAO_blur);
-			DrawSceneSSAOBlur();
-			glBindFramebuffer(GL_FRAMEBUFFER, fbo_deffered);
-			DrawSceneDeffered();
-		}
+		//if (bSSAO)
+		//{
+		//	glBindFramebuffer(GL_FRAMEBUFFER, fbo_SSAO);
+		//	scene.DrawScene_SSAOTest();
+		//	glBindFramebuffer(GL_FRAMEBUFFER, fbo_SSAO_out);
+		//	DrawSceneSSAO();
+		//	glBindFramebuffer(GL_FRAMEBUFFER, fbo_SSAO_blur);
+		//	DrawSceneSSAOBlur();
+		//	glBindFramebuffer(GL_FRAMEBUFFER, fbo_deffered);
+		//	DrawSceneDeffered();
+		//}
 			
 		// 用中间fbo的方式实现，实际上中间FBO就是一个只带1个采样点的普通帧缓冲。用Blit操作把MSAA FBO复制进去，然后就可以用中间FBO的TBO来后期处理了。
 		// 缺点是，如果在此基础上进行后处理去计算颜色，是以1个采样点的纹理为基础来计算的，可能会重新导致锯齿
@@ -311,13 +313,16 @@ int main()
 		glDrawBuffer(0);
 
 		// 后视镜场景
-		myCam.yawValue += 180.0;
-		SetAllUniformValues();
-		glBindFramebuffer(GL_FRAMEBUFFER, fbo_mirror); 
-		scene.DrawScene();
-		myCam.yawValue -= 180.0;
-		SetAllUniformValues();
-		myCam.yawValue = myCam.yawValue - ((int)myCam.yawValue / 360) * 360;
+		if (bBackMirror)
+		{
+			myCam.yawValue += 180.0;
+			SetAllUniformValues();
+			glBindFramebuffer(GL_FRAMEBUFFER, fbo_mirror);
+			scene.DrawScene();
+			myCam.yawValue -= 180.0;
+			SetAllUniformValues();
+			myCam.yawValue = myCam.yawValue - ((int)myCam.yawValue / 360) * 360;
+		}
 
 		/********************** 默认帧缓冲输出前面绘制时写入 **********************/
 		DrawScreen();
@@ -643,6 +648,15 @@ void GetImguiValue()
 
 		ImGui::TreePop();
 	}
+
+	if (ImGui::TreeNodeEx("PBR", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		ImGui::SliderFloat("metallic", &metallic, 0.0, 1.0);
+		ImGui::SliderFloat("roughness", &roughness, 0.0, 1.0);
+		ImGui::SliderFloat("ao", &ao, 0.0, 1.0);
+
+		ImGui::TreePop();
+	}
 }
 
 void SetUniformToShader(Shader& shader)
@@ -723,7 +737,8 @@ void SetUniformToShader(Shader& shader)
 	shader.SetBool("bSSAO", bSSAO);
 	shader.SetInt("samples_num", iSSAOSampleNum);
 	shader.SetInt("iSSAONoise", iSSAONoise);
-	for (int i = 0; i < iSSAOSampleNum; i++)
+
+	for (int i = 0; i < scene.ssaoKernel.size(); i++)
 	{
 		stringstream ss;
 		ss << "samples[" << i << "]";
@@ -1150,6 +1165,7 @@ void SetAllUniformValues()
 	SetUniformToShader(scene.GBufferSSAOShader);
 	SetUniformToShader(scene.SSAOShader);
 	SetUniformToShader(scene.SSAOBlurShader);
+	SetPBRUniform();
 }
 
 void DrawScreen()
@@ -1548,6 +1564,44 @@ void SetHeavyLightsUniform(Shader &shader)
 
 	shader.SetInt("iGPUPressure", iGPUPressure);
 
+}
+
+void SetPBRUniform()
+{
+	scene.PBRShader.Use();
+
+	vec3 lightPositions[] = {
+		vec3(-10.0f,  10.0f, 10.0f),
+		vec3(10.0f,  10.0f, 10.0f),
+		vec3(-10.0f, -10.0f, 10.0f),
+		vec3(10.0f, -10.0f, 10.0f),
+	};
+	vec3 lightColors[] = {
+		vec3(300.0f, 300.0f, 300.0f),
+		vec3(300.0f, 300.0f, 300.0f),
+		vec3(300.0f, 300.0f, 300.0f),
+		vec3(300.0f, 300.0f, 300.0f)
+	};
+
+	scene.PBRShader.SetFloat("metallic", metallic);
+	scene.PBRShader.SetFloat("roughness", roughness);
+	scene.PBRShader.SetFloat("ao", ao);
+
+	scene.PBRShader.SetVec3("albedo", vec3(0.5f, 0.0f, 0.0f));
+
+	for (int i = 0; i < 4; i++)
+	{
+		stringstream ss1, ss2;
+		ss1 << "lightPositions[" << i << "]";
+		ss2 << "lightColors[" << i << "]";
+		string lp = ss1.str();
+		string lc = ss2.str();
+
+		scene.PBRShader.SetVec3(lp, lightPositions[i]);
+		scene.PBRShader.SetVec3(lc, lightColors[i]);
+	}
+
+	scene.PBRShader.SetVec3("camPos", myCam.camPos);
 }
 
 //创建SSAO输出 缓冲区

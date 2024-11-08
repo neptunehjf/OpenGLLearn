@@ -79,6 +79,7 @@ public:
 	void UpdateNMVertices();
 	void DrawScene_DeferredTest();
 	void DrawScene_SSAOTest();
+	void DrawScene_PBR();
 
 private:
 	void CreateAsteroid();
@@ -975,4 +976,25 @@ Mesh Scene::CreateSphereMesh(const vector<Texture>& texture)
 
 	//因为Vertex设置了#pragma pack(1)，所以内存是1字节对齐的，所以可以直接把vector<float>转成vector<Vertex>来用
 	return Mesh(*((vector<Vertex> *)&data), indices, texture);
+}
+
+void Scene::DrawScene_PBR()
+{
+	// 清空各个缓冲区
+	glClearColor(bkgColor.r, bkgColor.g, bkgColor.b, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	// GL_BLEND enable时，可能由于没有aplha通道，导致看不见物体，所以要关闭。
+	glDisable(GL_BLEND);
+
+	glEnable(GL_DEPTH_TEST);
+
+	if (bFaceCulling)
+		glEnable(GL_CULL_FACE);
+
+	//plane.SetScale(vec3(100.0f, 0.1f, 100.0f));
+	//plane.SetTranslate(vec3(0.0f, 0.0f, 0.0f));
+	//plane.DrawMesh(PBRShader, GL_TRIANGLES);
+
+	sphere.DrawMesh(PBRShader, GL_TRIANGLE_STRIP);
 }

@@ -33,31 +33,6 @@ double deltaTime = 0.0;
 double curTime = 0.0;
 
 const vec3 lampPos[4] = { vec3(20.0f, 3.0f, 0.0f) , vec3(20.0f, 3.0f, -10.0f) , vec3(20.0f, 3.0f, -20.0f) , vec3(20.0f, 3.0f, -30.0f) };
-//const vec3 heavyLightsPos[HEAVY_LIGHTS_NUM] = { vec3(0.0f, 0.0f, 0.0f) , vec3(1.0f, 0.0f, 0.0f) , vec3(2.0f, 0.0f, 0.0f) , vec3(3.0f, 0.0f, 0.0f) ,
-//                                                vec3(0.0f, 0.0f, -1.0f) , vec3(1.0f, 0.0f, -1.0f) , vec3(2.0f, 0.0f, -1.0f) , vec3(3.0f, 0.0f, -1.0f) ,
-//                                                vec3(0.0f, 0.0f, -2.0f) , vec3(1.0f, 0.0f, -2.0f) , vec3(2.0f, 0.0f, -2.0f) , vec3(3.0f, 0.0f, -2.0f) ,
-//                                                vec3(0.0f, 0.0f, -3.0f) , vec3(1.0f, 0.0f, -3.0f) , vec3(2.0f, 0.0f, -3.0f) , vec3(3.0f, 0.0f, -3.0f) ,
-//                                                vec3(0.0f, 0.0f, -4.0f) , vec3(1.0f, 0.0f, -4.0f) , vec3(2.0f, 0.0f, -4.0f) , vec3(3.0f, 0.0f, -4.0f) ,
-//                                                vec3(0.0f, 0.0f, -5.0f) , vec3(1.0f, 0.0f, -5.0f) , vec3(2.0f, 0.0f, -5.0f) , vec3(3.0f, 0.0f, -5.0f) ,
-//                                                vec3(0.0f, 0.0f, -6.0f) , vec3(1.0f, 0.0f, -6.0f) , vec3(2.0f, 0.0f, -6.0f) , vec3(3.0f, 0.0f, -6.0f) ,
-//                                                vec3(0.0f, 0.0f, -7.0f) , vec3(1.0f, 0.0f, -7.0f) , vec3(2.0f, 0.0f, -7.0f) , vec3(3.0f, 0.0f, -7.0f) ,
-//                                                vec3(0.0f, 1.0f, 0.0f) , vec3(1.0f, 1.0f, 0.0f) , vec3(2.0f, 1.0f, 0.0f) , vec3(3.0f, 1.0f, 0.0f) ,
-//                                                vec3(0.0f, 1.0f, -1.0f) , vec3(1.0f, 1.0f, -1.0f) , vec3(2.0f, 1.0f, -1.0f) , vec3(3.0f, 1.0f, -1.0f) ,
-//                                                vec3(0.0f, 1.0f, -2.0f) , vec3(1.0f, 1.0f, -2.0f) , vec3(2.0f, 1.0f, -2.0f) , vec3(3.0f, 1.0f, -2.0f) ,
-//                                                vec3(0.0f, 1.0f, -3.0f) , vec3(1.0f, 1.0f, -3.0f) , vec3(2.0f, 1.0f, -3.0f) , vec3(3.0f, 1.0f, -3.0f) ,
-//                                                vec3(0.0f, 1.0f, -4.0f) , vec3(1.0f, 1.0f, -4.0f) , vec3(2.0f, 1.0f, -4.0f) , vec3(3.0f, 1.0f, -4.0f) ,
-//                                                vec3(0.0f, 1.0f, -5.0f) , vec3(1.0f, 1.0f, -5.0f) , vec3(2.0f, 1.0f, -5.0f) , vec3(3.0f, 1.0f, -5.0f) ,
-//                                                vec3(0.0f, 1.0f, -6.0f) , vec3(1.0f, 1.0f, -6.0f) , vec3(2.0f, 1.0f, -6.0f) , vec3(3.0f, 1.0f, -6.0f) ,
-//                                                vec3(0.0f, 1.0f, -7.0f) , vec3(1.0f, 1.0f, -7.0f) , vec3(2.0f, 1.0f, -7.0f) , vec3(3.0f, 1.0f, -7.0f) ,
-//                                                vec3(0.0f, 2.0f, 0.0f) ,  vec3(1.0f, 2.0f, 0.0f) ,  vec3(2.0f, 2.0f, 0.0f) ,  vec3(3.0f, 2.0f, 0.0f) ,
-//                                                vec3(0.0f, 2.0f, -1.0f) , vec3(1.0f, 2.0f, -1.0f) , vec3(2.0f, 2.0f, -1.0f) , vec3(3.0f, 2.0f, -1.0f) ,
-//                                                vec3(0.0f, 2.0f, -2.0f) , vec3(1.0f, 2.0f, -2.0f) , vec3(2.0f, 2.0f, -2.0f) , vec3(3.0f, 2.0f, -2.0f) ,
-//                                                vec3(0.0f, 2.0f, -3.0f) , vec3(1.0f, 2.0f, -3.0f) , vec3(2.0f, 2.0f, -3.0f) , vec3(3.0f, 2.0f, -3.0f) ,
-//                                                vec3(0.0f, 2.0f, -4.0f) , vec3(1.0f, 2.0f, -4.0f) , vec3(2.0f, 2.0f, -4.0f) , vec3(3.0f, 2.0f, -4.0f) ,
-//                                                vec3(0.0f, 2.0f, -5.0f) , vec3(1.0f, 2.0f, -5.0f) , vec3(2.0f, 2.0f, -5.0f) , vec3(3.0f, 2.0f, -5.0f) ,
-//                                                vec3(0.0f, 2.0f, -6.0f) , vec3(1.0f, 2.0f, -6.0f) , vec3(2.0f, 2.0f, -6.0f) , vec3(3.0f, 2.0f, -6.0f) ,
-//                                                vec3(0.0f, 2.0f, -7.0f) , vec3(1.0f, 2.0f, -7.0f) , vec3(2.0f, 2.0f, -7.0f) , vec3(3.0f, 2.0f, -7.0f) 
-//                                              };
 
 float windowWidth = WINDOW_WIDTH;
 float windowHeight = WINDOW_HEIGHT;
@@ -98,7 +73,7 @@ bool bMSAA = true;
 int iLightModel = 1; //{ "Phong", "Blinn-Phong" }
 bool bGammaCorrection = true;
 int iAtteFormula = 0;
-bool bShadow = true;
+bool bShadow = false;
 bool bDisDepthmap = false;
 bool bFrontFaceCulling = false;
 vec3 lampWithShadowPos = { 0.0f, 3.0f, 0.0f };
@@ -115,14 +90,22 @@ bool bHDR = true;
 float fExposure = 0.3;
 int iHDRAlgro = 1; // { "reinhard tone mapping", "exposure tone mapping" }
 bool bBloom = false;
-bool bDeferred = true;
+bool bDeferred = false;
 bool bCombined = false;
 bool bLightVolume = false;
 int iGPUPressure = 1; // 用来给GPU压力，测试用的
-bool bSSAO = true;
+bool bSSAO = false;
 int iSSAOSampleNum = 64;
 bool bSSAONoise = true;
 int iSSAONoise = 4; // 正方形噪声采样图的边长
 float fRadius = 1.0f;
+
+/* PBR */
+float metallic = 0.5f;
+float roughness = 0.2f;
+float ao = 0.5f;
+/* PBR */
+
 /************** Imgui变量 **************/
+
 
