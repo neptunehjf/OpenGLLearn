@@ -161,6 +161,8 @@
     <None Include="DepthMap.vs" />
     <None Include="DepthmapDisplay.fs" />
     <None Include="DepthmapDisplay.vs" />
+    <None Include="GetEquireColor.fs" />
+    <None Include="GetEquireColor.vs" />
     <None Include="ForwardShading.fs" />
     <None Include="ForwardShading.vs" />
     <None Include="G-buffer-SSAO.fs" />

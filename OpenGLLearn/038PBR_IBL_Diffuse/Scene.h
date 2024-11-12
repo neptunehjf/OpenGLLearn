@@ -36,6 +36,7 @@ public:
 	Shader SSAOBlurShader;
 	Shader PBRShader;
 	Shader PBRWithTextureShader;
+	Shader GetEquireColorShader;
 
 	Mesh cubeCubemap;
 	Mesh cube;
@@ -117,6 +118,7 @@ void Scene::CreateShader()
 	SSAOBlurShader = Shader("SSAO_Blur.vs", "SSAO_Blur.fs");
 	PBRShader = Shader("PBR.vs", "PBR.fs");
 	PBRWithTextureShader = Shader("PBRWithTexture.vs", "PBRWithTexture.fs");
+	GetEquireColorShader = Shader("GetEquireColor.vs", "GetEquireColor.fs");
 }
 
 void Scene::CreateScene(Camera* myCam)
