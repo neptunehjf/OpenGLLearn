@@ -74,6 +74,7 @@ public:
 	void CreateScene(Camera* myCam);
 	void DrawScene(bool bDepthmap = false, bool bDepthCubemap = false, bool bGBuffer = false);
 	bool LoadTexture(const string&& filePath, GLuint& texture, const GLint param_s, const GLint param_t);
+	bool LoadHDRTexture(const string&& filePath, GLuint& texture);
 	GLuint LoadCubemap(const vector<string>& cubemapFaces);
 	void DeleteScene();
 	void CreateShader();
@@ -122,8 +123,6 @@ void Scene::CreateScene(Camera* myCam)
 {
 	this->myCam = myCam;
 	/* 加载贴图 */
-	// 翻转y轴，使图片和opengl坐标一致  但是如果assimp 导入模型时设置了aiProcess_FlipUVs，就不能重复设置了
-	stbi_set_flip_vertically_on_load(true);
 
 	// 加载贴图
 	GLuint t_metal = 0;
@@ -141,6 +140,10 @@ void Scene::CreateScene(Camera* myCam)
 	GLuint t_rusted_iron_metallic = 0;
 	GLuint t_rusted_iron_roughness = 0;
 	GLuint t_rusted_iron_ao = 0;
+	GLuint t_hdr_loft = 0;
+
+	// 翻转y轴，使图片和opengl坐标一致  但是如果assimp 导入模型时设置了aiProcess_FlipUVs，就不能重复设置了
+	stbi_set_flip_vertically_on_load(true);
 
 	LoadTexture("Resource/Texture/metal.png", t_metal, GL_REPEAT, GL_REPEAT);
 	LoadTexture("Resource/Texture/marble.jpg", t_marble, GL_REPEAT, GL_REPEAT);
@@ -155,6 +158,7 @@ void Scene::CreateScene(Camera* myCam)
 	LoadTexture("Resource/Texture/pbr/rusted_iron/metallic.png", t_rusted_iron_metallic, GL_REPEAT, GL_REPEAT);
 	LoadTexture("Resource/Texture/pbr/rusted_iron/roughness.png", t_rusted_iron_roughness, GL_REPEAT, GL_REPEAT);
 	LoadTexture("Resource/Texture/pbr/rusted_iron/ao.png", t_rusted_iron_ao, GL_REPEAT, GL_REPEAT);
+	LoadHDRTexture("Resource/Texture/hdr/newport_loft.hdr", t_hdr_loft);
 
 	stbi_set_flip_vertically_on_load(false);
 	LoadTexture("Resource/Texture/brickwall.jpg", t_brick, GL_REPEAT, GL_REPEAT);
@@ -518,21 +522,6 @@ bool Scene::LoadTexture(const string&& filePath, GLuint& texture, const GLint pa
 	int width, height, channel;
 	unsigned char* data = stbi_load(filePath.c_str(), &width, &height, &channel, 0);
 
-	if (bDebug)
-	{
-		for (uint i = 0; i < height; i++)
-		{
-			cout << endl;
-			for (uint j = 0; j < width; j++)
-			{
-				unsigned char ch = data[i * width + j];
-				printf("%4d ", ch);
-			}
-		}
-		cout << endl;
-	}
-
-
 	GLenum informat = 0;
 	GLenum format = 0;
 	if (channel == 1)
@@ -577,6 +566,33 @@ bool Scene::LoadTexture(const string&& filePath, GLuint& texture, const GLint pa
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	return true;
+}
+
+bool Scene::LoadHDRTexture(const string&& filePath, GLuint& texture)
+{
+	int width, height, nrComponents;
+	float* data = stbi_loadf(filePath.c_str(), &width, &height, &nrComponents, 0);
+
+	if (data)
+	{
+		glGenTextures(1, &texture);
+		glBindTexture(GL_TEXTURE_2D, texture);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, data);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		stbi_image_free(data);
+
+		return true;
+	}
+	else
+	{
+		std::cout << "Failed to load HDR image." << std::endl;
+		return false;
+	}
 }
 
 GLuint Scene::LoadCubemap(const vector<string>& cubemapFaces)
