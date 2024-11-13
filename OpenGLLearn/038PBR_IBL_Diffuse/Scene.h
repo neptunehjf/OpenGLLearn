@@ -55,6 +55,8 @@ public:
 	Mesh SSAOScreen;
 	Mesh SSAOBlurScreen;
 	Mesh sphere;
+	Mesh cube_env;
+
 	vector<vec3> lightPositions;
 	vector<vec3> lightColors;
 	vector<float> lightRadius;
@@ -228,6 +230,11 @@ void Scene::CreateScene(Camera* myCam)
 		{t_rusted_iron_ao, "texture_diffuse"}
 	};
 
+	const vector<Texture> hdrLoftTexture =
+	{
+		{t_hdr_loft, "texture_diffuse"}
+	};
+
 	// 深拷贝
 	m_brickTexture = brick2Texture;
 
@@ -261,6 +268,7 @@ void Scene::CreateScene(Camera* myCam)
 	lamp = Mesh(g_cubeVertices, g_cubeIndices, lampTexture);
 	lamp.SetScale(vec3(1.0f));
 	sphere = CreateSphereMesh(rustyIronTexture);
+	cube_env = Mesh(g_cubeVertices, g_cubeIndices, hdrLoftTexture);
 
 	if (bEnableNormalMap)
 	{
@@ -1029,6 +1037,10 @@ void Scene::DrawScene_PBR()
 		glEnable(GL_CULL_FACE);
 
 
+	sphere.SetScale(vec3(0.1f));
 	sphere.DrawMesh(PBRWithTextureShader, GL_TRIANGLE_STRIP);
+
+	// 用等距柱状投影对应位置的颜色来渲染到cube
+	cube_env.DrawMesh(GetEquireColorShader, GL_TRIANGLES);
 
 }

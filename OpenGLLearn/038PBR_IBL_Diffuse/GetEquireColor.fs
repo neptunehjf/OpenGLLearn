@@ -3,8 +3,12 @@ out vec4 FragColor;
 
 in vec3 localPos;
 
-// 等距圆柱投影图
-uniform sampler2D  equirectangularMap;
+struct Material
+{
+	sampler2D texture_diffuse1; // 等距圆柱投影图
+};
+
+uniform Material material;
 
 // 根据Cube的片段位置算出对应的等距圆柱投影图的UV坐标
 vec2 EquirectangularUV(vec3 v)
@@ -30,6 +34,6 @@ void main()
 {
 	//localPos必须normalize，因为上述计算都是假定球体半径为1的
 	vec2 uv = EquirectangularUV(normalize(localPos));
-	vec3 color = texture(equirectangularMap, uv).rgb;
+	vec3 color = texture(material.texture_diffuse1, uv).rgb;
 	FragColor = vec4(color, 1.0);
 }

@@ -53,7 +53,7 @@ void SetPBRUniform();
 void SetPBRWithTextureUniform();
 
 Scene scene;
-Camera myCam(vec3(0.16f, 2.61f, 2.86f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
+Camera myCam(vec3(0.2f, 0.16f, 0.35f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
 GLFWwindow* window = NULL;
 
 // Ô­³¡¾°»º³å

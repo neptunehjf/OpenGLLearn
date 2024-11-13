@@ -1,7 +1,6 @@
 #version 330 core
 layout(location = 0) in vec3 aPos;
 
-
 layout (std140) uniform Matrix
 {
 	mat4 view;
