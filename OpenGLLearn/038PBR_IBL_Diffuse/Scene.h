@@ -56,6 +56,7 @@ public:
 	Mesh SSAOBlurScreen;
 	Mesh sphere;
 	Mesh cube_env;
+	Mesh skybox_env;
 
 	vector<vec3> lightPositions;
 	vector<vec3> lightColors;
@@ -234,6 +235,7 @@ void Scene::CreateScene(Camera* myCam)
 	{
 		{t_hdr_loft, "texture_diffuse"}
 	};
+
 
 	// 深拷贝
 	m_brickTexture = brick2Texture;
@@ -1036,11 +1038,10 @@ void Scene::DrawScene_PBR()
 	if (bFaceCulling)
 		glEnable(GL_CULL_FACE);
 
-
 	sphere.SetScale(vec3(0.1f));
 	sphere.DrawMesh(PBRWithTextureShader, GL_TRIANGLE_STRIP);
 
 	// 用等距柱状投影对应位置的颜色来渲染到cube
-	cube_env.DrawMesh(GetEquireColorShader, GL_TRIANGLES);
+	// cube_env.DrawMesh(GetEquireColorShader, GL_TRIANGLES);
 
 }

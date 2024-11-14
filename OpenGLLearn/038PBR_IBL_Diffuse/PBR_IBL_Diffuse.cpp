@@ -40,6 +40,7 @@ void CreateFrameBuffer_G();
 void CreateFrameBuffer_G_SSAO();
 void CreateFrameBuffer_SSAO_Output();
 void CreateFrameBuffer_SSAO_Blur();
+void CreateFrameBuffer_EnvCubemap();
 void SetUniformBuffer();
 void DrawDepthMap();
 void DrawDepthCubemap(vec3 lightPos);
@@ -51,6 +52,8 @@ void DrawSceneSSAOBlur();
 void SetHeavyLightsUniform(Shader& shader);
 void SetPBRUniform();
 void SetPBRWithTextureUniform();
+void DrawEnvCubemap();
+void EnvSkyBoxTest();
 
 Scene scene;
 Camera myCam(vec3(0.2f, 0.16f, 0.35f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
@@ -113,6 +116,11 @@ GLuint tbo_SSAO_out = 0;                // ÎÆÀí»º³å¶ÔÏó£¨¸½¼þ£© ´æ´¢occlusionÐÅÏ
 GLuint fbo_SSAO_blur = 0;                // ×Ô¶¨ÒåÖ¡»º³å¶ÔÏó
 GLuint tbo_SSAO_blur = 0;                // ÎÆÀí»º³å¶ÔÏó£¨¸½¼þ£© ´æ´¢Æ½»¬ÔëÉùºóµÄocclusionÐÅÏ¢
 
+// PBR IBL »·¾³Cubemap
+GLuint fbo_EnvCubemap = 0;               // ×Ô¶¨ÒåÖ¡»º³å¶ÔÏó
+GLuint tbo_EnvCubemap = 0;               // ÎÆÀí»º³å¶ÔÏó£¨¸½¼þ£©
+GLuint rbo_EnvCubemap = 0;               // äÖÈ¾»º³å¶ÔÏó£¨¸½¼þ£©
+
 int main()
 {
 	if (!InitOpenGL())
@@ -153,6 +161,8 @@ int main()
 	CreateFrameBuffer_SSAO_Output();
 	// SSAOÄ£ºý»º³å
 	CreateFrameBuffer_SSAO_Blur();
+	// »·¾³Á¢·½ÌåÌùÍ¼µÄ»º³å
+	CreateFrameBuffer_EnvCubemap();
 
 	// Uniform»º³å
 	// 
@@ -176,6 +186,18 @@ int main()
 	bool bLastGamma = false; 
 	bool bLastNM = false;
 	bool bLastHDR = false;
+	
+	// »æÖÆ»·¾³Á¢·½ÌåÌùÍ¼²¢±£´æµ½×Ô¶¨Òå»º³åÇø
+	scene.CreateScene(&myCam);
+
+	DrawEnvCubemap();
+
+	// ¸ù¾Ý»º³åÇøµÄtbo¹¹½¨Ò»¸ö»·¾³skybox¶ÔÏó
+	const vector<Texture> EnvTexture =
+	{
+		{tbo_EnvCubemap, "texture_cubemap"}
+	};
+	scene.skybox_env = Mesh(g_skyboxVertices, g_skyboxIndices, EnvTexture);
 
 	//äÖÈ¾Ñ­»·
 	while (!glfwWindowShouldClose(window))
@@ -256,10 +278,15 @@ int main()
 
 		// Ô­³¡¾°
 		glViewport(0, 0, windowWidth, windowHeight);
+
 		/*************************Output G-Buffer Info****************************/
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo_origin);
 		SetAllUniformValues();
-		scene.DrawScene_PBR();
+
+		// ÓÃÌì¿ÕºÐ²âÊÔ»·¾³ÌùÍ¼ÓÐÃ»ÓÐÕýÈ·±£´æµ½cubemapÀï
+		EnvSkyBoxTest();
+
+		//scene.DrawScene_PBR();
 
 		//if (!bDeferred)
 		//{
@@ -1704,4 +1731,103 @@ void CreateFrameBuffer_SSAO_Blur()
 	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+//´´½¨×Ô¶¨ÒåÖ¡»º³å IBL »·¾³Cubemap
+void CreateFrameBuffer_EnvCubemap()
+{
+	glGenFramebuffers(1, &fbo_EnvCubemap);
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo_EnvCubemap);
+
+	// Éú³ÉÎÆÀí¸½¼þ ¶ÔÓ¦depth»º³å
+	glGenTextures(1, &tbo_EnvCubemap);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, tbo_EnvCubemap);
+	for (uint i = 0; i < 6; i++)
+	{
+		// HDRµÄÊý¾ÝÀàÐÍÓ¦¸ÃÊÇ GL_FLOAT
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, ENV_RESOLUTION_WIDTH, ENV_RESOLUTION_WIDTH, 0, GL_RGB, GL_FLOAT, NULL);
+	}
+
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+	// color¸½¼þµÈµ½äÖÈ¾µÄÊ±ºòÔÙ¹ØÁª
+
+	// depth¸½¼þ²»ÐèÒª°É
+
+	// ¼ì²éÖ¡»º³å¶ÔÏóÍêÕûÐÔ
+	// ÒòÎªÒªµÈµ½äÖÈ¾µÄÊ±ºò¹ØÁªÎÆÀí¸½¼þ£¬ËùÒÔ´Ë´¦²»ÅÐ¶ÏÍêÕûÐÔÁË
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void DrawEnvCubemap()
+{
+	// »æÖÆ»·¾³Cubemap 
+
+	// projection
+	float aspect = (float)ENV_RESOLUTION_WIDTH / (float)ENV_RESOLUTION_HEIGHT;
+	float near = 0.1f; // Èç¹ûÊÓ×¶µÄ½üÆ½ÃæÉèÖÃ¹ý´ó£¬»áµ¼ÖÂ²»»æÖÆ½ü´¦µÄÆ¬¶Î
+	float far = 10.0f;
+	mat4 projection = perspective(radians(90.0f), aspect, near, far);
+
+	// view
+	vector<mat4> transforms;
+	transforms.push_back(projection * lookAt(vec3(0.0f, 0.0f, 0.0f), vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, -1.0f, 0.0f)));
+	transforms.push_back(projection * lookAt(vec3(0.0f, 0.0f, 0.0f), vec3(-1.0f, 0.0f, 0.0f), vec3(0.0f, -1.0f, 0.0f)));
+	transforms.push_back(projection * lookAt(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f)));
+	transforms.push_back(projection * lookAt(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, -1.0f, 0.0f), vec3(0.0f, 0.0f, -1.0f)));
+	transforms.push_back(projection * lookAt(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f), vec3(0.0f, -1.0f, 0.0f)));
+	transforms.push_back(projection * lookAt(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, -1.0f, 0.0f)));
+
+	// Set Uniform To Shader
+	scene.GetEquireColorShader.Use();
+
+	glViewport(0, 0, ENV_RESOLUTION_WIDTH, ENV_RESOLUTION_HEIGHT);
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo_EnvCubemap);
+
+	for (uint i = 0; i < 6; i++)
+	{
+		scene.GetEquireColorShader.SetMat4("transforms", transforms[i]);
+
+		// ÕâÀïÊÇÃ¿drawÒ»¸öÃæ£¬¹ØÁªÒ»¸öÃæµÄcolor attachment
+		// Ò²¿ÉÒÔÒ»´Îdraw£¬ÔÚshaderÀï·Ö±ðäÖÈ¾6¸öÃæ£¬´úÂëÄÜ¸üÓÐÌõÀí£¬²¢ÇÒ¼õÉÙdraw call´ÎÊý
+		// µ«ÊÇÄÇÑùµÄ»°£¬ÐèÒªÓÃ¼¸ºÎshaderÇø·Öµ±Ç°ÊÇÄÄ¸öÃæ£¬¶øÇÒ¼¸ºÎshader·´¶ø»áÔì³ÉÐÔÄÜ¿ªÏú
+
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+			GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, tbo_EnvCubemap, 0);
+
+		// ¼ì²éÖ¡»º³å¶ÔÏóÍêÕûÐÔ
+		int chkFlag = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+		if (chkFlag != GL_FRAMEBUFFER_COMPLETE)
+		{
+			cout << "Error: Framebuffer is not complete!" << endl;
+			cout << "Check Flag: " << hex << chkFlag << endl;
+		}
+
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		scene.cube_env.DrawMesh(scene.GetEquireColorShader, GL_TRIANGLES);
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void EnvSkyBoxTest()
+{
+	// Çå¿Õ¸÷¸ö»º³åÇø
+	glClearColor(bkgColor.r, bkgColor.g, bkgColor.b, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	// GL_BLEND enableÊ±£¬¿ÉÄÜÓÉÓÚÃ»ÓÐaplhaÍ¨µÀ£¬µ¼ÖÂ¿´²»¼ûÎïÌå£¬ËùÒÔÒª¹Ø±Õ¡£
+	glDisable(GL_BLEND);
+
+	glEnable(GL_DEPTH_TEST);
+
+	// ÒÔÌì¿ÕºÐµÄ·½Ê½»æÖÆ³ö±£´æºóµÄ»·¾³cubemap
+	scene.skybox_env.DrawMesh(scene.cubemapShader, GL_TRIANGLES);
 }

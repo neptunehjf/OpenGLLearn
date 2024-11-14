@@ -26,6 +26,9 @@ using namespace glm;
 #define SHADOW_RESOLUTION_WIDTH 1024
 #define SHADOW_RESOLUTION_HEIGHT 1024
 
+#define ENV_RESOLUTION_WIDTH 512
+#define ENV_RESOLUTION_HEIGHT 512
+
 #define HEAVY_LIGHTS_NUM 96
 
 double preTime = 0.0;
@@ -88,7 +91,7 @@ float height_scale = 0.1f;
 int iParaAlgo = 2; // { "Parallax Mapping", "Steep Parallax Mapping", "Parallax Occlusion Mapping" }
 bool bHDR = true;
 float fExposure = 0.3;
-int iHDRAlgro = 1; // { "reinhard tone mapping", "exposure tone mapping" }
+int iHDRAlgro = 0; // { "reinhard tone mapping", "exposure tone mapping" }
 bool bBloom = false;
 bool bDeferred = false;
 bool bCombined = false;
