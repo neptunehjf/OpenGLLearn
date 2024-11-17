@@ -37,6 +37,7 @@ public:
 	Shader PBRShader;
 	Shader PBRWithTextureShader;
 	Shader GetEquireColorShader;
+	Shader irradianceShader; // 求采样值得辐射度
 
 	Mesh cubeCubemap;
 	Mesh cube;
@@ -122,6 +123,7 @@ void Scene::CreateShader()
 	PBRShader = Shader("PBR.vs", "PBR.fs");
 	PBRWithTextureShader = Shader("PBRWithTexture.vs", "PBRWithTexture.fs");
 	GetEquireColorShader = Shader("GetEquireColor.vs", "GetEquireColor.fs");
+	irradianceShader = Shader("Irradiance.vs", "Irradiance.fs");
 }
 
 void Scene::CreateScene(Camera* myCam)
