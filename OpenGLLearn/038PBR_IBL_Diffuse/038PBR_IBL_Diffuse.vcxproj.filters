@@ -179,9 +179,6 @@
     <None Include="Irradiance.fs">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="Irradiance.vs">
-      <Filter>Shader Files</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h">

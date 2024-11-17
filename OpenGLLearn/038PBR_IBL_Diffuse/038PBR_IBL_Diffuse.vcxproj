@@ -170,7 +170,6 @@
     <None Include="G-buffer.fs" />
     <None Include="G-buffer.vs" />
     <None Include="Irradiance.fs" />
-    <None Include="Irradiance.vs" />
     <None Include="Lighting.fs" />
     <None Include="Lighting.gs" />
     <None Include="Lighting.vs" />

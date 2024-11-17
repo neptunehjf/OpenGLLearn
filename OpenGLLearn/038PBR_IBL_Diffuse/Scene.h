@@ -123,7 +123,7 @@ void Scene::CreateShader()
 	PBRShader = Shader("PBR.vs", "PBR.fs");
 	PBRWithTextureShader = Shader("PBRWithTexture.vs", "PBRWithTexture.fs");
 	GetEquireColorShader = Shader("GetEquireColor.vs", "GetEquireColor.fs");
-	irradianceShader = Shader("Irradiance.vs", "Irradiance.fs");
+	irradianceShader = Shader("GetEquireColor.vs", "Irradiance.fs");
 }
 
 void Scene::CreateScene(Camera* myCam)
