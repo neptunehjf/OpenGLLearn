@@ -29,6 +29,9 @@ using namespace glm;
 #define ENV_RESOLUTION_WIDTH 512
 #define ENV_RESOLUTION_HEIGHT 512
 
+#define IRRADIANCE_RESOLUTION_WIDTH 32
+#define IRRADIANCE_RESOLUTION_HEIGHT 32
+
 #define HEAVY_LIGHTS_NUM 96
 
 double preTime = 0.0;

@@ -41,6 +41,7 @@ void CreateFrameBuffer_G_SSAO();
 void CreateFrameBuffer_SSAO_Output();
 void CreateFrameBuffer_SSAO_Blur();
 void CreateFrameBuffer_EnvCubemap();
+void CreateFrameBuffer_IrdCubemap();
 void SetUniformBuffer();
 void DrawDepthMap();
 void DrawDepthCubemap(vec3 lightPos);
@@ -53,7 +54,8 @@ void SetHeavyLightsUniform(Shader& shader);
 void SetPBRUniform();
 void SetPBRWithTextureUniform();
 void DrawEnvCubemap();
-void EnvSkyBoxTest();
+void EnvSkyBoxTest(Mesh& skybox);
+void DrawIrradianceCubemap();
 
 Scene scene;
 Camera myCam(vec3(0.2f, 0.16f, 0.35f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
@@ -119,7 +121,10 @@ GLuint tbo_SSAO_blur = 0;                // ÎÆÀí»º³å¶ÔÏó£¨¸½¼þ£© ´æ´¢Æ½»¬ÔëÉùºóµ
 // PBR IBL »·¾³Cubemap
 GLuint fbo_EnvCubemap = 0;               // ×Ô¶¨ÒåÖ¡»º³å¶ÔÏó
 GLuint tbo_EnvCubemap = 0;               // ÎÆÀí»º³å¶ÔÏó£¨¸½¼þ£©
-GLuint rbo_EnvCubemap = 0;               // äÖÈ¾»º³å¶ÔÏó£¨¸½¼þ£©
+
+// PBR IBL ·øÉä¶ÈCubemap
+GLuint fbo_irdCubemap = 0;               // ×Ô¶¨ÒåÖ¡»º³å¶ÔÏó
+GLuint tbo_irdCubemap = 0;               // ÎÆÀí»º³å¶ÔÏó£¨¸½¼þ£©
 
 int main()
 {
@@ -163,6 +168,8 @@ int main()
 	CreateFrameBuffer_SSAO_Blur();
 	// »·¾³Á¢·½ÌåÌùÍ¼µÄ»º³å
 	CreateFrameBuffer_EnvCubemap();
+	// ·øÉä¶ÈÁ¢·½ÌåÌùÍ¼µÄ»º³å
+	CreateFrameBuffer_IrdCubemap();
 
 	// Uniform»º³å
 	// 
@@ -192,12 +199,19 @@ int main()
 
 	DrawEnvCubemap();
 
-	// ¸ù¾Ý»º³åÇøµÄtbo¹¹½¨Ò»¸ö»·¾³skybox¶ÔÏó
 	const vector<Texture> EnvTexture =
 	{
 		{tbo_EnvCubemap, "texture_cubemap"}
 	};
-	scene.skybox_env = Mesh(g_skyboxVertices, g_skyboxIndices, EnvTexture);
+	scene.cube_irradiance = Mesh(g_cubeVertices, g_cubeIndices, EnvTexture);
+	DrawIrradianceCubemap();
+
+	const vector<Texture> irradianceTexture =
+	{
+		{tbo_irdCubemap, "texture_cubemap"}
+	};
+	//scene.skybox_env = Mesh(g_skyboxVertices, g_skyboxIndices, EnvTexture);
+	scene.skybox_irradiance = Mesh(g_skyboxVertices, g_skyboxIndices, irradianceTexture);
 
 	//äÖÈ¾Ñ­»·
 	while (!glfwWindowShouldClose(window))
@@ -269,7 +283,7 @@ int main()
 		deltaTime = curTime - preTime;
 		preTime = curTime;
 		/********************** ÏÈÓÃ×Ô¶¨ÒåÖ¡»º³å½øÐÐÀëÆÁäÖÈ¾ °ó¶¨µ½×Ô¶¨ÒåÖ¡»º³å£¬Ä¬ÈÏÖ¡»º³å²»ÔÙÆð×÷ÓÃ **********************/
-		
+
 		if (bShadow)
 		{
 			DrawDepthMap();
@@ -284,7 +298,7 @@ int main()
 		SetAllUniformValues();
 
 		// ÓÃÌì¿ÕºÐ²âÊÔ»·¾³ÌùÍ¼ÓÐÃ»ÓÐÕýÈ·±£´æµ½cubemapÀï
-		EnvSkyBoxTest();
+		EnvSkyBoxTest(scene.skybox_irradiance);
 
 		//scene.DrawScene_PBR();
 
@@ -1127,7 +1141,7 @@ void DrawDepthCubemap(vec3 lightPos)
 	// »æÖÆdepthCubemap 
 	// 
 	// projection
-	float aspect = (float)SHADOW_RESOLUTION_WIDTH / (float)SHADOW_RESOLUTION_HEIGHT;
+	float aspect = 1.0f;
 	float near = 1.0f;
 	float far = fFarPlanePt;
 	mat4 projection = perspective(radians(90.0f), aspect, near, far);
@@ -1770,7 +1784,7 @@ void DrawEnvCubemap()
 	// »æÖÆ»·¾³Cubemap 
 
 	// projection
-	float aspect = (float)ENV_RESOLUTION_WIDTH / (float)ENV_RESOLUTION_HEIGHT;
+	float aspect = 1.0f;
 	float near = 0.1f; // Èç¹ûÊÓ×¶µÄ½üÆ½ÃæÉèÖÃ¹ý´ó£¬»áµ¼ÖÂ²»»æÖÆ½ü´¦µÄÆ¬¶Î
 	float far = 10.0f;
 	mat4 projection = perspective(radians(90.0f), aspect, near, far);
@@ -1817,7 +1831,7 @@ void DrawEnvCubemap()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void EnvSkyBoxTest()
+void EnvSkyBoxTest(Mesh& skybox)
 {
 	// Çå¿Õ¸÷¸ö»º³åÇø
 	glClearColor(bkgColor.r, bkgColor.g, bkgColor.b, 1.0f);
@@ -1828,6 +1842,91 @@ void EnvSkyBoxTest()
 
 	glEnable(GL_DEPTH_TEST);
 
-	// ÒÔÌì¿ÕºÐµÄ·½Ê½»æÖÆ³ö±£´æºóµÄ»·¾³cubemap
-	scene.skybox_env.DrawMesh(scene.cubemapShader, GL_TRIANGLES);
+	skybox.DrawMesh(scene.cubemapShader, GL_TRIANGLES);
+}
+
+//´´½¨×Ô¶¨ÒåÖ¡»º³å IBL Cubemap
+void CreateFrameBuffer_IrdCubemap()
+{
+	glGenFramebuffers(1, &fbo_irdCubemap);
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo_irdCubemap);
+
+	// Éú³ÉÎÆÀí¸½¼þ ¶ÔÓ¦depth»º³å
+	glGenTextures(1, &tbo_irdCubemap);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, tbo_irdCubemap);
+	for (uint i = 0; i < 6; i++)
+	{
+		// HDRµÄÊý¾ÝÀàÐÍÓ¦¸ÃÊÇ GL_FLOAT
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, IRRADIANCE_RESOLUTION_WIDTH, IRRADIANCE_RESOLUTION_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
+	}
+
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+	// color¸½¼þµÈµ½äÖÈ¾µÄÊ±ºòÔÙ¹ØÁª
+
+	// depth¸½¼þ²»ÐèÒª°É
+
+	// ¼ì²éÖ¡»º³å¶ÔÏóÍêÕûÐÔ
+	// ÒòÎªÒªµÈµ½äÖÈ¾µÄÊ±ºò¹ØÁªÎÆÀí¸½¼þ£¬ËùÒÔ´Ë´¦²»ÅÐ¶ÏÍêÕûÐÔÁË
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void DrawIrradianceCubemap()
+{
+	// »æÖÆ·øÉä¶ÈCubemap 
+
+	// projection
+	float aspect = 1.0f;
+	float near = 0.1f; // Èç¹ûÊÓ×¶µÄ½üÆ½ÃæÉèÖÃ¹ý´ó£¬»áµ¼ÖÂ²»»æÖÆ½ü´¦µÄÆ¬¶Î
+	float far = 10.0f;
+	mat4 projection = perspective(radians(90.0f), aspect, near, far);
+
+	// view
+	vector<mat4> transforms;
+	transforms.push_back(projection * lookAt(vec3(0.0f, 0.0f, 0.0f), vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, -1.0f, 0.0f)));
+	transforms.push_back(projection * lookAt(vec3(0.0f, 0.0f, 0.0f), vec3(-1.0f, 0.0f, 0.0f), vec3(0.0f, -1.0f, 0.0f)));
+	transforms.push_back(projection * lookAt(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f)));
+	transforms.push_back(projection * lookAt(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, -1.0f, 0.0f), vec3(0.0f, 0.0f, -1.0f)));
+	transforms.push_back(projection * lookAt(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f), vec3(0.0f, -1.0f, 0.0f)));
+	transforms.push_back(projection * lookAt(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, -1.0f, 0.0f)));
+
+	// Set Uniform To Shader
+	scene.irradianceShader.Use();
+
+	glViewport(0, 0, IRRADIANCE_RESOLUTION_WIDTH, IRRADIANCE_RESOLUTION_HEIGHT);
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo_irdCubemap);
+
+	for (uint i = 0; i < 6; i++)
+	{
+		scene.irradianceShader.SetMat4("transforms", transforms[i]);
+
+		// ÕâÀïÊÇÃ¿drawÒ»¸öÃæ£¬¹ØÁªÒ»¸öÃæµÄcolor attachment
+		// Ò²¿ÉÒÔÒ»´Îdraw£¬ÔÚshaderÀï·Ö±ðäÖÈ¾6¸öÃæ£¬´úÂëÄÜ¸üÓÐÌõÀí£¬²¢ÇÒ¼õÉÙdraw call´ÎÊý
+		// µ«ÊÇÄÇÑùµÄ»°£¬ÐèÒªÓÃ¼¸ºÎshaderÇø·Öµ±Ç°ÊÇÄÄ¸öÃæ£¬¶øÇÒ¼¸ºÎshader·´¶ø»áÔì³ÉÐÔÄÜ¿ªÏú
+
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+			GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, tbo_irdCubemap, 0);
+
+		// ¼ì²éÖ¡»º³å¶ÔÏóÍêÕûÐÔ
+		int chkFlag = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+		if (chkFlag != GL_FRAMEBUFFER_COMPLETE)
+		{
+			cout << "Error: Framebuffer is not complete!" << endl;
+			cout << "Check Flag: " << hex << chkFlag << endl;
+		}
+
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
+		scene.cube_irradiance.DrawMesh(scene.irradianceShader, GL_TRIANGLES);
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

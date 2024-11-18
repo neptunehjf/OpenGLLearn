@@ -58,6 +58,8 @@ public:
 	Mesh sphere;
 	Mesh cube_env;
 	Mesh skybox_env;
+	Mesh cube_irradiance;
+	Mesh skybox_irradiance;
 
 	vector<vec3> lightPositions;
 	vector<vec3> lightColors;

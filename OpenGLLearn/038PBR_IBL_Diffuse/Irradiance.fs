@@ -34,7 +34,7 @@ vec3 convolution(vec3 normal)
 	// 在反射光的方向（采样方向）的半球内，均匀选取若干离散入射光，然后计算各自的平均值（黎曼和）
 	// 半球 航向角phi:0~2PI  极角theta:0~0.5PI
 	int sampleNum = 0;
-	float sampleDelta;
+	float sampleDelta = 0.025;
 
 	for (float phi = 0.0; phi < 2.0 * PI; phi += sampleDelta)
 	{
