@@ -89,7 +89,7 @@ public:
 	void DrawScene_DeferredTest();
 	void DrawScene_SSAOTest();
 	void DrawScene_PBR();
-
+	Mesh CreateSphereMesh(const vector<Texture>& texture);
 private:
 	void CreateAsteroid();
 	void CreateNMVertices(vector<VertexNM>& verticesNM);
@@ -99,7 +99,6 @@ private:
 	GLfloat lerp(GLfloat a, GLfloat b, GLfloat f);
 	void CreateSSAONoise();
 	void CreateSSAONoiseTexture();
-	Mesh CreateSphereMesh(const vector<Texture>& texture);
 };
 
 void Scene::CreateShader()
@@ -273,7 +272,6 @@ void Scene::CreateScene(Camera* myCam)
 	particle = Mesh(g_particleVertices, g_particleIndices);
 	lamp = Mesh(g_cubeVertices, g_cubeIndices, lampTexture);
 	lamp.SetScale(vec3(1.0f));
-	sphere = CreateSphereMesh(rustyIronTexture);
 	cube_env = Mesh(g_cubeVertices, g_cubeIndices, hdrLoftTexture);
 
 	if (bEnableNormalMap)
@@ -1032,7 +1030,7 @@ void Scene::DrawScene_PBR()
 {
 	// 清空各个缓冲区
 	glClearColor(bkgColor.r, bkgColor.g, bkgColor.b, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// GL_BLEND enable时，可能由于没有aplha通道，导致看不见物体，所以要关闭。
 	glDisable(GL_BLEND);
@@ -1043,9 +1041,6 @@ void Scene::DrawScene_PBR()
 		glEnable(GL_CULL_FACE);
 
 	sphere.SetScale(vec3(0.1f));
-	sphere.DrawMesh(PBRWithTextureShader, GL_TRIANGLE_STRIP);
-
-	// 用等距柱状投影对应位置的颜色来渲染到cube
-	// cube_env.DrawMesh(GetEquireColorShader, GL_TRIANGLES);
-
+	//sphere.DrawMesh(PBRWithTextureShader, GL_TRIANGLE_STRIP);
+	sphere.DrawMesh(PBRShader, GL_TRIANGLE_STRIP);
 }

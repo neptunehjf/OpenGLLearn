@@ -110,6 +110,7 @@ float fRadius = 1.0f;
 float metallic = 0.5f;
 float roughness = 0.2f;
 float ao = 1.0f;
+bool bIBL = true;
 /* PBR */
 
 /************** Imgui±‰¡ø **************/

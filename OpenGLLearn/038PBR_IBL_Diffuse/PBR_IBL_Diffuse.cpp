@@ -210,8 +210,11 @@ int main()
 	{
 		{tbo_irdCubemap, "texture_cubemap"}
 	};
-	//scene.skybox_env = Mesh(g_skyboxVertices, g_skyboxIndices, EnvTexture);
-	scene.skybox_irradiance = Mesh(g_skyboxVertices, g_skyboxIndices, irradianceTexture);
+	scene.sphere = scene.CreateSphereMesh(irradianceTexture);
+
+	//test skybox
+	scene.skybox_env = Mesh(g_skyboxVertices, g_skyboxIndices, EnvTexture);
+	//scene.skybox_irradiance = Mesh(g_skyboxVertices, g_skyboxIndices, irradianceTexture);
 
 	//渲染循环
 	while (!glfwWindowShouldClose(window))
@@ -298,9 +301,9 @@ int main()
 		SetAllUniformValues();
 
 		// 用天空盒测试环境贴图有没有正确保存到cubemap里
-		EnvSkyBoxTest(scene.skybox_irradiance);
+		EnvSkyBoxTest(scene.skybox_env);
 
-		//scene.DrawScene_PBR();
+		scene.DrawScene_PBR();
 
 		//if (!bDeferred)
 		//{
@@ -696,6 +699,7 @@ void GetImguiValue()
 		ImGui::SliderFloat("metallic", &metallic, 0.0, 1.0);
 		ImGui::SliderFloat("roughness", &roughness, 0.0, 1.0);
 		ImGui::SliderFloat("ao", &ao, 0.0, 1.0);
+		ImGui::Checkbox("Enable Image Based Lighting", &bIBL);
 
 		ImGui::TreePop();
 	}
@@ -1630,7 +1634,7 @@ void SetPBRUniform()
 	scene.PBRShader.SetFloat("roughness", roughness);
 	scene.PBRShader.SetFloat("ao", ao);
 
-	scene.PBRShader.SetVec3("albedo", vec3(0.5f, 0.0f, 0.0f));
+	scene.PBRShader.SetVec3("albedo", vec3(1.0f));
 
 	for (int i = 0; i < 4; i++)
 	{
@@ -1645,6 +1649,8 @@ void SetPBRUniform()
 	}
 
 	scene.PBRShader.SetVec3("camPos", myCam.camPos);
+
+	scene.PBRShader.SetBool("bIBL", bIBL);
 }
 
 void SetPBRWithTextureUniform()
