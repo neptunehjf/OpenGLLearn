@@ -1634,7 +1634,7 @@ void SetPBRUniform()
 	scene.PBRShader.SetFloat("roughness", roughness);
 	scene.PBRShader.SetFloat("ao", ao);
 
-	scene.PBRShader.SetVec3("albedo", vec3(1.0f));
+	scene.PBRShader.SetVec3("albedo", vec3(0.5f, 0.0f, 0.0f));
 
 	for (int i = 0; i < 4; i++)
 	{

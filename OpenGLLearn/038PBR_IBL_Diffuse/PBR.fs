@@ -123,7 +123,6 @@ void main()
     else
         ambient = vec3(0.03) * albedo * ao;
     
-    //vec3 color = ambient;
     vec3 color = ambient + Lo;
 
     // HDR tonemapping
