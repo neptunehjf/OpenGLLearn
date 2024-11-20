@@ -1,0 +1,206 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Shader Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Dependency Files">
+      <UniqueIdentifier>{1235f7b7-54c1-4c17-8511-03ce832002bc}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DepthMap.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="DepthmapDisplay.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="ForwardShading.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="G-buffer.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="G-buffer-SSAO.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="GetEquireColor.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Irradiance.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Lighting.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="LightingInstance.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Normal.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="PBR.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="PBRWithTexture.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="PostProcess.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Reflection.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Refraction.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="SSAO.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="SSAO_Blur.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="DepthCubemap.gs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Lighting.gs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Normal.gs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Cubemap.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="DeferredLamp.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="DeferredShading.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="DepthCubemap.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Lighting.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="LightingInstance.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Normal.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="PBR.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="PBRWithTexture.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="PostProcess.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Reflection.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Refraction.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="SSAO.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="SSAO_Blur.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Cubemap.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="DeferredLamp.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="DeferredShading.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="DepthCubemap.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="DepthMap.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="DepthmapDisplay.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="ForwardShading.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="G-buffer.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="G-buffer-SSAO.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="GetEquireColor.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Model.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="PBR_IBL_Specular.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Dependency\Src\glad\src\glad.c">
+      <Filter>Dependency Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Dependency\Src\imgui\imgui_impl_opengl3.cpp">
+      <Filter>Dependency Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Dependency\Src\imgui\imgui_widgets.cpp">
+      <Filter>Dependency Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Dependency\Src\imgui\imgui.cpp">
+      <Filter>Dependency Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Dependency\Src\imgui\imgui_demo.cpp">
+      <Filter>Dependency Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Dependency\Src\imgui\imgui_draw.cpp">
+      <Filter>Dependency Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Dependency\Src\imgui\imgui_impl_glfw.cpp">
+      <Filter>Dependency Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Dependency\Src\imgui\imgui_tables.cpp">
+      <Filter>Dependency Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
