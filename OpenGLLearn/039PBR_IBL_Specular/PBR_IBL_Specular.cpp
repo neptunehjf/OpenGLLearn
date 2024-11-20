@@ -42,6 +42,7 @@ void CreateFrameBuffer_SSAO_Output();
 void CreateFrameBuffer_SSAO_Blur();
 void CreateFrameBuffer_EnvCubemap();
 void CreateFrameBuffer_IrdCubemap();
+void CreateFrameBuffer_PreFilteredCubemap();
 void SetUniformBuffer();
 void DrawDepthMap();
 void DrawDepthCubemap(vec3 lightPos);
@@ -56,6 +57,7 @@ void SetPBRWithTextureUniform();
 void DrawEnvCubemap();
 void EnvSkyBoxTest(Mesh& skybox);
 void DrawIrradianceCubemap();
+
 
 Scene scene;
 Camera myCam(vec3(0.2f, 0.16f, 0.35f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
@@ -126,6 +128,10 @@ GLuint tbo_EnvCubemap = 0;               // 纹理缓冲对象（附件）
 GLuint fbo_irdCubemap = 0;               // 自定义帧缓冲对象
 GLuint tbo_irdCubemap = 0;               // 纹理缓冲对象（附件）
 
+// PBR IBL 预滤波(pre filtered)Cubemap
+GLuint fbo_pfCubemap = 0;                // 自定义帧缓冲对象
+GLuint tbo_pfCubemap = 0;                // 纹理缓冲对象（附件）
+
 int main()
 {
 	if (!InitOpenGL())
@@ -166,10 +172,12 @@ int main()
 	CreateFrameBuffer_SSAO_Output();
 	// SSAO模糊缓冲
 	CreateFrameBuffer_SSAO_Blur();
-	// 环境立方体贴图的缓冲
+	// 环境立方体贴图缓冲
 	CreateFrameBuffer_EnvCubemap();
-	// 辐射度立方体贴图的缓冲
+	// 辐射度立方体贴图缓冲
 	CreateFrameBuffer_IrdCubemap();
+	// 预滤波立方体贴图缓冲
+	CreateFrameBuffer_PreFilteredCubemap();
 
 	// Uniform缓冲
 	// 
@@ -1851,7 +1859,7 @@ void EnvSkyBoxTest(Mesh& skybox)
 	skybox.DrawMesh(scene.cubemapShader, GL_TRIANGLES);
 }
 
-//创建自定义帧缓冲 IBL Cubemap
+//创建自定义帧缓冲 IBL 辐射度 Cubemap
 void CreateFrameBuffer_IrdCubemap()
 {
 	glGenFramebuffers(1, &fbo_irdCubemap);
@@ -1875,7 +1883,7 @@ void CreateFrameBuffer_IrdCubemap()
 
 	// color附件等到渲染的时候再关联
 
-	// depth附件不需要吧
+	// depth附件不需要
 
 	// 检查帧缓冲对象完整性
 	// 因为要等到渲染的时候关联纹理附件，所以此处不判断完整性了
@@ -1883,10 +1891,9 @@ void CreateFrameBuffer_IrdCubemap()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+// 绘制辐射度Cubemap 
 void DrawIrradianceCubemap()
 {
-	// 绘制辐射度Cubemap 
-
 	// projection
 	float aspect = 1.0f;
 	float near = 0.1f; // 如果视锥的近平面设置过大，会导致不绘制近处的片段
@@ -1933,6 +1940,41 @@ void DrawIrradianceCubemap()
 
 		scene.cube_irradiance.DrawMesh(scene.irradianceShader, GL_TRIANGLES);
 	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+//创建自定义帧缓冲 IBL pre filtered Cubemap
+void CreateFrameBuffer_PreFilteredCubemap()
+{
+	glGenFramebuffers(1, &fbo_pfCubemap);
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo_pfCubemap);
+
+	// 生成纹理附件 对应depth缓冲
+	glGenTextures(1, &tbo_pfCubemap);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, tbo_pfCubemap);
+	for (uint i = 0; i < 6; i++)
+	{
+		// HDR的数据类型应该是 GL_FLOAT
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, PREFILTERED_RESOLUTION_WIDTH, PREFILTERED_RESOLUTION_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
+	}
+
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);  // 三线性  u v mipmap
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);				   // 双线性  u v
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+	glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+	// color附件等到渲染的时候再关联
+
+	// depth附件不需要
+
+	// 检查帧缓冲对象完整性
+	// 因为要等到渲染的时候关联纹理附件，所以此处不判断完整性了
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
