@@ -3,12 +3,13 @@
 in vec3 TexCoords;
 
 uniform samplerCube texture_cubemap1;
+uniform int iMipLevel;
 
 out vec4 FragColor;
 
 void main()
 {
-	vec3 color = texture(texture_cubemap1, TexCoords).rgb;
+	vec3 color = textureLod(texture_cubemap1, TexCoords, iMipLevel).rgb;
 
 	// HDR tonemap
 	// 放到postprocess shader里处理

@@ -42,7 +42,7 @@ void CreateFrameBuffer_SSAO_Output();
 void CreateFrameBuffer_SSAO_Blur();
 void CreateFrameBuffer_EnvCubemap();
 void CreateFrameBuffer_IrdCubemap();
-void CreateFrameBuffer_PreFilteredCubemap();
+void CreateFrameBuffer_PrefilterCubemap();
 void SetUniformBuffer();
 void DrawDepthMap();
 void DrawDepthCubemap(vec3 lightPos);
@@ -55,8 +55,9 @@ void SetHeavyLightsUniform(Shader& shader);
 void SetPBRUniform();
 void SetPBRWithTextureUniform();
 void DrawEnvCubemap();
-void EnvSkyBoxTest(Mesh& skybox);
+void SkyBoxTest(Mesh& skybox);
 void DrawIrradianceCubemap();
+void DrawPrefilterCubemap();
 
 
 Scene scene;
@@ -128,7 +129,7 @@ GLuint tbo_EnvCubemap = 0;               // 纹理缓冲对象（附件）
 GLuint fbo_irdCubemap = 0;               // 自定义帧缓冲对象
 GLuint tbo_irdCubemap = 0;               // 纹理缓冲对象（附件）
 
-// PBR IBL 预滤波(pre filtered)Cubemap
+// PBR IBL 预滤波(pre filter)Cubemap
 GLuint fbo_pfCubemap = 0;                // 自定义帧缓冲对象
 GLuint tbo_pfCubemap = 0;                // 纹理缓冲对象（附件）
 
@@ -177,7 +178,7 @@ int main()
 	// 辐射度立方体贴图缓冲
 	CreateFrameBuffer_IrdCubemap();
 	// 预滤波立方体贴图缓冲
-	CreateFrameBuffer_PreFilteredCubemap();
+	CreateFrameBuffer_PrefilterCubemap();
 
 	// Uniform缓冲
 	// 
@@ -214,15 +215,21 @@ int main()
 	scene.cube_irradiance = Mesh(g_cubeVertices, g_cubeIndices, EnvTexture);
 	DrawIrradianceCubemap();
 
+	scene.cube_prefilter = Mesh(g_cubeVertices, g_cubeIndices, EnvTexture);
+	DrawPrefilterCubemap();
+
 	const vector<Texture> irradianceTexture =
 	{
 		{tbo_irdCubemap, "texture_cubemap"}
 	};
+	const vector<Texture> prefilterTexture =
+	{
+		{tbo_pfCubemap, "texture_cubemap"}
+	};
 	scene.sphere = scene.CreateSphereMesh(irradianceTexture);
 
 	//test skybox
-	scene.skybox_env = Mesh(g_skyboxVertices, g_skyboxIndices, EnvTexture);
-	//scene.skybox_irradiance = Mesh(g_skyboxVertices, g_skyboxIndices, irradianceTexture);
+	scene.skybox = Mesh(g_skyboxVertices, g_skyboxIndices, prefilterTexture);
 
 	//渲染循环
 	while (!glfwWindowShouldClose(window))
@@ -309,7 +316,7 @@ int main()
 		SetAllUniformValues();
 
 		// 用天空盒测试环境贴图有没有正确保存到cubemap里
-		EnvSkyBoxTest(scene.skybox_env);
+		SkyBoxTest(scene.skybox);
 
 		scene.DrawScene_PBR();
 
@@ -708,6 +715,7 @@ void GetImguiValue()
 		ImGui::SliderFloat("roughness", &roughness, 0.0, 1.0);
 		ImGui::SliderFloat("ao", &ao, 0.0, 1.0);
 		ImGui::Checkbox("Enable Image Based Lighting", &bIBL);
+		ImGui::SliderInt("Skybox Mipmap Level", &iMipLevel, 0, 4);
 
 		ImGui::TreePop();
 	}
@@ -791,6 +799,7 @@ void SetUniformToShader(Shader& shader)
 	shader.SetBool("bSSAO", bSSAO);
 	shader.SetInt("samples_num", iSSAOSampleNum);
 	shader.SetInt("iSSAONoise", iSSAONoise);
+	shader.SetInt("iMipLevel", iMipLevel);
 
 	for (int i = 0; i < scene.ssaoKernel.size(); i++)
 	{
@@ -1845,7 +1854,7 @@ void DrawEnvCubemap()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void EnvSkyBoxTest(Mesh& skybox)
+void SkyBoxTest(Mesh& skybox)
 {
 	// 清空各个缓冲区
 	glClearColor(bkgColor.r, bkgColor.g, bkgColor.b, 1.0f);
@@ -1945,7 +1954,7 @@ void DrawIrradianceCubemap()
 }
 
 //创建自定义帧缓冲 IBL pre filtered Cubemap
-void CreateFrameBuffer_PreFilteredCubemap()
+void CreateFrameBuffer_PrefilterCubemap()
 {
 	glGenFramebuffers(1, &fbo_pfCubemap);
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo_pfCubemap);
@@ -1975,6 +1984,73 @@ void CreateFrameBuffer_PreFilteredCubemap()
 
 	// 检查帧缓冲对象完整性
 	// 因为要等到渲染的时候关联纹理附件，所以此处不判断完整性了
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+// 绘制PBR Specular 预滤波Cubemap 
+void DrawPrefilterCubemap()
+{
+	// projection
+	float aspect = 1.0f;
+	float near = 0.1f; // 如果视锥的近平面设置过大，会导致不绘制近处的片段
+	float far = 10.0f;
+	mat4 projection = perspective(radians(90.0f), aspect, near, far);
+
+	// view
+	vector<mat4> transforms;
+	transforms.push_back(projection * lookAt(vec3(0.0f, 0.0f, 0.0f), vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, -1.0f, 0.0f)));
+	transforms.push_back(projection * lookAt(vec3(0.0f, 0.0f, 0.0f), vec3(-1.0f, 0.0f, 0.0f), vec3(0.0f, -1.0f, 0.0f)));
+	transforms.push_back(projection * lookAt(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f)));
+	transforms.push_back(projection * lookAt(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, -1.0f, 0.0f), vec3(0.0f, 0.0f, -1.0f)));
+	transforms.push_back(projection * lookAt(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f), vec3(0.0f, -1.0f, 0.0f)));
+	transforms.push_back(projection * lookAt(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, -1.0f, 0.0f)));
+
+
+	scene.prefilterShader.Use();
+
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo_pfCubemap);
+
+	const uint maxMipLevel = 5;
+
+	
+	for (uint mip = 0; mip < maxMipLevel; mip++)
+	{
+		float mipWidth = PREFILTERED_RESOLUTION_WIDTH * pow(0.5, mip);
+		float mipHeight = PREFILTERED_RESOLUTION_HEIGHT * pow(0.5, mip);
+
+		glViewport(0, 0, mipWidth, mipHeight);
+
+		// roughness 0.0 0.25 0.5 0.75 1.0 
+		float roughness = (float)mip / (float)(maxMipLevel - 1);
+		scene.prefilterShader.SetFloat("roughness", roughness);
+
+		for (uint i = 0; i < 6; i++)
+		{
+			scene.prefilterShader.SetMat4("transforms", transforms[i]);
+
+			// 这里是每draw一个面，关联一个面的color attachment
+			// 也可以一次draw，在shader里分别渲染6个面，代码能更有条理，并且减少draw call次数
+			// 但是那样的话，需要用几何shader区分当前是哪个面，而且几何shader反而会造成性能开销
+
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+				GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, tbo_pfCubemap, mip);
+
+			// 检查帧缓冲对象完整性
+			int chkFlag = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+			if (chkFlag != GL_FRAMEBUFFER_COMPLETE)
+			{
+				cout << "Error: Framebuffer is not complete!" << endl;
+				cout << "Check Flag: " << hex << chkFlag << endl;
+			}
+
+			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
+			scene.cube_irradiance.DrawMesh(scene.prefilterShader, GL_TRIANGLES);
+		}
+	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

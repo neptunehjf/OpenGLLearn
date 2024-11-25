@@ -38,7 +38,7 @@ public:
 	Shader PBRWithTextureShader;
 	Shader GetEquireColorShader;
 	Shader irradianceShader;  // 求采样值的diffuse辐射度
-	Shader prefilteredShader; // 求specular的预滤波图像
+	Shader prefilterShader; // 求specular的预滤波图像
 
 	Mesh cubeCubemap;
 	Mesh cube;
@@ -58,9 +58,8 @@ public:
 	Mesh SSAOBlurScreen;
 	Mesh sphere;
 	Mesh cube_env;
-	Mesh skybox_env;
 	Mesh cube_irradiance;
-	Mesh skybox_irradiance;
+	Mesh cube_prefilter;
 
 	vector<vec3> lightPositions;
 	vector<vec3> lightColors;
@@ -126,7 +125,7 @@ void Scene::CreateShader()
 	PBRWithTextureShader = Shader("PBRWithTexture.vs", "PBRWithTexture.fs");
 	GetEquireColorShader = Shader("GetEquireColor.vs", "GetEquireColor.fs");
 	irradianceShader = Shader("GetEquireColor.vs", "Irradiance.fs");
-	prefilteredShader = Shader("GetEquireColor.vs", "PBRSpecularPrefilter.fs");
+	prefilterShader = Shader("GetEquireColor.vs", "PBRSpecularPrefilter.fs");
 }
 
 void Scene::CreateScene(Camera* myCam)
@@ -265,7 +264,6 @@ void Scene::CreateScene(Camera* myCam)
 	cubeCubemap = Mesh(g_cubeVertices, g_cubeIndices, skyboxTexture);
 	cube = Mesh(g_cubeVertices, g_cubeIndices, lampTexture);
 	square = Mesh(g_squareVertices, g_squareIndices, windowTexture);
-	skybox = Mesh(g_skyboxVertices, g_skyboxIndices, skyboxTexture);
 	screen = Mesh(g_screenVertices, g_screenIndices);
 	defferedScreen = Mesh(g_screenVertices, g_screenIndices);
 	SSAOScreen = Mesh(g_screenVertices, g_screenIndices);

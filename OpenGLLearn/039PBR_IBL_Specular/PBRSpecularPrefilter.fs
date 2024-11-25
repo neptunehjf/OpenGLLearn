@@ -20,7 +20,7 @@ void main()
     vec3 V = N;                      // 宏观入射向量   
     vec3 R = N;                      // 宏观反射向量
 
-    vec3 prefilteredColor = vec3(0.0);
+    vec3 prefilterColor = vec3(0.0);
     const uint samplesNum = 1024u;
     float totalWeight = 0.0;
 
@@ -37,14 +37,14 @@ void main()
 
         // 由于H是重要性采样得到的，算出的L集中在宏观入射角V附近，这里再次根据方差多次加权，可以提高离V近的颜色的权重
         float weight = max(dot(L, V), 0.0);
-        prefilteredColor += (texture(texture_cubemap1, L).rgb * weight);
+        prefilterColor += (texture(texture_cubemap1, L).rgb * weight);
         totalWeight += weight;
     }
 
     // 求加权后的平均值
-    prefilteredColor = prefilteredColor / totalWeight;
+    prefilterColor = prefilterColor / totalWeight;
 
-    FragColor = vec4(prefilteredColor, 1.0);
+    FragColor = vec4(prefilterColor, 1.0);
 }
 
 

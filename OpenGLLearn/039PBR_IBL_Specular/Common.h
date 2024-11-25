@@ -114,6 +114,7 @@ float metallic = 0.5f;
 float roughness = 0.2f;
 float ao = 1.0f;
 bool bIBL = true;
+int iMipLevel = 0;
 /* PBR */
 
 /************** Imgui±‰¡ø **************/
