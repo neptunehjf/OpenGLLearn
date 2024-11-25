@@ -169,6 +169,7 @@
     <None Include="Normal.vs" />
     <None Include="PBR.fs" />
     <None Include="PBR.vs" />
+    <None Include="PBRSpecularPrefilter.fs" />
     <None Include="PBRWithTexture.fs" />
     <None Include="PBRWithTexture.vs" />
     <None Include="PostProcess.fs" />
