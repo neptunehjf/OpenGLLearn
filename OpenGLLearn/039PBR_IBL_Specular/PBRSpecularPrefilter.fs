@@ -15,10 +15,10 @@ vec3 ImportanceSampleGGX(vec2 Xi, vec3 N, float roughness);
 void main()
 {
     // 因为镜面光与视角方向有关，而预计算无法知道视角方向。
-    // 折衷的方案是假设宏观上V,N,R在同一条直线上
+    // 折衷的方案是假设宏观上V,N,I在同一条直线上
     vec3 N = normalize(localPos);    // 这里片段的宏观法线，正好等于局部坐标
-    vec3 V = N;                      // 宏观入射向量   
-    vec3 R = N;                      // 宏观反射向量
+    vec3 I = N;                      // 宏观入射向量   
+    vec3 V = N;                      // 宏观反射向量
 
     vec3 prefilterColor = vec3(0.0);
     const uint samplesNum = 1024u;
@@ -30,13 +30,13 @@ void main()
         vec2 Xi = Hammersley(i, samplesNum);             
         // 生成微观表面的半程向量，通过重要性采样，主要集中于宏观表面的法线N附近
         vec3 H = ImportanceSampleGGX(Xi, N, roughness);
-        // 根据宏观的反射方向R 和 微观的H，算出微观的入射方向的反向量L，即用于采样环境cubemap的向量
-        // R是固定的，因为这里就是要求R方向上的反射颜色，并存入cubemap
-        // vec3 L  = normalize(2.0 * dot(R, H) * H - R); 效果应该是一样的 
-        vec3 L = normalize(reflect(-R, H)); 
+        // 根据宏观的反射方向V 和 微观的H，算出微观的入射方向的反向量L，即用于采样环境cubemap的向量
+        // V是固定的，因为这里就是要求V方向上的反射颜色，并存入cubemap
+        // vec3 L  = normalize(2.0 * dot(V, H) * H - V); 效果应该是一样的 
+        vec3 L = normalize(reflect(-V, H)); 
 
-        // 由于H是重要性采样得到的，算出的L集中在宏观入射角V附近，这里再次根据方差多次加权，可以提高离V近的颜色的权重
-        float weight = max(dot(L, V), 0.0);
+        // 由于H是重要性采样得到的，算出的L集中在宏观入射角I附近，这里再次根据方差多次加权，可以提高离I近的颜色的权重
+        float weight = max(dot(L, I), 0.0);
         prefilterColor += (texture(texture_cubemap1, L).rgb * weight);
         totalWeight += weight;
     }
