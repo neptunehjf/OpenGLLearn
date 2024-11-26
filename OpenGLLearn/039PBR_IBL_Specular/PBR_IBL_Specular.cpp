@@ -1782,7 +1782,7 @@ void CreateFrameBuffer_EnvCubemap()
 	for (uint i = 0; i < 6; i++)
 	{
 		// HDR的数据类型应该是 GL_FLOAT
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, ENVIROMENT_RESOLUTION, ENVIROMENT_RESOLUTION, 0, GL_RGB, GL_FLOAT, NULL);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, ENVIRONMENT_RESOLUTION, ENVIRONMENT_RESOLUTION, 0, GL_RGB, GL_FLOAT, NULL);
 	}
 
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
@@ -1825,7 +1825,7 @@ void DrawEnvCubemap()
 	// Set Uniform To Shader
 	scene.GetEquireColorShader.Use();
 
-	glViewport(0, 0, ENVIROMENT_RESOLUTION, ENVIROMENT_RESOLUTION);
+	glViewport(0, 0, ENVIRONMENT_RESOLUTION, ENVIRONMENT_RESOLUTION);
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo_EnvCubemap);
 
 	for (uint i = 0; i < 6; i++)
@@ -2026,7 +2026,7 @@ void DrawPrefilterCubemap()
 
 	const uint maxMipLevel = 5;
 
-	scene.prefilterShader.SetFloat("resolution", (float)ENVIROMENT_RESOLUTION);
+	scene.prefilterShader.SetFloat("resolution", (float)ENVIRONMENT_RESOLUTION);
 
 	for (uint mip = 0; mip < maxMipLevel; mip++)
 	{
