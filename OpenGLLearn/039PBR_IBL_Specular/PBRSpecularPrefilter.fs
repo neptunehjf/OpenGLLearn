@@ -5,12 +5,14 @@ in vec3 localPos;
 
 uniform samplerCube texture_cubemap1; // 环境cubemap
 uniform float roughness; // 粗糙度
+uniform float resolution; // 环境cubemap解析度
 
 const float PI = 3.14159265359;
 
 float RadicalInverse_VdC(uint bits);
 vec2 Hammersley(uint i, uint num);
 vec3 ImportanceSampleGGX(vec2 Xi, vec3 N, float roughness);
+float DistributionGGX(vec3 N, vec3 H, float roughness);
 
 void main()
 {
@@ -37,7 +39,29 @@ void main()
 
         // 由于H是重要性采样得到的，算出的L集中在宏观入射角I附近，这里再次根据方差多次加权，可以提高离I近的颜色的权重
         float weight = max(dot(L, I), 0.0);
-        prefilterColor += (texture(texture_cubemap1, L).rgb * weight);
+
+        // 算出当前采样的H的pdf
+        float D = DistributionGGX(N, H, roughness); // 法线分布率
+        float NdotH = max(dot(N, H), 0.0);          // 与N与H的夹角成反比
+        float HdotV = max(dot(H, V), 0.0);          // 与V与H的夹角成反比
+        // unreal engine4 的pdf计算公式，不是很理解是怎么来的，下面说一下自己的理解
+        // pdf在D的基础上计算，NdotH(N,H夹角)额外影响了pdf，N,H夹角越小，pdf越大，但这在DistributionGGX里已经体现了，不知道为什么这里还要考虑
+        // HdotV(V,H夹角)额外影响了pdf，这个可能是考虑了Fresnel方程，V与H夹角越大，反射越强
+        // pdf越大和反射越强是等价的，因为重要性采样的样本集中在能让反射最强的地方
+        // 另外由于V == I == N，这里实际就是 float pdf = D / 4.0 + 0.0001; 以下公式是为了适配更普适的情况
+        float pdf = D * NdotH / (4.0 * HdotV) + 0.0001;  
+
+        float saTexel  = 4.0 * PI / (6.0 * resolution * resolution);
+        float saSample = 1.0 / (float(samplesNum) * pdf + 0.0001);
+
+        // 根据pdf算出mipLevel，注意算出的小数会在textureLod自动向下取整
+        // 这个公式暂时也不知道怎么来的。
+        // 目前的理解来看，resolution越大，mipLevel越大，可能是resolution越大需要更多的采样点才能更清晰
+        // SAMPLE_COUNT或者pdf越大，mipLevel越小，越清晰，这个好理解
+        float mipLevel = (roughness == 0.0 ? 0.0 : 0.5 * log2(saSample / saTexel)); 
+        //float mipLevel = 0.0; 
+
+        prefilterColor += (textureLod(texture_cubemap1, L, mipLevel).rgb * weight);
         totalWeight += weight;
     }
 
@@ -94,4 +118,19 @@ vec3 ImportanceSampleGGX(vec2 Xi, vec3 N, float roughness)
     vec3 sampleVec = normalize(TBN * H);
 
     return sampleVec;
+}
+
+// 算出当前采样的H的NDF
+float DistributionGGX(vec3 N, vec3 H, float roughness)
+{
+    float a = roughness*roughness;
+    float a2 = a*a;
+    float NdotH = max(dot(N, H), 0.0);
+    float NdotH2 = NdotH*NdotH;
+
+    float nom   = a2;
+    float denom = (NdotH2 * (a2 - 1.0) + 1.0);
+    denom = PI * denom * denom;
+
+    return nom / denom;
 }

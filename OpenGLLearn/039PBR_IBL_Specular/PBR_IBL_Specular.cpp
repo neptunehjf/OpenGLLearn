@@ -912,7 +912,7 @@ void CreateFrameBuffer_Depthmap(GLuint& fbo, GLuint& tbo)
 	glGenTextures(1, &tbo);
 	glBindTexture(GL_TEXTURE_2D, tbo);
 	// 深度图的数据类型应该是 GL_FLOAT
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_RESOLUTION_WIDTH, SHADOW_RESOLUTION_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_RESOLUTION, SHADOW_RESOLUTION, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
@@ -953,7 +953,7 @@ void CreateFrameBuffer_DepthCubemap(GLuint& fbo, GLuint& tbo)
 	for (uint i = 0; i < 6; i++)
 	{
 		// 深度图的数据类型应该是 GL_FLOAT
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, SHADOW_RESOLUTION_WIDTH, SHADOW_RESOLUTION_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, SHADOW_RESOLUTION, SHADOW_RESOLUTION, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 	}
 
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -1136,7 +1136,7 @@ void DrawDepthMap()
 	scene.depthmapShader.Use();
 	scene.depthmapShader.SetMat4("dirLightSpace", dirLightSpace);
 
-	glViewport(0, 0, SHADOW_RESOLUTION_WIDTH, SHADOW_RESOLUTION_HEIGHT);
+	glViewport(0, 0, SHADOW_RESOLUTION, SHADOW_RESOLUTION);
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo_depthmap);
 
 	if (bFrontFaceCulling)
@@ -1190,7 +1190,7 @@ void DrawDepthCubemap(vec3 lightPos)
 	scene.depthCubemapShader.SetVec3("lightPos", lightPos);
 	scene.depthCubemapShader.SetFloat("farPlane", far);
 
-	glViewport(0, 0, SHADOW_RESOLUTION_WIDTH, SHADOW_RESOLUTION_HEIGHT);
+	glViewport(0, 0, SHADOW_RESOLUTION, SHADOW_RESOLUTION);
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo_depthCubemap);
 
 	if (bFrontFaceCulling)
@@ -1308,7 +1308,7 @@ void DrawScreen()
 
 	if (bShadow && bDisDepthmap)
 	{
-		glViewport(0, 0, SHADOW_RESOLUTION_WIDTH, SHADOW_RESOLUTION_HEIGHT);
+		glViewport(0, 0, SHADOW_RESOLUTION, SHADOW_RESOLUTION);
 		const vector<Texture> depthmapTexture =
 		{
 			{tbo_depthmap, "texture_diffuse"},
@@ -1782,14 +1782,15 @@ void CreateFrameBuffer_EnvCubemap()
 	for (uint i = 0; i < 6; i++)
 	{
 		// HDR的数据类型应该是 GL_FLOAT
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, ENV_RESOLUTION_WIDTH, ENV_RESOLUTION_WIDTH, 0, GL_RGB, GL_FLOAT, NULL);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, ENVIROMENT_RESOLUTION, ENVIROMENT_RESOLUTION, 0, GL_RGB, GL_FLOAT, NULL);
 	}
 
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 
 	// color附件等到渲染的时候再关联
@@ -1824,7 +1825,7 @@ void DrawEnvCubemap()
 	// Set Uniform To Shader
 	scene.GetEquireColorShader.Use();
 
-	glViewport(0, 0, ENV_RESOLUTION_WIDTH, ENV_RESOLUTION_HEIGHT);
+	glViewport(0, 0, ENVIROMENT_RESOLUTION, ENVIROMENT_RESOLUTION);
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo_EnvCubemap);
 
 	for (uint i = 0; i < 6; i++)
@@ -1850,6 +1851,12 @@ void DrawEnvCubemap()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		scene.cube_env.DrawMesh(scene.GetEquireColorShader, GL_TRIANGLES);
 	}
+
+	// 注意，调用glGenerateMipmap会生成对应的mipmap内存并尝试生成对应的mipmap，如果这时候没有绘制原图，只会输出黑色
+	// 因为这里只想要自动生成的mipmap, 因此 这里在绘制环境cubemap之后再调用glGenerateMipmap，而不是在分配缓冲的时候调用
+	glBindTexture(GL_TEXTURE_CUBE_MAP, tbo_EnvCubemap);
+	glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
@@ -1882,7 +1889,7 @@ void CreateFrameBuffer_IrdCubemap()
 	for (uint i = 0; i < 6; i++)
 	{
 		// HDR的数据类型应该是 GL_FLOAT
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, IRRADIANCE_RESOLUTION_WIDTH, IRRADIANCE_RESOLUTION_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, IRRADIANCE_RESOLUTION, IRRADIANCE_RESOLUTION, 0, GL_RGB, GL_FLOAT, NULL);
 	}
 
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -1923,7 +1930,7 @@ void DrawIrradianceCubemap()
 	// Set Uniform To Shader
 	scene.irradianceShader.Use();
 
-	glViewport(0, 0, IRRADIANCE_RESOLUTION_WIDTH, IRRADIANCE_RESOLUTION_HEIGHT);
+	glViewport(0, 0, IRRADIANCE_RESOLUTION, IRRADIANCE_RESOLUTION);
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo_irdCubemap);
 
 	for (uint i = 0; i < 6; i++)
@@ -1967,7 +1974,7 @@ void CreateFrameBuffer_PrefilterCubemap()
 	for (uint i = 0; i < 6; i++)
 	{
 		// HDR的数据类型应该是 GL_FLOAT
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, PREFILTERED_RESOLUTION_WIDTH, PREFILTERED_RESOLUTION_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, PREFILTERED_RESOLUTION, PREFILTERED_RESOLUTION, 0, GL_RGB, GL_FLOAT, NULL);
 	}
 
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);  // 三线性  u v mipmap
@@ -1976,6 +1983,10 @@ void CreateFrameBuffer_PrefilterCubemap()
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
+	// 因为对于prefilter cubemap，想要实现粗糙度和miplevel的对应关系，
+	// 如果在绘制原图后再调用glGenerateMipmap自动生成mipmap，显然无法满足这个需求
+	// 因此，在这里(绘制原图之前)先调用glGenerateMipmap，会自动生成mipmap内存，此时mipmap为全黑(无所谓)
+	// 后续在绘制原图的时候手动生成对应的mipmap
 	glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
@@ -2015,11 +2026,12 @@ void DrawPrefilterCubemap()
 
 	const uint maxMipLevel = 5;
 
-	
+	scene.prefilterShader.SetFloat("resolution", (float)ENVIROMENT_RESOLUTION);
+
 	for (uint mip = 0; mip < maxMipLevel; mip++)
 	{
-		float mipWidth = PREFILTERED_RESOLUTION_WIDTH * pow(0.5, mip);
-		float mipHeight = PREFILTERED_RESOLUTION_HEIGHT * pow(0.5, mip);
+		float mipWidth = PREFILTERED_RESOLUTION * pow(0.5, mip);
+		float mipHeight = PREFILTERED_RESOLUTION * pow(0.5, mip);
 
 		glViewport(0, 0, mipWidth, mipHeight);
 
