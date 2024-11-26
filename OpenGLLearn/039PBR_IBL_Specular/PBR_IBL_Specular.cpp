@@ -1865,6 +1865,8 @@ void SkyBoxTest(Mesh& skybox)
 
 	glEnable(GL_DEPTH_TEST);
 
+	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+
 	skybox.DrawMesh(scene.cubemapShader, GL_TRIANGLES);
 }
 
