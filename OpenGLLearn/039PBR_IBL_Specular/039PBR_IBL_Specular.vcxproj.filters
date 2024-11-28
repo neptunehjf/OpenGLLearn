@@ -36,7 +36,7 @@
     <None Include="GetEquireColor.fs">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="Irradiance.fs">
+    <None Include="PBR_Irradiance.fs">
       <Filter>Shader Files</Filter>
     </None>
     <None Include="Lighting.fs">
@@ -150,7 +150,13 @@
     <None Include="GetEquireColor.vs">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="PBRSpecularPrefilter.fs">
+    <None Include="PBR_Prefilter.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="PBR_BRDF.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="PBR_BRDF.vs">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

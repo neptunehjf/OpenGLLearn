@@ -38,7 +38,8 @@ public:
 	Shader PBRWithTextureShader;
 	Shader GetEquireColorShader;
 	Shader irradianceShader;  // 求采样值的diffuse辐射度
-	Shader prefilterShader; // 求specular的预滤波图像
+	Shader prefilterShader;   // 求specular的预滤波图像
+	Shader BRDFShader;        // 求specular的BRDF图像
 
 	Mesh cubeCubemap;
 	Mesh cube;
@@ -124,8 +125,9 @@ void Scene::CreateShader()
 	PBRShader = Shader("PBR.vs", "PBR.fs");
 	PBRWithTextureShader = Shader("PBRWithTexture.vs", "PBRWithTexture.fs");
 	GetEquireColorShader = Shader("GetEquireColor.vs", "GetEquireColor.fs");
-	irradianceShader = Shader("GetEquireColor.vs", "Irradiance.fs");
-	prefilterShader = Shader("GetEquireColor.vs", "PBRSpecularPrefilter.fs");
+	irradianceShader = Shader("GetEquireColor.vs", "PBR_Irradiance.fs");
+	prefilterShader = Shader("GetEquireColor.vs", "PBR_Prefilter.fs");
+	BRDFShader = Shader("PBR_BRDF.vs", "PBR_BRDF.fs");
 }
 
 void Scene::CreateScene(Camera* myCam)

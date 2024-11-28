@@ -93,6 +93,9 @@ vec2 Hammersley(uint i, uint num)
 // 重要性采样，根据Hammersley二维随机样本得出一个符合目标pdf（主要集中在N附近，并受到roughness影响）的H向量
 vec3 ImportanceSampleGGX(vec2 Xi, vec3 N, float roughness)
 {
+    // unreal engine4 用的是粗糙度的平方，效果更好
+    float a = roughness * roughness;
+
     // 从Hammersley分布得到对应的Tangent空间的球面坐标
     // phi由Xi.x(Hammersley采样下标)得到，与概率无关
     float phi = 2 * PI * Xi.x;
@@ -101,7 +104,7 @@ vec3 ImportanceSampleGGX(vec2 Xi, vec3 N, float roughness)
     // roughness越大，theta越大，也就是H与N的夹角越大，这个与材质有关，与概率无关
     // Xi.y(Hammersley采样随机值)越大，theta越小，也就是H与N的夹角越小，可见概率高的都是夹角小的，这就是重要性采样
     // 此公式的推理比较复杂，有空再研究一下
-    float theta = acos(sqrt((1.0 - Xi.y) / (1.0 + (roughness * roughness - 1.0) * Xi.y)));
+    float theta = acos(sqrt((1.0 - Xi.y) / (1.0 + (a * a - 1.0) * Xi.y)));
 
     // 球面坐标 --》笛卡尔坐标
     vec3 H;

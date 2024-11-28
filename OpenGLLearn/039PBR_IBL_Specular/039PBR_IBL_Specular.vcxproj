@@ -137,6 +137,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <None Include="PBR_BRDF.fs" />
+    <None Include="PBR_BRDF.vs" />
     <None Include="Cubemap.fs" />
     <None Include="Cubemap.vs" />
     <None Include="DeferredLamp.fs" />
@@ -158,7 +160,7 @@
     <None Include="G-buffer.vs" />
     <None Include="GetEquireColor.fs" />
     <None Include="GetEquireColor.vs" />
-    <None Include="Irradiance.fs" />
+    <None Include="PBR_Irradiance.fs" />
     <None Include="Lighting.fs" />
     <None Include="Lighting.gs" />
     <None Include="Lighting.vs" />
@@ -169,7 +171,7 @@
     <None Include="Normal.vs" />
     <None Include="PBR.fs" />
     <None Include="PBR.vs" />
-    <None Include="PBRSpecularPrefilter.fs" />
+    <None Include="PBR_Prefilter.fs" />
     <None Include="PBRWithTexture.fs" />
     <None Include="PBRWithTexture.vs" />
     <None Include="PostProcess.fs" />
