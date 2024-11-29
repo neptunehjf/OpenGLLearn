@@ -31,6 +31,8 @@ using namespace glm;
 
 #define PREFILTERED_RESOLUTION 128
 
+#define BRDF_RESOLUTION 512
+
 
 #define HEAVY_LIGHTS_NUM 96
 

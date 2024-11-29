@@ -61,6 +61,7 @@ public:
 	Mesh cube_env;
 	Mesh cube_irradiance;
 	Mesh cube_prefilter;
+	Mesh BRDFScreen;
 
 	vector<vec3> lightPositions;
 	vector<vec3> lightColors;
@@ -275,6 +276,7 @@ void Scene::CreateScene(Camera* myCam)
 	lamp = Mesh(g_cubeVertices, g_cubeIndices, lampTexture);
 	lamp.SetScale(vec3(1.0f));
 	cube_env = Mesh(g_cubeVertices, g_cubeIndices, hdrLoftTexture);
+	BRDFScreen = Mesh(g_screenVertices, g_screenIndices);
 
 	if (bEnableNormalMap)
 	{

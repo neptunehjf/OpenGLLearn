@@ -43,6 +43,7 @@ void CreateFrameBuffer_SSAO_Blur();
 void CreateFrameBuffer_EnvCubemap();
 void CreateFrameBuffer_IrdCubemap();
 void CreateFrameBuffer_PrefilterCubemap();
+void CreateFrameBuffer_BRDF();
 void SetUniformBuffer();
 void DrawDepthMap();
 void DrawDepthCubemap(vec3 lightPos);
@@ -58,7 +59,7 @@ void DrawEnvCubemap();
 void SkyBoxTest(Mesh& skybox);
 void DrawIrradianceCubemap();
 void DrawPrefilterCubemap();
-
+void DrawBRDF();
 
 Scene scene;
 Camera myCam(vec3(0.2f, 0.16f, 0.35f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
@@ -133,6 +134,10 @@ GLuint tbo_irdCubemap = 0;               // 纹理缓冲对象（附件）
 GLuint fbo_pfCubemap = 0;                // 自定义帧缓冲对象
 GLuint tbo_pfCubemap = 0;                // 纹理缓冲对象（附件）
 
+// PBR IBL BRDF 缓冲
+GLuint fbo_BRDF = 0;                     // 自定义帧缓冲对象
+GLuint tbo_BRDF = 0;                     // 纹理缓冲对象（附件）
+
 int main()
 {
 	if (!InitOpenGL())
@@ -179,6 +184,8 @@ int main()
 	CreateFrameBuffer_IrdCubemap();
 	// 预滤波立方体贴图缓冲
 	CreateFrameBuffer_PrefilterCubemap();
+	// BRDF预计算贴图缓冲
+	CreateFrameBuffer_BRDF();
 
 	// Uniform缓冲
 	// 
@@ -227,6 +234,12 @@ int main()
 		{tbo_pfCubemap, "texture_cubemap"}
 	};
 	scene.sphere = scene.CreateSphereMesh(irradianceTexture);
+
+	DrawBRDF();
+	const vector<Texture> BRDFTexture =
+	{
+		{tbo_BRDF, "texture_diffuse"}
+	};
 
 	//test skybox
 	scene.skybox = Mesh(g_skyboxVertices, g_skyboxIndices, prefilterTexture);
@@ -2065,6 +2078,61 @@ void DrawPrefilterCubemap()
 			scene.cube_irradiance.DrawMesh(scene.prefilterShader, GL_TRIANGLES);
 		}
 	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+// 创建PBR的BRDF缓冲区
+void CreateFrameBuffer_BRDF()
+{
+	glGenFramebuffers(1, &fbo_BRDF);
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo_BRDF);
+
+	/**********************color缓冲，储存F0的比例和偏差*********************/
+	// 生成纹理附件 对应color缓冲
+	glGenTextures(1, &tbo_BRDF);
+
+	// 设置纹理参数
+	glBindTexture(GL_TEXTURE_2D, tbo_BRDF);
+	// BRDF用双通道float即可
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, BRDF_RESOLUTION, BRDF_RESOLUTION, 0, GL_RG, GL_FLOAT, NULL); 
+	
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	// 纹理缓冲对象  作为一个GL_COLOR_ATTACHMENT附件 附加到 帧缓冲对象
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tbo_BRDF, 0);
+
+	// 不需要render buffer object
+
+	// 检查帧缓冲对象完整性
+	int chkFlag = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if (chkFlag != GL_FRAMEBUFFER_COMPLETE)
+	{
+		cout << "Error: Framebuffer is not complete!" << endl;
+		cout << "Check Flag: " << hex << chkFlag << endl;
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void DrawBRDF()
+{
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo_BRDF);
+
+	glDisable(GL_DEPTH_TEST);
+
+	// 清空各个缓冲区
+	glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	glViewport(0, 0, BRDF_RESOLUTION, BRDF_RESOLUTION);
+
+	// BRDFShader不需要材质
+	scene.BRDFScreen.DrawMesh(scene.BRDFShader, GL_TRIANGLES);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
