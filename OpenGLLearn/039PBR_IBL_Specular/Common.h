@@ -114,6 +114,7 @@ float roughness = 0.2f;
 float ao = 1.0f;
 bool bIBL = true;
 int iMipLevel = 0;
+int iFrenselMode = 1;
 /* PBR */
 
 /************** Imgui±‰¡ø **************/

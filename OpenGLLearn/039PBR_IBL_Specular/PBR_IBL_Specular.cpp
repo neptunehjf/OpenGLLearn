@@ -679,7 +679,7 @@ void GetImguiValue()
 		ImGui::TreePop();
 	}
 
-	if (ImGui::TreeNodeEx("HDR", ImGuiTreeNodeFlags_DefaultOpen))
+	if (ImGui::TreeNodeEx("HDR"))
 	{
 		ImGui::Checkbox("Enable HDR", &bHDR);
 		const char* aAlgro[] = { "reinhard tone mapping", "exposure tone mapping" };
@@ -691,14 +691,14 @@ void GetImguiValue()
 		ImGui::TreePop();
 	}
 
-	if (ImGui::TreeNodeEx("Bloom", ImGuiTreeNodeFlags_DefaultOpen))
+	if (ImGui::TreeNodeEx("Bloom"))
 	{
 		ImGui::Checkbox("Enable Bloom", &bBloom);
 
 		ImGui::TreePop();
 	}
 
-	if (ImGui::TreeNodeEx("Deferred Shading", ImGuiTreeNodeFlags_DefaultOpen))
+	if (ImGui::TreeNodeEx("Deferred Shading"))
 	{
 		ImGui::Checkbox("Enable Deferred Shading", &bDeferred);
 		if (bDeferred)
@@ -711,7 +711,7 @@ void GetImguiValue()
 		ImGui::TreePop();
 	}
 
-	if (ImGui::TreeNodeEx("Screen Based Ambient Occlusion", ImGuiTreeNodeFlags_DefaultOpen))
+	if (ImGui::TreeNodeEx("Screen Based Ambient Occlusion"))
 	{
 		ImGui::Checkbox("Enable SSAO", &bSSAO);
 		ImGui::SliderInt("SSAO Samples Number", &iSSAOSampleNum, 1, 256);
@@ -729,6 +729,9 @@ void GetImguiValue()
 		ImGui::SliderFloat("ao", &ao, 0.0, 1.0);
 		ImGui::Checkbox("Enable Image Based Lighting", &bIBL);
 		ImGui::SliderInt("Skybox Mipmap Level", &iMipLevel, 0, 4);
+
+		const char* aMode[] = { "FresnelSchlick", "FresnelSchlickRoughness" };
+		ImGui::Combo("Frensel Mode", &iFrenselMode, aMode, IM_ARRAYSIZE(aMode));
 
 		ImGui::TreePop();
 	}
@@ -1663,8 +1666,9 @@ void SetPBRUniform()
 	scene.PBRShader.SetFloat("metallic", metallic);
 	scene.PBRShader.SetFloat("roughness", roughness);
 	scene.PBRShader.SetFloat("ao", ao);
-
+	
 	scene.PBRShader.SetVec3("albedo", vec3(0.5f, 0.0f, 0.0f));
+	scene.PBRShader.SetInt("iFrenselMode", iFrenselMode);
 
 	for (int i = 0; i < 4; i++)
 	{
