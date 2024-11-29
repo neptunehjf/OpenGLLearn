@@ -225,24 +225,20 @@ int main()
 	scene.cube_prefilter = Mesh(g_cubeVertices, g_cubeIndices, EnvTexture);
 	DrawPrefilterCubemap();
 
-	const vector<Texture> irradianceTexture =
-	{
-		{tbo_irdCubemap, "texture_cubemap"}
-	};
-	const vector<Texture> prefilterTexture =
-	{
-		{tbo_pfCubemap, "texture_cubemap"}
-	};
-	scene.sphere = scene.CreateSphereMesh(irradianceTexture);
-
 	DrawBRDF();
-	const vector<Texture> BRDFTexture =
+
+	// IBL‘§‰÷»æ
+	const vector<Texture> preRenderTexture =
 	{
+		{tbo_irdCubemap, "texture_cubemap"},
+		{tbo_pfCubemap, "texture_cubemap"},
 		{tbo_BRDF, "texture_diffuse"}
 	};
 
+	scene.sphere = scene.CreateSphereMesh(preRenderTexture);
+
 	//test skybox
-	scene.skybox = Mesh(g_skyboxVertices, g_skyboxIndices, prefilterTexture);
+	scene.skybox = Mesh(g_skyboxVertices, g_skyboxIndices, EnvTexture);
 
 	//‰÷»æ—≠ª∑
 	while (!glfwWindowShouldClose(window))
@@ -728,7 +724,7 @@ void GetImguiValue()
 		ImGui::SliderFloat("roughness", &roughness, 0.0, 1.0);
 		ImGui::SliderFloat("ao", &ao, 0.0, 1.0);
 		ImGui::Checkbox("Enable Image Based Lighting", &bIBL);
-		ImGui::SliderInt("Skybox Mipmap Level", &iMipLevel, 0, 4);
+		//ImGui::SliderInt("Skybox Mipmap Level", &iMipLevel, 0, 4);
 
 		const char* aMode[] = { "FresnelSchlick", "FresnelSchlickRoughness" };
 		ImGui::Combo("Frensel Mode", &iFrenselMode, aMode, IM_ARRAYSIZE(aMode));

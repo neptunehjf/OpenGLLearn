@@ -14,6 +14,14 @@ uniform int iFrenselMode;
 
 // IBL
 uniform samplerCube texture_cubemap1; // 辐照度cubemap
+uniform samplerCube texture_cubemap2; // prefilter cubemap
+
+struct Material
+{
+	sampler2D texture_diffuse1; // BRDF图 
+};
+
+uniform Material material;
 
 // lights
 uniform vec3 lightPositions[4];
@@ -33,6 +41,7 @@ void main()
 {		
     vec3 N = normalize(Normal);
     vec3 V = normalize(camPos - WorldPos);
+    vec3 L = reflect(-V, N);  
 
     // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0 
     // of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)    
@@ -84,6 +93,11 @@ void main()
     else if (iFrenselMode == 1)
         F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness); 
 
+    const float MAX_REFLECTION_LOD = 4.0;
+    vec3 prefilteredColor = textureLod(texture_cubemap2, L,  roughness * MAX_REFLECTION_LOD).rgb;
+    vec2 envBRDF  = texture(material.texture_diffuse1, vec2(max(dot(N, V), 0.0), roughness)).rg;
+    vec3 specular = prefilteredColor * (F * envBRDF.x + envBRDF.y);
+
     vec3 kS = F;
     vec3 kD = 1.0 - kS;
     kD *= 1.0 - metallic;	  
@@ -91,7 +105,7 @@ void main()
     vec3 diffuse = irradiance * albedo;
     vec3 ambient;
     if (bIBL)
-        ambient = (kD * diffuse) * ao; 
+        ambient = (kD * diffuse + specular) * ao;  // specular内部计算已经考虑Ks了，所以这里不用再乘
     else
         ambient = vec3(0.03) * albedo * ao;
     

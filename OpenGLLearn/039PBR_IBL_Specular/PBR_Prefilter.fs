@@ -33,7 +33,6 @@ void main()
         // 生成微观表面的半程向量，通过重要性采样，主要集中于宏观表面的法线N附近
         vec3 H = ImportanceSampleGGX(Xi, N, roughness);
         // 根据宏观的反射方向V 和 微观的H，算出微观的入射方向的反向量L，即用于采样环境cubemap的向量
-        // V是固定的，因为这里就是要求V方向上的反射颜色，并存入cubemap
         // vec3 L  = normalize(2.0 * dot(V, H) * H - V); 效果应该是一样的 
         vec3 L = normalize(reflect(-V, H)); 
 
