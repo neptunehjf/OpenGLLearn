@@ -59,9 +59,18 @@ public:
 	Mesh SSAOBlurScreen;
 	Mesh sphere;
 	Mesh cube_env;
+	Mesh cube_env2;
+	Mesh cube_env3;
+	Mesh cube_env4;
+	Mesh cube_env5;
 	Mesh cube_irradiance;
 	Mesh cube_prefilter;
 	Mesh BRDFScreen;
+	Mesh sphere_rusted;
+	Mesh sphere_plastic;
+	Mesh sphere_wall;
+	Mesh sphere_grass;
+	Mesh sphere_gold;
 
 	vector<vec3> lightPositions;
 	vector<vec3> lightColors;
@@ -91,7 +100,7 @@ public:
 	void DrawScene_DeferredTest();
 	void DrawScene_SSAOTest();
 	void DrawScene_PBR();
-	Mesh CreateSphereMesh(const vector<Texture>& texture);
+	Mesh CreateSphereMesh(const vector<Texture>& texture = {});
 private:
 	void CreateAsteroid();
 	void CreateNMVertices(vector<VertexNM>& verticesNM);
@@ -147,12 +156,42 @@ void Scene::CreateScene(Camera* myCam)
 	GLuint t_brick2 = 0;
 	GLuint t_brick2_normal = 0;
 	GLuint t_brick2_disp = 0;
-	GLuint t_plastic_albedo = 0;
+
 	GLuint t_rusted_iron_albedo = 0;
 	GLuint t_rusted_iron_metallic = 0;
 	GLuint t_rusted_iron_roughness = 0;
 	GLuint t_rusted_iron_ao = 0;
+	GLuint t_rusted_iron_normal = 0;
+
+	GLuint t_plastic_albedo = 0;
+	GLuint t_plastic_metallic = 0;
+	GLuint t_plastic_roughness = 0;
+	GLuint t_plastic_ao = 0;
+	GLuint t_plastic_normal = 0;
+
+	GLuint t_wall_albedo = 0;
+	GLuint t_wall_metallic = 0;
+	GLuint t_wall_roughness = 0;
+	GLuint t_wall_ao = 0;
+	GLuint t_wall_normal = 0;
+
+	GLuint t_grass_albedo = 0;
+	GLuint t_grass_metallic = 0;
+	GLuint t_grass_roughness = 0;
+	GLuint t_grass_ao = 0;
+	GLuint t_grass_normal = 0;
+
+	GLuint t_gold_albedo = 0;
+	GLuint t_gold_metallic = 0;
+	GLuint t_gold_roughness = 0;
+	GLuint t_gold_ao = 0;
+	GLuint t_gold_normal = 0;
+
 	GLuint t_hdr_loft = 0;
+	GLuint t_hdr_forest = 0;
+	GLuint t_hdr_night = 0;
+	GLuint t_hdr_cloudy = 0;
+	GLuint t_hdr_tunnel = 0;
 
 	// 翻转y轴，使图片和opengl坐标一致  但是如果assimp 导入模型时设置了aiProcess_FlipUVs，就不能重复设置了
 	stbi_set_flip_vertically_on_load(true);
@@ -165,12 +204,48 @@ void Scene::CreateScene(Camera* myCam)
 	LoadTexture("Resource/Texture/bricks2.jpg", t_brick2, GL_REPEAT, GL_REPEAT);
 	LoadTexture("Resource/Texture/bricks2_normal.jpg", t_brick2_normal, GL_REPEAT, GL_REPEAT);
 	LoadTexture("Resource/Texture/bricks2_disp.jpg", t_brick2_disp, GL_REPEAT, GL_REPEAT);
-	LoadTexture("Resource/Texture/pbr/plastic/albedo.png", t_plastic_albedo, GL_REPEAT, GL_REPEAT);
+
+	//rusted_iron
 	LoadTexture("Resource/Texture/pbr/rusted_iron/albedo.png", t_rusted_iron_albedo, GL_REPEAT, GL_REPEAT);
 	LoadTexture("Resource/Texture/pbr/rusted_iron/metallic.png", t_rusted_iron_metallic, GL_REPEAT, GL_REPEAT);
 	LoadTexture("Resource/Texture/pbr/rusted_iron/roughness.png", t_rusted_iron_roughness, GL_REPEAT, GL_REPEAT);
 	LoadTexture("Resource/Texture/pbr/rusted_iron/ao.png", t_rusted_iron_ao, GL_REPEAT, GL_REPEAT);
+	LoadTexture("Resource/Texture/pbr/rusted_iron/normal.png", t_rusted_iron_normal, GL_REPEAT, GL_REPEAT);
+
+	//plastic
+	LoadTexture("Resource/Texture/pbr/plastic/albedo.png", t_plastic_albedo, GL_REPEAT, GL_REPEAT);
+	LoadTexture("Resource/Texture/pbr/plastic/metallic.png", t_plastic_metallic, GL_REPEAT, GL_REPEAT);
+	LoadTexture("Resource/Texture/pbr/plastic/roughness.png", t_plastic_roughness, GL_REPEAT, GL_REPEAT);
+	LoadTexture("Resource/Texture/pbr/plastic/ao.png", t_plastic_ao, GL_REPEAT, GL_REPEAT);
+	LoadTexture("Resource/Texture/pbr/plastic/normal.png", t_plastic_normal, GL_REPEAT, GL_REPEAT);
+
+	//wall
+	LoadTexture("Resource/Texture/pbr/wall/albedo.png", t_wall_albedo, GL_REPEAT, GL_REPEAT);
+	LoadTexture("Resource/Texture/pbr/wall/metallic.png", t_wall_metallic, GL_REPEAT, GL_REPEAT);
+	LoadTexture("Resource/Texture/pbr/wall/roughness.png", t_wall_roughness, GL_REPEAT, GL_REPEAT);
+	LoadTexture("Resource/Texture/pbr/wall/ao.png", t_wall_ao, GL_REPEAT, GL_REPEAT);
+	LoadTexture("Resource/Texture/pbr/wall/normal.png", t_wall_normal, GL_REPEAT, GL_REPEAT);
+
+	//grass
+	LoadTexture("Resource/Texture/pbr/grass/albedo.png", t_grass_albedo, GL_REPEAT, GL_REPEAT);
+	LoadTexture("Resource/Texture/pbr/grass/metallic.png", t_grass_metallic, GL_REPEAT, GL_REPEAT);
+	LoadTexture("Resource/Texture/pbr/grass/roughness.png", t_grass_roughness, GL_REPEAT, GL_REPEAT);
+	LoadTexture("Resource/Texture/pbr/grass/ao.png", t_grass_ao, GL_REPEAT, GL_REPEAT);
+	LoadTexture("Resource/Texture/pbr/grass/normal.png", t_grass_normal, GL_REPEAT, GL_REPEAT);
+
+	//gold
+	LoadTexture("Resource/Texture/pbr/gold/albedo.png", t_gold_albedo, GL_REPEAT, GL_REPEAT);
+	LoadTexture("Resource/Texture/pbr/gold/metallic.png", t_gold_metallic, GL_REPEAT, GL_REPEAT);
+	LoadTexture("Resource/Texture/pbr/gold/roughness.png", t_gold_roughness, GL_REPEAT, GL_REPEAT);
+	LoadTexture("Resource/Texture/pbr/gold/ao.png", t_gold_ao, GL_REPEAT, GL_REPEAT);
+	LoadTexture("Resource/Texture/pbr/gold/normal.png", t_gold_normal, GL_REPEAT, GL_REPEAT);
+
+	// HDR环境贴图
 	LoadHDRTexture("Resource/Texture/hdr/newport_loft.hdr", t_hdr_loft);
+	LoadHDRTexture("Resource/Texture/hdr/Stonewall_Ref.hdr", t_hdr_forest);
+	LoadHDRTexture("Resource/Texture/hdr/HDR_Free_City_Night_Lights_Ref.hdr", t_hdr_night);
+	LoadHDRTexture("Resource/Texture/hdr/HDR_029_Sky_Cloudy_Ref.hdr", t_hdr_cloudy);
+	LoadHDRTexture("Resource/Texture/hdr/HDR_110_Tunnel_Ref.hdr", t_hdr_tunnel);
 
 	stbi_set_flip_vertically_on_load(false);
 	LoadTexture("Resource/Texture/brickwall.jpg", t_brick, GL_REPEAT, GL_REPEAT);
@@ -225,22 +300,74 @@ void Scene::CreateScene(Camera* myCam)
 		{t_brick2_disp, "texture_disp"}
 	};
 
-	const vector<Texture> plasticTexture =
-	{
-		{t_plastic_albedo, "texture_diffuse"}
-	};
-
 	const vector<Texture> rustyIronTexture =
 	{
 		{t_rusted_iron_albedo, "texture_diffuse"},
 		{t_rusted_iron_metallic, "texture_diffuse"},
 		{t_rusted_iron_roughness, "texture_diffuse"},
-		{t_rusted_iron_ao, "texture_diffuse"}
+		{t_rusted_iron_ao, "texture_diffuse"},
+		{t_rusted_iron_normal, "texture_diffuse"}
+	};
+
+	const vector<Texture> plasticTexture =
+	{
+		{t_plastic_albedo, "texture_diffuse"},
+		{t_plastic_metallic, "texture_diffuse"},
+		{t_plastic_roughness, "texture_diffuse"},
+		{t_plastic_ao, "texture_diffuse"},
+		{t_plastic_normal, "texture_diffuse"}
+	};
+
+	const vector<Texture> wallTexture =
+	{
+		{t_wall_albedo, "texture_diffuse"},
+		{t_wall_metallic, "texture_diffuse"},
+		{t_wall_roughness, "texture_diffuse"},
+		{t_wall_ao, "texture_diffuse"},
+		{t_wall_normal, "texture_diffuse"}
+	};
+
+	const vector<Texture> grassTexture =
+	{
+		{t_grass_albedo, "texture_diffuse"},
+		{t_grass_metallic, "texture_diffuse"},
+		{t_grass_roughness, "texture_diffuse"},
+		{t_grass_ao, "texture_diffuse"},
+		{t_grass_normal, "texture_diffuse"}
+	};
+
+	const vector<Texture> goldTexture =
+	{
+		{t_gold_albedo, "texture_diffuse"},
+		{t_gold_metallic, "texture_diffuse"},
+		{t_gold_roughness, "texture_diffuse"},
+		{t_gold_ao, "texture_diffuse"},
+		{t_gold_normal, "texture_diffuse"}
 	};
 
 	const vector<Texture> hdrLoftTexture =
 	{
 		{t_hdr_loft, "texture_diffuse"}
+	};
+
+	const vector<Texture> hdrForestTexture =
+	{
+		{t_hdr_forest, "texture_diffuse"}
+	};
+
+	const vector<Texture> hdrNightTexture =
+	{
+		{t_hdr_night, "texture_diffuse"}
+	};
+
+	const vector<Texture> hdrCloudyTexture =
+	{
+		{t_hdr_cloudy, "texture_diffuse"}
+	};
+
+	const vector<Texture> hdrTunnelTexture =
+	{
+		{t_hdr_tunnel, "texture_diffuse"}
 	};
 
 
@@ -276,7 +403,17 @@ void Scene::CreateScene(Camera* myCam)
 	lamp = Mesh(g_cubeVertices, g_cubeIndices, lampTexture);
 	lamp.SetScale(vec3(1.0f));
 	cube_env = Mesh(g_cubeVertices, g_cubeIndices, hdrLoftTexture);
+	cube_env2 = Mesh(g_cubeVertices, g_cubeIndices, hdrForestTexture);
+	cube_env3 = Mesh(g_cubeVertices, g_cubeIndices, hdrNightTexture);
+	cube_env4 = Mesh(g_cubeVertices, g_cubeIndices, hdrCloudyTexture);
+	cube_env5 = Mesh(g_cubeVertices, g_cubeIndices, hdrTunnelTexture);
 	BRDFScreen = Mesh(g_screenVertices, g_screenIndices);
+	sphere = CreateSphereMesh();
+	sphere_rusted = CreateSphereMesh(rustyIronTexture);
+	sphere_plastic = CreateSphereMesh(plasticTexture);
+	sphere_wall = CreateSphereMesh(wallTexture);
+	sphere_grass = CreateSphereMesh(grassTexture);
+	sphere_gold = CreateSphereMesh(goldTexture);
 
 	if (bEnableNormalMap)
 	{
@@ -534,7 +671,7 @@ bool Scene::LoadTexture(const string&& filePath, GLuint& texture, const GLint pa
 	// 设置GL_TEXTURE_2D的环绕，过滤方式
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, param_s);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, param_t);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	// 加载贴图，转换为像素数据
 	int width, height, channel;
@@ -1045,6 +1182,25 @@ void Scene::DrawScene_PBR()
 		glEnable(GL_CULL_FACE);
 
 	sphere.SetScale(vec3(0.1f));
-	//sphere.DrawMesh(PBRWithTextureShader, GL_TRIANGLE_STRIP);
 	sphere.DrawMesh(PBRShader, GL_TRIANGLE_STRIP);
+
+	sphere_rusted.SetScale(vec3(0.1f));
+	sphere_rusted.SetTranslate(vec3(0.0f, -0.2f, 0.0f));
+	sphere_rusted.DrawMesh(PBRWithTextureShader, GL_TRIANGLE_STRIP);
+
+	sphere_plastic.SetScale(vec3(0.1f));
+	sphere_plastic.SetTranslate(vec3(0.2f, -0.2f, 0.0f));
+	sphere_plastic.DrawMesh(PBRWithTextureShader, GL_TRIANGLE_STRIP);
+
+	sphere_wall.SetScale(vec3(0.1f));
+	sphere_wall.SetTranslate(vec3(0.4f, -0.2f, 0.0f));
+	sphere_wall.DrawMesh(PBRWithTextureShader, GL_TRIANGLE_STRIP);
+
+	sphere_grass.SetScale(vec3(0.1f));
+	sphere_grass.SetTranslate(vec3(-0.2f, -0.2f, 0.0f));
+	sphere_grass.DrawMesh(PBRWithTextureShader, GL_TRIANGLE_STRIP);
+
+	sphere_gold.SetScale(vec3(0.1f));
+	sphere_gold.SetTranslate(vec3(-0.4f, -0.2f, 0.0f));
+	sphere_gold.DrawMesh(PBRWithTextureShader, GL_TRIANGLE_STRIP);
 }

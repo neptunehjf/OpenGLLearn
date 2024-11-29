@@ -25,7 +25,7 @@ using namespace glm;
 
 #define SHADOW_RESOLUTION 1024
 
-#define ENVIRONMENT_RESOLUTION 512
+#define ENVIRONMENT_RESOLUTION 2048
 
 #define IRRADIANCE_RESOLUTION 32
 
@@ -115,6 +115,8 @@ float ao = 1.0f;
 bool bIBL = true;
 int iMipLevel = 0;
 int iFrenselMode = 1;
+int iEnvironment = 0;
+bool bDirectLight = 1;
 /* PBR */
 
 /************** Imgui±‰¡ø **************/

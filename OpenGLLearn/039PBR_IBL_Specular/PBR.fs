@@ -11,17 +11,12 @@ uniform float roughness;
 uniform float ao;
 uniform bool bIBL;
 uniform int iFrenselMode;
+uniform bool bDirectLight;
 
 // IBL
-uniform samplerCube texture_cubemap1; // ·øÕÕ¶Ècubemap
-uniform samplerCube texture_cubemap2; // prefilter cubemap
-
-struct Material
-{
-	sampler2D texture_diffuse1; // BRDFÍ¼ 
-};
-
-uniform Material material;
+uniform samplerCube irradianceMap; // ·øÕÕ¶Ècubemap
+uniform samplerCube prefilterMap;  // prefilter cubemap
+uniform sampler2D   brdfMap;       // BRDFÍ¼
 
 // lights
 uniform vec3 lightPositions[4];
@@ -94,14 +89,14 @@ void main()
         F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness); 
 
     const float MAX_REFLECTION_LOD = 4.0;
-    vec3 prefilteredColor = textureLod(texture_cubemap2, L,  roughness * MAX_REFLECTION_LOD).rgb;
-    vec2 envBRDF  = texture(material.texture_diffuse1, vec2(max(dot(N, V), 0.0), roughness)).rg;
+    vec3 prefilteredColor = textureLod(prefilterMap, L,  roughness * MAX_REFLECTION_LOD).rgb;
+    vec2 envBRDF  = texture(brdfMap, vec2(max(dot(N, V), 0.0), roughness)).rg;
     vec3 specular = prefilteredColor * (F * envBRDF.x + envBRDF.y);
 
     vec3 kS = F;
     vec3 kD = 1.0 - kS;
     kD *= 1.0 - metallic;	  
-    vec3 irradiance = texture(texture_cubemap1, N).rgb;
+    vec3 irradiance = texture(irradianceMap, N).rgb;
     vec3 diffuse = irradiance * albedo;
     vec3 ambient;
     if (bIBL)
@@ -109,7 +104,11 @@ void main()
     else
         ambient = vec3(0.03) * albedo * ao;
     
-    vec3 color = ambient + Lo;
+    vec3 color;
+    if (bDirectLight)
+        color = ambient + Lo;
+    else
+        color = ambient;
 
     // HDR tonemapping
     color = color / (color + vec3(1.0));

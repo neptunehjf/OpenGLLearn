@@ -55,14 +55,15 @@ void DrawSceneSSAOBlur();
 void SetHeavyLightsUniform(Shader& shader);
 void SetPBRUniform();
 void SetPBRWithTextureUniform();
-void DrawEnvCubemap();
+void DrawEnvCubemap(Mesh& cube);
 void SkyBoxTest(Mesh& skybox);
 void DrawIrradianceCubemap();
 void DrawPrefilterCubemap();
 void DrawBRDF();
+void IBL_PreCalculate();
 
 Scene scene;
-Camera myCam(vec3(0.2f, 0.16f, 0.35f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
+Camera myCam(vec3(0.021649f, 0.023773f, 0.675768f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
 GLFWwindow* window = NULL;
 
 // 原场景缓冲
@@ -209,37 +210,10 @@ int main()
 	bool bLastGamma = false; 
 	bool bLastNM = false;
 	bool bLastHDR = false;
+
+	int iLastEnv = iEnvironment;
+	bool bPreCalcuted = false;
 	
-	// 绘制环境立方体贴图并保存到自定义缓冲区
-	scene.CreateScene(&myCam);
-
-	DrawEnvCubemap();
-
-	const vector<Texture> EnvTexture =
-	{
-		{tbo_EnvCubemap, "texture_cubemap"}
-	};
-	scene.cube_irradiance = Mesh(g_cubeVertices, g_cubeIndices, EnvTexture);
-	DrawIrradianceCubemap();
-
-	scene.cube_prefilter = Mesh(g_cubeVertices, g_cubeIndices, EnvTexture);
-	DrawPrefilterCubemap();
-
-	DrawBRDF();
-
-	// IBL预渲染
-	const vector<Texture> preRenderTexture =
-	{
-		{tbo_irdCubemap, "texture_cubemap"},
-		{tbo_pfCubemap, "texture_cubemap"},
-		{tbo_BRDF, "texture_diffuse"}
-	};
-
-	scene.sphere = scene.CreateSphereMesh(preRenderTexture);
-
-	//test skybox
-	scene.skybox = Mesh(g_skyboxVertices, g_skyboxIndices, EnvTexture);
-
 	//渲染循环
 	while (!glfwWindowShouldClose(window))
 	{
@@ -269,6 +243,13 @@ int main()
 			bLastNM = false;
 		}
 
+		if (iLastEnv != iEnvironment || !bPreCalcuted)
+		{
+			IBL_PreCalculate();
+			iLastEnv = iEnvironment;
+			bPreCalcuted = true;
+		}
+		
 		if (bHDR)
 		{
 			if (!bLastHDR)
@@ -723,12 +704,17 @@ void GetImguiValue()
 		ImGui::SliderFloat("metallic", &metallic, 0.0, 1.0);
 		ImGui::SliderFloat("roughness", &roughness, 0.0, 1.0);
 		ImGui::SliderFloat("ao", &ao, 0.0, 1.0);
+		ImGui::Checkbox("Enable Direct Lighting", &bDirectLight);
 		ImGui::Checkbox("Enable Image Based Lighting", &bIBL);
+		
 		//ImGui::SliderInt("Skybox Mipmap Level", &iMipLevel, 0, 4);
 
 		const char* aMode[] = { "FresnelSchlick", "FresnelSchlickRoughness" };
 		ImGui::Combo("Frensel Mode", &iFrenselMode, aMode, IM_ARRAYSIZE(aMode));
 
+		const char* aEnv[] = { "Loft", "Forest", "Night", "Cloudy", "Tunnel"};
+		ImGui::Combo("Environment", &iEnvironment, aEnv, IM_ARRAYSIZE(aEnv));
+		
 		ImGui::TreePop();
 	}
 }
@@ -1104,7 +1090,7 @@ bool InitOpenGL()
 	glfwWindowHint(GLFW_SAMPLES, MSAA_SAMPLE_NUM); // 和窗口绑定的采样点，显然，窗口对应的是默认帧缓冲
 
 	// 绘制窗口
-	window = glfwCreateWindow(windowWidth, windowHeight, "koalahjf", NULL, NULL);
+	window = glfwCreateWindow(windowWidth, windowHeight, "koalahjf@gmail.com", NULL, NULL);
 	if (window == NULL)
 	{
 		cout << "Failed to create window." << endl;
@@ -1644,8 +1630,6 @@ void SetHeavyLightsUniform(Shader &shader)
 
 void SetPBRUniform()
 {
-	scene.PBRShader.Use();
-
 	vec3 lightPositions[] = {
 		vec3(-10.0f,  10.0f, 10.0f),
 		vec3(10.0f,  10.0f, 10.0f),
@@ -1659,12 +1643,25 @@ void SetPBRUniform()
 		vec3(300.0f, 300.0f, 300.0f)
 	};
 
+	scene.PBRShader.Use();
+
 	scene.PBRShader.SetFloat("metallic", metallic);
 	scene.PBRShader.SetFloat("roughness", roughness);
 	scene.PBRShader.SetFloat("ao", ao);
-	
 	scene.PBRShader.SetVec3("albedo", vec3(0.5f, 0.0f, 0.0f));
 	scene.PBRShader.SetInt("iFrenselMode", iFrenselMode);
+	scene.PBRShader.SetInt("bDirectLight", bDirectLight);
+	
+	// IBL预渲染数据
+	scene.PBRShader.SetInt("irradianceMap", 15);
+	scene.PBRShader.SetInt("prefilterMap", 16);
+	scene.PBRShader.SetInt("brdfMap", 17);
+	glActiveTexture(GL_TEXTURE15);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, tbo_irdCubemap);
+	glActiveTexture(GL_TEXTURE16);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, tbo_pfCubemap);
+	glActiveTexture(GL_TEXTURE17);
+	glBindTexture(GL_TEXTURE_2D, tbo_BRDF);
 
 	for (int i = 0; i < 4; i++)
 	{
@@ -1712,7 +1709,20 @@ void SetPBRWithTextureUniform()
 		scene.PBRWithTextureShader.SetVec3(lc, lightColors[i]);
 	}
 
+	scene.PBRWithTextureShader.SetInt("irradianceMap", 15);
+	scene.PBRWithTextureShader.SetInt("prefilterMap", 16);
+	scene.PBRWithTextureShader.SetInt("brdfMap", 17);
+	scene.PBRWithTextureShader.SetInt("iFrenselMode", iFrenselMode);
 	scene.PBRWithTextureShader.SetVec3("camPos", myCam.camPos);
+	scene.PBRWithTextureShader.SetBool("bIBL", bIBL);
+	scene.PBRWithTextureShader.SetInt("bDirectLight", bDirectLight);
+
+	glActiveTexture(GL_TEXTURE15);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, tbo_irdCubemap);
+	glActiveTexture(GL_TEXTURE16);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, tbo_pfCubemap);
+	glActiveTexture(GL_TEXTURE17);
+	glBindTexture(GL_TEXTURE_2D, tbo_BRDF);
 }
 
 //创建SSAO输出 缓冲区
@@ -1816,7 +1826,7 @@ void CreateFrameBuffer_EnvCubemap()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void DrawEnvCubemap()
+void DrawEnvCubemap(Mesh &cube)
 {
 	// 绘制环境Cubemap 
 
@@ -1862,7 +1872,7 @@ void DrawEnvCubemap()
 
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		scene.cube_env.DrawMesh(scene.GetEquireColorShader, GL_TRIANGLES);
+		cube.DrawMesh(scene.GetEquireColorShader, GL_TRIANGLES);
 	}
 
 	// 注意，调用glGenerateMipmap会生成对应的mipmap内存并尝试生成对应的mipmap，如果这时候没有绘制原图，只会输出黑色
@@ -2135,4 +2145,44 @@ void DrawBRDF()
 	scene.BRDFScreen.DrawMesh(scene.BRDFShader, GL_TRIANGLES);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+// PBR IBL的预计算
+void IBL_PreCalculate()
+{
+	switch (iEnvironment)
+	{
+	case 0:
+		DrawEnvCubemap(scene.cube_env);
+		break;
+	case 1:
+		DrawEnvCubemap(scene.cube_env2);
+		break;
+	case 2:
+		DrawEnvCubemap(scene.cube_env3);
+		break;
+	case 3:
+		DrawEnvCubemap(scene.cube_env4);
+		break;
+	case 4:
+		DrawEnvCubemap(scene.cube_env5);
+		break;
+	default:
+		break;
+	}
+
+	const vector<Texture> EnvTexture =
+	{
+		{tbo_EnvCubemap, "texture_cubemap"}
+	};
+	scene.cube_irradiance = Mesh(g_cubeVertices, g_cubeIndices, EnvTexture);
+	DrawIrradianceCubemap();
+
+	scene.cube_prefilter = Mesh(g_cubeVertices, g_cubeIndices, EnvTexture);
+	DrawPrefilterCubemap();
+
+	DrawBRDF();
+
+	//test skybox
+	scene.skybox = Mesh(g_skyboxVertices, g_skyboxIndices, EnvTexture);
 }
