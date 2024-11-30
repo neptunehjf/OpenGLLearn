@@ -686,7 +686,7 @@ bool Scene::LoadTexture(const string&& filePath, GLuint& texture, const GLint pa
 	}
 	else if (channel == 3)
 	{
-		informat = GL_SRGB; // 如果启用了gamma校正，则输出在线性空间，所以在读取贴图的时候要转为线性空间贴图，不然颜色会不对
+		informat = GL_RGB; // 如果启用了gamma校正，则输出在线性空间，所以在读取贴图的时候要转为线性空间贴图，不然颜色会不对
 							// 因为sRGB格式的贴图，是为了在屏幕上按sRGB可以正常显示的贴图，因此贴图本身是经过gamma校正的，因此是发白的，再经过显示器的gamma2.2(sRGB)处理后正好恢复正常颜色
 							// 这种情况再在渲染程序中gamma校正，就相当于2次gamma校正，所以画面会发白
 							// 因此需要指定GL_SRGB，将图片转为线性空间（去除图片本身的gamma校正）

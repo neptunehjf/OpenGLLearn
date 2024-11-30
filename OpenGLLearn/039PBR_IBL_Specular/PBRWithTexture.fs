@@ -48,8 +48,8 @@ vec3 GetNormalFromMap();
 
 void main()
 {
-    //vec3 N = GetNormalFromMap();
-    vec3 N = normalize(Normal);
+    vec3 N = GetNormalFromMap();
+    //vec3 N = normalize(Normal);
     vec3 V = normalize(camPos - WorldPos);
     vec3 L = reflect(-V, N);  
 

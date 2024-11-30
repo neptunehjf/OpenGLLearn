@@ -109,14 +109,14 @@ int iSSAONoise = 4; // 正方形噪声采样图的边长
 float fRadius = 1.0f;
 
 /* PBR */
-float metallic = 0.5f;
-float roughness = 0.2f;
+float metallic = 0.9f;
+float roughness = 0.1f;
 float ao = 1.0f;
 bool bIBL = true;
 int iMipLevel = 0;
 int iFrenselMode = 1;
 int iEnvironment = 0;
-bool bDirectLight = 1;
+bool bDirectLight = false;
 /* PBR */
 
 /************** Imgui变量 **************/
