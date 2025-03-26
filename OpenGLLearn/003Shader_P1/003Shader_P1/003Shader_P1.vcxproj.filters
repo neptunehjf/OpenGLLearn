@@ -31,10 +31,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shader.vs">
+    <None Include="..\shader.fs">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="shader.fs">
+    <None Include="..\shader.vs">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
