@@ -37,21 +37,21 @@ int main()
 
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-	// ��Ⱦѭ�� 
-	// ������󥰥�`��
+	// 渲染循环 
+	// レンダリングループ
 	while (!glfwWindowShouldClose(window))
 	{
-		//���� 
-		//����
+		//输入 
+		//入力
 		processInput(window);
 
-		//��Ⱦ֮ǰ��մ���
-		//�������ǰ�˥�����ɥ��򥯥ꥢ����
+		//渲染之前清空窗口
+		//レンダリング前にウィンドウをクリアする
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		//���������� ��ѯ�¼�
-		//�Хåե����Q ���٥�ȥݩ`��� 
+		//缓冲区交换 轮询事件
+		//バッファ交換 イベントポーリング 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}

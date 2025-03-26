@@ -1,5 +1,5 @@
-// Shader¹¹ÔìÊ§°ÜÊ±£¬Ö»´òÓ¡ĞÅÏ¢ÊÇ²»¹»µÄ --> ¸ù¾İ×ÅÉ«Æ÷³ÌĞòIDµÄÖµÀ´ÅĞ¶Ï £¬IDÊÇ0±íÊ¾ÎŞĞ§
-// ·â×°µÄsetº¯ÊıÉèÖÃÑÕÉ«Ê§°Ü --> APIÓÃ´íÁË
+// Shaderæ„é€ å¤±è´¥æ—¶ï¼Œåªæ‰“å°ä¿¡æ¯æ˜¯ä¸å¤Ÿçš„ --> æ ¹æ®ç€è‰²å™¨ç¨‹åºIDçš„å€¼æ¥åˆ¤æ–­ ï¼ŒIDæ˜¯0è¡¨ç¤ºæ— æ•ˆ
+// å°è£…çš„setå‡½æ•°è®¾ç½®é¢œè‰²å¤±è´¥ --> APIç”¨é”™äº†
 
 #ifndef SHADER_H  
 #define SHADER_H
@@ -20,18 +20,18 @@ using namespace std;
 class Shader
 {
 public:
-	//³ÌĞòID 
+	//ç¨‹åºID 
 	GLuint ID = 0; 
 
 	Shader(const char* vertexShaderPath, const char* fragmentShaderPath);
 
-	//Ê¹ÓÃ/¼¤»î³ÌĞò
+	//ä½¿ç”¨/æ¿€æ´»ç¨‹åº
 	bool Use();
 
-	//É¾³ıShader³ÌĞò
+	//åˆ é™¤Shaderç¨‹åº
 	void Remove();
 
-	//uniform¹¤¾ßº¯Êı
+	//uniformå·¥å…·å‡½æ•°
 
 	void SetBool(const string &name, bool value) const;
 	void SetInt(const string& name, int value) const;
@@ -42,27 +42,27 @@ public:
 
 Shader::Shader(const char* vertexShaderPath, const char* fragmentShaderPath)
 {
-	// 1.´ÓÓ²ÅÌ¶ÁÈ¡shaderÔ´Âë
+	// 1.ä»ç¡¬ç›˜è¯»å–shaderæºç 
 	string vertexCode;
 	string fragmentCode;
 	ifstream vShaderFile;
 	ifstream fShaderFile;
-	// ÉèÖÃÅ×³öÒì³£ÀàĞÍ
+	// è®¾ç½®æŠ›å‡ºå¼‚å¸¸ç±»å‹
 	vShaderFile.exceptions(ifstream::failbit | ifstream::badbit);
 	fShaderFile.exceptions(ifstream::failbit | ifstream::badbit);
 	try
 	{
-		// ´ò¿ªÎÄ¼ş
+		// æ‰“å¼€æ–‡ä»¶
 		vShaderFile.open(vertexShaderPath);
 		fShaderFile.open(fragmentShaderPath);
-		// ¶ÁÈ¡µ½Êı¾İÁ÷
+		// è¯»å–åˆ°æ•°æ®æµ
 		stringstream vShaderStream, fShaderStream;
 		vShaderStream << vShaderFile.rdbuf();
 		fShaderStream << fShaderFile.rdbuf();
-		// ¹Ø±ÕÎÄ¼şÁ÷
+		// å…³é—­æ–‡ä»¶æµ
 		vShaderFile.close();
 		fShaderFile.close();
-		// ´ÓÊı¾İÁ÷È¡³östr
+		// ä»æ•°æ®æµå–å‡ºstr
 		vertexCode = vShaderStream.str();
 		fragmentCode = fShaderStream.str();
 	}
@@ -73,17 +73,17 @@ Shader::Shader(const char* vertexShaderPath, const char* fragmentShaderPath)
 		cerr << "Error code: " << e.code() << endl;
 	}
 
-	// »ñÈ¡shaderÔ´Âë
+	// è·å–shaderæºç 
 	const char* vertexShaderSource = vertexCode.c_str();
 	const char* fragmentShaderSource = fragmentCode.c_str();
 
 	int success = 0;
 	char infoLog[LOG_LENGTH] = "\0";
 
-	// ±àÒëshader´úÂë
+	// ç¼–è¯‘shaderä»£ç 
 	GLuint vertexShader = 0;
 	vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);  // ÔÚÕâÀïÖ±½ÓÓÃ &vertexCode.c_str()±¨´í£¬ ÒòÎªvertexCode.c_str()²»ÊÇ×óÖµ¡£
+	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);  // åœ¨è¿™é‡Œç›´æ¥ç”¨ &vertexCode.c_str()æŠ¥é”™ï¼Œ å› ä¸ºvertexCode.c_str()ä¸æ˜¯å·¦å€¼ã€‚
 	glCompileShader(vertexShader);
 
 	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
@@ -109,7 +109,7 @@ Shader::Shader(const char* vertexShaderPath, const char* fragmentShaderPath)
 		cout << "Fragment shader compile failed!\n" << infoLog << endl;
 	}
 
-	// Á´½Ó×ÅÉ«Æ÷³ÌĞò
+	// é“¾æ¥ç€è‰²å™¨ç¨‹åº
 	ID = glCreateProgram();
 	if (ID == 0)
 	{
@@ -128,7 +128,7 @@ Shader::Shader(const char* vertexShaderPath, const char* fragmentShaderPath)
 		glGetProgramInfoLog(ID, sizeof(infoLog), NULL, infoLog);
 		cout << "Shader program link failed!\n" << infoLog << endl;
 
-		// Á¬½ÓÊ§°Ü£¬shader³ÌĞòÓ¦¸ÃÖÃÎª²»¿ÉÓÃ
+		// è¿æ¥å¤±è´¥ï¼Œshaderç¨‹åºåº”è¯¥ç½®ä¸ºä¸å¯ç”¨
 		ID = 0;
 	}
 
