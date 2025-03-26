@@ -1,10 +1,3 @@
-//Q1　为什么第一次扩大窗口时有白边？
-//Q2　framebuffer_size_callback好像没什么用
-//--》callback 根据窗口大小 用glViewport来调整渲染区域到相应的大小
-//Q3　窗口更新不是实时的，松开鼠标才更新
-//Q4　为什么一定要清掉上一帧的画面？
-
-
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -44,17 +37,21 @@ int main()
 
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-	// 渲染循环
+	// 渲染循环 
+	// レンダリングループ
 	while (!glfwWindowShouldClose(window))
 	{
-		//输入
+		//输入 
+		//入力
 		processInput(window);
 
 		//渲染之前清空窗口
+		//レンダリング前にウィンドウをクリアする
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		//缓冲区交换 轮询事件
+		//バッファ交換 イベントポーリング 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
