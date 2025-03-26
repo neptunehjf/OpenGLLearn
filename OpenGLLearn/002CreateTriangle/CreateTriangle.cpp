@@ -188,7 +188,7 @@ int main()
 	// ワイヤーフレームモード表示
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	//渲染循环
+	//　渲染循环
 	// レンダリングループ
 	while (!glfwWindowShouldClose(window))
 	{
