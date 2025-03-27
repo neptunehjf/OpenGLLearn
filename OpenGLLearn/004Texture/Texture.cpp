@@ -76,10 +76,7 @@ int main()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(index), index, GL_STATIC_DRAW);
 
-	/* 存储贴图数据到显存 */
-
 	// 翻转y轴，使图片坐标和opengl坐标一致
-	/* VRAMにテクスチャデータを格納 */
     // Y軸を反転して画像座標とOpenGL座標を一致させる
 	stbi_set_flip_vertically_on_load(true);
 
@@ -101,7 +98,7 @@ int main()
 	if (data)
 	{
 		// 贴图数据传入显存
-		// テクスチャデータをVRAMに転送
+     	/* テクスチャデータをVRAMに転送する */
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
