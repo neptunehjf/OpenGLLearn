@@ -1,4 +1,4 @@
-#ifndef CAMERA_H  
+﻿#ifndef CAMERA_H  
 #define CAMERA_H
 
 #include "glm/glm.hpp"
@@ -20,10 +20,12 @@ public:
 	vec3 camFront;
 	vec3 camUp;
 
-	float deltaTime; // ��ǰ֡����һ֡��ʱ���
-	float lastFrame; // ��һ֡��ʱ��
-	float currentFrame; //��ǰ֡ʱ��
-
+	float deltaTime; // 当前帧与上一帧的时间差
+					 // フレーム間時間差
+	float lastFrame; // 上一帧的时间
+					 // 前フレーム時刻
+	float currentFrame; //当前帧时间
+						//現在フレーム時刻
 	float lastX;
 	float lastY;
 	bool  isFirst;
@@ -54,8 +56,12 @@ Camera::Camera(const vec3& camPos, const vec3& camFront, const vec3& camUp)
 	lastY = 0.0f;
 	isFirst = true;
 	pitchValue = 0.0f;
-	yawValue = -90.0f; // Ĭ�Ͼ�ͷ����X��������������ת90��У��
 
+	// 默认镜头朝向X正方向，所以向左转90度校正 (朝向-Z)
+	// デフォルトのカメラ方向が+X軸方向を向いているため、左回りに90度補正 (-Zに向かう)
+	// 参照 Referrence/Euler Angle.png
+	yawValue = -90.0f; 
+	
 	fov = 45.0f;
 
 	this->camPos = camPos;
