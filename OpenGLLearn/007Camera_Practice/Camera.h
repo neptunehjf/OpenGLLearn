@@ -1,4 +1,4 @@
-#ifndef CAMERA_H  
+﻿#ifndef CAMERA_H  
 #define CAMERA_H
 
 #include "glm/glm.hpp"
@@ -20,9 +20,9 @@ public:
 	vec3 camFront;
 	vec3 camUp;
 
-	float deltaTime; // ��ǰ֡����һ֡��ʱ���
-	float lastFrame; // ��һ֡��ʱ��
-	float currentFrame; //��ǰ֡ʱ��
+	float deltaTime; // 当前帧与上一帧的时间差
+	float lastFrame; // 上一帧的时间
+	float currentFrame; //当前帧时间
 
 	float lastX;
 	float lastY;
@@ -54,8 +54,12 @@ Camera::Camera(const vec3& camPos, const vec3& camFront, const vec3& camUp)
 	lastY = 0.0f;
 	isFirst = true;
 	pitchValue = 0.0f;
-	yawValue = -90.0f; // Ĭ�Ͼ�ͷ����X��������������ת90��У��
 
+	// 对于yaw，camera坐标系的+Z从+X开始逆时针旋转计算的，所以要旋转-90度校正到从+Z开始
+	// ヨー角において、カメラ座標系の+Z軸は+X軸基準の反時計回りで計算されるため、+Z軸基準に合わせるには-90度回転で補正が必要
+	// 参照Referrence/camera rotate.jpg Referrence/Euler Angle.png
+	yawValue = -90.0f; 
+	
 	fov = 45.0f;
 
 	this->camPos = camPos;
@@ -65,7 +69,8 @@ Camera::Camera(const vec3& camPos, const vec3& camFront, const vec3& camUp)
 
 void Camera::setCamView()
 {
-	camPos.y = 0; // ֻ������xzƽ���ƶ�
+	camPos.y = 0; // 只允许在xz平面移动
+	              // xz平面内でのみ移動が許可される
 
 	vec3 camZ = normalize(-camFront);
 	vec3 camX = normalize(cross(normalize(camUp), camZ));
@@ -84,12 +89,18 @@ void Camera::setCamView()
 	//	-camPos.x, -camPos.y, -camPos.z, 1.0f
 	//);
 
+	// 旋转矩阵
+	// 回転行列
 	mat4 rotate = mat4(
 		camX.x, camX.y, camX.z, 0.0f,
 		camY.x, camY.y, camY.z, 0.0f,
 		camZ.x, camZ.y, camZ.z, 0.0f,
 		  0.0f,   0.0f,   0.0f, 1.0f
 	);
+	
+	// 位移矩阵
+	// 平行移動行列
+	//　参照Referrence/Transformation.jpg
 	mat4 translate = mat4(
 		1.0f, 0.0f, 0.0f, -camPos.x,
 		0.0f, 1.0f, 0.0f, -camPos.y,
@@ -97,7 +108,8 @@ void Camera::setCamView()
 		0.0f, 0.0f, 0.0f, 1.0f
 	);
 
-	// glm��opengl������������洢����ģ�Ҫô�ڹ������ʱ���������죬Ҫô����transpose�����������ת�������򣡣���
+	// opengl是用列主序存储矩阵的，要么在构造矩阵时按列主序构造，要么调用transpose把行主序矩阵转成列主序！！！
+	// OpenGLは行列を列優先順で保存します。行列を構築する際に列優先順で作成するか、transposeを呼び出して行優先順の行列を列優先順に変換すること！！！
 	rotate = transpose(rotate);
 	translate = transpose(translate);
 

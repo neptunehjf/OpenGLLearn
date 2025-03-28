@@ -321,6 +321,11 @@ void mouse_callback(GLFWwindow* window, double posX, double posY)
 		myCam.pitchValue = -89.0f;
 
 	
+	// 相机旋转
+	// カメラ回転
+	// 对于yaw，设camera坐标系的+Z从+X开始逆时针旋转计算
+	// ヨー角計算時、カメラ座標系の+Z方向は+X軸を起点とする反時計回り回転として定義されます
+	// 参照Referrence/Transformation.jpg Referrence/Euler Angle.png
 	vec3 front;
 	front.x = cos(radians(myCam.yawValue)) * cos(radians(myCam.pitchValue)); // 因为视角默认朝向X轴正方向，所以应该用与X轴正方向的角度计算偏移
 	front.y = sin(radians(myCam.pitchValue));
