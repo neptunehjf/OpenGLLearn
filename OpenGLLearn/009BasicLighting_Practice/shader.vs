@@ -1,4 +1,4 @@
-#version 330 core
+ï»¿#version 330 core
 
 layout(location = 0) in vec3 aPos;
 layout(location = 1) in vec3 aNormal;
@@ -18,30 +18,40 @@ out vec4 fragColor;
 
 void main()
 {
-  gl_Position = uni_projection * uni_view * uni_model * vec4(aPos, 1.0);  // ×¢Òâ¾ØÕó±ä»»µÄË³ĞòÊÇ´ÓÓÒÏò×ó
+  gl_Position = uni_projection * uni_view * uni_model * vec4(aPos, 1.0);
 
   vec3 fragPos = vec3(uni_view * vec4(aPos, 1.0));
-  vec3 normal = mat3(transpose(inverse(uni_view))) * aNormal; //transpose(inverse(uni_view) ´Ë²Ù×÷ÔÚGPU¿ªÏú´ó£¬Êµ¼Ê¿ª·¢Ê±¾¡¿ÉÄÜ·Åµ½CPU´¦Àí
+
+  // transpose(inverse(uni_view) æ­¤æ“ä½œåœ¨GPUå¼€é”€å¤§ï¼Œå®é™…å¼€å‘æ—¶å°½å¯èƒ½æ”¾åˆ°CPUå¤„ç†
+  // transpose(inverse(uni_view)) ã“ã®å‡¦ç†ã¯GPUè² è·ãŒé«˜ã„ãŸã‚å®Ÿé–‹ç™ºã§ã¯CPUå´ã§è¨ˆç®—æ¨å¥¨ 
+  vec3 normal = mat3(transpose(inverse(uni_view))) * aNormal; 
   vec3 lightPos = vec3(uni_view * vec4(uni_lightPos, 1.0));
-  //lightPos = mat3(uni_view) * uni_lightPos;  // Ö»ÓĞÔÚ·¨Ïß¾ØÕó¿ÉÒÔÔÚ¼ÆËãÇ°ÓÃmat4°ÑwÆë´ÎÏòÁ¿½Øµô£¬ÒòÎª·¨ÏßÖ»ÓĞ·½ÏòÌØĞÔ£¬Ã»ÓĞÎ»ÖÃÌØĞÔ¡£µ«ÊÇÕâÀï¹âÔ´Î»ÖÃÒ²½Øµô¾Í´íÁË
 
+  // åªæœ‰åœ¨æ³•çº¿çš„çŸ©é˜µå¯ä»¥åœ¨è®¡ç®—å‰ç”¨mat3æŠŠwé½æ¬¡å‘é‡æˆªæ‰ï¼Œå› ä¸ºæ³•çº¿åªæœ‰æ–¹å‘ç‰¹æ€§ï¼Œæ²¡æœ‰ä½ç½®ç‰¹æ€§ã€‚ä½†æ˜¯è¿™é‡Œå…‰æºä½ç½®ä¹Ÿæˆªæ‰å°±é”™äº†
+  // æ³•ç·šã®è¡Œåˆ—è¨ˆç®—æ™‚ã®ã¿mat3ã§wæˆåˆ†ã‚’é™¤å»å¯èƒ½ï¼ˆæ³•ç·šã¯æ–¹å‘ç‰¹æ€§ã®ã¿ã‚’æŒã¡ã€ä½ç½®ç‰¹æ€§ãŒãªã„ï¼‰  
+  // ãŸã ã—å…‰æºä½ç½®åº§æ¨™ã§åŒæ§˜ã®å‡¦ç†ã‚’è¡Œã†ã¨åº§æ¨™è¨ˆç®—ãŒç ´ç¶»ã™ã‚‹  
+  //lightPos = mat3(uni_view) * uni_lightPos;  
 
-  // »·¾³¹âÕÕambient
+  // ç¯å¢ƒå…‰ç…§ambient
+  // ç’°å¢ƒå…‰
   vec3 ambient = uni_ambientStrength * uni_lightColor;
 	
-  // Âş·´Éä¹âÕÕdiffuse
+  // æ¼«åå°„å…‰ç…§diffuse
+  // æ‹¡æ•£åå°„å…‰ 
   vec3 norm = normalize(normal);
   vec3 lightDir = normalize(lightPos - fragPos);
   float diff = max(dot(norm, lightDir), 0.0);
   vec3 diffuse = uni_diffuseStrength * diff * uni_lightColor;
 	
-  // ¾µÃæ¹âÕÕspecular
+  // é•œé¢å…‰ç…§specular
+  // é¡é¢åå°„å…‰
   vec3 viewDir = normalize(vec3(0.0, 0.0, 0.0) - fragPos);
   vec3 reflectDir = normalize(reflect(-lightDir, norm));
   float spec = pow(max(dot(viewDir, reflectDir), 0.0), uni_specularFactor);
   vec3 specular = uni_specularStrength * spec * uni_lightColor;
 
-  // ¹âÕÕÑÕÉ«ÓëÎïÌåÑÕÉ«»ìºÏ£¬ÓªÔì¹âÕÕĞ§¹û
+  // å…‰ç…§é¢œè‰²ä¸ç‰©ä½“é¢œè‰²æ··åˆï¼Œè¥é€ å…‰ç…§æ•ˆæœ
+  // å…‰ã®è‰²ã¨ç‰©ä½“ã®è‰²ã‚’ãƒ–ãƒ¬ãƒ³ãƒ‰
   fragColor = vec4((ambient + diffuse + specular) * uni_objectColor, 1.0);
 
 }

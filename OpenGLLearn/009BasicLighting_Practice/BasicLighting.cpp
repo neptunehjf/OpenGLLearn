@@ -1,4 +1,4 @@
-#include "glad/glad.h"
+Ôªø#include "glad/glad.h"
 #include "glfw/glfw3.h"
 
 #include <iostream>
@@ -33,27 +33,28 @@ Camera myCam(vec3(2.0f, 7.0f, 6.0f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0
 
 int main()
 {
-	int success = 0;
 	char infoLog[LOG_LENGTH] = "\0";
 
-	// ≥ı ºªØ
+	// ÂàùÊúüÂåñ
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	// ªÊ÷∆¥∞ø⁄
+	// „Ç¶„Ç£„É≥„Éâ„Ç¶„Çí‰ΩúÊàê„Åô„Çã
 	GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "OpenglWindow", NULL, NULL);
+
 	if (window == NULL)
 	{
 		cout << "Failed to create window." << endl;
-		glfwTerminate();  
+		glfwTerminate();
 		return -1;
 	}
 	glfwMakeContextCurrent(window);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-	// ≤∂ªÒ Û±Í
+	// ÊçïËé∑Èº†Ê†á
+	// „Éû„Ç¶„Çπ„Ç≠„É£„Éó„ÉÅ„É£
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
@@ -76,79 +77,89 @@ int main()
 	ImGui_ImplGlfw_InitForOpenGL(window, true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
 	ImGui_ImplOpenGL3_Init();
 
-	// ¥¥Ω®Shader≥Ã–Ú
+	// ÂàõÂª∫ShaderÁ®ãÂ∫è
+	// „Ç∑„Çß„Éº„ÉÄ„Éº„Éó„É≠„Ç∞„É©„É†„Çí‰ΩúÊàê
 	Shader myShader("shader.vs", "shader.fs");
-	Shader lampShader("lampShader.vs", "lampShader.fs"); // µ∆±æ…Ìshader£¨“ª∏ˆ∞◊…´µƒ∑¢π‚ÃÂ
+	Shader lampShader("lampShader.vs", "lampShader.fs"); // ÁÅØÊú¨Ë∫´shaderÔºå‰∏Ä‰∏™ÁôΩËâ≤ÁöÑÂèëÂÖâ‰Ωì
 
-	// ”√œ‘¥ÊVAO¿¥π‹¿Ì shaderµƒ∂•µ„ Ù–‘
+	// ÂèÇÁÖß Referrence/opengl vertex management.png
+	// Áî®VAOÊù•ÁÆ°ÁêÜ shaderÁöÑÈ°∂ÁÇπÂ±ûÊÄß
+	// VAO„Çí‰ΩøÁî®„Åó„Å¶„Ç∑„Çß„Éº„ÉÄ„Éº„ÅÆÈ†ÇÁÇπÂ±ûÊÄß„ÇíÁÆ°ÁêÜ
 	GLuint VAO = 0;
 	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO); // VBO glVertexAttribPointer ≤Ÿ◊˜œÚVAO…œœ¬Œƒ–¥
+	glBindVertexArray(VAO);
 
-	// ¥Ê¥¢∂•µ„ ˝æ›µΩœ‘¥ÊVBO
+	// Â≠òÂÇ®È°∂ÁÇπÊï∞ÊçÆÂà∞VBO
+	// È†ÇÁÇπ„Éá„Éº„Çø„ÇíVBO„Å´Ê†ºÁ¥ç	
 	GLuint VBO = 0;
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex), vertex, GL_STATIC_DRAW);
 
-	// ∂®“Â∂•µ„ Ù–‘µƒΩ‚Œˆ∑Ω Ω
+	// VBOÊï∞ÊçÆÂÖ≥ËÅîÂà∞shaderÁöÑÈ°∂ÁÇπÂ±ûÊÄß
+	// VBO„Éá„Éº„Çø„Å®„Ç∑„Çß„Éº„ÉÄ„Éº„ÅÆÈ†ÇÁÇπÂ±ûÊÄß„ÇíÈñ¢ÈÄ£‰ªò„Åë
 	glVertexAttribPointer(0, POSITION_SIZE, GL_FLOAT, GL_FALSE, STRIDE_SIZE * sizeof(GL_FLOAT), (void*)(0 * sizeof(GL_FLOAT)));
 	glEnableVertexAttribArray(0);
-	//3 Õ¸º«º”sizeof(GL_FLOAT)¡À£¨≈≈≤È¡À∞ÎÃÏ°£°£°£“‘∫Û0“≤–¥≥…0 * sizeof(GL_FLOAT)µƒ–Œ Ω∞…°£°£“‘√‚ŒÛµº±µƒ¥˙¬Î
+	// 3ÂøòËÆ∞Âä†sizeof(GL_FLOAT)‰∫ÜÔºåÊéíÊü•‰∫ÜÂçäÂ§©„ÄÇ„ÄÇ„ÄÇ‰ª•Âêé0‰πüÂÜôÊàê0 * sizeof(GL_FLOAT)ÁöÑÂΩ¢ÂºèÂêß„ÄÇ„ÄÇ‰ª•ÂÖçËØØÂØºÂà´ÁöÑ‰ª£Á†Å
+	// 3„ÅÆsizeof(GL_FLOAT)„ÇíÊõ∏„ÅçÂøò„Çå„Å¶ÂçäÊó•„Éá„Éê„ÉÉ„Ç∞„Åó„Åü‚Ä¶‰ªäÂæå„ÅØ0„ÇÇ„Äå0 * sizeof(GL_FLOAT)„ÄçÂΩ¢Âºè„ÅßÊõ∏„Åì„ÅÜ‚Ä¶‰ªñ„Ç≥„Éº„Éâ„ÅÆË™§Ëß£Èò≤Ê≠¢„ÅÆ„Åü„ÇÅ 
 	glVertexAttribPointer(1, NORMAL_SIZE, GL_FLOAT, GL_FALSE, STRIDE_SIZE * sizeof(GL_FLOAT), (void*)(3 * sizeof(GL_FLOAT))); 
 	glEnableVertexAttribArray(1);
 
-	// ¥Ê¥¢œ¬±Í ˝æ›µΩœ‘¥ÊEBO
+	// Â≠òÂÇ®‰∏ãÊ†áÊï∞ÊçÆÂà∞EBO
+	// „Ç§„É≥„Éá„ÉÉ„ÇØ„Çπ„Éá„Éº„Çø„ÇíEBO„Å´Ê†ºÁ¥ç
 	GLuint EBO = 0;
 	glGenBuffers(1, &EBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(index), index, GL_STATIC_DRAW);
 
-	// Ω‚∞Û
-	glBindVertexArray(0);// πÿ±’VAO…œœ¬Œƒ
+	// Ëß£Áªë ÂÖ≥Èó≠‰∏ä‰∏ãÊñá
+	// „Ç≥„É≥„ÉÜ„Ç≠„Çπ„Éà„ÇíÈñâ„Åò „Éê„Ç§„É≥„ÉâËß£Èô§
+	glBindVertexArray(0);
 
-	// ◊®√≈Œ™π‚‘¥∂®“Â¡À“ª∏ˆVAO£¨∑Ω±„∫Û–¯≤Ÿ◊˜
+	// Ë°®Á§∫ÂÖâÊ∫êÁöÑÁâ©‰Ωì
+	// ÂÖâÊ∫ê„ÇíË°®„Åô„Ç™„Éñ„Ç∏„Çß„ÇØ„Éà
 	GLuint lightVAO = 0;
 	glGenVertexArrays(1, &lightVAO);
-	glBindVertexArray(lightVAO); // VBO glVertexAttribPointer ≤Ÿ◊˜œÚVAO…œœ¬Œƒ–¥
+	glBindVertexArray(lightVAO); 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glVertexAttribPointer(0, POSITION_SIZE, GL_FLOAT, GL_FALSE, STRIDE_SIZE * sizeof(GL_FLOAT), (void*)(0 * sizeof(GL_FLOAT)));
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 
-	// Ω‚∞Û
-	glBindVertexArray(0);// πÿ±’VAO…œœ¬Œƒ
-
+	// Ëß£Áªë ÂÖ≥Èó≠‰∏ä‰∏ãÊñá
+	// „Ç≥„É≥„ÉÜ„Ç≠„Çπ„Éà„ÇíÈñâ„Åò „Éê„Ç§„É≥„ÉâËß£Èô§
+	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	//µ±ƒø±Í «GL_ELEMENT_ARRAY_BUFFERµƒ ±∫Ú£¨VAOª·¥¢¥ÊglBindBufferµƒ∫Ø ˝µ˜”√°£’‚“≤“‚Œ∂◊≈À¸“≤ª·¥¢¥ÊΩ‚∞Ûµ˜”√£¨À˘“‘»∑±£ƒ„√ª”–‘⁄Ω‚∞ÛVAO÷Æ«∞Ω‚∞ÛÀ˜“˝ ˝◊Èª∫≥Â£¨∑Ò‘ÚÀ¸æÕ√ª”–’‚∏ˆEBO≈‰÷√¡À
-	// remember: do NOT unbind the EBO while a VAO is active as the bound element buffer object IS stored in the VAO; keep the EBO bound.
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-	// ºÏ≤ÈmyShader≥Ã–Ú”––ß–‘
+	// ÊúâÂäπ„ÉÅ„Çß„ÉÉ„ÇØ
 	if (myShader.Use() == false)
 	{
 		cout << "myShader program invalid!" << endl;
 		return -1;
 	}
 
-	// ºÏ≤ÈlampShader≥Ã–Ú”––ß–‘
+	// ÊúâÂäπ„ÉÅ„Çß„ÉÉ„ÇØ
 	if (lampShader.Use() == false)
 	{
 		cout << "lampShader program invalid!" << endl;
 		return -1;
 	}
 
-	// ø™∆Ù…Ó∂»≤‚ ‘
+	// ÂºÄÂêØÊ∑±Â∫¶ÊµãËØï
+	// Ê∑±Â∫¶„ÉÜ„Çπ„Éà„ÇíÊúâÂäπÂåñ
 	glEnable(GL_DEPTH_TEST);
 
-	//‰÷»æ—≠ª∑
+	//Ê∏≤ÊüìÂæ™ÁéØ
+	//„ÄÄ„É¨„É≥„ÉÄ„É™„É≥„Ç∞„É´„Éº„Éó
 	while (!glfwWindowShouldClose(window))
 	{
-		// ‰»Î
+		//ÂÖ•Âäõ
+		glfwPollEvents();
 		processInput(window);
 		glfwPollEvents();
 
-		// «Âø’buffer
+		// „Éê„ÉÉ„Éï„Ç°„Çí„ÇØ„É™„Ç¢
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
@@ -185,29 +196,36 @@ int main()
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
 		ImGui::End();
 
-		//º§ªÓmyShader≥Ã–Ú ’‚¿Ô…Êº∞¡Ω∏ˆshader≥Ã–Úµƒ«–ªª£¨À˘“‘√ø¥Œloop¿Ô∂º“™‘⁄∂‘”¶µƒŒª÷√µ˜”√£¨≤ªƒ‹÷ª‘⁄ø™ ºµ˜”√“ª¥Œ
+		//ÊøÄÊ¥ªmyShaderÁ®ãÂ∫è ËøôÈáåÊ∂âÂèä‰∏§‰∏™shaderÁ®ãÂ∫èÁöÑÂàáÊç¢ÔºåÊâÄ‰ª•ÊØèÊ¨°loopÈáåÈÉΩË¶ÅÂú®ÂØπÂ∫îÁöÑ‰ΩçÁΩÆË∞ÉÁî®Ôºå‰∏çËÉΩÂè™Âú®ÂºÄÂßãË∞ÉÁî®‰∏ÄÊ¨°
+		// 2„Å§„ÅÆ„Ç∑„Çß„Éº„ÉÄ„Éº„Éó„É≠„Ç∞„É©„É†„ÅÆÂàá„ÇäÊõø„Åà„ÅåÂøÖË¶Å„Å™„Åü„ÇÅ„ÄÅ„É´„Éº„ÉóÊØé„Å´ÂØæÂøú‰ΩçÁΩÆ„ÅßÂëº„Å≥Âá∫„Åô„Åì„Å®ÔºàÂàùÊúüÂëº„Å≥Âá∫„Åó„ÅÆ„Åø‰∏çÈÅ©Ôºâ
 		myShader.Use();
 
-		myShader.SetVec3("uni_viewPos", myCam.camPos); //œ‡ª˙Œª÷√ « µ ±∏¸–¬µƒ
+		//„ÄÄÂÆûÊó∂Êõ¥Êñ∞ÊëÑÂΩ±Êú∫‰ΩçÁΩÆ
+		// „Ç´„É°„É©‰ΩçÁΩÆ„Çí„É™„Ç¢„É´„Çø„Ç§„É†Êõ¥Êñ∞  
+		myShader.SetVec3("uni_viewPos", myCam.camPos); 
 
-		/* …˙≥…±‰ªªæÿ’Û */
-		// viewæÿ’Û world -> view
+		/* ÁîüÊàêÂèòÊç¢Áü©Èòµ */
+		// viewÁü©Èòµ world -> view
+		/* Â§âÊèõË°åÂàóÁîüÊàêÂá¶ÁêÜ */
+		// viewË°åÂàóÔºàË¶ñÁÇπÂ§âÊèõË°åÂàóÔºâ
 		mat4 view;
-
 		myCam.setCamView();
 		view = myCam.getCamView();
 		myShader.SetMat4("uni_view", view);
 
-		// Õ∂”∞æÿ’Û view -> clip
+		// ÊäïÂΩ±Áü©Èòµ view -> clip
+		// projectionË°åÂàóÔºàÂ∞ÑÂΩ±Â§âÊèõË°åÂàóÔºâ
 		mat4 projection;
 		float fov = myCam.getCamFov();
 
-		projection = perspective(radians(fov), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f); // ÷Æ«∞–¥≥…(float)(WINDOW_WIDTH / WINDOW_HEIGHT)¡À£¨æ´∂»∂™ ß£¨µº÷¬Ω·π˚ «1
+		projection = perspective(radians(fov), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f); // ‰πãÂâçÂÜôÊàê(float)(WINDOW_WIDTH / WINDOW_HEIGHT)‰∫ÜÔºåÁ≤æÂ∫¶‰∏¢Â§±ÔºåÂØºËá¥ÁªìÊûúÊòØ1
 		myShader.SetMat4("uni_projection", projection);
 
-		// modelæÿ’Û local -> world
-		// ŒÔÃÂ
-		mat4 model = mat4(1.0f); // mat4≥ı ºªØ◊Ó∫√œ‘ æµ˜”√≥ı ºªØŒ™µ•Œªæÿ’Û£¨“ÚŒ™–¬∞Ê±æmat4 modelø…ƒ‹ «»´0æÿ’Û
+		// modelÁü©Èòµ local -> world
+		// modelË°åÂàóÔºà„Ç™„Éñ„Ç∏„Çß„ÇØ„ÉàÁ©∫Èñì‚Üí„ÉØ„Éº„É´„ÉâÁ©∫ÈñìÂ§âÊèõÔºâ
+		// Áâ©‰Ωì
+		mat4 model = mat4(1.0f); // mat4ÂàùÂßãÂåñÊúÄÂ•ΩÊòæÁ§∫Ë∞ÉÁî®ÂàùÂßãÂåñ‰∏∫Âçï‰ΩçÁü©ÈòµÔºåÂõ†‰∏∫Êñ∞ÁâàÊú¨ÈöêÂºèË∞ÉÁî®ÂèØËÉΩÊòØÂÖ®0Áü©Èòµ
+								 // mat4„ÅÆÂàùÊúüÂåñ„ÅØÊòéÁ§∫ÁöÑ„Å´Âçò‰ΩçË°åÂàó„ÅßË°å„ÅÜ„Åπ„Åç„ÄÄÊúÄÊñ∞„Éê„Éº„Ç∏„Éß„É≥„Åß„ÅØÊöóÈªôÁöÑ„Å´„Çº„É≠Ë°åÂàó„ÅåÁîüÊàê„Åï„Çå„ÇãÂèØËÉΩÊÄß„ÅÇ„Çä
 		model = scale(model, vec3(2.5f));
 		model = translate(model, vec3(0.0f, 0.0f, -0.0f));
 		model = rotate(model, radians(45.0f), vec3(0.0f, 1.0f, 0.0f));
@@ -219,18 +237,21 @@ int main()
 		myShader.SetFloat("uni_specularStrength", f4);
 		myShader.SetInt("uni_specularFactor", i1);
 
-		glBindVertexArray(VAO); // draw≤Ÿ◊˜¥”VAO…œœ¬Œƒ∂¡    ø…¥˙ÃÊVBO EBO attrpointµƒ∞Û∂®≤Ÿ◊˜£¨∑Ω±„π‹¿Ì
+		glBindVertexArray(VAO);
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-		// Ω‚∞Û
 		glBindVertexArray(0);
 
 		vec3 lightPos = vec3(5 * cos(f1), 10.0f, 5 * sin(f1));
 		myShader.SetVec3("uni_lightPos", lightPos);
-		// π‚‘¥ƒ£–Õ£¨“ª∏ˆ∞◊…´µƒ∑¢π‚ÃÂ
-		// º§ªÓlampShader≥Ã–Ú ’‚¿Ô…Êº∞¡Ω∏ˆshader≥Ã–Úµƒ«–ªª£¨À˘“‘√ø¥Œloop¿Ô∂º“™‘⁄∂‘”¶µƒŒª÷√µ˜”√£¨≤ªƒ‹÷ª‘⁄ø™ ºµ˜”√“ª¥Œ
+		// ÂÖâÊ∫êÊ®°ÂûãÔºå‰∏Ä‰∏™ÁôΩËâ≤ÁöÑÂèëÂÖâ‰Ωì
+		// ÂÖâÊ∫ê„É¢„Éá„É´ : ÁôΩËâ≤„ÅÆ„Ç™„Éñ„Ç∏„Çß„ÇØ„Éà  
+		// ÊøÄÊ¥ªlampShaderÁ®ãÂ∫è ËøôÈáåÊ∂âÂèä‰∏§‰∏™shaderÁ®ãÂ∫èÁöÑÂàáÊç¢ÔºåÊâÄ‰ª•ÊØèÊ¨°loopÈáåÈÉΩË¶ÅÂú®ÂØπÂ∫îÁöÑ‰ΩçÁΩÆË∞ÉÁî®Ôºå‰∏çËÉΩÂè™Âú®ÂºÄÂßãË∞ÉÁî®‰∏ÄÊ¨°
+		// lightShader„ÇíÂÆüË°å„Åô„Çã
+		//„ÄÄ2„Å§„ÅÆ„Ç∑„Çß„Éº„ÉÄ„Éº„Éó„É≠„Ç∞„É©„É†„ÅÆÂàá„ÇäÊõø„Åà„ÅåÂøÖË¶Å„ÅÆ„Åü„ÇÅ„ÄÅ„É´„Éº„ÉóÊØé„Å´ÂØæÂøú‰ΩçÁΩÆ„ÅßÂëº„Å≥Âá∫„Åô„Åì„Å®ÔºàÂàùÊúüÂëº„Å≥Âá∫„Åó„ÅÆ„Åø‰∏çÈÅ©Ôºâ
 		lampShader.Use();
 
-		model = mat4(1.0f); // ≥ı ºªØŒ™µ•Œªæÿ’Û£¨«Âø’
+		model = mat4(1.0f); // ÂàùÂßãÂåñ‰∏∫Âçï‰ΩçÁü©ÈòµÔºåÊ∏ÖÁ©∫
+							// Âçò‰ΩçË°åÂàó„ÅßÂàùÊúüÂåñ
 		model = scale(model, vec3(0.5f));
 		model = translate(model, lightPos);
 		model = rotate(model, radians(45.0f), vec3(1.0f, 1.0f, 0.0f));
@@ -242,14 +263,13 @@ int main()
 
 		glBindVertexArray(lightVAO);
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-
-		// Ω‚∞Û
 		glBindVertexArray(0);
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-		// ª∫≥Â«¯Ωªªª ¬÷—Ø ¬º˛
+		//ÁºìÂÜ≤Âå∫‰∫§Êç¢
+		//„Éê„ÉÉ„Éï„Ç°‰∫§Êèõ 
 		glfwSwapBuffers(window);
 
 	}
@@ -276,7 +296,8 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 void processInput(GLFWwindow* window)
 {
-	/* œ‡ª˙∆Ω“∆ */
+	// ËÆ°ÁÆóÂΩìÂâçÂ∏ß‰∏é‰∏ä‰∏ÄÂ∏ßÁöÑÊó∂Èó¥Â∑ÆÔºåÁî®‰∫é‰øÆÊ≠£Ê∏≤ÊüìÂø´ÊÖ¢ÂØπÁõ∏Êú∫ÁßªÂä®ÈÄüÂ∫¶ÁöÑÂΩ±Âìç
+	// „É¨„É≥„ÉÄ„É™„É≥„Ç∞ÈÄüÂ∫¶„ÅÆÂ§âÂãï„Åå„Ç´„É°„É©ÁßªÂãïÈÄüÂ∫¶„Å´‰∏é„Åà„ÇãÂΩ±Èüø„ÇíË£úÊ≠£„Åô„Çã„Åü„ÇÅ„ÄÅÁèæÂú®„Éï„É¨„Éº„É†„Å®Ââç„Éï„É¨„Éº„É†„ÅÆÊôÇÈñìÂ∑ÆÔºà„Éá„É´„Çø„Çø„Ç§„É†Ôºâ„ÇíÁÆóÂá∫
 	myCam.currentFrame = glfwGetTime();
 	myCam.deltaTime = myCam.currentFrame - myCam.lastFrame;
 	myCam.lastFrame = myCam.currentFrame;
@@ -303,14 +324,13 @@ void processInput(GLFWwindow* window)
 
 void mouse_callback(GLFWwindow* window, double posX, double posY)
 {
-	/* œ‡ª˙ ”Ω« */
-
 	float offsetX = posX - myCam.lastX;
 	float offsetY = myCam.lastY - posY;
 	myCam.lastX = posX;
 	myCam.lastY = posY;
 
-	//  Û±Í”“º¸≤ª∞¥æÕ≤ª¥¶¿Ì£¨“ÚŒ™ Û±Í“™”√¿¥µ„Imgui
+	// Êåâ‰ΩèÈº†Ê†áÂè≥ÈîÆÊó∂Êâç‰ºöÁßªÂä®Áõ∏Êú∫
+	// „Éû„Ç¶„ÇπÂè≥„Éú„Çø„É≥Êäº‰∏ã‰∏≠„ÅÆ„Åø„Ç´„É°„É©ÂõûËª¢„ÇíË®±ÂèØ  
 	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) != GLFW_PRESS)
 	{
 		return;
@@ -330,7 +350,7 @@ void mouse_callback(GLFWwindow* window, double posX, double posY)
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	/* æµÕ∑Àı∑≈ */
+	/* FOV */
 	if (myCam.fov >= 1.0f && myCam.fov <= 95.0f)
 		myCam.fov -= yoffset;
 	if (myCam.fov <= 1.0f)
