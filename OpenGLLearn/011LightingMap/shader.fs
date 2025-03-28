@@ -1,5 +1,7 @@
-#version 330 core
+﻿#version 330 core
 
+// fragment shader的输入变量都是经过光栅化插值的
+// フラグメントシェーダーの入力変数は全てラスタライザによる補間処理を経ている
 in vec3 fragPos;
 in vec3 normal;
 in vec2 texCoord;
@@ -28,21 +30,25 @@ out vec4 fragColor;
 
 void main()
 {
-	// ��������ambient
+	// 环境光照ambient
+	// 環境光
 	vec3 ambient = light.ambient * vec3(texture(material.diffuse, texCoord));
 	
-	// ���������diffuse
+	// 漫反射光照diffuse
+    // 拡散反射光 
 	vec3 norm = normalize(normal);
 	vec3 lightDir = normalize(light.lightPos - fragPos);
 	float diff = max(dot(norm, lightDir), 0.0);
 	vec3 diffuse = diff * light.diffuse * vec3(texture(material.diffuse, texCoord));
 	
-	// �������specular
+	// 镜面光照specular
+    // 鏡面反射光
 	vec3 viewDir = normalize(uni_viewPos - fragPos);
 	vec3 reflectDir = normalize(reflect(-lightDir, norm));
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
 	vec3 specular = spec * light.specular * vec3(texture(material.specular, texCoord));
 
-	// ������ɫ��������ɫ��ϣ�Ӫ�����Ч��
+	// 光照颜色与物体颜色混合，营造光照效果
+    // 光の色と物体の色をブレンド
 	fragColor = vec4(ambient + diffuse + specular, 1.0);
 }
