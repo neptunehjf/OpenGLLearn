@@ -1,4 +1,4 @@
-ï»¿#include "glad/glad.h"
+#include "glad/glad.h"
 #include "glfw/glfw3.h"
 
 #include <iostream>
@@ -29,15 +29,16 @@ Camera myCam(vec3(1.0f, 2.0f, 3.0f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0
 
 int main()
 {
+	int success = 0;
 	char infoLog[LOG_LENGTH] = "\0";
 
-	// åˆæœŸåŒ–
+	// ³õÊ¼»¯
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	// ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’ä½œæˆã™ã‚‹
+	// »æÖÆ´°¿Ú
 	GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "OpenglWindow", NULL, NULL);
 
 	if (window == NULL)
@@ -49,8 +50,7 @@ int main()
 	glfwMakeContextCurrent(window);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-	// æ•è·é¼ æ ‡
-	// ãƒã‚¦ã‚¹ã‚­ãƒ£ãƒ—ãƒãƒ£
+	// ²¶»ñÊó±ê
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
@@ -62,104 +62,81 @@ int main()
 		return -1;
 	}
 
-	// ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ãƒ—ãƒ­ã‚°ãƒ©ãƒ ã‚’ä½œæˆ
-	// 
-	// é»˜è®¤vsçš„å·¥ä½œè·¯å¾„æ˜¯åœ¨ProjectDirä¸‹ï¼Œæ‰€ä»¥ä½¿ç”¨ç›¸å¯¹è·¯å¾„çš„è¯ï¼Œåº”è¯¥æŠŠshaderæ–‡ä»¶ä¹Ÿæ”¾åˆ°ProjectDir
-	// ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã§ã¯VSã®ä½œæ¥­ãƒ‘ã‚¹ã¯ãƒ—ãƒ­ã‚¸ã‚§ã‚¯ãƒˆãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªä¸‹ã«è¨­å®šã•ã‚Œã¦ã„ã‚‹ãŸã‚ã€ç›¸å¯¾ãƒ‘ã‚¹ã‚’ä½¿ç”¨ã™ã‚‹å ´åˆã¯ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ãƒ•ã‚¡ã‚¤ãƒ«ã‚‚ãƒ—ãƒ­ã‚¸ã‚§ã‚¯ãƒˆãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã«é…ç½®ã™ã‚‹å¿…è¦ãŒã‚ã‚Šã¾ã™
+	// ´´½¨Shader³ÌĞò
+	Shader myShader("shader.vs", "shader.fs"); // Ä¬ÈÏvsµÄ¹¤×÷Â·¾¶ÊÇÔÚProjectDirÏÂ£¬ËùÒÔÊ¹ÓÃÏà¶ÔÂ·¾¶µÄ»°£¬Ó¦¸Ã°ÑshaderÎÄ¼şÒ²·Åµ½ProjectDir
 
-	Shader myShader("shader.vs", "shader.fs"); 
-
-	// å‚ç…§ Referrence/opengl vertex management.png
-	// ç”¨VAOæ¥ç®¡ç† shaderçš„é¡¶ç‚¹å±æ€§
-	// VAOã‚’ä½¿ç”¨ã—ã¦ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ã®é ‚ç‚¹å±æ€§ã‚’ç®¡ç†
+	// ÓÃÏÔ´æVAOÀ´¹ÜÀí shaderµÄ¶¥µãÊôĞÔ
 	GLuint VAO = 0;
 	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
+	glBindVertexArray(VAO); // VBO glVertexAttribPointer ²Ù×÷ÏòVAOÉÏÏÂÎÄĞ´
 
-	// å­˜å‚¨é¡¶ç‚¹æ•°æ®åˆ°VBO
-	// é ‚ç‚¹ãƒ‡ãƒ¼ã‚¿ã‚’VBOã«æ ¼ç´	
+	// ´æ´¢¶¥µãÊı¾İµ½ÏÔ´æVBO
 	GLuint VBO = 0;
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex), vertex, GL_STATIC_DRAW);
 
-	// å­˜å‚¨ä¸‹æ ‡æ•°æ®åˆ°EBO
-	// ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãƒ‡ãƒ¼ã‚¿ã‚’EBOã«æ ¼ç´
+	// ´æ´¢ÏÂ±êÊı¾İµ½ÏÔ´æEBO
 	GLuint EBO = 0;
 	glGenBuffers(1, &EBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(index), index, GL_STATIC_DRAW);
 
-	// ç¿»è½¬yè½´ï¼Œä½¿å›¾ç‰‡åæ ‡å’Œopenglåæ ‡ä¸€è‡´
-    // Yè»¸ã‚’åè»¢ã—ã¦ç”»åƒåº§æ¨™ã¨OpenGLåº§æ¨™ã‚’ä¸€è‡´ã•ã›ã‚‹
+	/* ´æ´¢ÌùÍ¼Êı¾İµ½ÏÔ´æ */
+	// ·­×ªyÖá£¬Ê¹Í¼Æ¬ºÍopengl×ø±êÒ»ÖÂ
 	stbi_set_flip_vertically_on_load(true);
-
-	// ç”³è¯·æ˜¾å­˜ç©ºé—´å¹¶ç»‘å®šGL_TEXTURE_2Då¯¹è±¡
-	// VRAMé ˜åŸŸç¢ºä¿ã—ã€GL_TEXTURE_2Dã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ãƒã‚¤ãƒ³ãƒ‰
+	// ÉêÇëÏÔ´æ¿Õ¼ä²¢°ó¶¨GL_TEXTURE_2D¶ÔÏó
 	GLuint texture0 = 0;
 	glGenTextures(1, &texture0);
-	glBindTexture(GL_TEXTURE_2D, texture0);
-	// è®¾ç½®GL_TEXTURE_2Dçš„ç¯ç»•ï¼Œè¿‡æ»¤æ–¹å¼
-	// GL_TEXTURE_2Dã®ãƒ©ãƒƒãƒ—ãƒ¢ãƒ¼ãƒ‰ã¨ãƒ•ã‚£ãƒ«ã‚¿ãƒªãƒ³ã‚°è¨­å®š
+	glBindTexture(GL_TEXTURE_2D, texture0); // °ó¶¨²Ù×÷ÒªÃ´ÊÇ¶ÁÒªÃ´ÊÇĞ´£¬ÕâÀïÊÇÒªĞ´
+	// ÉèÖÃGL_TEXTURE_2DµÄ»·ÈÆ£¬¹ıÂË·½Ê½
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	// åŠ è½½è´´å›¾ï¼Œè½¬æ¢ä¸ºæ•°æ®
-	// ãƒ†ã‚¯ã‚¹ãƒãƒ£èª­ã¿è¾¼ã¿ã€ãƒ‡ãƒ¼ã‚¿ã«å¤‰æ›
+	// ¼ÓÔØÌùÍ¼£¬×ª»»ÎªÏñËØÊı¾İ
 	int width, height, channel;
 	unsigned char *data = stbi_load("stone_wall.jpg", &width, &height, &channel, 0);
 	if (data)
 	{
-		// è´´å›¾æ•°æ®ä¼ å…¥æ˜¾å­˜
-    	/* ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ‡ãƒ¼ã‚¿ã‚’VRAMã«è»¢é€ã™ã‚‹ */
+		// ÏÔ´æÉú³ÉÌùÍ¼Êı¾İ
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else 
 	{
-		cout << "Failed to load texture0ï¼" << endl;
+		cout << "Failed to load texture0£¡" << endl;
 		return -1;
 	}
-	// æ•°æ®å·²ç»ä¼ ç»™æ˜¾å­˜äº†ï¼Œåˆ é™¤å†…å­˜ä¸­çš„æ•°æ®
-	// ãƒ¡ãƒ¢ãƒªä¸Šã®ãƒ‡ãƒ¼ã‚¿å‰Šé™¤ï¼ˆVRAMã«è»¢é€å®Œäº†å¾Œï¼‰
+	// ÏñËØÊı¾İÒÑ¾­´«¸øÏÔ´æÁË£¬É¾³ıÄÚ´æÖĞµÄÏñËØÊı¾İ
 	stbi_image_free(data);
 
-	// ç”³è¯·æ˜¾å­˜ç©ºé—´å¹¶ç»‘å®šGL_TEXTURE_2Då¯¹è±¡
-	// VRAMé ˜åŸŸç¢ºä¿ã—ã€GL_TEXTURE_2Dã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ãƒã‚¤ãƒ³ãƒ‰
+	// ÉêÇëÏÔ´æ¿Õ¼ä²¢°ó¶¨GL_TEXTURE_2D¶ÔÏó
 	GLuint texture1 = 0;
 	glGenTextures(1, &texture1);
-	glBindTexture(GL_TEXTURE_2D, texture1);
-
-	// è®¾ç½®GL_TEXTURE_2Dçš„ç¯ç»•ï¼Œè¿‡æ»¤æ–¹å¼
-	// GL_TEXTURE_2Dã®ãƒ©ãƒƒãƒ—ãƒ¢ãƒ¼ãƒ‰ã¨ãƒ•ã‚£ãƒ«ã‚¿ãƒªãƒ³ã‚°è¨­å®š
+	glBindTexture(GL_TEXTURE_2D, texture1); // °ó¶¨²Ù×÷ÒªÃ´ÊÇ¶ÁÒªÃ´ÊÇĞ´£¬ÕâÀïÊÇÒªĞ´
+	// ÉèÖÃGL_TEXTURE_2DµÄ»·ÈÆ£¬¹ıÂË·½Ê½
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-
-	// åŠ è½½è´´å›¾ï¼Œè½¬æ¢ä¸ºæ•°æ®
-	// ãƒ†ã‚¯ã‚¹ãƒãƒ£èª­ã¿è¾¼ã¿ã€ãƒ‡ãƒ¼ã‚¿ã«å¤‰æ›
+	// ¼ÓÔØÌùÍ¼£¬×ª»»ÎªÏñËØÊı¾İ
 	data = stbi_load("awesomeface.png", &width, &height, &channel, 0);
 	if (data)
 	{
-		// è´´å›¾æ•°æ®ä¼ å…¥æ˜¾å­˜
-		// ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ‡ãƒ¼ã‚¿ã‚’VRAMã«è»¢é€
+		// ÏÔ´æÉú³ÉÌùÍ¼Êı¾İ
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else
 	{
-		cout << "Failed to load texture1ï¼" << endl;
+		cout << "Failed to load texture1£¡" << endl;
 		return -1;
 	}
-	// æ•°æ®å·²ç»ä¼ ç»™æ˜¾å­˜äº†ï¼Œåˆ é™¤å†…å­˜ä¸­çš„æ•°æ®
-	// ãƒ¡ãƒ¢ãƒªä¸Šã®ãƒ‡ãƒ¼ã‚¿å‰Šé™¤ï¼ˆVRAMã«è»¢é€å®Œäº†å¾Œï¼‰
+	// ÏñËØÊı¾İÒÑ¾­´«¸øÏÔ´æÁË£¬É¾³ıÄÚ´æÖĞµÄÏñËØÊı¾İ
 	stbi_image_free(data);
 
-	// VBOæ•°æ®å…³è”åˆ°shaderçš„é¡¶ç‚¹å±æ€§
-	// VBOãƒ‡ãƒ¼ã‚¿ã¨ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ã®é ‚ç‚¹å±æ€§ã‚’é–¢é€£ä»˜ã‘
+	// ¶¨Òå¶¥µãÊôĞÔµÄ½âÎö·½Ê½
 	glVertexAttribPointer(0, POSITION_SIZE, GL_FLOAT, GL_FALSE, STRIDE_SIZE * sizeof(GL_FLOAT), (void*)0);
 	glEnableVertexAttribArray(0);
 	//glVertexAttribPointer(1, COLOR_SIZE, GL_FLOAT, GL_FALSE, STRIDE_SIZE * sizeof(GL_FLOAT), (void*)(3 * sizeof(float)));
@@ -167,64 +144,54 @@ int main()
 	glVertexAttribPointer(1, TEXCOORD_SIZE, GL_FLOAT, GL_FALSE, STRIDE_SIZE * sizeof(GL_FLOAT), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
-	// è§£ç»‘ å…³é—­ä¸Šä¸‹æ–‡
-	// ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆã‚’é–‰ã˜ ãƒã‚¤ãƒ³ãƒ‰è§£é™¤
-	glBindVertexArray(0);
+	// ½â°ó
+	glBindVertexArray(0);// ¹Ø±ÕVAOÉÏÏÂÎÄ
+
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	//µ±Ä¿±êÊÇGL_ELEMENT_ARRAY_BUFFERµÄÊ±ºò£¬VAO»á´¢´æglBindBufferµÄº¯Êıµ÷ÓÃ¡£ÕâÒ²ÒâÎ¶×ÅËüÒ²»á´¢´æ½â°óµ÷ÓÃ£¬ËùÒÔÈ·±£ÄãÃ»ÓĞÔÚ½â°óVAOÖ®Ç°½â°óË÷ÒıÊı×é»º³å£¬·ñÔòËü¾ÍÃ»ÓĞÕâ¸öEBOÅäÖÃÁË
+	// remember: do NOT unbind the EBO while a VAO is active as the bound element buffer object IS stored in the VAO; keep the EBO bound.
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-	// ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ã‚’å®Ÿè¡Œ
+	// ¼¤»îshader
 	if (myShader.Use() == false)
 	{
 		cout << "Shader program invalid!" << endl;
 		return -1;
 	}
 
-	// è®¾ç½®samplerå˜é‡å¯¹åº”çº¹ç†å•å…ƒ å¯¹uniformçš„æ“ä½œå¿…é¡»åœ¨shaderæ¿€æ´»ä¹‹å
-	// ã‚µãƒ³ãƒ—ãƒ©ãƒ¼å¤‰æ•°ã¨ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ¦ãƒ‹ãƒƒãƒˆã‚’ç´ä»˜ã‘  uniformæ“ä½œã¯ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼å®Ÿè¡Œã®å¾Œã«è¡Œã†ã“ã¨
+	// ÉèÖÃsampler±äÁ¿¶ÔÓ¦ÎÆÀíµ¥Ôª ¶ÔuniformµÄ²Ù×÷±ØĞëÔÚshader¼¤»îÖ®ºó
 	myShader.SetInt("uni_texture0", 0);
 	myShader.SetInt("uni_texture1", 1);
 
-	// å¼€å¯æ·±åº¦æµ‹è¯•
-	// æ·±åº¦ãƒ†ã‚¹ãƒˆã‚’æœ‰åŠ¹åŒ–
+	// ¿ªÆôÉî¶È²âÊÔ
 	glEnable(GL_DEPTH_TEST);
 
-	//æ¸²æŸ“å¾ªç¯
-	//ã€€ãƒ¬ãƒ³ãƒ€ãƒªãƒ³ã‚°ãƒ«ãƒ¼ãƒ—
+	//äÖÈ¾Ñ­»·
 	while (!glfwWindowShouldClose(window))
 	{
-		//å…¥åŠ›
-		glfwPollEvents();
+		//ÊäÈë
 		processInput(window);
 
-		//æ¸²æŸ“ä¹‹å‰æ¸…ç©ºçª—å£
-		//ãƒ¬ãƒ³ãƒ€ãƒªãƒ³ã‚°å‰ã«ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’ã‚¯ãƒªã‚¢ã™ã‚‹
+		// Çå¿Õbuffer
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
-		// ç»˜åˆ¶
-		glActiveTexture(GL_TEXTURE0);           
-		glBindTexture(GL_TEXTURE_2D, texture0); // åœ¨è¿™é‡Œç»‘å®šä¼šæŠŠçº¹ç†è¯»åˆ° çº¹ç†å•å…ƒ0é‡Œ
-		                                        // ã“ã®ãƒã‚¤ãƒ³ãƒ‰æ“ä½œã§texture0ã‚’ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ¦ãƒ‹ãƒƒãƒˆ0ã«å‰²ã‚Šå½“ã¦
+		// »æÖÆ
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture0); // ÔÚÕâÀï°ó¶¨»á°ÑÎÆÀí¶Áµ½sampler2D ÎÆÀíµ¥Ôª0Àï
 
 		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, texture1); // åœ¨è¿™é‡Œç»‘å®šä¼šæŠŠçº¹ç†è¯»åˆ° çº¹ç†å•å…ƒ1é‡Œ
-												// ã“ã®ãƒã‚¤ãƒ³ãƒ‰æ“ä½œã§texture1ã‚’ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ¦ãƒ‹ãƒƒãƒˆ1ã«å‰²ã‚Šå½“ã¦
+		glBindTexture(GL_TEXTURE_2D, texture1); // ÔÚÕâÀï°ó¶¨»á°ÑÎÆÀí¶Áµ½sampler2D ÎÆÀíµ¥Ôª1Àï
 
-		// ç»‘å®šVAOä¸Šä¸‹æ–‡ä»¥è¯»å–é¡¶ç‚¹æ•°æ®
-		// é ‚ç‚¹ãƒ‡ãƒ¼ã‚¿ã‚’èª­ã¿å–ã‚‹ãŸã‚ã«VAOã‚’ãƒã‚¤ãƒ³ãƒ‰
-		glBindVertexArray(VAO);
+		glBindVertexArray(VAO); // draw²Ù×÷´ÓVAOÉÏÏÂÎÄ¶Á    ¿É´úÌæVBO EBO attrpointµÄ°ó¶¨²Ù×÷£¬·½±ã¹ÜÀí
 
-		/* ç”Ÿæˆå˜æ¢çŸ©é˜µ */
-		// viewçŸ©é˜µ
-		/* å¤‰æ›è¡Œåˆ—ç”Ÿæˆå‡¦ç† */
-		// viewè¡Œåˆ—ï¼ˆè¦–ç‚¹å¤‰æ›è¡Œåˆ—ï¼‰
+		/* Éú³É±ä»»¾ØÕó */
+		// view¾ØÕó
 		mat4 view;
 		myCam.setCamView();
 		view = myCam.getCamView();
 		myShader.SetMat4("uni_view", view);
-		// æŠ•å½±çŸ©é˜µ
-		// projectionè¡Œåˆ—ï¼ˆå°„å½±å¤‰æ›è¡Œåˆ—ï¼‰
+		// Í¶Ó°¾ØÕó
 		mat4 projection;
 		float fov = myCam.getCamFov();
 		projection = perspective(radians(fov), (float)(WINDOW_WIDTH / WINDOW_HEIGHT), 0.1f, 100.0f);
@@ -232,8 +199,7 @@ int main()
 
 		for (int i = 0; i < 10; i++)
 		{
-			// modelçŸ©é˜µ
-			// modelè¡Œåˆ—ï¼ˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆç©ºé–“â†’ãƒ¯ãƒ¼ãƒ«ãƒ‰ç©ºé–“å¤‰æ›ï¼‰
+			// model¾ØÕó
 			mat4 model;
 			model = translate(model, cubePositions[i]);
 			model = rotate(model, (i + 1) * radians(50.0f), vec3(0.5f, 1.0f, 0.0f));
@@ -244,10 +210,9 @@ int main()
 		glBindVertexArray(0);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
-		//ç¼“å†²åŒºäº¤æ¢
-		//ãƒãƒƒãƒ•ã‚¡äº¤æ› 
+		// »º³åÇø½»»» ÂÖÑ¯ÊÂ¼ş
 		glfwSwapBuffers(window);
-
+		glfwPollEvents();
 	}
 
 	glDeleteVertexArrays(1, &VAO);
@@ -269,8 +234,6 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 void processInput(GLFWwindow* window)
 {
-	// è®¡ç®—å½“å‰å¸§ä¸ä¸Šä¸€å¸§çš„æ—¶é—´å·®ï¼Œç”¨äºä¿®æ­£æ¸²æŸ“å¿«æ…¢å¯¹ç›¸æœºç§»åŠ¨é€Ÿåº¦çš„å½±å“
-	// ãƒ¬ãƒ³ãƒ€ãƒªãƒ³ã‚°é€Ÿåº¦ã®å¤‰å‹•ãŒã‚«ãƒ¡ãƒ©ç§»å‹•é€Ÿåº¦ã«ä¸ãˆã‚‹å½±éŸ¿ã‚’è£œæ­£ã™ã‚‹ãŸã‚ã€ç¾åœ¨ãƒ•ãƒ¬ãƒ¼ãƒ ã¨å‰ãƒ•ãƒ¬ãƒ¼ãƒ ã®æ™‚é–“å·®ï¼ˆãƒ‡ãƒ«ã‚¿ã‚¿ã‚¤ãƒ ï¼‰ã‚’ç®—å‡º
 	myCam.currentFrame = glfwGetTime();
 	myCam.deltaTime = myCam.currentFrame - myCam.lastFrame;
 	myCam.lastFrame = myCam.currentFrame;
@@ -323,15 +286,10 @@ void mouse_callback(GLFWwindow* window, double posX, double posY)
 		myCam.pitchValue = -89.0f;
 
 	
-	// ç›¸æœºæ—‹è½¬
-	// ã‚«ãƒ¡ãƒ©å›è»¢
-	// å¯¹äºyawï¼Œè®¾cameraåæ ‡ç³»çš„+Zä»+Xå¼€å§‹é€†æ—¶é’ˆæ—‹è½¬è®¡ç®—
-	// ãƒ¨ãƒ¼è§’è¨ˆç®—æ™‚ã€ã‚«ãƒ¡ãƒ©åº§æ¨™ç³»ã®+Zæ–¹å‘ã¯+Xè»¸ã‚’èµ·ç‚¹ã¨ã™ã‚‹åæ™‚è¨ˆå›ã‚Šå›è»¢ã¨ã—ã¦å®šç¾©ã•ã‚Œã¾ã™
-	// å‚ç…§Referrence/camera rotate.jpg Referrence/Euler Angle.png
 	vec3 front;
-	front.x = cos(radians(myCam.yawValue)) * cos(radians(myCam.pitchValue)); // å› ä¸ºè§†è§’é»˜è®¤æœå‘Xè½´æ­£æ–¹å‘ï¼Œæ‰€ä»¥åº”è¯¥ç”¨ä¸Xè½´æ­£æ–¹å‘çš„è§’åº¦è®¡ç®—åç§»
+	front.x = cos(radians(myCam.yawValue)) * cos(radians(myCam.pitchValue)); // ÒòÎªÊÓ½ÇÄ¬ÈÏ³¯ÏòXÖáÕı·½Ïò£¬ËùÒÔÓ¦¸ÃÓÃÓëXÖáÕı·½ÏòµÄ½Ç¶È¼ÆËãÆ«ÒÆ
 	front.y = sin(radians(myCam.pitchValue));
-	front.z = sin(radians(myCam.yawValue)) * cos(radians(myCam.pitchValue)); // å› ä¸ºè§†è§’é»˜è®¤æœå‘Xè½´æ­£æ–¹å‘ï¼Œæ‰€ä»¥åº”è¯¥ç”¨ä¸Xè½´æ­£æ–¹å‘çš„è§’åº¦è®¡ç®—åç§»
+	front.z = sin(radians(myCam.yawValue)) * cos(radians(myCam.pitchValue)); // ÒòÎªÊÓ½ÇÄ¬ÈÏ³¯ÏòXÖáÕı·½Ïò£¬ËùÒÔÓ¦¸ÃÓÃÓëXÖáÕı·½ÏòµÄ½Ç¶È¼ÆËãÆ«ÒÆ
 	
 	myCam.camFront = normalize(front);
 	//cout << "@@" << myCam.camFront.x << "@@" << myCam.camFront.y << "@@" << myCam.camFront.z << endl;

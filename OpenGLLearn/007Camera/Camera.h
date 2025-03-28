@@ -57,9 +57,9 @@ Camera::Camera(const vec3& camPos, const vec3& camFront, const vec3& camUp)
 	isFirst = true;
 	pitchValue = 0.0f;
 
-	// 对于yaw，camera坐标系的+Z从+X开始逆时针旋转计算的，所以要旋转-90度校正到从+Z开始
-	// ヨー角において、カメラ座標系の+Z軸は+X軸基準の反時計回りで計算されるため、+Z軸基準に合わせるには-90度回転で補正が必要
-	// 参照Referrence/Transformation.jpg Referrence/Euler Angle.png
+	// 默认镜头朝向X正方向，所以向左转90度校正 (朝向-Z)
+	// デフォルトのカメラ方向が+X軸方向を向いているため、左回りに90度補正 (-Zに向かう)
+	// 参照 Referrence/Euler Angle.png
 	yawValue = -90.0f; 
 	
 	fov = 45.0f;
