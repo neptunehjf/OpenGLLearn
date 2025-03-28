@@ -1,8 +1,8 @@
-#version 330 core
+ï»¿#version 330 core
 
 uniform vec3 uni_objectColor;
 uniform vec3 uni_lightColor;
-//uniform bool uni_isLight;  // ËäÈ»ÔÚshader.fsÓÃif elseÓï¾äÒ²ÄÜ·Ö±ğäÖÈ¾¹âÔ´ºÍÎïÌåµÄÑÕÉ«£¬µ«ÊÇµ¥¶ÀĞ´Ò»¸öshaderÓĞËüµÄºÃ´¦
+//uniform bool uni_isLight;  
 
 out vec4 fragColor;
 

@@ -50,6 +50,7 @@ int main()
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
 	// 捕获鼠标
+	// マウスキャプチャ
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
@@ -61,61 +62,69 @@ int main()
 		return -1;
 	}
 
-	// 创建Shader程序
+	// シェーダープログラムを作成
+	// 
+	// 默认vs的工作路径是在ProjectDir下，所以使用相对路径的话，应该把shader文件也放到ProjectDir
+	// デフォルトではVSの作業パスはプロジェクトディレクトリ下に設定されているため、相対パスを使用する場合はシェーダーファイルもプロジェクトディレクトリに配置する必要があります
 	Shader objectShader("shader.vs", "shader.fs");     // 物体的shader
+													   // 物体用シェーダ
 	Shader lightShader("shader.vs", "lightShader.fs"); // 光照的shader
+													   // 照明用シェーダ
 
-	// 用显存VAO来管理 shader的顶点属性
+	// 参照 Referrence/opengl vertex management.png
+	// 用VAO来管理 shader的顶点属性
+	// VAOを使用してシェーダーの頂点属性を管理
 	GLuint VAO = 0;
 	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO); // VBO glVertexAttribPointer 操作向VAO上下文写
+	glBindVertexArray(VAO);
 
-	// 存储顶点数据到显存VBO
+	// 存储顶点数据到VBO
+	// 頂点データをVBOに格納	
 	GLuint VBO = 0;
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex), vertex, GL_STATIC_DRAW);
 
-	// 定义顶点属性的解析方式
+	// VBO数据关联到shader的顶点属性
+	// VBOデータとシェーダーの頂点属性を関連付け
 	glVertexAttribPointer(0, POSITION_SIZE, GL_FLOAT, GL_FALSE, STRIDE_SIZE * sizeof(GL_FLOAT), (void*)0);
 	glEnableVertexAttribArray(0);
 
-	// 存储下标数据到显存EBO
+	// 存储下标数据到EBO
+	// インデックスデータをEBOに格納
 	GLuint EBO = 0;
 	glGenBuffers(1, &EBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(index), index, GL_STATIC_DRAW);
 
+	// 解绑 关闭上下文
+	// コンテキストを閉じ バインド解除
+	glBindVertexArray(0);
 
-
-	// 解绑
-	glBindVertexArray(0);// 关闭VAO上下文
-
-	// 专门为光源定义了一个VAO，方便后续操作
+	// 表示光源的物体
+	// 光源を表すオブジェクト
 	GLuint lightVAO = 0;
 	glGenVertexArrays(1, &lightVAO);
-	glBindVertexArray(lightVAO); // VBO glVertexAttribPointer 操作向VAO上下文写
+	glBindVertexArray(lightVAO); 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glVertexAttribPointer(0, POSITION_SIZE, GL_FLOAT, GL_FALSE, STRIDE_SIZE * sizeof(GL_FLOAT), (void*)0);
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 
-	// 解绑
-	glBindVertexArray(0);// 关闭VAO上下文
-
+	// 解绑 关闭上下文
+	// コンテキストを閉じ バインド解除
+	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	//当目标是GL_ELEMENT_ARRAY_BUFFER的时候，VAO会储存glBindBuffer的函数调用。这也意味着它也会储存解绑调用，所以确保你没有在解绑VAO之前解绑索引数组缓冲，否则它就没有这个EBO配置了
-	// remember: do NOT unbind the EBO while a VAO is active as the bound element buffer object IS stored in the VAO; keep the EBO bound.
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-	// 检查objectShader程序有效性
+	// 有効チェック
 	if (objectShader.Use() == false)
 	{
 		cout << "objectShader program invalid!" << endl;
 		return -1;
 	}
 
-	// 检查lightShader程序有效性
+	// 有効チェック
 	if (lightShader.Use() == false)
 	{
 		cout << "lightShader program invalid!" << endl;
@@ -123,37 +132,43 @@ int main()
 	}
 
 	// 开启深度测试
+	// 深度テストを有効化
 	glEnable(GL_DEPTH_TEST);
 
 	//渲染循环
+	//　レンダリングループ
 	while (!glfwWindowShouldClose(window))
 	{
-		//输入
+		//入力
+		glfwPollEvents();
 		processInput(window);
 
-		// 清空buffer
+		//渲染之前清空窗口
+		//レンダリング前にウィンドウをクリアする
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
-
-		/* 绘制 */ 
 
 		//激活objectShader程序 这里涉及两个shader程序的切换，所以每次loop里都要在对应的位置调用，不能只在开始调用一次
 		objectShader.Use();
 
 		/* 生成变换矩阵 */
-		// view矩阵 world -> view
+		// view矩阵
+		/* 変換行列生成処理 */
+		// view行列（視点変換行列）
 		mat4 view;
 		myCam.setCamView();
 		view = myCam.getCamView();
 		objectShader.SetMat4("uni_view", view);
 
-		// 投影矩阵 view -> clip
+		// 投影矩阵
+		// projection行列（射影変換行列）
 		mat4 projection;
 		float fov = myCam.getCamFov();
 		projection = perspective(radians(fov), (float)(WINDOW_WIDTH / WINDOW_HEIGHT), 0.1f, 100.0f);
 		objectShader.SetMat4("uni_projection", projection);
 
-		// model矩阵 local -> world
-		// 物体
+		// model矩阵
+		// model行列（オブジェクト空間→ワールド空間変換）
 		mat4 model = mat4(1.0f); // mat4初始化最好显示调用初始化为单位矩阵，因为新版本mat4 model可能是全0矩阵
 		model = translate(model, vec3(-1, 0, 1));
 		model = rotate(model, radians(45.0f), vec3(0.0f, 1.0f, 0.0f));
@@ -161,18 +176,21 @@ int main()
 		objectShader.SetVec3("uni_objectColor", vec3(1.0f, 0.5f, 0.31f));
 		objectShader.SetVec3("uni_lightColor", vec3(1.0f));
 
-		glBindVertexArray(VAO); // draw操作从VAO上下文读    可代替VBO EBO attrpoint的绑定操作，方便管理
+		glBindVertexArray(VAO); 
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-		// 解绑
+
 		glBindVertexArray(0);
 
 		// 光源
 		// 激活lightShader程序 这里涉及两个shader程序的切换，所以每次loop里都要在对应的位置调用，不能只在开始调用一次
+		// lightShaderを実行する
+		//　2つのシェーダープログラムの切り替えが必要のため、ループ毎に対応位置で呼び出すこと（初期呼び出しのみ不適）
 		lightShader.Use();
 
 		lightShader.SetMat4("uni_view", view);
 		lightShader.SetMat4("uni_projection", projection);
-		model = mat4(1.0f); // 初始化为单位矩阵，清空
+		model = mat4(1.0f); // 初始化为单位矩阵
+							// 単位行列で初期化
 		model = scale(model, vec3(0.5));
 		model = translate(model, vec3(3, 5, 1));
 		model = rotate(model, radians(45.0f), vec3(1.0f, 1.0f, 0.0f));
@@ -181,12 +199,11 @@ int main()
 		glBindVertexArray(lightVAO);
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
-		// 解绑
 		glBindVertexArray(0);
 
-		// 缓冲区交换 轮询事件
+		//缓冲区交换
+		//バッファ交換 
 		glfwSwapBuffers(window);
-		glfwPollEvents();
 	}
 
 	glDeleteVertexArrays(1, &VAO);
@@ -208,7 +225,8 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 void processInput(GLFWwindow* window)
 {
-	/* 相机平移 */
+	// 计算当前帧与上一帧的时间差，用于修正渲染快慢对相机移动速度的影响
+	// レンダリング速度の変動がカメラ移動速度に与える影響を補正するため、現在フレームと前フレームの時間差（デルタタイム）を算出
 	myCam.currentFrame = glfwGetTime();
 	myCam.deltaTime = myCam.currentFrame - myCam.lastFrame;
 	myCam.lastFrame = myCam.currentFrame;
@@ -235,7 +253,6 @@ void processInput(GLFWwindow* window)
 
 void mouse_callback(GLFWwindow* window, double posX, double posY)
 {
-	/* 相机视角 */
 	if (myCam.isFirst)
 	{
 		myCam.lastX = posX;
@@ -260,6 +277,11 @@ void mouse_callback(GLFWwindow* window, double posX, double posY)
 		myCam.pitchValue = -89.0f;
 
 	
+	// 相机旋转
+	// カメラ回転
+	// 对于yaw，设camera坐标系的+Z从+X开始逆时针旋转计算
+	// ヨー角計算時、カメラ座標系の+Z方向は+X軸を起点とする反時計回り回転として定義されます
+	// 参照Referrence/camera rotate.jpg Referrence/Euler Angle.png
 	vec3 front;
 	front.x = cos(radians(myCam.yawValue)) * cos(radians(myCam.pitchValue)); // 因为视角默认朝向X轴正方向，所以应该用与X轴正方向的角度计算偏移
 	front.y = sin(radians(myCam.pitchValue));
@@ -270,7 +292,7 @@ void mouse_callback(GLFWwindow* window, double posX, double posY)
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	/* 镜头缩放 */
+	/* FOV */
 	if (myCam.fov >= 1.0f && myCam.fov <= 95.0f)
 		myCam.fov -= yoffset;
 	if (myCam.fov <= 1.0f)

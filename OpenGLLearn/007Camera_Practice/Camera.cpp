@@ -202,7 +202,6 @@ int main()
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
-		// 绘制
 		glActiveTexture(GL_TEXTURE0);           
 		glBindTexture(GL_TEXTURE_2D, texture0); // 在这里绑定会把纹理读到 纹理单元0里
 		                                        // このバインド操作でtexture0をテクスチャユニット0に割り当て

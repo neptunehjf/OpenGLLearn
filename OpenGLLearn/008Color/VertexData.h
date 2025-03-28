@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "glm/glm.hpp"
 #include "glm//gtc/matrix_transform.hpp"
@@ -10,7 +10,7 @@
 using namespace glm;
 
 float vertex[] = {
-    //λ��               
+    //位置               
     -0.5f, -0.5f, -0.5f,
      0.5f, -0.5f, -0.5f,
      0.5f,  0.5f, -0.5f,

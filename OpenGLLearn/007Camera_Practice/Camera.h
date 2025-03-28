@@ -21,9 +21,11 @@ public:
 	vec3 camUp;
 
 	float deltaTime; // 当前帧与上一帧的时间差
+					 // フレーム間時間差
 	float lastFrame; // 上一帧的时间
+					 // 前フレーム時刻
 	float currentFrame; //当前帧时间
-
+						//現在フレーム時刻
 	float lastX;
 	float lastY;
 	bool  isFirst;
