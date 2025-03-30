@@ -286,7 +286,6 @@ int main()
 		myShader.SetInt("material.diffuse", 0);
 		myShader.SetInt("material.specular", 1);
 
-		//相机位置是要实时更新的，而且启动了shader1之后又启动了shader2，shader1的设置会无效化
 		myShader.SetVec3("uni_viewPos", myCam.camPos); 
 
 		myShader.SetVec3("light.lightPos", myCam.camPos);
@@ -302,14 +301,20 @@ int main()
 
 		myShader.SetInt("material.shininess", material_shininess);
 
-		glBindVertexArray(VAO); // draw操作从VAO上下文读    可代替VBO EBO attrpoint的绑定操作，方便管理
+		glBindVertexArray(VAO);
 
 		// 绑定显存,就可以进行独写操作，但是要读独写两块显存的时候，没办法同时绑定同一个GL_TEXTURE_2D，只能用纹理单元来区分
+		// VRAMバインディングにより読み書き可能  
+		// 同一GL_TEXTURE_2Dへの同時バインド不可 → テクスチャユニットで分離  
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture_diffuse);  //片段着色器会根据GL_TEXTURE0读取texture_diffuse的贴图数据
+		//片段着色器会根据GL_TEXTURE0读取texture_diffuse的贴图数据
+		// フラグメントシェーダーがGL_TEXTURE0からtexture_diffuseをサンプリング  
+		glBindTexture(GL_TEXTURE_2D, texture_diffuse);  
 		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, texture_specular); //片段着色器会根据GL_TEXTURE1读取texture_specular的贴图数据
-
+		//片段着色器会根据GL_TEXTURE1读取texture_specular的贴图数据
+		//フラグメントシェーダーがGL_TEXTURE1からtexture_specularをサンプリング  
+		glBindTexture(GL_TEXTURE_2D, texture_specular); 
+		
 		// view矩阵 world -> view
 		/* 変換行列生成処理 */
 		// view行列（視点変換行列）
@@ -327,10 +332,12 @@ int main()
 		myShader.SetMat4("uni_projection", projection);
 
 		// model矩阵 local -> world
-				// model行列（オブジェクト空間→ワールド空間変換）
+		// model行列（オブジェクト空間→ワールド空間変換）
+		// 物体
 		for (unsigned int i = 0; i < 10; i++)
 		{
 			mat4 model = mat4(1.0f); // mat4初始化最好显示调用初始化为单位矩阵，因为新版本mat4 model可能是全0矩阵
+								 // mat4の初期化は明示的に単位行列で行うべき　最新バージョンでは暗黙的にゼロ行列が生成される可能性あり
 			model = translate(model, cubePosition[i]);
 			float angle = 20.0f * i;
 			model = rotate(model, radians(angle), vec3(1.0f, 0.3f, 0.5f));
@@ -338,7 +345,7 @@ int main()
 			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 		}
 
-		// 解绑
+
 		glBindVertexArray(0);
 
 		ImGui::Render();

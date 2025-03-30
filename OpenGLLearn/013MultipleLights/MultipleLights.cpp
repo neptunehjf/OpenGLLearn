@@ -1,4 +1,4 @@
-#include "glad/glad.h"
+ï»¿#include "glad/glad.h"
 #include "glfw/glfw3.h"
 
 #include <iostream>
@@ -51,27 +51,28 @@ Camera myCam(vec3(2.0f, 7.0f, 6.0f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0
 
 int main()
 {
-	int success = 0;
 	char infoLog[LOG_LENGTH] = "\0";
 
-	// ³õÊ¼»¯
+	// åˆæœŸåŒ–
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	// »æÖÆ´°¿Ú
+	// ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’ä½œæˆã™ã‚‹
 	GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "OpenglWindow", NULL, NULL);
+
 	if (window == NULL)
 	{
 		cout << "Failed to create window." << endl;
-		glfwTerminate();  
+		glfwTerminate();
 		return -1;
 	}
 	glfwMakeContextCurrent(window);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-	// ²¶»ñÊó±ê
+	// æ•è·é¼ æ ‡
+	// ãƒã‚¦ã‚¹ã‚­ãƒ£ãƒ—ãƒãƒ£
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
@@ -94,15 +95,17 @@ int main()
 	ImGui_ImplGlfw_InitForOpenGL(window, true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
 	ImGui_ImplOpenGL3_Init();
 
-	// ´´½¨Shader³ÌĞò
+	// åˆ›å»ºShaderç¨‹åº
+	// ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ãƒ—ãƒ­ã‚°ãƒ©ãƒ ã‚’ä½œæˆ
 	Shader myShader("shader.vs", "shader.fs");
-	Shader lampShader("lampShader.vs", "lampShader.fs"); // µÆ±¾Éíshader£¬Ò»¸ö°×É«µÄ·¢¹âÌå
+	Shader lampShader("lampShader.vs", "lampShader.fs");
 
-	/* ¼ÓÔØÌùÍ¼ */
-    // ·­×ªyÖá£¬Ê¹Í¼Æ¬ºÍopengl×ø±êÒ»ÖÂ
+	// ç¿»è½¬yè½´ï¼Œä½¿å›¾ç‰‡åæ ‡å’Œopenglåæ ‡ä¸€è‡´
+	// Yè»¸ã‚’åè»¢ã—ã¦ç”»åƒåº§æ¨™ã¨OpenGLåº§æ¨™ã‚’ä¸€è‡´ã•ã›ã‚‹
 	stbi_set_flip_vertically_on_load(true);
 
-	// ¼ÓÔØÌùÍ¼
+	// åŠ è½½è´´å›¾
+	// ãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’èª­ã¿è¾¼ã‚€
 	GLuint texture_diffuse = 0;
 	GLuint texture_specular = 0;
 	bool ret1, ret2;
@@ -111,75 +114,83 @@ int main()
 	if (ret1 == false || ret2 == false)
 		return -1;
 
-	// ÓÃÏÔ´æVAOÀ´¹ÜÀí shaderµÄ¶¥µãÊôĞÔ
+	// å‚ç…§ Referrence/opengl vertex management.png
+	// ç”¨VAOæ¥ç®¡ç† shaderçš„é¡¶ç‚¹å±æ€§
+	// VAOã‚’ä½¿ç”¨ã—ã¦ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ã®é ‚ç‚¹å±æ€§ã‚’ç®¡ç†
 	GLuint VAO = 0;
 	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO); // VBO glVertexAttribPointer ²Ù×÷ÏòVAOÉÏÏÂÎÄĞ´
+	glBindVertexArray(VAO);
 
-	// ´æ´¢¶¥µãÊı¾İµ½ÏÔ´æVBO
+	// å­˜å‚¨é¡¶ç‚¹æ•°æ®åˆ°VBO
+	// é ‚ç‚¹ãƒ‡ãƒ¼ã‚¿ã‚’VBOã«æ ¼ç´	
 	GLuint VBO = 0;
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex), vertex, GL_STATIC_DRAW);
 
-	// ¶¨Òå¶¥µãÊôĞÔµÄ½âÎö·½Ê½
+	// VBOæ•°æ®å…³è”åˆ°shaderçš„é¡¶ç‚¹å±æ€§
+	// VBOãƒ‡ãƒ¼ã‚¿ã¨ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ã®é ‚ç‚¹å±æ€§ã‚’é–¢é€£ä»˜ã‘
 	glVertexAttribPointer(0, POSITION_SIZE, GL_FLOAT, GL_FALSE, STRIDE_SIZE * sizeof(GL_FLOAT), (void*)(0 * sizeof(GL_FLOAT)));
 	glEnableVertexAttribArray(0);
-	//3 Íü¼Ç¼Ósizeof(GL_FLOAT)ÁË£¬ÅÅ²éÁË°ëÌì¡£¡£¡£ÒÔºó0Ò²Ğ´³É0 * sizeof(GL_FLOAT)µÄĞÎÊ½°É¡£¡£ÒÔÃâÎóµ¼±ğµÄ´úÂë
+	// 3å¿˜è®°åŠ sizeof(GL_FLOAT)äº†ï¼Œæ’æŸ¥äº†åŠå¤©ã€‚ã€‚ã€‚ä»¥å0ä¹Ÿå†™æˆ0 * sizeof(GL_FLOAT)çš„å½¢å¼å§ã€‚ã€‚ä»¥å…è¯¯å¯¼åˆ«çš„ä»£ç 
+	// 3ã®sizeof(GL_FLOAT)ã‚’æ›¸ãå¿˜ã‚Œã¦åŠæ—¥ãƒ‡ãƒãƒƒã‚°ã—ãŸâ€¦ä»Šå¾Œã¯0ã‚‚ã€Œ0 * sizeof(GL_FLOAT)ã€å½¢å¼ã§æ›¸ã“ã†â€¦ä»–ã‚³ãƒ¼ãƒ‰ã®èª¤è§£é˜²æ­¢ã®ãŸã‚ 
 	glVertexAttribPointer(1, NORMAL_SIZE, GL_FLOAT, GL_FALSE, STRIDE_SIZE * sizeof(GL_FLOAT), (void*)(3 * sizeof(GL_FLOAT))); 
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(2, TEXCOORD_SIZE, GL_FLOAT, GL_FALSE, STRIDE_SIZE * sizeof(GL_FLOAT), (void*)(6 * sizeof(GL_FLOAT)));
 	glEnableVertexAttribArray(2);
 
-	// ´æ´¢ÏÂ±êÊı¾İµ½ÏÔ´æEBO
+	// å­˜å‚¨ä¸‹æ ‡æ•°æ®åˆ°EBO
+	// ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãƒ‡ãƒ¼ã‚¿ã‚’EBOã«æ ¼ç´
 	GLuint EBO = 0;
 	glGenBuffers(1, &EBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(index), index, GL_STATIC_DRAW);
 
-	// ½â°ó
-	glBindVertexArray(0);// ¹Ø±ÕVAOÉÏÏÂÎÄ
+	// è§£ç»‘ å…³é—­ä¸Šä¸‹æ–‡
+	// ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆã‚’é–‰ã˜ ãƒã‚¤ãƒ³ãƒ‰è§£é™¤
+	glBindVertexArray(0);
 
-	// ×¨ÃÅÎª¹âÔ´¶¨ÒåÁËÒ»¸öVAO£¬·½±ãºóĞø²Ù×÷
+	// è¡¨ç¤ºå…‰æºçš„ç‰©ä½“
+	// å…‰æºã‚’è¡¨ã™ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
 	GLuint lightVAO = 0;
 	glGenVertexArrays(1, &lightVAO);
-	glBindVertexArray(lightVAO); // VBO glVertexAttribPointer ²Ù×÷ÏòVAOÉÏÏÂÎÄĞ´
+	glBindVertexArray(lightVAO); 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glVertexAttribPointer(0, POSITION_SIZE, GL_FLOAT, GL_FALSE, STRIDE_SIZE * sizeof(GL_FLOAT), (void*)(0 * sizeof(GL_FLOAT)));
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 
-	// ½â°ó
-	glBindVertexArray(0);// ¹Ø±ÕVAOÉÏÏÂÎÄ
-
+	// è§£ç»‘ å…³é—­ä¸Šä¸‹æ–‡
+	// ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆã‚’é–‰ã˜ ãƒã‚¤ãƒ³ãƒ‰è§£é™¤
+	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	//µ±Ä¿±êÊÇGL_ELEMENT_ARRAY_BUFFERµÄÊ±ºò£¬VAO»á´¢´æglBindBufferµÄº¯Êıµ÷ÓÃ¡£ÕâÒ²ÒâÎ¶×ÅËüÒ²»á´¢´æ½â°óµ÷ÓÃ£¬ËùÒÔÈ·±£ÄãÃ»ÓĞÔÚ½â°óVAOÖ®Ç°½â°óË÷ÒıÊı×é»º³å£¬·ñÔòËü¾ÍÃ»ÓĞÕâ¸öEBOÅäÖÃÁË
-	// remember: do NOT unbind the EBO while a VAO is active as the bound element buffer object IS stored in the VAO; keep the EBO bound.
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-	// ¼ì²émyShader³ÌĞòÓĞĞ§ĞÔ
+	// æœ‰åŠ¹ãƒã‚§ãƒƒã‚¯
 	if (myShader.Use() == false)
 	{
 		cout << "myShader program invalid!" << endl;
 		return -1;
 	}
 
-	// ¼ì²élampShader³ÌĞòÓĞĞ§ĞÔ
+	// æœ‰åŠ¹ãƒã‚§ãƒƒã‚¯
 	if (lampShader.Use() == false)
 	{
 		cout << "lampShader program invalid!" << endl;
 		return -1;
 	}
 
-	// ¿ªÆôÉî¶È²âÊÔ
+	// å¼€å¯æ·±åº¦æµ‹è¯•
+	// æ·±åº¦ãƒ†ã‚¹ãƒˆã‚’æœ‰åŠ¹åŒ–
 	glEnable(GL_DEPTH_TEST);
 
-	//äÖÈ¾Ñ­»·
+	//æ¸²æŸ“å¾ªç¯
+	//ã€€ãƒ¬ãƒ³ãƒ€ãƒªãƒ³ã‚°ãƒ«ãƒ¼ãƒ—
 	while (!glfwWindowShouldClose(window))
 	{
-		//ÊäÈë
-		processInput(window);
+		//å…¥åŠ›
 		glfwPollEvents();
+		processInput(window);
 
 
 
@@ -215,7 +226,7 @@ int main()
 		static vec3 pointLight_ambient = vec3(0.2f);
 		static vec3 pointLight_diffuse = vec3(0.8f);
 		static vec3 pointLight_specular = vec3(1.0f);
-		float constant = 1.0f; // Í¨³£±£³Ö1¾ÍĞĞÁË
+		float constant = 1.0f;
 		float linear = 0.09f;
 		float quadratic = 0.032f;
 		const char* itemArray[] = { "										50", 
@@ -283,17 +294,19 @@ int main()
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
 		ImGui::End();
 
-		//¼¤»îmyShader³ÌĞò ÕâÀïÉæ¼°Á½¸öshader³ÌĞòµÄÇĞ»»£¬ËùÒÔÃ¿´ÎloopÀï¶¼ÒªÔÚ¶ÔÓ¦µÄÎ»ÖÃµ÷ÓÃ£¬²»ÄÜÖ»ÔÚ¿ªÊ¼µ÷ÓÃÒ»´Î
+		//æ¿€æ´»myShaderç¨‹åº è¿™é‡Œæ¶‰åŠä¸¤ä¸ªshaderç¨‹åºçš„åˆ‡æ¢ï¼Œæ‰€ä»¥æ¯æ¬¡loopé‡Œéƒ½è¦åœ¨å¯¹åº”çš„ä½ç½®è°ƒç”¨ï¼Œä¸èƒ½åªåœ¨å¼€å§‹è°ƒç”¨ä¸€æ¬¡
+		// 2ã¤ã®ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ãƒ—ãƒ­ã‚°ãƒ©ãƒ ã®åˆ‡ã‚Šæ›¿ãˆãŒå¿…è¦ãªãŸã‚ã€ãƒ«ãƒ¼ãƒ—æ¯ã«å¯¾å¿œä½ç½®ã§å‘¼ã³å‡ºã™ã“ã¨ï¼ˆåˆæœŸå‘¼ã³å‡ºã—ã®ã¿ä¸é©ï¼‰
 		myShader.Use();
 
-		
-
-		// ÉèÖÃÎÆÀíµ¥Ôª ÈÎºÎuniformÉèÖÃ²Ù×÷Ò»¶¨Òª·Åµ½¡¶¶ÔÓ¦µÄshader¡·Æô¶¯Ö®ºó£¡  --¡·²»Í¬µÄshaderÇĞ»»ÔËĞĞ£¬ÁíÒ»¸öshader»á¹Øµô£¬Ğ´µÄÊı¾İ»á¶ªÊ§Êı¾İ
-        //Ò²¾ÍÊÇËµÆô¶¯ÁËshader1Ö®ºóÓÖÆô¶¯ÁËshader2£¬Ö®Ç°ÔÚshader1ÉèÖÃµÄ¾ÍÎŞĞ§ÁË£¡ÕâÖÖÇé¿öÖ»ÄÜ·Åµ½äÖÈ¾Ñ­»·Àï£¬²»ÄÜ·ÅÑ­»·ÍâÃæ
+		// è®¾ç½®çº¹ç†å•å…ƒ ä»»ä½•uniformè®¾ç½®æ“ä½œä¸€å®šè¦æ”¾åˆ°ã€Šå¯¹åº”çš„shaderã€‹æœ‰æ•ˆä¹‹åï¼  --ã€‹ä¸åŒçš„shaderåˆ‡æ¢è¿è¡Œï¼Œå¦ä¸€ä¸ªshaderä¼šå…³æ‰ï¼Œå†™çš„æ•°æ®ä¼šä¸¢å¤±æ•°æ®
+        //ä¹Ÿå°±æ˜¯è¯´å¯åŠ¨äº†shader1ä¹‹ååˆå¯åŠ¨äº†shader2ï¼Œä¹‹å‰åœ¨shader1è®¾ç½®çš„å°±æ— æ•ˆäº†ï¼è¿™ç§æƒ…å†µåªèƒ½æ”¾åˆ°æ¸²æŸ“å¾ªç¯é‡Œï¼Œä¸èƒ½æ”¾å¾ªç¯å¤–é¢
+		// ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ¦ãƒ‹ãƒƒãƒˆã®è¨­å®šï¼šãƒ¦ãƒ‹ãƒ•ã‚©ãƒ¼ãƒ å¤‰æ•°ã®æ“ä½œã¯å¿…ãšã€Šå¯¾å¿œã™ã‚‹ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ã€‹æœ‰åŠ¹ä¸­ã«è¡Œã†ï¼  
+		// â†’ åˆ¥ã®ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ã«åˆ‡ã‚Šæ›¿ãˆã‚‹ã¨è¨­å®šå€¤ãŒå¤±ã‚ã‚Œã‚‹  
+		// ä¾‹: shader1èµ·å‹•å¾Œã«shader2ã‚’èµ·å‹• â†’ shader1ã®è¨­å®šã¯ç„¡åŠ¹åŒ–  
+		// è§£æ±ºç­–: ãƒ¬ãƒ³ãƒ€ãƒªãƒ³ã‚°ãƒ«ãƒ¼ãƒ—å†…ã§å¯¾å¿œã™ã‚‹ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼æœ‰åŠ¹ä¸­ã§è¨­å®šï¼ˆãƒ«ãƒ¼ãƒ—å¤–ã§ã¯ä¸å¯ï¼‰  
 		myShader.SetInt("material.diffuse", 0);
 		myShader.SetInt("material.specular", 1);
 
-		//Ïà»úÎ»ÖÃÊÇÒªÊµÊ±¸üĞÂµÄ£¬¶øÇÒÆô¶¯ÁËshader1Ö®ºóÓÖÆô¶¯ÁËshader2£¬shader1µÄÉèÖÃ»áÎŞĞ§»¯
 		myShader.SetVec3("uni_viewPos", myCam.camPos); 
 
 		myShader.SetVec3("dirLight.direction", vec3(-1.0f, -1.0f, -1.0f));
@@ -326,31 +339,43 @@ int main()
 
 		myShader.SetInt("material.shininess", material_shininess);
 
-		glBindVertexArray(VAO); // draw²Ù×÷´ÓVAOÉÏÏÂÎÄ¶Á    ¿É´úÌæVBO EBO attrpointµÄ°ó¶¨²Ù×÷£¬·½±ã¹ÜÀí
+		glBindVertexArray(VAO);
 
-		// °ó¶¨ÏÔ´æ,¾Í¿ÉÒÔ½øĞĞ¶ÀĞ´²Ù×÷£¬µ«ÊÇÒª¶Á¶ÀĞ´Á½¿éÏÔ´æµÄÊ±ºò£¬Ã»°ì·¨Í¬Ê±°ó¶¨Í¬Ò»¸öGL_TEXTURE_2D£¬Ö»ÄÜÓÃÎÆÀíµ¥ÔªÀ´Çø·Ö
+		// ç»‘å®šæ˜¾å­˜,å°±å¯ä»¥è¿›è¡Œç‹¬å†™æ“ä½œï¼Œä½†æ˜¯è¦è¯»ç‹¬å†™ä¸¤å—æ˜¾å­˜çš„æ—¶å€™ï¼Œæ²¡åŠæ³•åŒæ—¶ç»‘å®šåŒä¸€ä¸ªGL_TEXTURE_2Dï¼Œåªèƒ½ç”¨çº¹ç†å•å…ƒæ¥åŒºåˆ†
+		// VRAMãƒã‚¤ãƒ³ãƒ‡ã‚£ãƒ³ã‚°ã«ã‚ˆã‚Šèª­ã¿æ›¸ãå¯èƒ½  
+		// åŒä¸€GL_TEXTURE_2Dã¸ã®åŒæ™‚ãƒã‚¤ãƒ³ãƒ‰ä¸å¯ â†’ ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ¦ãƒ‹ãƒƒãƒˆã§åˆ†é›¢  
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture_diffuse);  //Æ¬¶Î×ÅÉ«Æ÷»á¸ù¾İGL_TEXTURE0¶ÁÈ¡texture_diffuseµÄÌùÍ¼Êı¾İ
+		//ç‰‡æ®µç€è‰²å™¨ä¼šæ ¹æ®GL_TEXTURE0è¯»å–texture_diffuseçš„è´´å›¾æ•°æ®
+		// ãƒ•ãƒ©ã‚°ãƒ¡ãƒ³ãƒˆã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ãŒGL_TEXTURE0ã‹ã‚‰texture_diffuseã‚’ã‚µãƒ³ãƒ—ãƒªãƒ³ã‚°  
+		glBindTexture(GL_TEXTURE_2D, texture_diffuse);  
 		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, texture_specular); //Æ¬¶Î×ÅÉ«Æ÷»á¸ù¾İGL_TEXTURE1¶ÁÈ¡texture_specularµÄÌùÍ¼Êı¾İ
-
-		// view¾ØÕó world -> view
+		//ç‰‡æ®µç€è‰²å™¨ä¼šæ ¹æ®GL_TEXTURE1è¯»å–texture_specularçš„è´´å›¾æ•°æ®
+		//ãƒ•ãƒ©ã‚°ãƒ¡ãƒ³ãƒˆã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ãŒGL_TEXTURE1ã‹ã‚‰texture_specularã‚’ã‚µãƒ³ãƒ—ãƒªãƒ³ã‚°  
+		glBindTexture(GL_TEXTURE_2D, texture_specular); 
+		
+		// viewçŸ©é˜µ world -> view
+		/* å¤‰æ›è¡Œåˆ—ç”Ÿæˆå‡¦ç† */
+		// viewè¡Œåˆ—ï¼ˆè¦–ç‚¹å¤‰æ›è¡Œåˆ—ï¼‰
 		mat4 view;
 		myCam.setCamView();
 		view = myCam.getCamView();
 		myShader.SetMat4("uni_view", view);
 
-		// Í¶Ó°¾ØÕó view -> clip
+		// æŠ•å½±çŸ©é˜µ view -> clip
+		// projectionè¡Œåˆ—ï¼ˆå°„å½±å¤‰æ›è¡Œåˆ—ï¼‰
 		mat4 projection;
 		float fov = myCam.getCamFov();
 
-		projection = perspective(radians(fov), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f); // Ö®Ç°Ğ´³É(float)(WINDOW_WIDTH / WINDOW_HEIGHT)ÁË£¬¾«¶È¶ªÊ§£¬µ¼ÖÂ½á¹ûÊÇ1
+		projection = perspective(radians(fov), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f); // ä¹‹å‰å†™æˆ(float)(WINDOW_WIDTH / WINDOW_HEIGHT)äº†ï¼Œç²¾åº¦ä¸¢å¤±ï¼Œå¯¼è‡´ç»“æœæ˜¯1
 		myShader.SetMat4("uni_projection", projection);
 
-		// model¾ØÕó local -> world
+		// modelçŸ©é˜µ local -> world
+		// modelè¡Œåˆ—ï¼ˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆç©ºé–“â†’ãƒ¯ãƒ¼ãƒ«ãƒ‰ç©ºé–“å¤‰æ›ï¼‰
+		// ç‰©ä½“
 		for (unsigned int i = 0; i < 10; i++)
 		{
-			mat4 model = mat4(1.0f); // mat4³õÊ¼»¯×îºÃÏÔÊ¾µ÷ÓÃ³õÊ¼»¯Îªµ¥Î»¾ØÕó£¬ÒòÎªĞÂ°æ±¾mat4 model¿ÉÄÜÊÇÈ«0¾ØÕó
+			mat4 model = mat4(1.0f); // mat4åˆå§‹åŒ–æœ€å¥½æ˜¾ç¤ºè°ƒç”¨åˆå§‹åŒ–ä¸ºå•ä½çŸ©é˜µï¼Œå› ä¸ºæ–°ç‰ˆæœ¬mat4 modelå¯èƒ½æ˜¯å…¨0çŸ©é˜µ
+								 // mat4ã®åˆæœŸåŒ–ã¯æ˜ç¤ºçš„ã«å˜ä½è¡Œåˆ—ã§è¡Œã†ã¹ãã€€æœ€æ–°ãƒãƒ¼ã‚¸ãƒ§ãƒ³ã§ã¯æš—é»™çš„ã«ã‚¼ãƒ­è¡Œåˆ—ãŒç”Ÿæˆã•ã‚Œã‚‹å¯èƒ½æ€§ã‚ã‚Š
 			model = translate(model, cubePosition[i]);
 			float angle = 20.0f * i;
 			model = rotate(model, radians(angle), vec3(1.0f, 0.3f, 0.5f));
@@ -358,11 +383,9 @@ int main()
 			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 		}
 
-		// ½â°ó
+
 		glBindVertexArray(0);
 
-		//¹âÔ´Ä£ĞÍ£¬Ò»¸ö°×É«µÄ·¢¹âÌå
-		//¼¤»îlampShader³ÌĞò ÕâÀïÉæ¼°Á½¸öshader³ÌĞòµÄÇĞ»»£¬ËùÒÔÃ¿´ÎloopÀï¶¼ÒªÔÚ¶ÔÓ¦µÄÎ»ÖÃµ÷ÓÃ£¬²»ÄÜÖ»ÔÚ¿ªÊ¼µ÷ÓÃÒ»´Î
 		lampShader.Use();
 
 		glBindVertexArray(lightVAO);
@@ -379,7 +402,7 @@ int main()
 
 			vec3 lightPos = vec3(5 * cos(posValue + i * 10), 10.0f, 5 * sin(posValue + i * 10));
 
-			mat4 model = mat4(1.0f); // ³õÊ¼»¯Îªµ¥Î»¾ØÕó£¬Çå¿Õ
+			mat4 model = mat4(1.0f);
 			model = scale(model, vec3(0.5f));
 			model = translate(model, lightPos);
 			model = rotate(model, radians(45.0f + i * 10), vec3(1.0f, 1.0f, 0.0f));
@@ -389,13 +412,14 @@ int main()
 			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 		}
 
-		// ½â°ó
+
 		glBindVertexArray(0);
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-		// »º³åÇø½»»» ÂÖÑ¯ÊÂ¼ş
+		//ç¼“å†²åŒºäº¤æ¢
+		//ãƒãƒƒãƒ•ã‚¡äº¤æ› 
 		glfwSwapBuffers(window);
 
 	}
@@ -424,7 +448,8 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 void processInput(GLFWwindow* window)
 {
-	/* Ïà»úÆ½ÒÆ */
+	// è®¡ç®—å½“å‰å¸§ä¸ä¸Šä¸€å¸§çš„æ—¶é—´å·®ï¼Œç”¨äºä¿®æ­£æ¸²æŸ“å¿«æ…¢å¯¹ç›¸æœºç§»åŠ¨é€Ÿåº¦çš„å½±å“
+	// ãƒ¬ãƒ³ãƒ€ãƒªãƒ³ã‚°é€Ÿåº¦ã®å¤‰å‹•ãŒã‚«ãƒ¡ãƒ©ç§»å‹•é€Ÿåº¦ã«ä¸ãˆã‚‹å½±éŸ¿ã‚’è£œæ­£ã™ã‚‹ãŸã‚ã€ç¾åœ¨ãƒ•ãƒ¬ãƒ¼ãƒ ã¨å‰ãƒ•ãƒ¬ãƒ¼ãƒ ã®æ™‚é–“å·®ï¼ˆãƒ‡ãƒ«ã‚¿ã‚¿ã‚¤ãƒ ï¼‰ã‚’ç®—å‡º
 	myCam.currentFrame = glfwGetTime();
 	myCam.deltaTime = myCam.currentFrame - myCam.lastFrame;
 	myCam.lastFrame = myCam.currentFrame;
@@ -451,14 +476,13 @@ void processInput(GLFWwindow* window)
 
 void mouse_callback(GLFWwindow* window, double posX, double posY)
 {
-	/* Ïà»úÊÓ½Ç */
-
 	float offsetX = posX - myCam.lastX;
 	float offsetY = myCam.lastY - posY;
 	myCam.lastX = posX;
 	myCam.lastY = posY;
 
-	// Êó±êÓÒ¼ü²»°´¾Í²»´¦Àí£¬ÒòÎªÊó±êÒªÓÃÀ´µãImgui
+	// æŒ‰ä½é¼ æ ‡å³é”®æ—¶æ‰ä¼šç§»åŠ¨ç›¸æœº
+	// ãƒã‚¦ã‚¹å³ãƒœã‚¿ãƒ³æŠ¼ä¸‹ä¸­ã®ã¿ã‚«ãƒ¡ãƒ©å›è»¢ã‚’è¨±å¯  
 	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) != GLFW_PRESS)
 	{
 		return;
@@ -478,7 +502,7 @@ void mouse_callback(GLFWwindow* window, double posX, double posY)
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	/* ¾µÍ·Ëõ·Å */
+	/* FOV */
 	if (myCam.fov >= 1.0f && myCam.fov <= 95.0f)
 		myCam.fov -= yoffset;
 	if (myCam.fov <= 1.0f)
@@ -489,15 +513,18 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 
 bool LoadTexture(const string&& filePath, GLuint& texture)
 {
-	// ÉêÇëÏÔ´æ¿Õ¼ä²¢°ó¶¨GL_TEXTURE_2D¶ÔÏó
+	// ç”³è¯·æ˜¾å­˜ç©ºé—´å¹¶ç»‘å®šGL_TEXTURE_2Då¯¹è±¡
+	// VRAMé ˜åŸŸç¢ºä¿ã—ã€GL_TEXTURE_2Dã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ãƒã‚¤ãƒ³ãƒ‰
 	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture); // °ó¶¨²Ù×÷ÒªÃ´ÊÇ¶ÁÒªÃ´ÊÇĞ´£¬ÕâÀïÊÇÒªĞ´
-	// ÉèÖÃGL_TEXTURE_2DµÄ»·ÈÆ£¬¹ıÂË·½Ê½
+	glBindTexture(GL_TEXTURE_2D, texture);
+	// è®¾ç½®GL_TEXTURE_2Dçš„ç¯ç»•ï¼Œè¿‡æ»¤æ–¹å¼
+	// GL_TEXTURE_2Dã®ãƒ©ãƒƒãƒ—ãƒ¢ãƒ¼ãƒ‰ã¨ãƒ•ã‚£ãƒ«ã‚¿ãƒªãƒ³ã‚°è¨­å®š
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	// ¼ÓÔØÌùÍ¼£¬×ª»»ÎªÏñËØÊı¾İ
+	// åŠ è½½è´´å›¾ï¼Œè½¬æ¢ä¸ºæ•°æ®
+	// ãƒ†ã‚¯ã‚¹ãƒãƒ£èª­ã¿è¾¼ã¿ã€ãƒ‡ãƒ¼ã‚¿ã«å¤‰æ›
 	int width, height, channel;
 	unsigned char* data = stbi_load(filePath.c_str(), &width, &height, &channel, 0);
 
@@ -521,17 +548,20 @@ bool LoadTexture(const string&& filePath, GLuint& texture)
 
 	if (data)
 	{
-		// ÌùÍ¼Êı¾İ ÄÚ´æ -> ÏÔ´æ
+		// è´´å›¾æ•°æ®ä¼ å…¥æ˜¾å­˜
+		/* ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ‡ãƒ¼ã‚¿ã‚’VRAMã«è»¢é€ã™ã‚‹ */
 		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-		// Éú³É¶à¼¶½¥½øÌùÍ¼
+		// ç”Ÿæˆå¤šçº§æ¸è¿›è´´å›¾
+		// ãƒŸãƒƒãƒ—ãƒãƒƒãƒ—ã‚’ç”Ÿæˆã™ã‚‹  
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else
 	{
-		cout << "Failed to load texture£¡" << endl;
+		cout << "Failed to load textureï¼" << endl;
 		return false;
 	}
-	// ÏñËØÊı¾İÒÑ¾­´«¸øÏÔ´æÁË£¬É¾³ıÄÚ´æÖĞµÄÏñËØÊı¾İ
+	// æ•°æ®å·²ç»ä¼ ç»™æ˜¾å­˜äº†ï¼Œåˆ é™¤å†…å­˜ä¸­çš„æ•°æ®
+	// ãƒ¡ãƒ¢ãƒªä¸Šã®ãƒ‡ãƒ¼ã‚¿å‰Šé™¤ï¼ˆVRAMã«è»¢é€å®Œäº†å¾Œï¼‰
 	stbi_image_free(data);
 
 	return true;
