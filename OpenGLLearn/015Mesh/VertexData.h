@@ -1,10 +1,10 @@
-#pragma once
+Ôªø#pragma once
 
 #include "Mesh.h"
 
 const std::vector<Vertex> g_vertices = 
 {
-	//Œª÷√                              //∑®œﬂ                          //Œ∆¿Ì◊¯±Í
+	//‰ΩçÁΩÆ                             //Ê≥ïÁ∑ö                          //UVÂ∫ßÊ®ô 
 	{glm::vec3(-0.5f, -0.5f, -0.5f),   glm::vec3(0.0f,  0.0f, -1.0f),  glm::vec2(0.0f, 0.0f)},
 	{glm::vec3(0.5f, -0.5f, -0.5f),    glm::vec3(0.0f,  0.0f, -1.0f),  glm::vec2(1.0f, 0.0f)},
 	{glm::vec3(0.5f,  0.5f, -0.5f),    glm::vec3(0.0f,  0.0f, -1.0f),  glm::vec2(1.0f, 1.0f)},

@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include <string>
 #include <vector>
@@ -12,22 +12,22 @@
 #define WINDOW_HEIGHT 1080
 
 
-//¶¥µãÊı¾İ
+//é¡¶ç‚¹æ•°æ®
 #pragma pack(1)
 struct Vertex
 {
-	glm::vec3 position; //Î»ÖÃ
-	glm::vec3 normal;   //·¨Ïß
-	glm::vec2 texCoord; //ÎÆÀí×øs±ê
+	glm::vec3 position; //ä½ç½®
+	glm::vec3 normal;   //æ³•çº¿
+	glm::vec2 texCoord; //çº¹ç†åsæ ‡
 };
 #pragma pack()
 
-//ÌùÍ¼Êı¾İ
+//è´´å›¾æ•°æ®
 #pragma pack(1)
 struct Texture
 {
-	unsigned int id; //ÌùÍ¼id
-	std::string type; //ÌùÍ¼ÀàĞÍ£¬±ÈÈç Âş·´ÉäÌùÍ¼ »¹ÊÇ ¸ß¹âÌùÍ¼
+	unsigned int id; //è´´å›¾id
+	std::string type; //è´´å›¾ç±»å‹ï¼Œæ¯”å¦‚ æ¼«åå°„è´´å›¾ è¿˜æ˜¯ é«˜å…‰è´´å›¾
 };
 #pragma pack()
 
@@ -72,36 +72,36 @@ Mesh::~Mesh()
 
 void Mesh::SetupMesh()
 {
-	// ÓÃÏÔ´æVAOÀ´¹ÜÀí shaderµÄ¶¥µãÊôĞÔ
+	// ç”¨æ˜¾å­˜VAOæ¥ç®¡ç† shaderçš„é¡¶ç‚¹å±æ€§
 	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO); // VBO glVertexAttribPointer ²Ù×÷ÏòVAOÉÏÏÂÎÄĞ´
+	glBindVertexArray(VAO); // VBO glVertexAttribPointer æ“ä½œå‘VAOä¸Šä¸‹æ–‡å†™
 
-	// ´æ´¢¶¥µãÊı¾İµ½ÏÔ´æVBO
+	// å­˜å‚¨é¡¶ç‚¹æ•°æ®åˆ°æ˜¾å­˜VBO
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
 
-	// ´æ´¢ÏÂ±êÊı¾İµ½ÏÔ´æEBO
+	// å­˜å‚¨ä¸‹æ ‡æ•°æ®åˆ°æ˜¾å­˜EBO
 	glGenBuffers(1, &EBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indices.size(), &indices[0], GL_STATIC_DRAW);
 
-	// ¶¨Òå¶¥µãÊôĞÔµÄ½âÎö·½Ê½
+	// å®šä¹‰é¡¶ç‚¹å±æ€§çš„è§£ææ–¹å¼
 	glVertexAttribPointer(0, sizeof(((Vertex*)0)->position) / sizeof(GL_FLOAT), GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, position)));
 	glEnableVertexAttribArray(0);
-	//3 Íü¼Ç¼Ósizeof(GL_FLOAT)ÁË£¬ÅÅ²éÁË°ëÌì¡£¡£¡£ÒÔºó0Ò²Ğ´³É0 * sizeof(GL_FLOAT)µÄĞÎÊ½°É¡£¡£ÒÔÃâÎóµ¼±ğµÄ´úÂë
+	//3 å¿˜è®°åŠ sizeof(GL_FLOAT)äº†ï¼Œæ’æŸ¥äº†åŠå¤©ã€‚ã€‚ã€‚ä»¥å0ä¹Ÿå†™æˆ0 * sizeof(GL_FLOAT)çš„å½¢å¼å§ã€‚ã€‚ä»¥å…è¯¯å¯¼åˆ«çš„ä»£ç 
 	glVertexAttribPointer(1, sizeof(((Vertex*)0)->normal) / sizeof(GL_FLOAT), GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, normal)));
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(2, sizeof(((Vertex*)0)->texCoord) / sizeof(GL_FLOAT), GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, texCoord)));
 	glEnableVertexAttribArray(2);
 
-	// ½â°ó
-	glBindVertexArray(0);// ¹Ø±ÕVAOÉÏÏÂÎÄ
+	// è§£ç»‘
+	glBindVertexArray(0);// å…³é—­VAOä¸Šä¸‹æ–‡
 
-	//¹âÔ´Ä£ĞÍ£¬Ò»¸ö°×É«µÄ·¢¹âÌå
-    // ×¨ÃÅÎª¹âÔ´¶¨ÒåÁËÒ»¸öVAO£¬·½±ãºóĞø²Ù×÷
+	//å…‰æºæ¨¡å‹ï¼Œä¸€ä¸ªç™½è‰²çš„å‘å…‰ä½“
+    // ä¸“é—¨ä¸ºå…‰æºå®šä¹‰äº†ä¸€ä¸ªVAOï¼Œæ–¹ä¾¿åç»­æ“ä½œ
 	glGenVertexArrays(1, &lampVAO);
-	glBindVertexArray(lampVAO); // VBO glVertexAttribPointer ²Ù×÷ÏòVAOÉÏÏÂÎÄĞ´
+	glBindVertexArray(lampVAO); // VBO glVertexAttribPointer æ“ä½œå‘VAOä¸Šä¸‹æ–‡å†™
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
@@ -109,20 +109,20 @@ void Mesh::SetupMesh()
 	glVertexAttribPointer(0, sizeof(((Vertex*)0)->position) / sizeof(GL_FLOAT), GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, position)));
 	glEnableVertexAttribArray(0);
 
-	// ½â°ó
-	glBindVertexArray(0);// ¹Ø±ÕVAOÉÏÏÂÎÄ
+	// è§£ç»‘
+	glBindVertexArray(0);// å…³é—­VAOä¸Šä¸‹æ–‡
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	//µ±Ä¿±êÊÇGL_ELEMENT_ARRAY_BUFFERµÄÊ±ºò£¬VAO»á´¢´æglBindBufferµÄº¯Êıµ÷ÓÃ¡£ÕâÒ²ÒâÎ¶×ÅËüÒ²»á´¢´æ½â°óµ÷ÓÃ£¬ËùÒÔÈ·±£ÄãÃ»ÓĞÔÚ½â°óVAOÖ®Ç°½â°óË÷ÒıÊı×é»º³å£¬·ñÔòËü¾ÍÃ»ÓĞÕâ¸öEBOÅäÖÃÁË
+	//å½“ç›®æ ‡æ˜¯GL_ELEMENT_ARRAY_BUFFERçš„æ—¶å€™ï¼ŒVAOä¼šå‚¨å­˜glBindBufferçš„å‡½æ•°è°ƒç”¨ã€‚è¿™ä¹Ÿæ„å‘³ç€å®ƒä¹Ÿä¼šå‚¨å­˜è§£ç»‘è°ƒç”¨ï¼Œæ‰€ä»¥ç¡®ä¿ä½ æ²¡æœ‰åœ¨è§£ç»‘VAOä¹‹å‰è§£ç»‘ç´¢å¼•æ•°ç»„ç¼“å†²ï¼Œå¦åˆ™å®ƒå°±æ²¡æœ‰è¿™ä¸ªEBOé…ç½®äº†
 	// remember: do NOT unbind the EBO while a VAO is active as the bound element buffer object IS stored in the VAO; keep the EBO bound.
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 void Mesh::DrawMesh(const Shader& shader, const Shader& shader_lamp, float posValue)
 {
-	// ÉèÖÃÎÆÀíµ¥Ôª ÈÎºÎuniformÉèÖÃ²Ù×÷Ò»¶¨Òª·Åµ½¡¶¶ÔÓ¦µÄshader¡·Æô¶¯Ö®ºó£¡  --¡·²»Í¬µÄshaderÇĞ»»ÔËĞĞ£¬ÁíÒ»¸öshader»á¹Øµô£¬Ğ´µÄÊı¾İ»á¶ªÊ§Êı¾İ
-    // Ò²¾ÍÊÇËµÆô¶¯ÁËshaderÖ®ºóÓÖÆô¶¯ÁËshader_lamp£¬Ö®Ç°ÔÚshaderÉèÖÃµÄ¾ÍÎŞĞ§ÁË£¡ÕâÖÖÇé¿öÖ»ÄÜ·Åµ½äÖÈ¾Ñ­»·Àï£¬²»ÄÜ·ÅÑ­»·ÍâÃæ
-	glBindVertexArray(VAO); // draw²Ù×÷´ÓVAOÉÏÏÂÎÄ¶Á¶¥µãÊı¾İ    ¿É´úÌæVBO EBO attrpointµÄ°ó¶¨²Ù×÷£¬·½±ã¹ÜÀí
+	// è®¾ç½®çº¹ç†å•å…ƒ ä»»ä½•uniformè®¾ç½®æ“ä½œä¸€å®šè¦æ”¾åˆ°ã€Šå¯¹åº”çš„shaderã€‹å¯åŠ¨ä¹‹åï¼  --ã€‹ä¸åŒçš„shaderåˆ‡æ¢è¿è¡Œï¼Œå¦ä¸€ä¸ªshaderä¼šå…³æ‰ï¼Œå†™çš„æ•°æ®ä¼šä¸¢å¤±æ•°æ®
+    // ä¹Ÿå°±æ˜¯è¯´å¯åŠ¨äº†shaderä¹‹ååˆå¯åŠ¨äº†shader_lampï¼Œä¹‹å‰åœ¨shaderè®¾ç½®çš„å°±æ— æ•ˆäº†ï¼è¿™ç§æƒ…å†µåªèƒ½æ”¾åˆ°æ¸²æŸ“å¾ªç¯é‡Œï¼Œä¸èƒ½æ”¾å¾ªç¯å¤–é¢
+	glBindVertexArray(VAO); // drawæ“ä½œä»VAOä¸Šä¸‹æ–‡è¯»é¡¶ç‚¹æ•°æ®    å¯ä»£æ›¿VBO EBO attrpointçš„ç»‘å®šæ“ä½œï¼Œæ–¹ä¾¿ç®¡ç†
 	shader.Use();
 	GLuint diffuseN = 0;
 	GLuint specularN = 0;
@@ -141,12 +141,12 @@ void Mesh::DrawMesh(const Shader& shader, const Shader& shader_lamp, float posVa
 		}
 
 		glActiveTexture(GL_TEXTURE0 + i);
-		glBindTexture(GL_TEXTURE_2D, textures[i].id);  //Æ¬¶Î×ÅÉ«Æ÷»á¸ù¾İ¶ÔÓ¦µÄÎÆÀíµ¥Ôª¶ÁÈ¡texture_diffuseµÄÌùÍ¼Êı¾İ
+		glBindTexture(GL_TEXTURE_2D, textures[i].id);  //ç‰‡æ®µç€è‰²å™¨ä¼šæ ¹æ®å¯¹åº”çš„çº¹ç†å•å…ƒè¯»å–texture_diffuseçš„è´´å›¾æ•°æ®
 	}
 
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 
-	// ½â°ó
+	// è§£ç»‘
 	glBindVertexArray(0);
 
 	glBindVertexArray(lampVAO);
@@ -159,7 +159,7 @@ void Mesh::DrawMesh(const Shader& shader, const Shader& shader_lamp, float posVa
 
 		glm::vec3 lightPos = glm::vec3(5 * cos(posValue + i * 10), 10.0f, 5 * sin(posValue + i * 10));
 
-		glm::mat4 model = glm::mat4(1.0f);  // ³õÊ¼»¯Îªµ¥Î»¾ØÕó£¬Çå¿Õ
+		glm::mat4 model = glm::mat4(1.0f);  // åˆå§‹åŒ–ä¸ºå•ä½çŸ©é˜µï¼Œæ¸…ç©º
 		model = scale(model, glm::vec3(0.5f));
 		model = translate(model, lightPos);
 		model = rotate(model, glm::radians(45.0f + i * 10), glm::vec3(1.0f, 1.0f, 0.0f));
@@ -169,7 +169,7 @@ void Mesh::DrawMesh(const Shader& shader, const Shader& shader_lamp, float posVa
 		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 	}
 
-	// ½â°ó
+	// è§£ç»‘
 	glBindVertexArray(0);
 }
 
