@@ -97,8 +97,6 @@ int main()
 	ret1 = LoadTexture("container_diffuse.png", texture_diffuse);
 	ret2 = LoadTexture("container_specular.png", texture_specular);
 	//ret2 = LoadTexture("container_specular_color.png", texture_specular);
-	// 不同的贴图资源可能有不同的属性，颜色混合时，比如matrix_glow.jpg发光的部分会完全覆盖掉别的颜色，而不是混合颜色；
-	// awesomeface.png同样，脸和眼睛的部分会完全覆盖掉别的颜色，嘴的部分会和别的颜色混合
 	ret3 = LoadTexture("matrix_glow.jpg", texture_glow);
 	//ret3 = LoadTexture("awesomeface.png", texture_glow);
 	if (!ret1 || !ret2 || !ret3)
@@ -181,7 +179,6 @@ int main()
 		//入力
 		glfwPollEvents();
 		processInput(window);
-		glfwPollEvents();
 
 		// バッファをクリア
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -278,8 +275,6 @@ int main()
 		myShader.SetInt("material.shininess", material_shininess);
 
 		glBindVertexArray(VAO);
-
-
 
 		// 绑定显存,就可以进行独写操作，但是要读独写两块显存的时候，没办法同时绑定同一个GL_TEXTURE_2D，只能用纹理单元来区分
 		// VRAMバインディングにより読み書き可能  
