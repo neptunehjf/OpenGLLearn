@@ -93,9 +93,9 @@ void Camera::setCamFront()
 	// ヨー角計算時、カメラ座標系の+Z方向は+X軸を起点とする反時計回り回転として定義されます
 	// 参照Referrence/camera rotate.jpg Referrence/Euler Angle.png
 	vec3 front;
-	front.x = cos(radians(yawValue)) * cos(radians(pitchValue)); // 因为视角默认朝向X轴正方向，所以应该用与X轴正方向的角度计算偏移
+	front.x = cos(radians(yawValue)) * cos(radians(pitchValue));
 	front.y = sin(radians(pitchValue));
-	front.z = sin(radians(yawValue)) * cos(radians(pitchValue)); // 因为视角默认朝向X轴正方向，所以应该用与X轴正方向的角度计算偏移
+	front.z = sin(radians(yawValue)) * cos(radians(pitchValue));
 
 	camFront = normalize(front);
 }

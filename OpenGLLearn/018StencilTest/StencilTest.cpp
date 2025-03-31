@@ -1,4 +1,4 @@
-#include "glad/glad.h"
+ï»¿#include "glad/glad.h"
 #include "glfw/glfw3.h"
 
 #include <iostream>
@@ -36,6 +36,8 @@ void GetImguiValue();
 void SetValueToShader(Shader& shader);
 
 Camera myCam(vec3(1.5f, 2.0f, 3.8f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
+//Shader test("shader.vs", "shader.fs");  ä¸èƒ½å£°æ˜å…¨å±€å˜é‡ï¼Œå› ä¸ºshaderè¦è°ƒç”¨glfwçš„apiï¼Œæ‰€ä»¥å¿…é¡»åœ¨glfwåˆå§‹åŒ–å®Œæˆå
+// Shaderã‚°ãƒ­ãƒ¼ãƒãƒ«å¤‰æ•°ç¦æ­¢ ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã¯glfwåˆæœŸåŒ–å¾Œã«å‘¼ã³å‡ºã—å¿…é ˆ (glfwã®apiãŒå¿…è¦ã®ãŸã‚)
 
 static float posValue = 0.0f;
 static vec3 bkgColor = vec3(0.0f, 0.0f, 0.0f);
@@ -59,13 +61,13 @@ int main()
 	int success = 0;
 	char infoLog[LOG_LENGTH] = "\0";
 
-	// ³õÊ¼»¯
+	// åˆæœŸåŒ–
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	// »æÖÆ´°¿Ú
+	// ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’ä½œæˆã™ã‚‹
 	GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "koalahjf", NULL, NULL);
 	if (window == NULL)
 	{
@@ -76,7 +78,8 @@ int main()
 	glfwMakeContextCurrent(window);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-	// ²¶»ñÊó±ê
+	// æ•è·é¼ æ ‡
+	// ãƒã‚¦ã‚¹ã‚­ãƒ£ãƒ—ãƒãƒ£
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
@@ -99,22 +102,23 @@ int main()
 	ImGui_ImplGlfw_InitForOpenGL(window, true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
 	ImGui_ImplOpenGL3_Init();
 
-	// ´´½¨shader ²»ÄÜÉùÃ÷È«¾Ö±äÁ¿£¬ÒòÎªshaderµÄÏà¹Ø²Ù×÷±ØĞëÔÚglfw³õÊ¼»¯Íê³Éºó
+	// åˆ›å»ºShaderç¨‹åº
+	// ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ãƒ—ãƒ­ã‚°ãƒ©ãƒ ã‚’ä½œæˆ
 	Shader myShader("Shader.vs", "Shader.fs");
 	Shader outlineShader("Shader.vs", "Shader_Outline.fs");
 
-	/* ¼ÓÔØÌùÍ¼ */
-    // ·­×ªyÖá£¬Ê¹Í¼Æ¬ºÍopengl×ø±êÒ»ÖÂ  µ«ÊÇÈç¹ûassimp µ¼ÈëÄ£ĞÍÊ±ÉèÖÃÁËaiProcess_FlipUVs£¬¾Í²»ÄÜÖØ¸´ÉèÖÃÁË
+	// ç¿»è½¬yè½´ï¼Œä½¿å›¾ç‰‡åæ ‡å’Œopenglåæ ‡ä¸€è‡´
+	// Yè»¸ã‚’åè»¢ã—ã¦ç”»åƒåº§æ¨™ã¨OpenGLåº§æ¨™ã‚’ä¸€è‡´ã•ã›ã‚‹
+	// â€»Assimpã®aiProcess_FlipUVsãƒ•ãƒ©ã‚°ä½¿ç”¨æ™‚ã¯äºŒé‡è¨­å®šç¦æ­¢
 	stbi_set_flip_vertically_on_load(true);
 
-	// ¼ÓÔØÌùÍ¼
 	GLuint texture1 = 0;
 	GLuint texture2 = 0;
 	GLuint dummy = 0;
 	bool ret1, ret2, ret3;
 	ret1 = LoadTexture("metal.png", texture1);
 	ret2 = LoadTexture("marble.jpg", texture2);
-	ret3 = LoadTexture("dummy_specular.png", dummy);  //×Ô¼º×öµÄÕ¼Î»ÌùÍ¼£¬Õ¼Ò»¸ösamplerÎ»ÖÃ£¬·ñÔò»á±»ÆäËûmeshµÄ¸ß¹âÌùÍ¼Ìæ´ú
+	ret3 = LoadTexture("dummy_specular.png", dummy);
 	if (ret1 == false || ret2 == false || ret3 == false)
 		return -1;
 
@@ -136,25 +140,26 @@ int main()
 	Model model("nanosuit/nanosuit.obj");
 	model.SetTranslate(vec3(1.0f, 0.5f, 0.0f));
 
-	// ¼ì²émyShader³ÌĞòÓĞĞ§ĞÔ
+	// æœ‰åŠ¹ãƒã‚§ãƒƒã‚¯
 	if (myShader.Use() == false)
 	{
 		cout << "myShader program invalid!" << endl;
 		return -1;
 	}
-	// ¼ì²émyShader³ÌĞòÓĞĞ§ĞÔ
+	// æœ‰åŠ¹ãƒã‚§ãƒƒã‚¯
 	if (outlineShader.Use() == false)
 	{
 		cout << "outlineShader program invalid!" << endl;
 		return -1;
 	}
 
-	//äÖÈ¾Ñ­»·
+	//æ¸²æŸ“å¾ªç¯
+	//ã€€ãƒ¬ãƒ³ãƒ€ãƒªãƒ³ã‚°ãƒ«ãƒ¼ãƒ—
 	while (!glfwWindowShouldClose(window))
 	{
-		//ÊäÈë
-		processInput(window);
+		//å…¥åŠ›
 		glfwPollEvents();
+		processInput(window);
 
 		// Start the Dear ImGui frame
 		ImGui_ImplOpenGL3_NewFrame();
@@ -174,41 +179,55 @@ int main()
 		ImGui::End();
 
 		SetValueToShader(myShader);
-		SetValueToShader(outlineShader); // ¶à¸öshaderÕæµÄºÜÈİÒ×Â©
+		SetValueToShader(outlineShader); // å¤šä¸ªshaderçœŸçš„å¾ˆå®¹æ˜“æ¼
+										 // æ•°ã®ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ã¯ç®¡ç†æ¼ã‚ŒãŒç™ºç”Ÿã—ã‚„ã™ã„
 
-		// ¿ªÆôÉî¶È²âÊÔ
+    	// å¼€å¯æ·±åº¦æµ‹è¯•
+    	// æ·±åº¦ãƒ†ã‚¹ãƒˆã‚’æœ‰åŠ¹åŒ–
 		glEnable(GL_DEPTH_TEST);
-		//glDepthMask(GL_FALSE); // GL_FALSE ÊÇ ½ûÖ¹Ğ´Éî¶ÈbufferµÄÒâË¼
+		//glDepthMask(GL_FALSE); // GL_FALSE æ˜¯ ç¦æ­¢å†™æ·±åº¦bufferçš„æ„æ€
         //glDepthFunc(GL_LESS);
 
-		//¿ªÆôÄ£°å²âÊÔ
+		//å¼€å¯æ¨¡æ¿æµ‹è¯•
+		// ã‚¹ãƒ†ãƒ³ã‚·ãƒ«ãƒ†ã‚¹ãƒˆã‚’æœ‰åŠ¹åŒ–
 		glEnable(GL_STENCIL_TEST);
-		glStencilOp(GL_KEEP, GL_REPLACE, GL_REPLACE); //Éî¶È²âÊÔºÍÄ£°å²âÊÔ¶¼Í¨¹ıÊ±replace buffer with ref
+		glStencilOp(GL_KEEP, GL_REPLACE, GL_REPLACE); //æ·±åº¦æµ‹è¯•å’Œæ¨¡æ¿æµ‹è¯•éƒ½é€šè¿‡æ—¶replace buffer with ref
 
-		//´ò¿ªĞ´²Ù×÷
+		//æ‰“å¼€å†™æ“ä½œ
+		// æ›¸ãè¾¼ã¿æ“ä½œã‚’æœ‰åŠ¹åŒ–
 		glStencilMask(0xFF);
 
-		// Çå¿Õ¸÷¸ö»º³åÇø
+		// æ¸…ç©ºå„ä¸ªç¼“å†²åŒº
+		// å„ãƒãƒƒãƒ•ã‚¡ã‚’ã‚¯ãƒªã‚¢
 		glClearColor(bkgColor.r, bkgColor.g, bkgColor.b, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-		// »æÖÆµØ°å£¬²»ĞèÒªĞ´Èëstencil»º³å
-		glStencilMask(0x00);//¹Ø±ÕĞ´²Ù×÷
+		// ç»˜åˆ¶åœ°æ¿ï¼Œä¸éœ€è¦å†™å…¥stencilç¼“å†²
+		// åºŠã®æç”»ï¼ˆã‚¹ãƒ†ãƒ³ã‚·ãƒ«ãƒãƒƒãƒ•ã‚¡ã¸ã®æ›¸ãè¾¼ã¿ä¸è¦ï¼‰
+		glStencilMask(0x00);//å…³é—­å†™æ“ä½œ
+						    // æ›¸ãè¾¼ã¿æ“ä½œã‚’ç„¡åŠ¹åŒ–
 		plane.DrawMesh(myShader);
 
-		// »æÖÆÁ½¸öÁ¢·½Ìå£¬²¢ÇÒÔÚÃ¿¸öÏñËØ/Æ¬¶Î Ğ´Èë1µ½stencil»º³å
-		glStencilMask(0xFF);//´ò¿ªĞ´²Ù×÷
-		glStencilFunc(GL_ALWAYS, 1, 0xFF); //ËùÓĞ»æÖÆµÄÏñËØ/Æ¬¶Î×ÜÊÇÎŞÌõ¼şµØĞ´1µ½stencil»º³å
+		// ç»˜åˆ¶ä¸¤ä¸ªç«‹æ–¹ä½“ï¼Œå¹¶ä¸”åœ¨æ¯ä¸ªåƒç´ /ç‰‡æ®µ å†™å…¥1åˆ°stencilç¼“å†²
+		// ç«‹æ–¹ä½“2å€‹ã‚’æç”»ï¼ˆå„ãƒ”ã‚¯ã‚»ãƒ«/ãƒ•ãƒ©ã‚°ãƒ¡ãƒ³ãƒˆã«1ã‚’ã‚¹ãƒ†ãƒ³ã‚·ãƒ«ãƒãƒƒãƒ•ã‚¡æ›¸ãè¾¼ã¿ï¼‰
+		glStencilMask(0xFF);// æ‰“å¼€å†™æ“ä½œ
+		                    // æ›¸ãè¾¼ã¿æ“ä½œã‚’æœ‰åŠ¹åŒ–
+		glStencilFunc(GL_ALWAYS, 1, 0xFF); //æ‰€æœ‰ç»˜åˆ¶çš„åƒç´ /ç‰‡æ®µæ€»æ˜¯æ— æ¡ä»¶åœ°å†™1åˆ°stencilç¼“å†²
+		                                   // å…¨æç”»ãƒ”ã‚¯ã‚»ãƒ«ã§ç„¡æ¡ä»¶ã«1ã‚’æ›¸ãè¾¼ã¿
 		cube.SetScale(vec3(CUBE_SCALE_DEFAULT));
 		cube.SetTranslate(vec3(1.0f, 1.0f, 1.0f));
 		cube.DrawMesh(myShader);
 		cube.SetTranslate(vec3(0.0f, 1.0f, -1.0f));
 		cube.DrawMesh(myShader);
 
-		// »º³åĞ´ÈëÖ®ºó£¬ÔÙ½ûÖ¹Ğ´Èë»º³å£¬²¢ÇÒ¿ªÊ¼ÕæÕıµÄStencil²âÊÔ
-		//glClear(GL_DEPTH_BUFFER_BIT); // Çå¿ÕÉî¶È»º´æ£¬ÕâÑù±ß¿ò¿ÉÒÔÓĞÍ¸ÊÓĞ§¹û
-		glStencilMask(0x00);//¹Ø±ÕĞ´²Ù×÷
-		glStencilFunc(GL_NOTEQUAL, 1, 0xFF); //ËùÓĞ»æÖÆµÄÏñËØ/Æ¬¶Î×ÜÊÇÎŞÌõ¼şµØĞ´1µ½stencil»º³å
+		// ç¼“å†²å†™å…¥ä¹‹åï¼Œå†ç¦æ­¢å†™å…¥ç¼“å†²ï¼Œå¹¶ä¸”å¼€å§‹çœŸæ­£çš„Stencilæµ‹è¯•
+		// ãƒãƒƒãƒ•ã‚¡æ›¸ãè¾¼ã¿å¾Œã€æ›¸ãè¾¼ã¿ç¦æ­¢ã«ã—ã¦æœ¬ç•ªã®ã‚¹ãƒ†ãƒ³ã‚·ãƒ«ãƒ†ã‚¹ãƒˆé–‹å§‹
+		//glClear(GL_DEPTH_BUFFER_BIT); // æ¸…ç©ºæ·±åº¦ç¼“å­˜ï¼Œè¿™æ ·è¾¹æ¡†å¯ä»¥æœ‰é€è§†æ•ˆæœ
+										// æ·±åº¦ãƒãƒƒãƒ•ã‚¡ã‚’ã‚¯ãƒªã‚¢ï¼ˆè¼ªéƒ­ã«é€è¦–åŠ¹æœã‚’ä»˜ä¸ï¼‰
+		glStencilMask(0x00);//å…³é—­å†™æ“ä½œ
+							// æ›¸ãè¾¼ã¿æ“ä½œã‚’ç„¡åŠ¹åŒ–
+		glStencilFunc(GL_NOTEQUAL, 1, 0xFF); // åªæœ‰Stencil bufferä¸ç­‰äº1çš„æ—¶å€™å¯ä»¥ç»˜åˆ¶
+											 // Stencil bufferã®å€¤ãŒ1ã§ãªã„å ´åˆã®ã¿æç”»è¨±å¯
 		
 		cube.SetScale(vec3(CUBE_SCALE_OUTLINE));
 		cube.SetTranslate(vec3(1.0f, 1.0f, 1.0f));
@@ -216,17 +235,22 @@ int main()
 		cube.SetTranslate(vec3(0.0f, 1.0f, -1.0f));
 		cube.DrawMesh(outlineShader);
 
-		// »æÖÆÈËÎï
-		glStencilMask(0xFF);//´ò¿ªĞ´²Ù×÷
+		// ç»˜åˆ¶äººç‰©
+		// ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼æç”»
+		glStencilMask(0xFF);//æ‰“å¼€å†™æ“ä½œ
+			                // æ›¸ãè¾¼ã¿æ“ä½œã‚’æœ‰åŠ¹åŒ–
 		glClear(GL_STENCIL_BUFFER_BIT);
-		glStencilFunc(GL_ALWAYS, 1, 0xFF); //ËùÓĞ»æÖÆµÄÏñËØ/Æ¬¶Î×ÜÊÇÎŞÌõ¼şµØĞ´1µ½stencil»º³å
-		model.SetScale(vec3(CHARACTRER_SCALE_DEFAULT)); //»æÖÆÖ®Ç°±ØĞëÒªÖØÉè£¬²»È»¾Í»á±ä³É»æÖÆÂÖÀªÊ±ÉèÖÃµÄÖµÁË
+		glStencilFunc(GL_ALWAYS, 1, 0xFF); 
+		model.SetScale(vec3(CHARACTRER_SCALE_DEFAULT)); // ç»˜åˆ¶ä¹‹å‰å¿…é¡»è¦é‡è®¾ï¼Œä¸ç„¶å°±ä¼šå˜æˆç»˜åˆ¶è½®å»“æ—¶è®¾ç½®çš„å€¼äº†
+													    // è¼ªéƒ­ç”¨ã‚¹ã‚±ãƒ¼ãƒ«å€¤ã®ä¸Šæ›¸ãé˜²æ­¢
 		model.DrawModel(myShader);
 
-		glStencilMask(0x00);//¹Ø±ÕĞ´²Ù×÷
+		glStencilMask(0x00);//å…³é—­å†™æ“ä½œ
+						    // æ›¸ãè¾¼ã¿æ“ä½œã‚’ç„¡åŠ¹åŒ–
 		
-		// »æÖÆÈËÎïÂÖÀª
-		glClear(GL_DEPTH_BUFFER_BIT); // Çå¿ÕÉî¶È»º´æ£¬ÕâÑù±ß¿ò¿ÉÒÔÓĞÍ¸ÊÓĞ§¹û
+		// ç»˜åˆ¶äººç‰©è½®å»“
+		glClear(GL_DEPTH_BUFFER_BIT); // æ¸…ç©ºæ·±åº¦ç¼“å­˜ï¼Œè¿™æ ·è¾¹æ¡†å¯ä»¥æœ‰é€è§†æ•ˆæœ
+								      // æ·±åº¦ãƒãƒƒãƒ•ã‚¡ã‚’ã‚¯ãƒªã‚¢ï¼ˆè¼ªéƒ­ã«é€è¦–åŠ¹æœã‚’ä»˜ä¸ï¼‰
 		glStencilMask(0x00);
 		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 		model.SetScale(vec3(CHARACTRER_SCALE_OUTLINE));
@@ -235,8 +259,10 @@ int main()
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-		// »º³åÇø½»»» ÂÖÑ¯ÊÂ¼ş
+		//ç¼“å†²åŒºäº¤æ¢
+		//ãƒãƒƒãƒ•ã‚¡äº¤æ› 
 		glfwSwapBuffers(window);
+
 	}
 
 	model.DeleteModel();
@@ -259,7 +285,9 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 void processInput(GLFWwindow* window)
 {
-	/* Ïà»úÆ½ÒÆ */
+	/* ç›¸æœºå¹³ç§» */
+	// ã‚«ãƒ¡ãƒ©ç§»å‹•
+
 	myCam.currentFrame = glfwGetTime();
 	myCam.deltaTime = myCam.currentFrame - myCam.lastFrame;
 	myCam.lastFrame = myCam.currentFrame;
@@ -286,14 +314,15 @@ void processInput(GLFWwindow* window)
 
 void mouse_callback(GLFWwindow* window, double posX, double posY)
 {
-	/* Ïà»úÊÓ½Ç */
-
+	/* ç›¸æœºè§†è§’ */
+	// ã‚«ãƒ¡ãƒ©å›è»¢
 	float offsetX = posX - myCam.lastX;
 	float offsetY = myCam.lastY - posY;
 	myCam.lastX = posX;
 	myCam.lastY = posY;
 
-	// Êó±êÓÒ¼ü²»°´¾Í²»´¦Àí£¬ÒòÎªÊó±êÒªÓÃÀ´µãImgui
+	// æŒ‰ä½é¼ æ ‡å³é”®æ—¶æ‰ä¼šç§»åŠ¨ç›¸æœº
+	// ãƒã‚¦ã‚¹å³ãƒœã‚¿ãƒ³æŠ¼ä¸‹ä¸­ã®ã¿ã‚«ãƒ¡ãƒ©å›è»¢ã‚’è¨±å¯  
 	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) != GLFW_PRESS)
 	{
 		return;
@@ -313,7 +342,7 @@ void mouse_callback(GLFWwindow* window, double posX, double posY)
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	/* ¾µÍ·Ëõ·Å */
+	/* FOV */
 	if (myCam.fov >= 1.0f && myCam.fov <= 95.0f)
 		myCam.fov -= yoffset;
 	if (myCam.fov <= 1.0f)
@@ -324,15 +353,18 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 
 bool LoadTexture(const string&& filePath, GLuint& texture)
 {
-	// ÉêÇëÏÔ´æ¿Õ¼ä²¢°ó¶¨GL_TEXTURE_2D¶ÔÏó
+	// ç”³è¯·æ˜¾å­˜ç©ºé—´å¹¶ç»‘å®šGL_TEXTURE_2Då¯¹è±¡
+    // VRAMé ˜åŸŸç¢ºä¿ã—ã€GL_TEXTURE_2Dã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ãƒã‚¤ãƒ³ãƒ‰
 	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture); // °ó¶¨²Ù×÷ÒªÃ´ÊÇ¶ÁÒªÃ´ÊÇĞ´£¬ÕâÀïÊÇÒªĞ´
-	// ÉèÖÃGL_TEXTURE_2DµÄ»·ÈÆ£¬¹ıÂË·½Ê½
+	glBindTexture(GL_TEXTURE_2D, texture); 
+	// è®¾ç½®GL_TEXTURE_2Dçš„ç¯ç»•ï¼Œè¿‡æ»¤æ–¹å¼
+    // GL_TEXTURE_2Dã®ãƒ©ãƒƒãƒ—ãƒ¢ãƒ¼ãƒ‰ã¨ãƒ•ã‚£ãƒ«ã‚¿ãƒªãƒ³ã‚°è¨­å®š
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	// ¼ÓÔØÌùÍ¼£¬×ª»»ÎªÏñËØÊı¾İ
+	// åŠ è½½è´´å›¾ï¼Œè½¬æ¢ä¸ºåƒç´ æ•°æ®
+    // ãƒ†ã‚¯ã‚¹ãƒãƒ£èª­ã¿è¾¼ã¿ã€ãƒ‡ãƒ¼ã‚¿ã«å¤‰æ›
 	int width, height, channel;
 	unsigned char* data = stbi_load(filePath.c_str(), &width, &height, &channel, 0);
 
@@ -356,17 +388,20 @@ bool LoadTexture(const string&& filePath, GLuint& texture)
 
 	if (data)
 	{
-		// ÌùÍ¼Êı¾İ ÄÚ´æ -> ÏÔ´æ
+		// è´´å›¾æ•°æ® å†…å­˜ -> æ˜¾å­˜
+        /* ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ‡ãƒ¼ã‚¿ã‚’VRAMã«è»¢é€ã™ã‚‹ */
 		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-		// Éú³É¶à¼¶½¥½øÌùÍ¼
+		// ç”Ÿæˆå¤šçº§æ¸è¿›è´´å›¾
+		// ãƒŸãƒƒãƒ—ãƒãƒƒãƒ—ã‚’ç”Ÿæˆã™ã‚‹  
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else
 	{
-		cout << "Failed to load texture£¡" << endl;
+		cout << "Failed to load textureï¼" << endl;
 		return false;
 	}
-	// ÏñËØÊı¾İÒÑ¾­´«¸øÏÔ´æÁË£¬É¾³ıÄÚ´æÖĞµÄÏñËØÊı¾İ
+	// æ•°æ®å·²ç»ä¼ ç»™æ˜¾å­˜äº†ï¼Œåˆ é™¤å†…å­˜ä¸­çš„æ•°æ®
+    // ãƒ¡ãƒ¢ãƒªä¸Šã®ãƒ‡ãƒ¼ã‚¿å‰Šé™¤ï¼ˆVRAMã«è»¢é€å®Œäº†å¾Œï¼‰
 	stbi_image_free(data);
 
 	return true;
@@ -404,10 +439,11 @@ void GetImguiValue()
 
 void SetValueToShader(Shader& shader)
 {
-	//¼¤»îmyShader³ÌĞò ÕâÀïÉæ¼°Á½¸öshader³ÌĞòµÄÇĞ»»£¬ËùÒÔÃ¿´ÎloopÀï¶¼ÒªÔÚ¶ÔÓ¦µÄÎ»ÖÃµ÷ÓÃ£¬²»ÄÜÖ»ÔÚ¿ªÊ¼µ÷ÓÃÒ»´Î
+	//æ¿€æ´»myShaderç¨‹åº è¿™é‡Œæ¶‰åŠä¸¤ä¸ªshaderç¨‹åºçš„åˆ‡æ¢ï¼Œæ‰€ä»¥æ¯æ¬¡loopé‡Œéƒ½è¦åœ¨å¯¹åº”çš„ä½ç½®è°ƒç”¨ï¼Œä¸èƒ½åªåœ¨å¼€å§‹è°ƒç”¨ä¸€æ¬¡
+	// 2ã¤ã®ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ãƒ—ãƒ­ã‚°ãƒ©ãƒ ã®åˆ‡ã‚Šæ›¿ãˆãŒå¿…è¦ãªãŸã‚ã€ãƒ«ãƒ¼ãƒ—æ¯ã«å¯¾å¿œä½ç½®ã§å‘¼ã³å‡ºã™ã“ã¨ï¼ˆåˆæœŸå‘¼ã³å‡ºã—ã®ã¿ä¸é©ï¼‰
 	shader.Use();
 
-	float constant = 1.0f; // Í¨³£±£³Ö1¾ÍĞĞÁË
+	float constant = 1.0f;
 	float linear = 0.09f;
 	float quadratic = 0.032f;
 	switch (item)
@@ -441,9 +477,9 @@ void SetValueToShader(Shader& shader)
 		cout << "Light Fade Distance Error!" << endl;
 		break;
 	}
-}
 
-	//Ïà»úÎ»ÖÃÊÇÒªÊµÊ±¸üĞÂµÄ£¬¶øÇÒÆô¶¯ÁËshader1Ö®ºóÓÖÆô¶¯ÁËshader2£¬shader1µÄÉèÖÃ»áÎŞĞ§»¯
+	}
+
 	shader.SetVec3("uni_viewPos", myCam.camPos);
 	shader.SetVec3("dirLight.direction", vec3(-1.0f, -1.0f, -1.0f));
 	shader.SetVec3("dirLight.ambient", dirLight_ambient);
@@ -473,20 +509,25 @@ void SetValueToShader(Shader& shader)
 		shader.SetFloat(prefix + "quadratic", quadratic);
 	}
 
-	// view¾ØÕó world -> view
+	// viewçŸ©é˜µ world -> view
+	// viewè¡Œåˆ—ï¼ˆè¦–ç‚¹å¤‰æ›è¡Œåˆ—ï¼‰
 	mat4 view;
 	myCam.setCamView();
 	view = myCam.getCamView();
 	shader.SetMat4("uni_view", view);
 
-	// Í¶Ó°¾ØÕó view -> clip
+	// æŠ•å½±çŸ©é˜µ view -> clip
+	// projectionè¡Œåˆ—ï¼ˆå°„å½±å¤‰æ›è¡Œåˆ—ï¼‰
 	mat4 projection;
 	float fov = myCam.getCamFov();
 
-	projection = perspective(radians(fov), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f); // Ö®Ç°Ğ´³É(float)(WINDOW_WIDTH / WINDOW_HEIGHT)ÁË£¬¾«¶È¶ªÊ§£¬µ¼ÖÂ½á¹ûÊÇ1
+	projection = perspective(radians(fov), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f); // ä¹‹å‰å†™æˆ(float)(WINDOW_WIDTH / WINDOW_HEIGHT)äº†ï¼Œç²¾åº¦ä¸¢å¤±ï¼Œå¯¼è‡´ç»“æœæ˜¯1
 	shader.SetMat4("uni_projection", projection);
 
-	// model¾ØÕó local -> world
-	mat4 model = mat4(1.0f); // mat4³õÊ¼»¯×îºÃÏÔÊ¾µ÷ÓÃ³õÊ¼»¯Îªµ¥Î»¾ØÕó£¬ÒòÎªĞÂ°æ±¾mat4 model¿ÉÄÜÊÇÈ«0¾ØÕó
+	// modelçŸ©é˜µ local -> world
+	// modelè¡Œåˆ—ï¼ˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆç©ºé–“â†’ãƒ¯ãƒ¼ãƒ«ãƒ‰ç©ºé–“å¤‰æ›ï¼‰
+
+	mat4 model = mat4(1.0f); // mat4åˆå§‹åŒ–æœ€å¥½æ˜¾ç¤ºè°ƒç”¨åˆå§‹åŒ–ä¸ºå•ä½çŸ©é˜µï¼Œå› ä¸ºæ–°ç‰ˆæœ¬mat4 modelå¯èƒ½æ˜¯å…¨0çŸ©é˜µ
+	// mat4ã®åˆæœŸåŒ–ã¯æ˜ç¤ºçš„ã«å˜ä½è¡Œåˆ—ã§è¡Œã†ã¹ãã€€æœ€æ–°ãƒãƒ¼ã‚¸ãƒ§ãƒ³ã§ã¯æš—é»™çš„ã«ã‚¼ãƒ­è¡Œåˆ—ãŒç”Ÿæˆã•ã‚Œã‚‹å¯èƒ½æ€§ã‚ã‚Š
 	shader.SetMat4("uni_model", model);
 }

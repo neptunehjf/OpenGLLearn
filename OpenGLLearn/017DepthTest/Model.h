@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include <vector>
 #include <string>
@@ -35,15 +35,19 @@ public:
     }
 
 private:
-    vector<Mesh> meshes; // Ò»¸ömodelÓÉ¶à¸ömesh×é³É£¬±ÈÈç³µµÄmodelÓÉ³µÍ·£¬³µÃÅ£¬ÂÖÌ¥µÈmesh×é³É
+    vector<Mesh> meshes; // ä¸€ä¸ªmodelç”±å¤šä¸ªmeshç»„æˆï¼Œæ¯”å¦‚è½¦çš„modelç”±è½¦å¤´ï¼Œè½¦é—¨ï¼Œè½®èƒç­‰meshç»„æˆ
+                         // ãƒ¢ãƒ‡ãƒ«ã¯è¤‡æ•°ã®ãƒ¡ãƒƒã‚·ãƒ¥ã§æ§‹æˆã•ã‚Œã‚‹ã€‚ä¾‹ï¼šè»Šã®ãƒ¢ãƒ‡ãƒ«ã¯ãƒœãƒ‡ã‚£ã€ãƒ‰ã‚¢ã€ã‚¿ã‚¤ãƒ¤ãªã©ã®ãƒ¡ãƒƒã‚·ãƒ¥ã§æ§‹æˆ
     string directory;
-    vector<Texture> texture_loaded; // ¼ÓÔØÌùÍ¼¿ªÏúºÜ´ó£¬ÎªÁËÓÅ»¯£¬ÒÑ¾­¼ÓÔØ¹ıµÄtexture¾Í²»ÒªÖØ¸´¼ÓÔØÁË
+    vector<Texture> texture_loaded; // åŠ è½½è´´å›¾å¼€é”€å¾ˆå¤§ï¼Œä¸ºäº†ä¼˜åŒ–ï¼Œå·²ç»åŠ è½½è¿‡çš„textureå°±ä¸è¦é‡å¤åŠ è½½äº†
+                                    // ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®èª­ã¿è¾¼ã¿ã¯è² è·ãŒé«˜ã„ãŸã‚ã€æ—¢ã«èª­ã¿è¾¼ã‚“ã ãƒ†ã‚¯ã‚¹ãƒãƒ£ã¯é‡è¤‡ã—ã¦èª­ã¿è¾¼ã¾ãªã„ã‚ˆã†ã«æœ€é©åŒ–
 
     void loadModel(string path);
 
-    // ¸ù¾İ¸÷¸önodeµÄmesh indexÈ¡³ösceneÀïµÄmesh×ÊÔ´£¨vertex normal texCoord face materialIndex£©
+    // æ ¹æ®å„ä¸ªnodeçš„mesh indexå–å‡ºsceneé‡Œçš„meshèµ„æºï¼ˆvertex normal texCoord face materialIndexï¼‰
+    //  å„ãƒãƒ¼ãƒ‰ã®ãƒ¡ãƒƒã‚·ãƒ¥ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‹ã‚‰sceneå†…ã®ãƒ¡ãƒƒã‚·ãƒ¥ãƒªã‚½ãƒ¼ã‚¹ã‚’å–å¾—
     void processNode(aiNode* node, const aiScene* scene);
-    // °Ñassimp¸ñÊ½µÄmeshÊı¾İ½âÎö³ÉÎÒÃÇ×Ô¼ºµÄmeshÊı¾İ
+    // æŠŠassimpæ ¼å¼çš„meshæ•°æ®è§£ææˆæˆ‘ä»¬è‡ªå·±çš„meshæ•°æ®
+    // Assimpå½¢å¼ã®ãƒ¡ãƒƒã‚·ãƒ¥ãƒ‡ãƒ¼ã‚¿ã‚’è‡ªåˆ†ã®ãƒ¡ãƒƒã‚·ãƒ¥ãƒ‡ãƒ¼ã‚¿å½¢å¼ã«å¤‰æ›
     Mesh processMesh(aiMesh* mesh, const aiScene* scene);
 
     vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName);
@@ -68,14 +72,16 @@ void Model::loadModel(string path)
 
 void Model::processNode(aiNode* node, const aiScene* scene)
 {
-    // ±éÀúnode½ÚµãµÄindex£¬ÕÒµ½sceneÀï¶ÔÓ¦µÄmesh
+    // éå†nodeèŠ‚ç‚¹çš„mesh indexï¼Œæ‰¾åˆ°sceneé‡Œå¯¹åº”çš„mesh
+    //ãƒãƒ¼ãƒ‰ã®ãƒ¡ãƒƒã‚·ãƒ¥ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚’èµ°æŸ»ã—ã€sceneå†…ã®å¯¾å¿œã™ã‚‹ãƒ¡ãƒƒã‚·ãƒ¥ã‚’æ¤œç´¢
     for (unsigned int i = 0; i < node->mNumMeshes; i++)
     {
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
         meshes.push_back(processMesh(mesh, scene));
     }
 
-    // ×Ónode½Úµã½øĞĞµİ¹é²Ù×÷
+    // å­nodeèŠ‚ç‚¹è¿›è¡Œé€’å½’æ“ä½œ
+    // å­ãƒãƒ¼ãƒ‰ã«å¯¾ã—ã¦å†å¸°å‡¦ç†ã‚’å®Ÿè¡Œ
     for (unsigned int i = 0; i < node->mNumChildren; i++)
     {
         processNode(node->mChildren[i], scene);
@@ -88,28 +94,30 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
     vector<GLuint> indices;
     vector<Texture> textures;
 
-    // »ñÈ¡vertices (position normal texCoord)
+    // è·å–vertices (position normal texCoord)
+    // vertices (position normal texCoord)ã‚’å–å¾—
     for (unsigned int i = 0; i < mesh->mNumVertices; i++) 
     {
-        // mNumVerticesÊÇ¶¥µã¸öÊı mVerticesÊÇpositionµÄÒâË¼£¬Ãû×ÖÆğµÄ²»ÊÇºÜºÃ
         Vertex vertex = {vec3(0.0f), vec3(0.0f), vec2(0.0f)};
-        // ¶¥µãÎ»ÖÃ
+        // é ‚ç‚¹ä½ç½®
         vec3 position;
         position.x = mesh->mVertices[i].x;
         position.y = mesh->mVertices[i].y;
         position.z = mesh->mVertices[i].z;
         vertex.position = position;
-        // ¶¥µã·¨Ïß
+        // é ‚ç‚¹æ³•ç·š
         vec3 normal;
         normal.x = mesh->mNormals[i].x;
         normal.y = mesh->mNormals[i].y;
         normal.z = mesh->mNormals[i].z;
         vertex.normal = normal;
-        // ¶¥µãÎÆÀí×ø±ê AssimpÔÊĞíÒ»¸öÄ£ĞÍÔÚÒ»¸ö¶¥µãÉÏÓĞ×î¶à8¸ö²»Í¬µÄÎÆÀí×ø±ê
+        // é¡¶ç‚¹çº¹ç†åæ ‡ Assimpå…è®¸ä¸€ä¸ªæ¨¡å‹åœ¨ä¸€ä¸ªé¡¶ç‚¹ä¸Šæœ‰æœ€å¤š8ç»„ä¸åŒçš„çº¹ç†åæ ‡
+        // é ‚ç‚¹ãƒ†ã‚¯ã‚¹ãƒãƒ£åº§æ¨™ï¼ˆAssimpã¯1é ‚ç‚¹ã‚ãŸã‚Šæœ€å¤§8ã¤ã‚»ãƒƒãƒˆã®ãƒ†ã‚¯ã‚¹ãƒãƒ£åº§æ¨™ã‚’ã‚µãƒãƒ¼ãƒˆï¼‰
         vec3 texCoord;
-        if (mesh->mTextureCoords[0])  //¼ì²éÍø¸ñÊÇ·ñÕæµÄ°üº¬ÁËÎÆÀí×ø±ê£¨¿ÉÄÜ²¢²»»áÒ»Ö±Èç´Ë£©
+        if (mesh->mTextureCoords[0])
         {
-            //×¢ÒâmTextureCoordsÊÇ¶şÎ¬Êı×é£¬µÚÒ»¸öÎ¬¶È±íÊ¾ÊÇÄÄÒ»×éÎÆÀí×ø±ê£¬ÎÒÃÇÕâÀïÖ»¹ØĞÄµÚÒ»×é
+            // æ³¨æ„ mTextureCoordsæ˜¯äºŒç»´æ•°ç»„ï¼Œç¬¬ä¸€ä¸ªç»´åº¦è¡¨ç¤ºæ˜¯å“ªä¸€ç»„çº¹ç†åæ ‡ï¼Œæˆ‘ä»¬è¿™é‡Œåªå…³å¿ƒç¬¬ä¸€ç»„
+            // æ³¨æ„: mTextureCoordsã¯2æ¬¡å…ƒé…åˆ—ï¼ˆç¬¬1æ¬¡å…ƒãŒãƒ†ã‚¯ã‚¹ãƒãƒ£åº§æ¨™ã‚»ãƒƒãƒˆç•ªå·ï¼‰ã€‚å½“å‡¦ç†ã§ã¯ç¬¬1ã‚»ãƒƒãƒˆã®ã¿ä½¿ç”¨
             texCoord.x = mesh->mTextureCoords[0][i].x;
             texCoord.y = mesh->mTextureCoords[0][i].y;
             vertex.texCoord = texCoord;
@@ -117,7 +125,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
         vertices.push_back(vertex);
     }
 
-    // »ñÈ¡indices
+    // indices
     for (unsigned int i = 0; i < mesh->mNumFaces; i++)
     {
         aiFace face = mesh->mFaces[i];
@@ -127,7 +135,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
         }
     }
 
-    // »ñÈ¡Material
+    // Material
     aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
     // diffuse texure
     vector<Texture> diffuse = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
@@ -155,8 +163,9 @@ vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type,
         {
             if (strcmp(texture_loaded[j].path.C_Str(), str.C_Str()) == 0) 
             {
-                // Ìø¹ıÒÑ¾­¼ÓÔØµÄÌùÍ¼£¬Ö±½Ó¸´ÓÃtexture_loadedµÄÌùÍ¼Êı¾İ¾ÍĞĞÁË£¬²»ĞèÒªÔÙ´ÓÓ²ÅÌ¼ÓÔØÁË¡£
-                cout << "skip" << endl;
+                // è·³è¿‡å·²ç»åŠ è½½çš„è´´å›¾ï¼Œç›´æ¥å¤ç”¨texture_loadedçš„è´´å›¾æ•°æ®å°±è¡Œäº†ï¼Œä¸éœ€è¦å†ä»ç¡¬ç›˜åŠ è½½äº†ã€‚
+                // æ—¢ã«èª­ã¿è¾¼ã¿æ¸ˆã¿ã®ãƒ†ã‚¯ã‚¹ãƒãƒ£ã¯ã‚¹ã‚­ãƒƒãƒ—ã—ã€texture_loadedå†…ã®ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ‡ãƒ¼ã‚¿ã‚’å†åˆ©ç”¨ã€‚ãƒ‡ã‚£ã‚¹ã‚¯ã‹ã‚‰ã®å†èª­ã¿è¾¼ã¿ä¸è¦
+				cout << "skip" << endl;
                 skip = true;
                 textures.push_back(texture_loaded[j]);
                 break;
@@ -164,14 +173,16 @@ vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type,
         }
         if (!skip)
         {
-            // ´ÓÓ²ÅÌ¼ÓÔØÌùÍ¼
+            // ä»ç¡¬ç›˜åŠ è½½è´´å›¾
+            // ãƒ‡ã‚£ã‚¹ã‚¯ã‹ã‚‰ãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’èª­ã¿è¾¼ã¿
             Texture texture;
             texture.id = TextureFromFile(str.C_Str(), directory.c_str());
             texture.type = typeName;
             texture.path = str;
             textures.push_back(texture);
 
-            // ÎªÁË¸´ÓÃÎÆÀí£¬½ÚÔ¼´ÓÓ²ÅÌ¼ÓÔØµÄ¿ªÏú
+            // ä¸ºäº†å¤ç”¨çº¹ç†ï¼ŒèŠ‚çº¦ä»ç¡¬ç›˜åŠ è½½çš„å¼€é”€
+            // ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®å†åˆ©ç”¨ã«ã‚ˆã‚‹ãƒ‡ã‚£ã‚¹ã‚¯èª­ã¿è¾¼ã¿ã‚ªãƒ¼ãƒãƒ¼ãƒ˜ãƒƒãƒ‰å‰Šæ¸›ã®ãŸã‚
             texture_loaded.push_back(texture);
         }
 
@@ -183,15 +194,18 @@ vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type,
 GLuint Model::TextureFromFile(const string&& filePath, const string&& directory)
 {
     GLuint textureID = 0;
-    // ÉêÇëÏÔ´æ¿Õ¼ä²¢°ó¶¨GL_TEXTURE_2D¶ÔÏó
+    // ç”³è¯·æ˜¾å­˜ç©ºé—´å¹¶ç»‘å®šGL_TEXTURE_2Då¯¹è±¡
+    // VRAMé ˜åŸŸç¢ºä¿ã—ã€GL_TEXTURE_2Dã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ãƒã‚¤ãƒ³ãƒ‰
     glGenTextures(1, &textureID);
-    glBindTexture(GL_TEXTURE_2D, textureID); // °ó¶¨²Ù×÷ÒªÃ´ÊÇ¶ÁÒªÃ´ÊÇĞ´£¬ÕâÀïÊÇÒªĞ´
-    // ÉèÖÃGL_TEXTURE_2DµÄ»·ÈÆ£¬¹ıÂË·½Ê½
+    glBindTexture(GL_TEXTURE_2D, textureID); 
+    // è®¾ç½®GL_TEXTURE_2Dçš„ç¯ç»•ï¼Œè¿‡æ»¤æ–¹å¼
+    // GL_TEXTURE_2Dã®ãƒ©ãƒƒãƒ—ãƒ¢ãƒ¼ãƒ‰ã¨ãƒ•ã‚£ãƒ«ã‚¿ãƒªãƒ³ã‚°è¨­å®š
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    // ¼ÓÔØÌùÍ¼£¬×ª»»ÎªÏñËØÊı¾İ
+    // åŠ è½½è´´å›¾ï¼Œè½¬æ¢ä¸ºæ•°æ®
+    // ãƒ†ã‚¯ã‚¹ãƒãƒ£èª­ã¿è¾¼ã¿ã€ãƒ‡ãƒ¼ã‚¿ã«å¤‰æ›
     int width = 0, height = 0, channel = 0;
     string file = directory + "/" + filePath;
     unsigned char* data = stbi_load(file.c_str(), &width, &height, &channel, 0);
@@ -217,18 +231,20 @@ GLuint Model::TextureFromFile(const string&& filePath, const string&& directory)
 
     if (data)
     {
-        // ÌùÍ¼Êı¾İ ÄÚ´æ -> ÏÔ´æ
+        // è´´å›¾æ•°æ®ä¼ å…¥æ˜¾å­˜
+        /* ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ‡ãƒ¼ã‚¿ã‚’VRAMã«è»¢é€ã™ã‚‹ */
         glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-        // Éú³É¶à¼¶½¥½øÌùÍ¼
+        // ç”Ÿæˆå¤šçº§æ¸è¿›è´´å›¾
+        // ãƒŸãƒƒãƒ—ãƒãƒƒãƒ—ã‚’ç”Ÿæˆã™ã‚‹  
         glGenerateMipmap(GL_TEXTURE_2D);
     }
     else
     {
-        cout << "Failed to load texture£¡" << endl;
+        cout << "Failed to load textureï¼" << endl;
     }
-    // ÏñËØÊı¾İÒÑ¾­´«¸øÏÔ´æÁË£¬É¾³ıÄÚ´æÖĞµÄÏñËØÊı¾İ
+    // æ•°æ®å·²ç»ä¼ ç»™æ˜¾å­˜äº†ï¼Œåˆ é™¤å†…å­˜ä¸­çš„æ•°æ®
+    // ãƒ¡ãƒ¢ãƒªä¸Šã®ãƒ‡ãƒ¼ã‚¿å‰Šé™¤ï¼ˆVRAMã«è»¢é€å®Œäº†å¾Œï¼‰
     stbi_image_free(data);
 
     return textureID;
 }
-
