@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -17,18 +17,22 @@
 class Shader
 {
 public:
-	//����ID 
+	//程序ID 
+	//プログラムID
 	GLuint ID = 0; 
 
 	Shader(const char* vertexShaderPath, const char* fragmentShaderPath);
 
-	//ʹ��/�������
+	//使用/激活程序
+	// プログラムの使用/有効化
 	bool Use() const;
 
-	//ɾ��Shader����
+	//删除Shader程序
+	// シェーダープログラムを削除する
 	void Remove();
 
-	//uniform���ߺ���
+	//uniform工具函数
+	// uniformユーティリティ関数
 	void SetBool(const string &name, bool value) const;
 	void SetInt(const string& name, int value) const;
 	void SetFloat(const string& name, float value) const;
@@ -40,27 +44,33 @@ public:
 
 Shader::Shader(const char* vertexShaderPath, const char* fragmentShaderPath)
 {
-	// 1.��Ӳ�̶�ȡshaderԴ��
+	// 1.从硬盘读取shader源码
+	// 1. ハードディスクからシェーダーソースコードを読み込む
 	string vertexCode;
 	string fragmentCode;
 	ifstream vShaderFile;
 	ifstream fShaderFile;
-	// �����׳��쳣����
+	// 设置抛出异常类型
+	// スロー例外型の指定
 	vShaderFile.exceptions(ifstream::failbit | ifstream::badbit);
 	fShaderFile.exceptions(ifstream::failbit | ifstream::badbit);
 	try
 	{
-		// ���ļ�
+		// 打开文件
+		// ファイルを開く
 		vShaderFile.open(vertexShaderPath);
 		fShaderFile.open(fragmentShaderPath);
-		// ��ȡ��������
+		// 读取到数据流
+		// データストリームに読み込む
 		stringstream vShaderStream, fShaderStream;
 		vShaderStream << vShaderFile.rdbuf();
 		fShaderStream << fShaderFile.rdbuf();
-		// �ر��ļ���
+		// 关闭文件流
+		// ファイルストリームを閉じる
 		vShaderFile.close();
 		fShaderFile.close();
-		// ��������ȡ��str
+		// 从数据流取出str
+		// データストリームから文字列を取得
 		vertexCode = vShaderStream.str();
 		fragmentCode = fShaderStream.str();
 	}
@@ -71,17 +81,21 @@ Shader::Shader(const char* vertexShaderPath, const char* fragmentShaderPath)
 		cerr << "Error code: " << e.code() << endl;
 	}
 
-	// ��ȡshaderԴ��
+	// 获取shader源码
+	// シェーダーソースコードを取得
 	const char* vertexShaderSource = vertexCode.c_str();
 	const char* fragmentShaderSource = fragmentCode.c_str();
 
 	int success = 0;
 	char infoLog[LOG_LENGTH] = "\0";
 
-	// ����shader����
+	// 编译shader代码
+	// シェーダーコードをコンパイル
 	GLuint vertexShader = 0;
 	vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);  // ������ֱ���� &vertexCode.c_str()������ ��ΪvertexCode.c_str()������ֵ��
+	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);  // 在这里直接用 &vertexCode.c_str()报错， 因为vertexCode.c_str()不是左值。
+	// vertexCode.c_str()は左辺値ではないため、直接&演算子を適用するとコンパイルエラーが発生します
+
 	glCompileShader(vertexShader);
 
 	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
@@ -107,7 +121,8 @@ Shader::Shader(const char* vertexShaderPath, const char* fragmentShaderPath)
 		cout << "Fragment shader compile failed!\n" << infoLog << endl;
 	}
 
-	// ������ɫ������
+	// 链接着色器程序
+	// シェーダープログラムをリンク
 	ID = glCreateProgram();
 	if (ID == 0)
 	{
@@ -126,7 +141,8 @@ Shader::Shader(const char* vertexShaderPath, const char* fragmentShaderPath)
 		glGetProgramInfoLog(ID, sizeof(infoLog), NULL, infoLog);
 		cout << "Shader program link failed!\n" << infoLog << endl;
 
-		// ����ʧ�ܣ�shader����Ӧ����Ϊ������
+		// 连接失败，shader程序应该置为不可用
+		// リンク失敗時、シェーダープログラムを無効状態に設定
 		ID = 0;
 	}
 
@@ -139,7 +155,8 @@ bool Shader::Use() const
 	if (ID == 0)
 		return false;
 	else
-		glUseProgram(ID);  // ������Խ�С���������������Ŀ���ظ���������Ҳ����
+		glUseProgram(ID);  // 开销相对较小，至少在我这个项目，重复调用问题也不大
+		// オーバーヘッドが比較的小さく、少なくとも当プロジェクトでは多重呼び出しでも問題が発生しない
 
 	return true;
 }

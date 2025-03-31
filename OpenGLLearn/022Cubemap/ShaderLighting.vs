@@ -1,4 +1,4 @@
-#version 330 core
+Ôªø#version 330 core
 
 layout(location = 0) in vec3 aPos;
 layout(location = 1) in vec3 aNormal;
@@ -14,7 +14,7 @@ out vec2 texCoord;
 
 void main()
 {
-  gl_Position = uni_projection * uni_view * uni_model * vec4(aPos, 1.0);  // ◊¢“‚æÿ’Û±‰ªªµƒÀ≥–Ú «¥””“œÚ◊Û
+  gl_Position = uni_projection * uni_view * uni_model * vec4(aPos, 1.0);
 
   fragPos = vec3(uni_model * vec4(aPos, 1.0));
   normal = mat3(transpose(inverse(uni_model))) * aNormal;

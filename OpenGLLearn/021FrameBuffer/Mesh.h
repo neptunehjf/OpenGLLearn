@@ -40,7 +40,7 @@ public:
 	void SetScale(vec3 scale);
 	void SetTranslate(vec3 scale);
 
-protected:  //只允许子类访问
+protected:  //サブクラスしかアクセスできない
 	vec3 m_scale;
 	vec3 m_translate;
 

@@ -1,4 +1,4 @@
-#version 330 core
+Ôªø#version 330 core
 
 in vec3 normal;
 in vec3 position;
@@ -10,7 +10,7 @@ out vec4 FragColor;
 
 void main()
 {
-	// ∑¥…‰π‚µƒº∆À„
+	// ÂèçÂ∞ÑÂÖâ
 	vec3 I = normalize(position - uni_viewPos);
 	vec3 R = normalize(reflect(I, normalize(normal)));
 	FragColor = vec4(texture(texture_cubemap1, R).rgb, 1.0);
