@@ -14,7 +14,7 @@ out vec2 texCoord;
 
 void main()
 {
-  gl_Position = uni_projection * uni_view * uni_model * vec4(aPos, 1.0);  // 注意矩阵变换的顺序是从右向左
+  gl_Position = uni_projection * uni_view * uni_model * vec4(aPos, 1.0); 
 
   fragPos = vec3(uni_model * vec4(aPos, 1.0));
   normal = mat3(transpose(inverse(uni_model))) * aNormal;
