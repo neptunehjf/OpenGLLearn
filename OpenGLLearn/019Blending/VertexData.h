@@ -1,4 +1,4 @@
-#pragma once
+Ôªø#pragma once
 
 #include "Mesh.h"
 #include "namespace.h"
@@ -8,12 +8,12 @@ const vector<Vertex> g_planeVertices = {
 	{vec3(5.0f, -0.5f,  5.0f),    vec3(0.0f,  1.0f,  0.0f),  vec2(2.0f, 0.0f)},
 	{vec3(-5.0f, -0.5f,  5.0f),   vec3(0.0f,  1.0f,  0.0f),  vec2(0.0f, 0.0f)},
 	{vec3(-5.0f, -0.5f, -5.0f),   vec3(0.0f,  1.0f,  0.0f),  vec2(0.0f, 2.0f)},
-	{vec3(5.0f, -0.5f, -5.0f),    vec3(0.0f,  1.0f,  0.0f),  vec2(2.0f, 2.0f)}      // Œ∆¿Ì◊¯±Í‘Ω¥Û£¨Ã˘Õº‘Ω–°‘Ωæ´œ∏£¨µ´ «Ã˘Õº∏–∏¸«ø
+	{vec3(5.0f, -0.5f, -5.0f),    vec3(0.0f,  1.0f,  0.0f),  vec2(2.0f, 2.0f)}
 };
 
 const vector<Vertex> g_cubeVertices = 
 {
-	//Œª÷√                         //∑®œﬂ                     //Œ∆¿Ì◊¯±Í
+	//‰ΩçÁΩÆ                         //Ê≥ïÁ∑ö                     //UVÂ∫ßÊ®ô 
 	{vec3(-0.5f, -0.5f, -0.5f),   vec3(0.0f,  0.0f, -1.0f),  vec2(0.0f, 0.0f)},
 	{vec3(0.5f, -0.5f, -0.5f),    vec3(0.0f,  0.0f, -1.0f),  vec2(1.0f, 0.0f)},
 	{vec3(0.5f,  0.5f, -0.5f),    vec3(0.0f,  0.0f, -1.0f),  vec2(1.0f, 1.0f)},

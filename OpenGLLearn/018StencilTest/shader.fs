@@ -169,8 +169,9 @@ vec3 calcSpotLight()
 	vec3 diffuse = vec3(0.0f);
 	vec3 specular = vec3(0.0f);
 	vec3 lightDir = normalize(spotLight.lightPos - fragPos); //片段到spotlight的方向
+								 //フラグメントからスポットライトまでの方向
 	float theta = max(dot(-lightDir, normalize(spotLight.direction)), 0.0); //spotDir与聚光源的轴方向 ，注意调用normalize转成单位向量
-
+										// spotDirとスポットライト軸方向のなす角のコサイン値（normalizeを呼び単位ベクトルに変換必須）
 	// 计算光照衰减
 	// 光の減衰を計算する
 	float intensity = clamp((theta - spotLight.outerCos) / (spotLight.innerCos - spotLight.outerCos), 0.0, 1.0); //用clamp就不需要ifelse了

@@ -93,6 +93,8 @@ Shader::Shader(const char* vertexShaderPath, const char* fragmentShaderPath)
 	GLuint vertexShader = 0;
 	vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);  // 在这里直接用 &vertexCode.c_str()报错， 因为vertexCode.c_str()不是左值。
+	// vertexCode.c_str()は左辺値ではないため、直接&演算子を適用するとコンパイルエラーが発生します
+
 	glCompileShader(vertexShader);
 
 	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
