@@ -10,22 +10,25 @@
 #include "common.h"
 #include "assimp/types.h"
 
-
-
+//顶点数据
+#pragma pack(1)
 struct Vertex
 {
 	vec3 position; //位置
-	vec3 normal;   //法線
-	vec2 texCoord; //UV座標
+	vec3 normal;   //法线
+	vec2 texCoord; //纹理坐标
 };
+#pragma pack()
 
-
+//贴图数据
+#pragma pack(1)
 struct Texture
 {
-	unsigned int id; 
-	string type;   
-	aiString path;
+	unsigned int id; //贴图id
+	string type;     //贴图类型，比如 漫反射贴图 还是 高光贴图
+	aiString path;     //贴图路径
 };
+#pragma pack()
 
 class Mesh
 {

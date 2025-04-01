@@ -1,4 +1,4 @@
-#version 330 core
+Ôªø#version 330 core
 
 layout (points) in;
 layout (triangle_strip, max_vertices = 5) out;
@@ -14,16 +14,16 @@ void build_house(vec4 position)
 {    
 
     fColor = gs_in[0].color;
-    gl_Position = position + vec4(-0.2, -0.2, 0.0, 0.0);    // 1:◊Ûœ¬
+    gl_Position = position + vec4(-0.2, -0.2, 0.0, 0.0);    // 1:Â∑¶‰∏ã
     EmitVertex();   
-    gl_Position = position + vec4( 0.2, -0.2, 0.0, 0.0);    // 2:”“œ¬
+    gl_Position = position + vec4( 0.2, -0.2, 0.0, 0.0);    // 2:Âè≥‰∏ã
     EmitVertex();
-    gl_Position = position + vec4(-0.2,  0.2, 0.0, 0.0);    // 3:◊Û…œ
+    gl_Position = position + vec4(-0.2,  0.2, 0.0, 0.0);    // 3:Â∑¶‰∏ä
     EmitVertex();
-    gl_Position = position + vec4( 0.2,  0.2, 0.0, 0.0);    // 4:”“…œ
+    gl_Position = position + vec4( 0.2,  0.2, 0.0, 0.0);    // 4:Âè≥‰∏ä
     EmitVertex();
     fColor = vec3(1.0, 1.0, 1.0);
-    gl_Position = position + vec4( 0.0,  0.4, 0.0, 0.0);    // 5:∂•≤ø
+    gl_Position = position + vec4( 0.0,  0.4, 0.0, 0.0);    // 5:È°∂ÈÉ®
     EmitVertex();
     EndPrimitive();
         

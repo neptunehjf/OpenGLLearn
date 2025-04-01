@@ -409,7 +409,6 @@ int main()
 		mirror.DrawMesh(screenShader, GL_TRIANGLES);
 		
 		glEnable(GL_PROGRAM_POINT_SIZE);
-		//绘制的图元是GL_POINTS。对应的是裁剪空间的归一化坐标（实际是在顶点着色器设定）
 		glPointSize(pointSize);
 		particle.DrawMesh(screenShader, GL_POINTS);
 		glDisable(GL_PROGRAM_POINT_SIZE);
@@ -456,6 +455,8 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 	// bugfix 窗口大小变化后，纹理缓冲的大小也要相应变化
 	// 删除已存在的缓冲
+	// バグ修正: ウィンドウサイズ変更時にテクスチャバッファのリサイズが必要
+	// 既存バッファの削除
 	glDeleteFramebuffers(1, &fbo1);
 	glDeleteFramebuffers(1, &tbo1);
 	glDeleteFramebuffers(1, &rbo1);

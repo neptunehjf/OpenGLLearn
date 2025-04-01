@@ -282,8 +282,8 @@ int main()
 			SetValueToShader(reflectShader);
 			SetValueToShader(refractShader);
 
-		// 清空各个缓冲区
-		// 各バッファをクリア
+			// 清空各个缓冲区
+			// 各バッファをクリア
 			glClearColor(bkgColor.r, bkgColor.g, bkgColor.b, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

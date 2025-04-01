@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 using namespace std;
 using namespace glm;
@@ -15,7 +15,7 @@ using namespace glm;
 #define CUBE_SCALE_DEFAULT 1.0f
 #define CUBE_SCALE_OUTLINE 1.05f
 
-/************** Imgui±äÁ¿ **************/
+/************** Imguiå¤‰æ•° **************/
 float posValue = 0.0f;
 vec3 bkgColor = vec3(0.0f, 0.0f, 0.0f);
 vec3 dirLight_direction = vec3(-1.0f, -1.0f, -1.0f);
@@ -46,5 +46,5 @@ float explodeMag = 0.0;
 bool bBlending = 1;
 bool bFaceCulling = 0;
 float normalLen = 0.1;
-/************** Imgui±äÁ¿ **************/
+/************** Imguiå¤‰æ•° **************/
 
