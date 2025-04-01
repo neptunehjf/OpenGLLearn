@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 using namespace std;
 using namespace glm;
@@ -12,10 +12,19 @@ using namespace glm;
 #define CUBE_SCALE_DEFAULT 1.0f
 #define CUBE_SCALE_OUTLINE 1.05f
 
-//֮ǰ1���С����֡��144������10���С����֡��ֻ��20��֡��(3080 + i7 10700k + 16G)��
-//�о����֣��������У�Ƭ����ɫ����֡��Ӱ��С���Ż��ռ�Լ����0�����޳���֡����Ӱ��Ҳ����Ϊ0.
-//����ּ�����ɫ�����ͼԪ���ɶ��㣬ÿ�����㶼���һ��Ƭ����ɫ���������Ҫ�Ѷ���װ���ͼԪ������Ŀ����Ǻܴ�ġ�
-//ɾ��������ɫ����֡���ﵽ��120��֡���Ż��ɹ���
+//之前1万个小行星帧数144，但是10万个小行星帧数只有20多帧了(配置3080 + i7 10700k + 16G)。
+//研究发现，本场景中，片段着色器对帧数影响小，优化空间约等于0；面剔除对帧数的影响也基本为0.
+//最后发现几何着色器会把图元拆解成顶点，每个顶点都会吊一次片段着色器，最后又要把顶点装配成图元，这里的开销是很大的。
+//删除几何着色器后帧数达到了120多帧，优化成功。
+// 
+// 以前1万個の小惑星では144フレーム/秒だったが、10万個では20フレームまで低下（RTX3080 + i7 10700k + 16G環境）
+// 調査結果　本シーンでは：
+// ・フラグメントシェーダーのフレームレートへの影響が小さい → 最適化余地ほぼ無し
+// ・フェイスカリングの影響もほぼ無し
+// ・ジオメトリシェーダーがプリミティブを頂点に分解する処理が原因：
+//   各頂点でフラグメントシェーダーを呼び出し、再び頂点をプリミティブに再構築する際のオーバーヘッドが極大
+// 　ジオメトリシェーダー削除後、フレームレート120以上を達成 → 最適化成功
+
 #define ROCK_NUM 10000
 
 #define MSAA_SAMPLE_NUM 4
@@ -27,7 +36,9 @@ double preTime = 0.0;
 double deltaTime = 0.0;
 double curTime = 0.0;
 
-/************** Imgui���� **************/
+// 如果用其他变量接收imgui变量，必须保证两者初始值一致，因为imgui收起的状态是不传值的。
+// ImGUI変数を受け取る変数は必ず初期値を一致させる必要（ImGUIの折り畳み状態では値が伝達されないため）
+/************** Imgui変数 **************/
 float posValue = 0.0f;
 vec3 bkgColor = vec3(0.0f, 0.0f, 0.0f);
 vec3 dirLight_direction = vec3(-1.0f, -1.0f, -1.0f);
@@ -46,7 +57,7 @@ int item = 0;
 int material_shininess = 32;
 int postProcessType = 0;
 float sampleOffsetBase = 300.0f;
-float imgui_speed = 100.0f;
+float imgui_speed = 10.0f;
 float imgui_camNear = 0.1f;
 float imgui_camFar = 500.0f;
 float pointSize = 1.0f;
@@ -61,5 +72,5 @@ float normalLen = 0.1;
 bool bInstanceTest = 0;
 bool bSkyBox = 0;
 bool bMSAA = true;
-/************** Imgui���� **************/
+/************** Imgui変数 **************/
 
