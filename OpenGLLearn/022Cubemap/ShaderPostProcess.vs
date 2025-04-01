@@ -7,7 +7,8 @@ out vec2 TexCoords;
 
 void main()
 {
-    // gl_Position要求是归一化的坐标，因此直接传-1到1之间的值是OK的。或者通过透视矩阵变换转成归一化坐标
+    // gl_Position要求是归一化的坐标，因此直接传-1到1之间的值是OK的。或者通过OpenGL透视除法变换转成归一化坐标
+    // gl_Positionは正規化座標を要求するため、-1から1の範囲の値を直接渡しても問題ありません。あるいはOpenGLの透視除算変換（perspective division）を通じて正規化座標に変換することも可能です。
     gl_Position = vec4(aPos, 1.0);
     TexCoords = aTexCoord;    
 }

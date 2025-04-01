@@ -19,9 +19,11 @@ public:
 	vec3 camUp;
 
 	float deltaTime; // 当前帧与上一帧的时间差
+					 // フレーム間時間差
 	float lastFrame; // 上一帧的时间
+					 // 前フレーム時刻
 	float currentFrame; //当前帧时间
-
+						//現在フレーム時刻
 	float lastX;
 	float lastY;
 	float pitchValue;
@@ -54,7 +56,11 @@ Camera::Camera(const vec3& camPos, const vec3& camFront, const vec3& camUp)
 	lastX = 0.0f;
 	lastY = 0.0f;
 	pitchValue = -15.0f;
-	yawValue = -110.0f; // 默认镜头朝向X正方向，所以向左转90度校正
+	// 对于yaw，camera坐标系的+Z从+X开始逆时针旋转计算的，所以要旋转-90度校正到从+Z开始
+	// ヨー角において、カメラ座標系の+Z軸は+X軸基準の反時計回りで計算されるため、+Z軸基準に合わせるには-90度回転で補正が必要
+	// 参照Referrence/camera rotate.jpg Referrence/Euler Angle.png
+	yawValue = -110.0f;
+
 
 	fov = 45.0f;
 
@@ -86,10 +92,15 @@ float Camera::getCamFov()
 
 void Camera::setCamFront()
 {
+	// 相机旋转
+	// カメラ回転
+	// 对于yaw，设camera坐标系的+Z从+X开始逆时针旋转计算
+	// ヨー角計算時、カメラ座標系の+Z方向は+X軸を起点とする反時計回り回転として定義されます
+	// 参照Referrence/camera rotate.jpg Referrence/Euler Angle.png
 	vec3 front;
-	front.x = cos(radians(yawValue)) * cos(radians(pitchValue)); // 因为视角默认朝向X轴正方向，所以应该用与X轴正方向的角度计算偏移
+	front.x = cos(radians(yawValue)) * cos(radians(pitchValue));
 	front.y = sin(radians(pitchValue));
-	front.z = sin(radians(yawValue)) * cos(radians(pitchValue)); // 因为视角默认朝向X轴正方向，所以应该用与X轴正方向的角度计算偏移
+	front.z = sin(radians(yawValue)) * cos(radians(pitchValue));
 
 	camFront = normalize(front);
 }

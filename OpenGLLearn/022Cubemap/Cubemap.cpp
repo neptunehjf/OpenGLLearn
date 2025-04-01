@@ -680,7 +680,7 @@ void SetValueToShader(Shader& shader)
 	shader.SetMat4("uni_model", model);
 }
 
-//创建自定义帧缓冲
+
 void CreateFrameBuffer(GLuint& fbo, GLuint& tbo, GLuint& rbo)
 {
 	// 首先创建一个帧缓冲对象 （由color stencil depth组成。默认缓冲区也有。只不过这次自己创建缓冲区，可以实现一些有意思的功能）
@@ -724,7 +724,7 @@ void CreateFrameBuffer(GLuint& fbo, GLuint& tbo, GLuint& rbo)
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-//删除自定义帧缓冲
+
 void DeleteFrameBuffer()
 {
 	//glDeleteFramebuffers(1, &fbo);

@@ -10,25 +10,22 @@
 #include "common.h"
 #include "assimp/types.h"
 
-//顶点数据
-#pragma pack(1)
+
+
 struct Vertex
 {
 	vec3 position; //位置
-	vec3 normal;   //法线
-	vec2 texCoord; //纹理坐标
+	vec3 normal;   //法線
+	vec2 texCoord; //UV座標
 };
-#pragma pack()
 
-//贴图数据
-#pragma pack(1)
+
 struct Texture
 {
-	unsigned int id; //贴图id
-	string type;     //贴图类型，比如 漫反射贴图 还是 高光贴图
-	aiString path;     //贴图路径
+	unsigned int id; 
+	string type;   
+	aiString path;
 };
-#pragma pack()
 
 class Mesh
 {
@@ -45,7 +42,7 @@ public:
 	void SetTextures(const vector<Texture>& textures);
 	void AddTextures(const vector<Texture>& textures);
 
-protected:  //只允许子类访问
+protected:  //サブクラスしかアクセスできない
 	vec3 m_scale;
 	vec3 m_translate;
 
@@ -96,43 +93,52 @@ Mesh::~Mesh()
 
 void Mesh::SetupMesh()
 {
-	// 用显存VAO来管理 shader的顶点属性
+	// 参照 Referrence/opengl vertex management.png
+	// 用VAO来管理 shader的顶点属性
+	// VAOを使用してシェーダーの頂点属性を管理
 	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO); // VBO glVertexAttribPointer 操作向VAO上下文写
+	glBindVertexArray(VAO); 
 
-	// 存储顶点数据到显存VBO
+	// 存储顶点数据到VBO
+	// 頂点データをVBOに格納	
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
 
-	// 存储下标数据到显存EBO
+	// 存储下标数据到EBO
+	// インデックスデータをEBOに格納
 	glGenBuffers(1, &EBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indices.size(), &indices[0], GL_STATIC_DRAW);
 
-	// 定义顶点属性的解析方式
+	// VBO数据关联到shader的顶点属性
+	// VBOデータとシェーダーの頂点属性を関連付け
 	glVertexAttribPointer(0, sizeof(((Vertex*)0)->position) / sizeof(GL_FLOAT), GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, position)));
 	glEnableVertexAttribArray(0);
-	//3 忘记加sizeof(GL_FLOAT)了，排查了半天。。。以后0也写成0 * sizeof(GL_FLOAT)的形式吧。。以免误导别的代码
+	// 3忘记加sizeof(GL_FLOAT)了，排查了半天。。。以后0也写成0 * sizeof(GL_FLOAT)的形式吧。。以免误导别的代码
+	// 3のsizeof(GL_FLOAT)を書き忘れて半日デバッグした…今後は0も「0 * sizeof(GL_FLOAT)」形式で書こう…他コードの誤解防止のため 
 	glVertexAttribPointer(1, sizeof(((Vertex*)0)->normal) / sizeof(GL_FLOAT), GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, normal)));
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(2, sizeof(((Vertex*)0)->texCoord) / sizeof(GL_FLOAT), GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, texCoord)));
 	glEnableVertexAttribArray(2);
 
-	// 解绑
-	glBindVertexArray(0);// 关闭VAO上下文
+	// 解绑 关闭上下文
+	// コンテキストを閉じ バインド解除
+	glBindVertexArray(0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	//当目标是GL_ELEMENT_ARRAY_BUFFER的时候，VAO会储存glBindBuffer的函数调用。这也意味着它也会储存解绑调用，所以确保你没有在解绑VAO之前解绑索引数组缓冲，否则它就没有这个EBO配置了
-	// remember: do NOT unbind the EBO while a VAO is active as the bound element buffer object IS stored in the VAO; keep the EBO bound.
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 void Mesh::DrawMesh(const Shader& shader, GLuint element)
 {
-	// 设置纹理单元 任何uniform设置操作一定要放到《对应的shader》启动之后！  --》不同的shader切换运行，另一个shader会关掉，写的数据会丢失数据
-    // 也就是说启动了shader之后又启动了shader_lamp，之前在shader设置的就无效了！这种情况只能放到渲染循环里，不能放循环外面
-	glBindVertexArray(VAO); // draw操作从VAO上下文读顶点数据    可代替VBO EBO attrpoint的绑定操作，方便管理
+	// 设置纹理单元 任何uniform设置操作一定要放到《对应的shader》有效之后！  --》不同的shader切换运行，另一个shader会关掉，写的数据会丢失数据
+	//也就是说启动了shader1之后又启动了shader2，之前在shader1设置的就无效了！这种情况只能放到渲染循环里，不能放循环外面
+	// テクスチャユニットの設定：ユニフォーム変数の操作は必ず《対応するシェーダー》有効中に行う！  
+	// → 別のシェーダーに切り替えると設定値が失われる  
+	// 例: shader1起動後にshader2を起動 → shader1の設定は無効化  
+	// 解決策: レンダリングループ内で対応するシェーダー有効中で設定（ループ外では不可）
+	glBindVertexArray(VAO); 
 	shader.Use();
 	GLuint diffuseN = 0;
 	GLuint specularN = 0;

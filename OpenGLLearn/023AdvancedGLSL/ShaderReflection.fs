@@ -13,7 +13,7 @@ out vec4 FragColor;
 
 void main()
 {
-	// 反射光的计算
+	// 反射光
 	vec3 I = normalize(vs_in.position - uni_viewPos);
 	vec3 R = normalize(reflect(I, normalize(vs_in.normal)));
 	FragColor = vec4(texture(texture_cubemap1, R).rgb, 1.0);
