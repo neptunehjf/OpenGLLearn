@@ -20,8 +20,7 @@ out VS_OUT
 
 void main()
 {
-  gl_Position = uni_projection * uni_view * uni_model * vec4(aPos, 1.0);  // ×¢Òâ¾ØÕó±ä»»µÄË³ÐòÊÇ´ÓÓÒÏò×ó
-
+  gl_Position = uni_projection * uni_view * uni_model * vec4(aPos, 1.0); 
   vs_out.normal = mat3(transpose(inverse(uni_model))) * aNormal;
   vs_out.position = vec3(uni_model * vec4(aPos, 1.0));
 }
