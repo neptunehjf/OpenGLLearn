@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -57,7 +57,8 @@ void Scene::CreateScene(Camera* myCam)
 {
 	this->myCam = myCam;
 
-	// ´´½¨shader ²»ÄÜÉùÃ÷È«¾Ö±äÁ¿£¬ÒòÎªshaderµÄÏà¹Ø²Ù×÷±ØĞëÔÚglfw³õÊ¼»¯Íê³Éºó
+	// ä¸èƒ½å£°æ˜å…¨å±€å˜é‡ï¼Œå› ä¸ºshaderè¦è°ƒç”¨glfwçš„apiï¼Œæ‰€ä»¥å¿…é¡»åœ¨glfwåˆå§‹åŒ–å®Œæˆå
+	// Shaderã‚°ãƒ­ãƒ¼ãƒãƒ«å¤‰æ•°ç¦æ­¢ ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã¯glfwåˆæœŸåŒ–å¾Œã«å‘¼ã³å‡ºã—å¿…é ˆ (glfwã®apiãŒå¿…è¦ã®ãŸã‚)
 	lightShader = Shader("ShaderLighting.vs", "ShaderLighting.fs", "ShaderLighting.gs");
 	screenShader = Shader("ShaderPostProcess.vs", "ShaderPostProcess.fs");
 	cubemapShader = Shader("ShaderCubemap.vs", "ShaderCubemap.fs");
@@ -68,11 +69,11 @@ void Scene::CreateScene(Camera* myCam)
 	InstanceShader = Shader("ShaderInstance.vs", "ShaderInstance.fs");
 	lightInstShader = Shader("ShaderLightingInstance.vs", "ShaderLightingInstance.fs");
 
-	/* ¼ÓÔØÌùÍ¼ */
-	// ·­×ªyÖá£¬Ê¹Í¼Æ¬ºÍopengl×ø±êÒ»ÖÂ  µ«ÊÇÈç¹ûassimp µ¼ÈëÄ£ĞÍÊ±ÉèÖÃÁËaiProcess_FlipUVs£¬¾Í²»ÄÜÖØ¸´ÉèÖÃÁË
+	// ç¿»è½¬yè½´ï¼Œä½¿å›¾ç‰‡åæ ‡å’Œopenglåæ ‡ä¸€è‡´
+	// Yè»¸ã‚’åè»¢ã—ã¦ç”»åƒåº§æ¨™ã¨OpenGLåº§æ¨™ã‚’ä¸€è‡´ã•ã›ã‚‹
+	// â€»Assimpã®aiProcess_FlipUVsãƒ•ãƒ©ã‚°ä½¿ç”¨æ™‚ã¯äºŒé‡è¨­å®šç¦æ­¢
 	stbi_set_flip_vertically_on_load(true);
 
-	// ¼ÓÔØÌùÍ¼
 	GLuint t_metal = 0;
 	GLuint t_marble = 0;
 	GLuint t_dummy = 0;
@@ -80,7 +81,7 @@ void Scene::CreateScene(Camera* myCam)
 
 	LoadTexture("Resource/Texture/metal.png", t_metal, GL_REPEAT, GL_REPEAT);
 	LoadTexture("Resource/Texture/marble.jpg", t_marble, GL_REPEAT, GL_REPEAT);
-	LoadTexture("Resource/Texture/dummy.png", t_dummy, GL_REPEAT, GL_REPEAT);  //×Ô¼º×öµÄÕ¼Î»ÌùÍ¼£¬Õ¼Ò»¸ösamplerÎ»ÖÃ£¬·ñÔò»á±»ÆäËûmeshµÄ¸ß¹âÌùÍ¼Ìæ´ú
+	LoadTexture("Resource/Texture/dummy.png", t_dummy, GL_REPEAT, GL_REPEAT);  //è‡ªå·±åšçš„å ä½è´´å›¾ï¼Œå ä¸€ä¸ªsamplerä½ç½®ï¼Œå¦åˆ™ä¼šè¢«å…¶ä»–meshçš„é«˜å…‰è´´å›¾æ›¿ä»£
 	LoadTexture("Resource/Texture/window.png", t_window, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
 
 	stbi_set_flip_vertically_on_load(false);
@@ -116,7 +117,7 @@ void Scene::CreateScene(Camera* myCam)
 	{
 		{t_cubemap, "texture_cubemap"}
 	};
-	// ÓÃÓÚ²»ĞèÒªtextureµÄmesh
+	
 	const vector<Texture> dummyTexture =
 	{
 		{t_dummy, "texture_diffuse"},
@@ -157,9 +158,13 @@ void Scene::CreateScene(Camera* myCam)
 	squarePositions.push_back(glm::vec3(0.5f, 1.0f, -0.6f));
 
 	nanosuit = Model("Resource/Model/nanosuit_reflection/nanosuit.obj");
-	//vector<Mesh> suitMeshes = nanosuit.meshes;     // ¸³ÖµºÅ£¬Ä¬ÈÏvectorÊÇÉî¿½±´£¬Òò´ËSetTextures²»»áÓ°Ïìnanosuit¶ÔÏó
-	//vector<Mesh>& suitMeshes = nanosuit.meshes;    // Ê¹ÓÃÒıÓÃ£¬ÒıÓÃÖ»ÊÇnanosuit.meshesµÄ±ğÃû£¬Òò´ËSetTextures»áÓ°Ïìµ½nanosuit¶ÔÏó
-	vector<Mesh>& suitMeshes = nanosuit.GetMeshes(); // Ê¹ÓÃÒıÓÃ£¬ÒıÓÃÖ»ÊÇnanosuit.meshesµÄ±ğÃû£¬Òò´ËSetTextures»áÓ°Ïìµ½nanosuit¶ÔÏó
+	// èµ‹å€¼å·ï¼Œé»˜è®¤vectoræ˜¯æ·±æ‹·è´ï¼Œå› æ­¤SetTexturesä¸ä¼šå½±å“nanosuitå¯¹è±¡
+	// ä»£å…¥æ¼”ç®—å­ã€vectorã¯ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã§ãƒ‡ã‚£ãƒ¼ãƒ—ã‚³ãƒ”ãƒ¼ã‚’è¡Œã†ãŸã‚SetTexturesã¯nanosuitã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã«å½±éŸ¿ã—ãªã„
+	//vector<Mesh> suitMeshes = nanosuit.meshes;  
+
+	// ä½¿ç”¨å¼•ç”¨ï¼Œå¼•ç”¨åªæ˜¯nanosuit.meshesçš„åˆ«åï¼Œå› æ­¤SetTexturesä¼šå½±å“åˆ°nanosuitå¯¹è±¡
+	// å‚ç…§ã‚’ä½¿ç”¨ï¼ˆã‚¨ã‚¤ãƒªã‚¢ã‚¹ï¼‰ã€SetTexturesã®å¤‰æ›´ã¯nanosuitã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã«åæ˜ ã•ã‚Œã‚‹
+	vector<Mesh>& suitMeshes = nanosuit.GetMeshes();
 	for (unsigned int i = 0; i < suitMeshes.size(); i++)
 	{
 		suitMeshes[i].AddTextures(skyboxTexture);
@@ -188,16 +193,16 @@ void Scene::DrawScene()
 	}
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	// Çå¿Õ¸÷¸ö»º³åÇø
+	// å„ãƒãƒƒãƒ•ã‚¡ã‚’ã‚¯ãƒªã‚¢
 	glClearColor(bkgColor.r, bkgColor.g, bkgColor.b, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //ÀëÆÁäÖÈ¾²»ĞèÒªglClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glEnable(GL_CULL_FACE);
 
-	// »æÖÆµØ°å
+	// åºŠã®æç”»
 	//plane.DrawMesh(lightShader);
 
-	// »æÖÆÁ¢·½Ìå
+	// ç«‹æ–¹ä½“ã‚’æç”»
 	cubeReflect.SetTranslate(vec3(1.0f, 1.5f, 1.0f));
 	cubeReflect.DrawMesh(reflectShader, GL_TRIANGLES);
 	cubeReflect.DrawMesh(normalShader, GL_TRIANGLES);
@@ -210,7 +215,8 @@ void Scene::DrawScene()
 	cubeMarble.DrawMesh(normalShader, GL_TRIANGLES);
 
 	glDisable(GL_BLEND);
-	// »æÖÆÈËÎï
+
+	// ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼æç”»
 	nanosuit.SetScale(vec3(0.1f));
 	nanosuit.SetTranslate(vec3(1.0f, 1.0f, 0.0f));
 	nanosuit.DrawModel(lightShader);
@@ -224,7 +230,7 @@ void Scene::DrawScene()
 	glDisable(GL_CULL_FACE);
 	if (bSkyBox)
 	{
-		// »æÖÆÌì¿ÕºĞ
+		// skyboxã‚’æç”»
 		skybox.DrawMesh(cubemapShader, GL_TRIANGLES);
 	}
 	glEnable(GL_CULL_FACE);
@@ -233,24 +239,26 @@ void Scene::DrawScene()
 
 	rock.DrawModel(lightInstShader, true);
 
-	// °´´°»§ÀëÉãÏñ»ú¼äµÄ¾àÀëÅÅĞò£¬mapÄ¬ÈÏÊÇÉıĞòÅÅĞò£¬Ò²¾ÍÊÇ´Ó½üµ½Ô¶
-	// ±ØĞë·ÅÔÚrender loopÀï£¬ÒòÎªÉãÏñ»úÊÇÊµÊ±¸Ä±äµÄ
+	// æŒ‰çª—æˆ·ç¦»æ‘„åƒæœºé—´çš„è·ç¦»æ’åºï¼Œmapé»˜è®¤æ˜¯å‡åºæ’åºï¼Œä¹Ÿå°±æ˜¯ä»è¿‘åˆ°è¿œ
+	// å¿…é¡»æ”¾åœ¨render loopé‡Œï¼Œå› ä¸ºæ‘„åƒæœºæ˜¯å®æ—¶æ”¹å˜çš„
+	// ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã¨ã‚«ãƒ¡ãƒ©é–“ã®è·é›¢ã§ã‚½ãƒ¼ãƒˆï¼ˆstd::mapã®ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã¯æ˜‡é †=è¿‘â†’é ï¼‰
+	// ã‚«ãƒ¡ãƒ©ä½ç½®ãŒãƒªã‚¢ãƒ«ã‚¿ã‚¤ãƒ æ›´æ–°ã•ã‚Œã‚‹ãŸã‚ã€ãƒ¬ãƒ³ãƒ€ãƒªãƒ³ã‚°ãƒ«ãƒ¼ãƒ—å†…ã§æ¯ãƒ•ãƒ¬ãƒ¼ãƒ å®Ÿè¡Œå¿…é ˆ
 	map<float, vec3> sorted;
 	for (int i = 0; i < squarePositions.size(); i++)
 	{
 		float distance = length(myCam->camPos - squarePositions[i]);
 		sorted[distance] = squarePositions[i];
 	}
-	// Í¸Ã÷ÎïÌå±ØĞë×îºó»æÖÆ£¬²¢ÇÒÍ¸Ã÷ÎïÌåÖ®¼äÒª´ÓÔ¶µ½½ü»æÖÆ
+	// é€æ˜ç‰©ä½“å¿…é¡»æœ€åç»˜åˆ¶ï¼Œå¹¶ä¸”é€æ˜ç‰©ä½“ä¹‹é—´è¦ä»è¿œåˆ°è¿‘ç»˜åˆ¶
+	// é€æ˜ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã¯æœ€çµ‚æç”»ã‹ã¤ã€é€æ˜åŒå£«ã¯é â†’è¿‘ã®é€†é †æç”»ãŒå¿…è¦
 	for (map<float, vec3>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); it++)
 	{
 		square.SetTranslate(it->second);
 		square.DrawMesh(lightShader, GL_TRIANGLES);
 	}
 
-	/* Ò»Ğ©¹¦ÄÜ²âÊÔ */
+
 	glEnable(GL_PROGRAM_POINT_SIZE);
-	//»æÖÆµÄÍ¼ÔªÊÇGL_POINTS¡£¶ÔÓ¦µÄÊÇ²Ã¼ô¿Õ¼äµÄ¹éÒ»»¯×ø±ê£¨Êµ¼ÊÊÇÔÚ¶¥µã×ÅÉ«Æ÷Éè¶¨£©
 	glPointSize(pointSize);
 	particle.DrawMesh(screenShader, GL_POINTS);
 	glDisable(GL_PROGRAM_POINT_SIZE);
@@ -268,15 +276,18 @@ void Scene::DrawScene()
 
 bool Scene::LoadTexture(const string&& filePath, GLuint& texture, const GLint param_s, const GLint param_t)
 {
-	// ÉêÇëÏÔ´æ¿Õ¼ä²¢°ó¶¨GL_TEXTURE_2D¶ÔÏó
+	// ç”³è¯·æ˜¾å­˜ç©ºé—´å¹¶ç»‘å®šGL_TEXTURE_2Då¯¹è±¡
+	// VRAMé ˜åŸŸç¢ºä¿ã—ã€GL_TEXTURE_2Dã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ãƒã‚¤ãƒ³ãƒ‰
 	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture); // °ó¶¨²Ù×÷ÒªÃ´ÊÇ¶ÁÒªÃ´ÊÇĞ´£¬ÕâÀïÊÇÒªĞ´
-	// ÉèÖÃGL_TEXTURE_2DµÄ»·ÈÆ£¬¹ıÂË·½Ê½
+	glBindTexture(GL_TEXTURE_2D, texture);
+	// è®¾ç½®GL_TEXTURE_2Dçš„ç¯ç»•ï¼Œè¿‡æ»¤æ–¹å¼
+	// GL_TEXTURE_2Dã®ãƒ©ãƒƒãƒ—ãƒ¢ãƒ¼ãƒ‰ã¨ãƒ•ã‚£ãƒ«ã‚¿ãƒªãƒ³ã‚°è¨­å®š
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, param_s);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, param_t);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	// ¼ÓÔØÌùÍ¼£¬×ª»»ÎªÏñËØÊı¾İ
+	// åŠ è½½è´´å›¾ï¼Œè½¬æ¢ä¸ºåƒç´ æ•°æ®
+	// ãƒ†ã‚¯ã‚¹ãƒãƒ£èª­ã¿è¾¼ã¿ã€ãƒ‡ãƒ¼ã‚¿ã«å¤‰æ›
 	int width, height, channel;
 	unsigned char* data = stbi_load(filePath.c_str(), &width, &height, &channel, 0);
 
@@ -290,20 +301,22 @@ bool Scene::LoadTexture(const string&& filePath, GLuint& texture, const GLint pa
 
 	if (data)
 	{
-		// ÌùÍ¼Êı¾İ ÄÚ´æ -> ÏÔ´æ
+		// è´´å›¾æ•°æ® å†…å­˜ -> æ˜¾å­˜
+		/* ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ‡ãƒ¼ã‚¿ã‚’VRAMã«è»¢é€ã™ã‚‹ */
 		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-		// Éú³É¶à¼¶½¥½øÌùÍ¼
+		// ç”Ÿæˆå¤šçº§æ¸è¿›è´´å›¾
+		// ãƒŸãƒƒãƒ—ãƒãƒƒãƒ—ã‚’ç”Ÿæˆã™ã‚‹  
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else
 	{
-		cout << "Failed to load texture£¡" << endl;
+		cout << "Failed to load textureï¼" << endl;
 		return false;
 	}
-	// ÏñËØÊı¾İÒÑ¾­´«¸øÏÔ´æÁË£¬É¾³ıÄÚ´æÖĞµÄÏñËØÊı¾İ
+	// æ•°æ®å·²ç»ä¼ ç»™æ˜¾å­˜äº†ï¼Œåˆ é™¤å†…å­˜ä¸­çš„æ•°æ®
+	// ãƒ¡ãƒ¢ãƒªä¸Šã®ãƒ‡ãƒ¼ã‚¿å‰Šé™¤ï¼ˆVRAMã«è»¢é€å®Œäº†å¾Œï¼‰
 	stbi_image_free(data);
 
-	// ¶ÁĞ´½áÊøºó¹Øµô¶ÀĞ´È¨ÏŞºóÊÇ¸öºÃÏ°¹ß£¬Ò»Ö±¿ª×ÅÈİÒ×³öbug
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	return true;
@@ -311,11 +324,15 @@ bool Scene::LoadTexture(const string&& filePath, GLuint& texture, const GLint pa
 
 GLuint Scene::LoadCubemap(const vector<string>& cubemapFaces)
 {
+	// ç”³è¯·æ˜¾å­˜ç©ºé—´å¹¶ç»‘å®šGL_TEXTURE_2Då¯¹è±¡
+	// VRAMé ˜åŸŸç¢ºä¿ã—ã€GL_TEXTURE_2Dã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ãƒã‚¤ãƒ³ãƒ‰
 	GLuint cmo = 0;
 	glGenTextures(1, &cmo);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, cmo);
 
-	// ÉèÖÃÎÆÀíÄ¿±êµÄµÄ»·ÈÆ£¬¹ıÂË·½Ê½
+	// è®¾ç½®GL_TEXTURE_2Dçš„ç¯ç»•ï¼Œè¿‡æ»¤æ–¹å¼
+	// GL_TEXTURE_2Dã®ãƒ©ãƒƒãƒ—ãƒ¢ãƒ¼ãƒ‰ã¨ãƒ•ã‚£ãƒ«ã‚¿ãƒªãƒ³ã‚°è¨­å®š
+
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
@@ -324,7 +341,8 @@ GLuint Scene::LoadCubemap(const vector<string>& cubemapFaces)
 
 	for (int i = 0; i < cubemapFaces.size(); i++)
 	{
-		// ´ÓÓ²ÅÌ¼ÓÔØÌùÍ¼£¬×ª»»ÎªÏñËØÊı¾İ£¨ÏÈ·Åµ½ÄÚ´æ£©
+		// åŠ è½½è´´å›¾ï¼Œè½¬æ¢ä¸ºåƒç´ æ•°æ®
+		// ãƒ†ã‚¯ã‚¹ãƒãƒ£èª­ã¿è¾¼ã¿ã€ãƒ‡ãƒ¼ã‚¿ã«å¤‰æ›
 		int width, height, channel;
 		unsigned char* data = stbi_load(cubemapFaces[i].c_str(), &width, &height, &channel, 0);
 
@@ -338,18 +356,19 @@ GLuint Scene::LoadCubemap(const vector<string>& cubemapFaces)
 
 		if (data)
 		{
-			// ÌùÍ¼Êı¾İ ÄÚ´æ -> ÏÔ´æ
+			// è´´å›¾æ•°æ® å†…å­˜ -> æ˜¾å­˜
+		    /* ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ‡ãƒ¼ã‚¿ã‚’VRAMã«è»¢é€ã™ã‚‹ */
 			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 		}
 		else
 		{
-			cout << "Failed to load cubemap£¡" << endl;
+			cout << "Failed to load cubemapï¼" << endl;
 		}
-		// ÏñËØÊı¾İÒÑ¾­´«¸øÏÔ´æÁË£¬É¾³ıÄÚ´æÖĞµÄÏñËØÊı¾İ
+		// æ•°æ®å·²ç»ä¼ ç»™æ˜¾å­˜äº†ï¼Œåˆ é™¤å†…å­˜ä¸­çš„æ•°æ®
+		// ãƒ¡ãƒ¢ãƒªä¸Šã®ãƒ‡ãƒ¼ã‚¿å‰Šé™¤ï¼ˆVRAMã«è»¢é€å®Œäº†å¾Œï¼‰
 		stbi_image_free(data);
 	}
 
-	// ¶ÁĞ´½áÊøºó¹Øµô¶ÀĞ´È¨ÏŞºóÊÇ¸öºÃÏ°¹ß£¬Ò»Ö±¿ª×ÅÈİÒ×³öbug
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 
 	return cmo;
@@ -371,31 +390,37 @@ void Scene::DeleteScene()
 
 void Scene::CreateAsteroid()
 {
-	srand(glfwGetTime()); // ³õÊ¼»¯Ëæ»úÖÖ×Ó    
+	srand(glfwGetTime()); // åˆå§‹åŒ–éšæœºç§å­    
+						  // ä¹±æ•°ã‚·ãƒ¼ãƒ‰åˆæœŸåŒ–
 	float radius = 150.0;
 	float offset = 30.0f;
 	for (unsigned int i = 0; i < ROCK_NUM; i++)
 	{
 		mat4 model;
-		// 1. Î»ÒÆ£º·Ö²¼ÔÚ°ë¾¶Îª 'radius' µÄÔ²ĞÎÉÏ£¬Æ«ÒÆµÄ·¶Î§ÊÇ [-offset, offset]
+		// 1. ä½ç§»ï¼šåˆ†å¸ƒåœ¨åŠå¾„ä¸º 'radius' çš„åœ†å½¢ä¸Šï¼Œåç§»çš„èŒƒå›´æ˜¯ [-offset, offset]
+		// 1. å¹³è¡Œç§»å‹•ï¼šåŠå¾„'radius'ã®å††å‘¨ä¸Šã«åˆ†å¸ƒã€ã‚ªãƒ•ã‚»ãƒƒãƒˆç¯„å›²[-offset, offset]
 		float angle = (float)i / (float)ROCK_NUM * 360.0f;
 		float displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
 		float x = sin(angle) * radius + displacement;
 		displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
-		float y = displacement * 0.4f; // ÈÃĞĞĞÇ´øµÄ¸ß¶È±ÈxºÍzµÄ¿í¶ÈÒªĞ¡
+		float y = displacement * 0.4f; // è®©è¡Œæ˜Ÿå¸¦çš„é«˜åº¦æ¯”xå’Œzçš„å®½åº¦è¦å°
+									   // ãƒ™ãƒ«ãƒˆã®é«˜ã•ã‚’x/zè»¸ã‚ˆã‚Šä½ãæŠ‘ãˆã‚‹
 		displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
 		float z = cos(angle) * radius + displacement;
 		model = translate(model, vec3(x, y, z) + vec3(40.0f, 45.0f, 40.0f));
 
-		// 2. Ëõ·Å£ºÔÚ 0.05 ºÍ 0.25f Ö®¼äËõ·Å
+		// 2. ç¼©æ”¾ï¼šåœ¨ 0.05 å’Œ 0.25f ä¹‹é—´ç¼©æ”¾
+		// 2. ã‚¹ã‚±ãƒ¼ãƒªãƒ³ã‚°ï¼š0.05 ï½ 0.25f ã®ç¯„å›²ã§ãƒ©ãƒ³ãƒ€ãƒ 
 		float _scale = (rand() % 20) / 100.0f + 0.05;
 		model = scale(model, vec3(_scale));
 
-		// 3. Ğı×ª£ºÈÆ×ÅÒ»¸ö£¨°ë£©Ëæ»úÑ¡ÔñµÄĞı×ªÖáÏòÁ¿½øĞĞËæ»úµÄĞı×ª
+		// 3. æ—‹è½¬ï¼šç»•ç€ä¸€ä¸ªï¼ˆåŠï¼‰éšæœºé€‰æ‹©çš„æ—‹è½¬è½´å‘é‡è¿›è¡Œéšæœºçš„æ—‹è½¬
+		// 3. å›è»¢ï¼šãƒ©ãƒ³ãƒ€ãƒ ãªè»¸ãƒ™ã‚¯ãƒˆãƒ«ã§å›è»¢
 		float rotAngle = (rand() % 360);
 		model = rotate(model, rotAngle, vec3(0.4f, 0.6f, 0.8f));
 
-		// 4. Ìí¼Óµ½¾ØÕóµÄÊı×éÖĞ
+		// 4. æ·»åŠ åˆ°çŸ©é˜µçš„æ•°ç»„ä¸­
+		// 4. ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚·ãƒ³ã‚°ç”¨è¡Œåˆ—é…åˆ—ã«è¿½åŠ 
 		instMat4.push_back(model);
 	}
 }

@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include "Mesh.h"
 #include "common.h"
@@ -8,7 +8,7 @@ const vector<Vertex> g_planeVertices = {
 	{vec3(5.0f, -0.5f,  5.0f),    vec3(0.0f,  1.0f,  0.0f),  vec2(2.0f, 0.0f)},
 	{vec3(-5.0f, -0.5f,  5.0f),   vec3(0.0f,  1.0f,  0.0f),  vec2(0.0f, 0.0f)},
 	{vec3(-5.0f, -0.5f, -5.0f),   vec3(0.0f,  1.0f,  0.0f),  vec2(0.0f, 2.0f)},
-	{vec3(5.0f, -0.5f, -5.0f),    vec3(0.0f,  1.0f,  0.0f),  vec2(2.0f, 2.0f)}      // ÎÆÀí×ø±êÔ½´ó£¬ÌùÍ¼Ô½Ğ¡Ô½¾«Ï¸£¬µ«ÊÇÌùÍ¼¸Ğ¸üÇ¿
+	{vec3(5.0f, -0.5f, -5.0f),    vec3(0.0f,  1.0f,  0.0f),  vec2(2.0f, 2.0f)}      // çº¹ç†åæ ‡è¶Šå¤§ï¼Œè´´å›¾è¶Šå°è¶Šç²¾ç»†ï¼Œä½†æ˜¯è´´å›¾æ„Ÿæ›´å¼º
 };
 const vector<GLuint> g_planeIndices =
 {
@@ -16,10 +16,11 @@ const vector<GLuint> g_planeIndices =
     0, 2, 3
 };
 
-// Ä¬ÈÏÊÇÃæÔÚ·¨Ïß·½ÏòÉÏÊÇÄæÊ±ÕëµÄÇé¿öÏÂ£¬ÊÇÕıÃæ¡£
+// å³æ‰‹å®šåˆ™ã€‚é»˜è®¤æƒ…å†µä¸‹ï¼Œé¡¶ç‚¹åœ¨æ³•çº¿æ–¹å‘ä¸Šæ˜¯é€†æ—¶é’ˆçš„æƒ…å†µä¸‹ï¼Œæ˜¯æ­£é¢ã€‚
+// å³æ‰‹ã®æ³•å‰‡ã€‚ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã§ã¯æ³•ç·šæ–¹å‘ã«å¯¾ã—ã¦é ‚ç‚¹ãŒåæ™‚è¨ˆå›ã‚Šã«é…ç½®ã•ã‚ŒãŸé¢ã‚’è¡¨é¢ã¨åˆ¤å®šã—ã¾ã™ã€‚
 const vector<Vertex> g_cubeVertices = 
 {
-	//Î»ÖÃ                         //·¨Ïß                     //ÎÆÀí×ø±ê
+	//ä½ç½®                         //æ³•ç·š                     //UVåº§æ¨™ 
     // Back face
     {vec3(-0.5f, -0.5f, -0.5f),  vec3(0.0f, 0.0f, -1.0f),  vec2(0.0f, 0.0f)}, // Bottom-right
     {vec3(0.5f,  0.5f, -0.5f),  vec3(0.0f, 0.0f, -1.0f),  vec2(1.0f, 1.0f)},  // top-left
@@ -81,7 +82,7 @@ const vector<GLuint> g_squareIndices =
 };
 
 
-// ÕâÀïnormalÃ»ÓĞÒâÒå£¬µ«ÊÇÎªÁË¸´ÓÃÖ®Ç°µÄ´úÂë£¬¼ÓÁËnormal
+// è¿™é‡Œnormalæ²¡æœ‰æ„ä¹‰ï¼Œä½†æ˜¯ä¸ºäº†å¤ç”¨ä¹‹å‰çš„ä»£ç ï¼ŒåŠ äº†normal
 const vector<Vertex> g_screenVertices = {
     // positions                    // normal                  // texture Coords
     {vec3(-1.0f,  1.0f, 0.0f),      vec3(0.0f,  0.0f,  1.0f),  vec2(0.0f, 1.0f)},
@@ -96,7 +97,8 @@ const vector<GLuint> g_screenIndices =
     0, 2, 3
 };
 
-// ÕâÀïnormalÃ»ÓĞÒâÒå£¬µ«ÊÇÎªÁË¸´ÓÃÖ®Ç°µÄ´úÂë£¬¼ÓÁËnormal
+// è¿™é‡Œnormalæ²¡æœ‰æ„ä¹‰ï¼Œä½†æ˜¯ä¸ºäº†å¤ç”¨ä¹‹å‰çš„ä»£ç ï¼ŒåŠ äº†normal
+// ã“ã®ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆã«ãŠã‘ã‚‹normalå¤‰æ•°ã¯æ„å‘³ã‚’æŒãŸãªã„ãŒã€æ—¢å­˜ã‚³ãƒ¼ãƒ‰ã®å†åˆ©ç”¨æ€§ã‚’ç¶­æŒã™ã‚‹ãŸã‚ã«è¿½åŠ ã•ã‚Œã¦ã„ã¾ã™
 const vector<Vertex> g_mirrorVertices = {
     // positions                    // normal(dummy)           // texture Coords(dummy) 
     {vec3(-0.2f,  1.0f, 0.0f),      vec3(0.0f,  0.0f,  1.0f),  vec2(0.0f, 1.0f)},
@@ -178,7 +180,7 @@ const vector<GLuint> g_particleIndices =
 };
 
 const vector<Vertex> g_GMTestVertices = {
-    // positions                   // color(ÔİÊ±ÓÃnormalÀ´×°color£¬ºóÃæ¿´¿´ÓĞÃ»ÓĞ¸üºÃµÄ·½°¸)  // texture Coords(dummy)
+    // positions                   // color                                              // texture Coords(dummy)
     {vec3(-0.5f, 0.5f, 0.0f),      vec3(1.0f,  0.0f,  0.0f),                             vec2(0.0f, 1.0f)},
     {vec3(-0.5f, -0.5f, 0.0f),     vec3(0.0f,  1.0f,  0.0f),                             vec2(1.0f, 1.0f)},
     {vec3(0.5f, 0.5f, 0.0f),       vec3(0.0f,  0.0f,  1.0f),                             vec2(0.0f, 0.0f)},
@@ -191,7 +193,7 @@ const vector<GLuint> g_GMTestIndices =
 };
 
 const vector<float> g_InstanceTestV = {
-    // Î»ÖÃ           // ÑÕÉ«
+    // ä½ç½®           // è‰²
   { -0.05f,  0.05f,  1.0f, 0.0f, 0.0f,
      0.05f, -0.05f,  0.0f, 1.0f, 0.0f,
     -0.05f, -0.05f,  0.0f, 0.0f, 1.0f,

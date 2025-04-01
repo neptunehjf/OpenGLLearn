@@ -197,8 +197,7 @@ void Scene::DrawScene()
 	// skyboxを描画
 	skybox.DrawMesh(cubemapShader, GL_TRIANGLES);
 
-	// 按窗户离摄像机间的距离排序，map默认是升序排序，也就是从近到远
-	// 必须放在render loop里，因为摄像机是实时改变的
+
 	// 按窗户离摄像机间的距离排序，map默认是升序排序，也就是从近到远
 	// 必须放在render loop里，因为摄像机是实时改变的
 	// ウィンドウオブジェクトとカメラ間の距離でソート（std::mapのデフォルトは昇順=近→遠）
