@@ -373,6 +373,7 @@ void GetImguiValue()
 
 	if (ImGui::TreeNodeEx("Lighting", ImGuiTreeNodeFlags_DefaultOpen))
 	{
+		// light model
 		const char* LightModels[] = { "Phong", "Blinn-Phong" };
 		ImGui::Combo("Light Fade Distance", &iLightModel, LightModels, IM_ARRAYSIZE(LightModels));
 
