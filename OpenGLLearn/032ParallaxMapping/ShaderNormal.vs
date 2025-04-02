@@ -1,4 +1,4 @@
-#version 330 core
+ï»¿#version 330 core
 
 layout(location = 0) in vec3 aPos;
 layout(location = 1) in vec3 aNormal;
@@ -19,14 +19,14 @@ out VS_OUT
 
 void main()
 {
-   gl_Position = uni_projection * uni_view * uni_model * vec4(aPos, 1.0);  // ×¢Òâ¾ØÕó±ä»»µÄË³ĞòÊÇ´ÓÓÒÏò×ó
+   gl_Position = uni_projection * uni_view * uni_model * vec4(aPos, 1.0);  // æ³¨æ„çŸ©é˜µå˜æ¢çš„é¡ºåºæ˜¯ä»å³å‘å·¦
 
-   // 1 mat3(transpose(inverse(uni_view * uni_model))) ÊÇ·¨Ïß¾ØÕó£¬ÓÃÓÚÈ¥³ıÒòÎª²»µÈ±ÈËõ·Åµ¼ÖÂµÄ·¨Ïß·½Ïò´íÎó£¬
-   // 2 ÓÖÒò·¨ÏßÖ»ÊÇ·½ÏòÓëÎ»ÖÃÎŞ¹Ø£¬¹ÊÓÃmat3È¥³ıÆë´Î·ÖÁ¿w
-   // 3 ÒòÎª model¾ØÕóÉæ¼°scale rotation translation£¬¶øview¾ØÕóĞèÒª¶Ômodel¾ØÕóºóµÄ½á¹û½øÒ»²½¼ÆËã£¬ÓÃÓÚ3D¿Õ¼äµÄ±ä»»
-   // 4 ¶øprojectionÖ»ÓÃÓÚ²Ã¼ô£¬Í¸ÊÓµÈ£¬Êµ¼ÊÉÏ¿ÉÒÔ¿´×÷¶Ô view * model * posµÄºóÆÚ´¦Àí£¬ÓÃÓÚ¾ö¶¨ÔÚ2DÆÁÄ»ÉÏµÄÏÔÊ¾Ğ§¹û
-   // 5 ËùÒÔ·¨Ïß¾ØÕóÖ»ÄÜ¶Ôview model¿Õ¼ä½øĞĞ3DĞŞÕı£¬ºÍprojectionÃ»¹ØÏµ£¬Ç¿ĞĞĞŞÕıprojection»á³ö´í
-   // 6 ÒòÎªÕâÀïÒªÔÚview¿Õ¼ä²Ù×÷·¨Ïß£¬ËùÒÔtranspose(inverse(uni_view * uni_model)
-   // 7 ÆäËûÇé¿ö£¬±ÈÈç¹âÕÕ¼ÆËã£¬ÊÇÔÚmodel¿Õ¼ä£¬ËùÒÔÖ»Òªtranspose(inverse(uni_model)
+   // 1 mat3(transpose(inverse(uni_view * uni_model))) æ˜¯æ³•çº¿çŸ©é˜µï¼Œç”¨äºå»é™¤å› ä¸ºä¸ç­‰æ¯”ç¼©æ”¾å¯¼è‡´çš„æ³•çº¿æ–¹å‘é”™è¯¯ï¼Œ
+   // 2 åˆå› æ³•çº¿åªæ˜¯æ–¹å‘ä¸ä½ç½®æ— å…³ï¼Œæ•…ç”¨mat3å»é™¤é½æ¬¡åˆ†é‡w
+   // 3 å› ä¸º modelçŸ©é˜µæ¶‰åŠscale rotation translationï¼Œè€ŒviewçŸ©é˜µéœ€è¦å¯¹modelçŸ©é˜µåçš„ç»“æœè¿›ä¸€æ­¥è®¡ç®—ï¼Œç”¨äº3Dç©ºé—´çš„å˜æ¢
+   // 4 è€Œprojectionåªç”¨äºè£å‰ªï¼Œé€è§†ç­‰ï¼Œå®é™…ä¸Šå¯ä»¥çœ‹ä½œå¯¹ view * model * posçš„åæœŸå¤„ç†ï¼Œç”¨äºå†³å®šåœ¨2Då±å¹•ä¸Šçš„æ˜¾ç¤ºæ•ˆæœ
+   // 5 æ‰€ä»¥æ³•çº¿çŸ©é˜µåªèƒ½å¯¹view modelç©ºé—´è¿›è¡Œ3Dä¿®æ­£ï¼Œå’Œprojectionæ²¡å…³ç³»ï¼Œå¼ºè¡Œä¿®æ­£projectionä¼šå‡ºé”™
+   // 6 å› ä¸ºè¿™é‡Œè¦åœ¨viewç©ºé—´æ“ä½œæ³•çº¿ï¼Œæ‰€ä»¥transpose(inverse(uni_view * uni_model)
+   // 7 å…¶ä»–æƒ…å†µï¼Œæ¯”å¦‚å…‰ç…§è®¡ç®—ï¼Œæ˜¯åœ¨modelç©ºé—´ï¼Œæ‰€ä»¥åªè¦transpose(inverse(uni_model)
    vs_out.normal = uni_projection * vec4(mat3(transpose(inverse(uni_view * uni_model))) * aNormal, 0.0);
 }

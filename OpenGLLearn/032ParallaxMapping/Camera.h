@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -18,9 +18,9 @@ public:
 	vec3 camFront;
 	vec3 camUp;
 
-	float deltaTime; // µ±Ç°Ö¡ÓëÉÏÒ»Ö¡µÄÊ±¼ä²î
-	float lastFrame; // ÉÏÒ»Ö¡µÄÊ±¼ä
-	float currentFrame; //µ±Ç°Ö¡Ê±¼ä
+	float deltaTime; // å½“å‰å¸§ä¸ä¸Šä¸€å¸§çš„æ—¶é—´å·®
+	float lastFrame; // ä¸Šä¸€å¸§çš„æ—¶é—´
+	float currentFrame; //å½“å‰å¸§æ—¶é—´
 
 	float lastX;
 	float lastY;
@@ -54,7 +54,7 @@ Camera::Camera(const vec3& camPos, const vec3& camFront, const vec3& camUp)
 	lastX = 0.0f;
 	lastY = 0.0f;
 	pitchValue = -45.0f;
-	yawValue = -87.0f; // Ä¬ÈÏ¾µÍ·³¯ÏòXÕı·½Ïò£¬ËùÒÔÏò×ó×ª90¶ÈĞ£Õı
+	yawValue = -87.0f; // é»˜è®¤é•œå¤´æœå‘Xæ­£æ–¹å‘ï¼Œæ‰€ä»¥å‘å·¦è½¬90åº¦æ ¡æ­£
 	 
 	fov = 45.0f;
 
@@ -87,9 +87,9 @@ float Camera::getCamFov()
 void Camera::setCamFront()
 {
 	vec3 front;
-	front.x = cos(radians(yawValue)) * cos(radians(pitchValue)); // ÒòÎªÊÓ½ÇÄ¬ÈÏ³¯ÏòXÖáÕı·½Ïò£¬ËùÒÔÓ¦¸ÃÓÃÓëXÖáÕı·½ÏòµÄ½Ç¶È¼ÆËãÆ«ÒÆ
+	front.x = cos(radians(yawValue)) * cos(radians(pitchValue)); // å› ä¸ºè§†è§’é»˜è®¤æœå‘Xè½´æ­£æ–¹å‘ï¼Œæ‰€ä»¥åº”è¯¥ç”¨ä¸Xè½´æ­£æ–¹å‘çš„è§’åº¦è®¡ç®—åç§»
 	front.y = sin(radians(pitchValue));
-	front.z = sin(radians(yawValue)) * cos(radians(pitchValue)); // ÒòÎªÊÓ½ÇÄ¬ÈÏ³¯ÏòXÖáÕı·½Ïò£¬ËùÒÔÓ¦¸ÃÓÃÓëXÖáÕı·½ÏòµÄ½Ç¶È¼ÆËãÆ«ÒÆ
+	front.z = sin(radians(yawValue)) * cos(radians(pitchValue)); // å› ä¸ºè§†è§’é»˜è®¤æœå‘Xè½´æ­£æ–¹å‘ï¼Œæ‰€ä»¥åº”è¯¥ç”¨ä¸Xè½´æ­£æ–¹å‘çš„è§’åº¦è®¡ç®—åç§»
 
 	camFront = normalize(front);
 }

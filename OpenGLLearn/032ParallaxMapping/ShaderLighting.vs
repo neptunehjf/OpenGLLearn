@@ -1,4 +1,4 @@
-#version 330 core
+﻿#version 330 core
 
 layout(location = 0) in vec3 aPos;
 layout(location = 1) in vec3 aNormal;
@@ -32,7 +32,7 @@ out VS_OUT
 
 void main()
 {
-  gl_Position = uni_projection * uni_view * uni_model * vec4(aPos, 1.0);  // ע�����任��˳���Ǵ�������
+  gl_Position = uni_projection * uni_view * uni_model * vec4(aPos, 1.0);  // 注意矩阵变换的顺序是从右向左
 
   vs_out.fragPos = vec3(uni_model * vec4(aPos, 1.0));
   vs_out.normal = mat3(transpose(inverse(uni_model))) * aNormal;
@@ -42,12 +42,12 @@ void main()
   vs_out.projection = uni_projection;
   vs_out.fragPosLightSpace = dirLightSpace * vec4(vs_out.fragPos, 1.0);
 
-  // ���߿ռ�->Local�ռ�->World�ռ� 
-  // uni_model���ɷ��߾�����׼ȷ
-  // �����ϣ����߱��������߿ռ䣬���������ղ���ת�����߿ռ䣬Ҳ������ȷ������ա�
-  // �����Ļ���һЩ�ȽϹ̶��Ĺ��ղ������Էŵ�������ɫ����Ȼ��ת�����߿ռ�
-  // ��Ϊ������ɫ���ĵ���Ƶ��ҪԶС��Ƭ����ɫ���������Ż�������
-  // ������������û��������㡣������������������û���������������������һ���ԣ����û��������������������㣬���Լ�С����
+  // 切线空间->Local空间->World空间 
+  // uni_model换成法线矩阵会更准确
+  // 理论上，法线保留在切线空间，而其他光照参数转成切线空间，也可以正确计算光照。
+  // 这样的话，一些比较固定的光照参数可以放到顶点着色器，然后转到切线空间
+  // 因为顶点着色器的调用频次要远小于片段着色器，所以优化很明显
+  // 逆矩阵开销大于置换矩阵运算。可以利用正交矩阵的置换矩阵与它的逆矩阵相等这一特性，用置换矩阵运算代替逆矩阵运算，可以减小开销
   vec3 T = normalize(vec3(transpose(inverse(uni_model)) * vec4(aTangent,   0.0)));
   vec3 B = normalize(vec3(transpose(inverse(uni_model)) * vec4(aBitTangent, 0.0)));
   vec3 N = normalize(vec3(transpose(inverse(uni_model)) * vec4(aNormal,    0.0)));

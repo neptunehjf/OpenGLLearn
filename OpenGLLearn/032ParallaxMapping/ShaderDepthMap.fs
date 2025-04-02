@@ -1,6 +1,6 @@
-#version 330 core
+ï»¿#version 330 core
 
 void main()
 {
-	gl_FragDepth = gl_FragCoord.z; //²»Ğ´ÕâÒ»ĞĞÄ¬ÈÏÒ²»áÖ´ĞĞ
+	gl_FragDepth = gl_FragCoord.z; //ä¸å†™è¿™ä¸€è¡Œé»˜è®¤ä¹Ÿä¼šæ‰§è¡Œ
 }

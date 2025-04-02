@@ -1,9 +1,9 @@
-#version 330 core
+ï»¿#version 330 core
 
 layout(location = 0) in vec3 aPos;
 layout(location = 1) in vec3 aNormal;
 layout(location = 2) in vec2 aTexCoord;
-layout(location = 3) in mat4 aInstAsteriod;  // ×ÅÉ«Æ÷ÊôĞÔ×î´óÖ§³Övec4ÀàĞÍ£¬¶ømat4°üº¬4¸övec4£¬Ïàµ±ÓÚlocation3 4 5 6
+layout(location = 3) in mat4 aInstAsteriod;  // ç€è‰²å™¨å±æ€§æœ€å¤§æ”¯æŒvec4ç±»å‹ï¼Œè€Œmat4åŒ…å«4ä¸ªvec4ï¼Œç›¸å½“äºlocation3 4 5 6
 
 
 layout (std140) uniform Matrix
@@ -23,7 +23,7 @@ out VS_OUT
 
 void main()
 {
-  gl_Position = uni_projection * uni_view * extra_model * aInstAsteriod * vec4(aPos, 1.0);  // ×¢Òâ¾ØÕó±ä»»µÄË³ĞòÊÇ´ÓÓÒÏò×ó
+  gl_Position = uni_projection * uni_view * extra_model * aInstAsteriod * vec4(aPos, 1.0);  // æ³¨æ„çŸ©é˜µå˜æ¢çš„é¡ºåºæ˜¯ä»å³å‘å·¦
 
   vs_out.fragPos = vec3(extra_model * aInstAsteriod * vec4(aPos, 1.0));
   vs_out.normal = mat3(transpose(inverse(aInstAsteriod))) * aNormal;

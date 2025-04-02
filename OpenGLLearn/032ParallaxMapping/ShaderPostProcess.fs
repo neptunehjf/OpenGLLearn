@@ -1,4 +1,4 @@
-#version 330 core
+ï»¿#version 330 core
 
 in vec2 TexCoords;
 
@@ -14,35 +14,35 @@ out vec4 FragColor;
 float[9] CopyKernel(float src[9]);
 
 void main()
-{   // Ô­É«
+{   // åŸè‰²
     vec4 originColor = texture(texture_diffuse1, TexCoords);
 
-    // ·´Ïà
+    // åç›¸
     //FragColor = vec4(vec3(1.0 - texture(texture_diffuse1, TexCoords)), 1.0); 
 
-    // ºÚ°×
+    // é»‘ç™½
     //FragColor = texture(texture_diffuse1, TexCoords);
-    // ¼òµ¥ÇóÆ½¾ùÊıµÄ·½Ê½£¬¿ÉÄÜ²»¹»×¼È·
+    // ç®€å•æ±‚å¹³å‡æ•°çš„æ–¹å¼ï¼Œå¯èƒ½ä¸å¤Ÿå‡†ç¡®
     //float average = (FragColor.r + FragColor.g + FragColor.b) / 3.0;
-    // ÈËÑÛ»á¶ÔÂÌÉ«¸ü¼ÓÃô¸ĞÒ»Ğ©£¬¶ø¶ÔÀ¶É«²»ÄÇÃ´Ãô¸Ğ£¬ËùÒÔÎªÁË»ñÈ¡ÎïÀíÉÏ¸ü¾«È·µÄĞ§¹û£¬ÎÒÃÇĞèÒªÊ¹ÓÃ¼ÓÈ¨µÄ(Weighted)Í¨µÀ
+    // äººçœ¼ä¼šå¯¹ç»¿è‰²æ›´åŠ æ•æ„Ÿä¸€äº›ï¼Œè€Œå¯¹è“è‰²ä¸é‚£ä¹ˆæ•æ„Ÿï¼Œæ‰€ä»¥ä¸ºäº†è·å–ç‰©ç†ä¸Šæ›´ç²¾ç¡®çš„æ•ˆæœï¼Œæˆ‘ä»¬éœ€è¦ä½¿ç”¨åŠ æƒçš„(Weighted)é€šé“
     //float average = 0.2126 * FragColor.r + 0.7152 * FragColor.g + 0.0722 * FragColor.b;  
     //FragColor = vec4(average, average, average, 1.0); 
 
     float sample_offset = 1.0 / sample_offset_base;
 
     vec2 sample[9] = vec2[](
-    vec2(-sample_offset,  sample_offset), // ×óÉÏ
-    vec2( 0.0f,    sample_offset), // ÕıÉÏ
-    vec2( sample_offset,  sample_offset), // ÓÒÉÏ
-    vec2(-sample_offset,  0.0f),   // ×ó
-    vec2( 0.0f,    0.0f),   // ÖĞ
-    vec2( sample_offset,  0.0f),   // ÓÒ
-    vec2(-sample_offset, -sample_offset), // ×óÏÂ
-    vec2( 0.0f,   -sample_offset), // ÕıÏÂ
-    vec2( sample_offset, -sample_offset)  // ÓÒÏÂ
+    vec2(-sample_offset,  sample_offset), // å·¦ä¸Š
+    vec2( 0.0f,    sample_offset), // æ­£ä¸Š
+    vec2( sample_offset,  sample_offset), // å³ä¸Š
+    vec2(-sample_offset,  0.0f),   // å·¦
+    vec2( 0.0f,    0.0f),   // ä¸­
+    vec2( sample_offset,  0.0f),   // å³
+    vec2(-sample_offset, -sample_offset), // å·¦ä¸‹
+    vec2( 0.0f,   -sample_offset), // æ­£ä¸‹
+    vec2( sample_offset, -sample_offset)  // å³ä¸‹
     );
 
-    // ³õÊ¼»¯ºË£¬²»ÆğÈÎºÎ×÷ÓÃ
+    // åˆå§‹åŒ–æ ¸ï¼Œä¸èµ·ä»»ä½•ä½œç”¨
     float kernel[9] = float[](
         0, 0, 0,
         0, 1, 0,
@@ -61,7 +61,7 @@ void main()
          1,  1,  1
     );
 
-    // ¼ÓÈ¨Ö®ºÍµÈÓÚ1²ÅÊÇÔ­À´µÄÑÕÉ«£¬´óÓÚ»òĞ¡ÓÚ1µÄ»°£¬Í¼Ïñ»á±äÁÁ/±ä°µ¡£ËùÒÔÕâÀïÃ¿¸ö¼ÓÈ¨Öµ¶¼Òª³ıÒÔ16.0
+    // åŠ æƒä¹‹å’Œç­‰äº1æ‰æ˜¯åŸæ¥çš„é¢œè‰²ï¼Œå¤§äºæˆ–å°äº1çš„è¯ï¼Œå›¾åƒä¼šå˜äº®/å˜æš—ã€‚æ‰€ä»¥è¿™é‡Œæ¯ä¸ªåŠ æƒå€¼éƒ½è¦é™¤ä»¥16.0
     float Blur[9] = float[](
          1.0 / 16.0,  2.0 / 16.0,  1.0 / 16.0,
          2.0 / 16.0,  4.0 / 16.0,  2.0 / 16.0,
@@ -72,7 +72,7 @@ void main()
     {
         case 0:
         {
-            //ÓÃÄ¬ÈÏºË
+            //ç”¨é»˜è®¤æ ¸
             break;
         }
         case 1:
@@ -105,12 +105,12 @@ void main()
     for(int i = 0; i < 9; i++)
         color += sampleTex[i] * kernel[i];
 
-    //gl_FragCoord ¶ÔÓ¦µÄÊÇÊÓ¿Ú×ø±ê£¨ÏñËØ£© 
+    //gl_FragCoord å¯¹åº”çš„æ˜¯è§†å£åæ ‡ï¼ˆåƒç´ ï¼‰ 
     if ((gl_FragCoord.x < window_width / 2.0) && split_flag)
     {
         FragColor = originColor;
     }
-    else if ((gl_FragCoord.x < window_width / 2.0 + 1.0) && split_flag) // gl_FragCoord.x == window_width / 2.0 ÒòÎªÎó²îµÄÔ­ÒòËã²»³öÀ´
+    else if ((gl_FragCoord.x < window_width / 2.0 + 1.0) && split_flag) // gl_FragCoord.x == window_width / 2.0 å› ä¸ºè¯¯å·®çš„åŸå› ç®—ä¸å‡ºæ¥
     {
         FragColor = vec4(0.0, 255.0, 0.0, 1.0);
     }
@@ -120,7 +120,7 @@ void main()
     }
 }
 
-// ×¢ÒâGLSL²»Ö§³ÖÖ¸Õë²Ù×÷£¨ÔÚÏÔ¿¨Àïµ±È»²»ÄÜ·ÃÎÊÄÚ´æÁË£©£¬Ö»ÄÜÍ¨¹ı·µ»ØÖµµÄ·½Ê½·µ»ØÊı×é
+// æ³¨æ„GLSLä¸æ”¯æŒæŒ‡é’ˆæ“ä½œï¼ˆåœ¨æ˜¾å¡é‡Œå½“ç„¶ä¸èƒ½è®¿é—®å†…å­˜äº†ï¼‰ï¼Œåªèƒ½é€šè¿‡è¿”å›å€¼çš„æ–¹å¼è¿”å›æ•°ç»„
 float[9] CopyKernel(float src[9])
 {
     float dst[9] = float[](

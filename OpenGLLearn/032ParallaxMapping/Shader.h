@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -17,20 +17,20 @@
 class Shader
 {
 public:
-	//³ÌĞòID 
+	//ç¨‹åºID 
 	GLuint ID = 0; 
 
 	Shader() {};
 
 	Shader(const char* vertexShaderPath, const char* fragmentShaderPath, const char* geometryShaderPath);
 
-	//Ê¹ÓÃ/¼¤»î³ÌĞò
+	//ä½¿ç”¨/æ¿€æ´»ç¨‹åº
 	bool Use() const;
 
-	//É¾³ıShader³ÌĞò
+	//åˆ é™¤Shaderç¨‹åº
 	void Remove();
 
-	//uniform¹¤¾ßº¯Êı
+	//uniformå·¥å…·å‡½æ•°
 	void SetBool(const string &name, bool value) const;
 	void SetInt(const string& name, int value) const;
 	void SetFloat(const string& name, float value) const;
@@ -46,20 +46,20 @@ private:
 
 Shader::Shader(const char* vertexShaderPath, const char* fragmentShaderPath, const char* geometryShaderPath = NULL)
 {
-	// ¶¥µã×ÅÉ«Æ÷
+	// é¡¶ç‚¹ç€è‰²å™¨
 	GLuint vertexShader = CompileShader(vertexShaderPath, GL_VERTEX_SHADER);
 
-	// ¼¸ºÎ×ÅÉ«Æ÷
+	// å‡ ä½•ç€è‰²å™¨
 	GLuint geometryShader = 0;
 	if (geometryShaderPath)
 	{
 		geometryShader = CompileShader(geometryShaderPath, GL_GEOMETRY_SHADER);
 	}
 
-	// Æ¬¶Î×ÅÉ«Æ÷
+	// ç‰‡æ®µç€è‰²å™¨
 	GLuint fragmentShader = CompileShader(fragmentShaderPath, GL_FRAGMENT_SHADER);
 
-	// Á´½Ó×ÅÉ«Æ÷³ÌĞò
+	// é“¾æ¥ç€è‰²å™¨ç¨‹åº
 	ID = glCreateProgram();
 	if (ID == 0)
 	{
@@ -82,7 +82,7 @@ Shader::Shader(const char* vertexShaderPath, const char* fragmentShaderPath, con
 		glGetProgramInfoLog(ID, sizeof(infoLog), NULL, infoLog);
 		cout << "Shader program link failed!\n" << infoLog << endl;
 
-		//ID = 0; ÕâÀï²»ÄÜÖÃ0£¬ÒòÎªÕâÑù¾Í²»ÄÜ°´ID deleteÁË
+		//ID = 0; è¿™é‡Œä¸èƒ½ç½®0ï¼Œå› ä¸ºè¿™æ ·å°±ä¸èƒ½æŒ‰ID deleteäº†
 	}
 
 	glDeleteShader(vertexShader);
@@ -96,7 +96,7 @@ bool Shader::Use() const
 	if (ID == 0)
 		return false;
 	else
-		glUseProgram(ID);  // ¿ªÏúÏà¶Ô½ÏĞ¡£¬ÖÁÉÙÔÚÎÒÕâ¸öÏîÄ¿£¬ÖØ¸´µ÷ÓÃÎÊÌâÒ²²»´ó
+		glUseProgram(ID);  // å¼€é”€ç›¸å¯¹è¾ƒå°ï¼Œè‡³å°‘åœ¨æˆ‘è¿™ä¸ªé¡¹ç›®ï¼Œé‡å¤è°ƒç”¨é—®é¢˜ä¹Ÿä¸å¤§
 
 	return true;
 }
@@ -150,21 +150,21 @@ void Shader::SetVec4(const string& name, vec4 vector) const
 
 GLuint Shader::CompileShader(const char* shaderPath, GLuint shaderType)
 {
-	// 1.´ÓÓ²ÅÌ¶ÁÈ¡shaderÔ´Âë
+	// 1.ä»ç¡¬ç›˜è¯»å–shaderæºç 
 	string code;
 	ifstream shaderFile;
-	// ÉèÖÃÅ×³öÒì³£ÀàĞÍ
+	// è®¾ç½®æŠ›å‡ºå¼‚å¸¸ç±»å‹
 	shaderFile.exceptions(ifstream::failbit | ifstream::badbit);
 	try
 	{
-		// ´ò¿ªÎÄ¼ş
+		// æ‰“å¼€æ–‡ä»¶
 		shaderFile.open(shaderPath);
-		// ¶ÁÈ¡µ½Êı¾İÁ÷
+		// è¯»å–åˆ°æ•°æ®æµ
 		stringstream shaderStream;
 		shaderStream << shaderFile.rdbuf();
-		// ¹Ø±ÕÎÄ¼şÁ÷
+		// å…³é—­æ–‡ä»¶æµ
 		shaderFile.close();
-		// ´ÓÊı¾İÁ÷È¡³östr
+		// ä»æ•°æ®æµå–å‡ºstr
 		code = shaderStream.str();
 	}
 	catch (ifstream::failure e)
@@ -174,16 +174,16 @@ GLuint Shader::CompileShader(const char* shaderPath, GLuint shaderType)
 		cerr << "Error code: " << e.code() << endl;
 	}
 
-	// »ñÈ¡shaderÔ´Âë
+	// è·å–shaderæºç 
 	const char* shaderSource = code.c_str();
 
 	int success = 0;
 	char infoLog[LOG_LENGTH] = "\0";
 
-	// ±àÒëshader´úÂë
+	// ç¼–è¯‘shaderä»£ç 
 	GLuint shader = 0;
 	shader = glCreateShader(shaderType);
-	glShaderSource(shader, 1, &shaderSource, NULL);  // ÔÚÕâÀïÖ±½ÓÓÃ &code.c_str()±¨´í£¬ ÒòÎªcode.c_str()²»ÊÇ×óÖµ¡£
+	glShaderSource(shader, 1, &shaderSource, NULL);  // åœ¨è¿™é‡Œç›´æ¥ç”¨ &code.c_str()æŠ¥é”™ï¼Œ å› ä¸ºcode.c_str()ä¸æ˜¯å·¦å€¼ã€‚
 	glCompileShader(shader);
 
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &success);

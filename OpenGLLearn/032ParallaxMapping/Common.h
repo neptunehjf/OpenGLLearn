@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 using namespace std;
 using namespace glm;
@@ -12,10 +12,10 @@ using namespace glm;
 #define CUBE_SCALE_DEFAULT 1.0f
 #define CUBE_SCALE_OUTLINE 1.05f
 
-//֮ǰ1���С����֡��144������10���С����֡��ֻ��20��֡��(3080 + i7 10700k + 16G)��
-//�о����֣��������У�Ƭ����ɫ����֡��Ӱ��С���Ż��ռ�Լ����0�����޳���֡����Ӱ��Ҳ����Ϊ0.
-//����ּ�����ɫ�����ͼԪ���ɶ��㣬ÿ�����㶼���һ��Ƭ����ɫ���������Ҫ�Ѷ���װ���ͼԪ������Ŀ����Ǻܴ�ġ�
-//ɾ��������ɫ����֡���ﵽ��120��֡���Ż��ɹ���
+//之前1万个小行星帧数144，但是10万个小行星帧数只有20多帧了(3080 + i7 10700k + 16G)。
+//研究发现，本场景中，片段着色器对帧数影响小，优化空间约等于0；面剔除对帧数的影响也基本为0.
+//最后发现几何着色器会把图元拆解成顶点，每个顶点都会吊一次片段着色器，最后又要把顶点装配成图元，这里的开销是很大的。
+//删除几何着色器后帧数达到了120多帧，优化成功。
 #define ROCK_NUM 1000
 
 #define MSAA_SAMPLE_NUM 4
@@ -35,7 +35,7 @@ const vec3 lampPos[4] = { vec3(20.0f, 3.0f, 0.0f) , vec3(20.0f, 3.0f, -10.0f) , 
 float windowWidth = WINDOW_WIDTH;
 float windowHeight = WINDOW_HEIGHT;
 
-/************** Imgui���� **************/
+/************** Imgui变量 **************/
 //float posValue = 0.0f;
 vec3 bkgColor = vec3(0.0f, 0.0f, 0.0f);
 vec3 dirLight_direction = vec3(-5.0f, -5.0f, -5.0f);
@@ -83,5 +83,5 @@ bool bEnableParallaxMap = true;
 bool bDebug = false;
 float height_scale = 0.1f;
 int iParaAlgo = 2;
-/************** Imgui���� **************/
+/************** Imgui变量 **************/
 

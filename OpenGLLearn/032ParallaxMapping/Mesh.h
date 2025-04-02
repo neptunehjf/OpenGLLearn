@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include <string>
 #include <vector>
@@ -10,35 +10,35 @@
 #include "common.h"
 #include "assimp/types.h"
 
-//¶¥µãÊı¾İ
+//é¡¶ç‚¹æ•°æ®
 #pragma pack(1)
 struct Vertex
 {
-	vec3 position; //Î»ÖÃ
-	vec3 normal;   //·¨Ïß
-	vec2 texCoord; //ÎÆÀí×ø±ê
+	vec3 position; //ä½ç½®
+	vec3 normal;   //æ³•çº¿
+	vec2 texCoord; //çº¹ç†åæ ‡
 };
 #pragma pack()
 
-// ´øÇĞÏßµÄ¶¥µãÊı¾İ
+// å¸¦åˆ‡çº¿çš„é¡¶ç‚¹æ•°æ®
 #pragma pack(1)
 struct VertexNM
 {
-	vec3 position;   // Î»ÖÃ
-	vec3 normal;     // ·¨Ïß
-	vec2 texCoord;   // ÎÆÀí×ø±ê
-	vec3 tangent;    // ÇĞÏß
-	vec3 bitangent;  // ¸±ÇĞÏß
+	vec3 position;   // ä½ç½®
+	vec3 normal;     // æ³•çº¿
+	vec2 texCoord;   // çº¹ç†åæ ‡
+	vec3 tangent;    // åˆ‡çº¿
+	vec3 bitangent;  // å‰¯åˆ‡çº¿
 };
 #pragma pack()
 
-//ÌùÍ¼Êı¾İ
+//è´´å›¾æ•°æ®
 #pragma pack(1)
 struct Texture
 {
-	unsigned int id; //ÌùÍ¼id
-	string type;     //ÌùÍ¼ÀàĞÍ£¬±ÈÈç Âş·´ÉäÌùÍ¼ »¹ÊÇ ¸ß¹âÌùÍ¼
-	aiString path;     //ÌùÍ¼Â·¾¶
+	unsigned int id; //è´´å›¾id
+	string type;     //è´´å›¾ç±»å‹ï¼Œæ¯”å¦‚ æ¼«åå°„è´´å›¾ è¿˜æ˜¯ é«˜å…‰è´´å›¾
+	aiString path;     //è´´å›¾è·¯å¾„
 };
 #pragma pack()
 
@@ -64,7 +64,7 @@ public:
 	void AddRotate(float angle, vec3 axis);
 	void CalcTangent(const vector<Vertex>& vertices, vec3& tangent, vec3& bitangent);
 
-protected:  //Ö»ÔÊĞí×ÓÀà·ÃÎÊ
+protected:  //åªå…è®¸å­ç±»è®¿é—®
 	vec3 m_scale;
 	vec3 m_translate;
 	float m_rotateAngle;
@@ -153,24 +153,24 @@ Mesh::~Mesh()
 
 void Mesh::SetupMesh(bool bInst)
 {
-	// ÓÃÏÔ´æVAOÀ´¹ÜÀí shaderµÄ¶¥µãÊôĞÔ
+	// ç”¨æ˜¾å­˜VAOæ¥ç®¡ç† shaderçš„é¡¶ç‚¹å±æ€§
 	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO); // VBO glVertexAttribPointer ²Ù×÷ÏòVAOÉÏÏÂÎÄĞ´
+	glBindVertexArray(VAO); // VBO glVertexAttribPointer æ“ä½œå‘VAOä¸Šä¸‹æ–‡å†™
 
-	// ´æ´¢¶¥µãÊı¾İµ½ÏÔ´æVBO
+	// å­˜å‚¨é¡¶ç‚¹æ•°æ®åˆ°æ˜¾å­˜VBO
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
 
-	// ´æ´¢ÏÂ±êÊı¾İµ½ÏÔ´æEBO
+	// å­˜å‚¨ä¸‹æ ‡æ•°æ®åˆ°æ˜¾å­˜EBO
 	glGenBuffers(1, &EBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indices.size(), &indices[0], GL_STATIC_DRAW);
 
-	// ¶¨Òå¶¥µãÊôĞÔµÄ½âÎö·½Ê½
+	// å®šä¹‰é¡¶ç‚¹å±æ€§çš„è§£ææ–¹å¼
 	glVertexAttribPointer(0, sizeof(((Vertex*)0)->position) / sizeof(GL_FLOAT), GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, position)));
 	glEnableVertexAttribArray(0);
-	//3 Íü¼Ç¼Ósizeof(GL_FLOAT)ÁË£¬ÅÅ²éÁË°ëÌì¡£¡£¡£ÒÔºó0Ò²Ğ´³É0 * sizeof(GL_FLOAT)µÄĞÎÊ½°É¡£¡£ÒÔÃâÎóµ¼±ğµÄ´úÂë
+	//3 å¿˜è®°åŠ sizeof(GL_FLOAT)äº†ï¼Œæ’æŸ¥äº†åŠå¤©ã€‚ã€‚ã€‚ä»¥å0ä¹Ÿå†™æˆ0 * sizeof(GL_FLOAT)çš„å½¢å¼å§ã€‚ã€‚ä»¥å…è¯¯å¯¼åˆ«çš„ä»£ç 
 	glVertexAttribPointer(1, sizeof(((Vertex*)0)->normal) / sizeof(GL_FLOAT), GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, normal)));
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(2, sizeof(((Vertex*)0)->texCoord) / sizeof(GL_FLOAT), GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, texCoord)));
@@ -179,33 +179,33 @@ void Mesh::SetupMesh(bool bInst)
 	if (bInst)
 		SetInstMat4();
 
-	// ½â°ó
-	glBindVertexArray(0);// ¹Ø±ÕVAOÉÏÏÂÎÄ
+	// è§£ç»‘
+	glBindVertexArray(0);// å…³é—­VAOä¸Šä¸‹æ–‡
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	//µ±Ä¿±êÊÇGL_ELEMENT_ARRAY_BUFFERµÄÊ±ºò£¬VAO»á´¢´æglBindBufferµÄº¯Êıµ÷ÓÃ¡£ÕâÒ²ÒâÎ¶×ÅËüÒ²»á´¢´æ½â°óµ÷ÓÃ£¬ËùÒÔÈ·±£ÄãÃ»ÓĞÔÚ½â°óVAOÖ®Ç°½â°óË÷ÒıÊı×é»º³å£¬·ñÔòËü¾ÍÃ»ÓĞÕâ¸öEBOÅäÖÃÁË
+	//å½“ç›®æ ‡æ˜¯GL_ELEMENT_ARRAY_BUFFERçš„æ—¶å€™ï¼ŒVAOä¼šå‚¨å­˜glBindBufferçš„å‡½æ•°è°ƒç”¨ã€‚è¿™ä¹Ÿæ„å‘³ç€å®ƒä¹Ÿä¼šå‚¨å­˜è§£ç»‘è°ƒç”¨ï¼Œæ‰€ä»¥ç¡®ä¿ä½ æ²¡æœ‰åœ¨è§£ç»‘VAOä¹‹å‰è§£ç»‘ç´¢å¼•æ•°ç»„ç¼“å†²ï¼Œå¦åˆ™å®ƒå°±æ²¡æœ‰è¿™ä¸ªEBOé…ç½®äº†
 	// remember: do NOT unbind the EBO while a VAO is active as the bound element buffer object IS stored in the VAO; keep the EBO bound.
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-// ÉèÖÃÖ§³Ö·¨ÏßÌùÍ¼µÄmesh£¬Ôİ²»Í¬Ê±Ö§³Öinstance»¯
+// è®¾ç½®æ”¯æŒæ³•çº¿è´´å›¾çš„meshï¼Œæš‚ä¸åŒæ—¶æ”¯æŒinstanceåŒ–
 void Mesh::SetupMeshNM()
 {
-	// ÓÃÏÔ´æVAOÀ´¹ÜÀí shaderµÄ¶¥µãÊôĞÔ
+	// ç”¨æ˜¾å­˜VAOæ¥ç®¡ç† shaderçš„é¡¶ç‚¹å±æ€§
 	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO); // VBO glVertexAttribPointer ²Ù×÷ÏòVAOÉÏÏÂÎÄĞ´
+	glBindVertexArray(VAO); // VBO glVertexAttribPointer æ“ä½œå‘VAOä¸Šä¸‹æ–‡å†™
 
-	// ´æ´¢¶¥µãÊı¾İµ½ÏÔ´æVBO
+	// å­˜å‚¨é¡¶ç‚¹æ•°æ®åˆ°æ˜¾å­˜VBO
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(VertexNM) * verticesNM.size(), &verticesNM[0], GL_STATIC_DRAW);
 
-	// ÕâÀï²»ÓÃEBO£¬ÒòÎªEBO¶ÔÓ¦¹«¹²µÄ¶¥µã²»ÖªµÀÓÃÊÇÄÄ¸öÃæµÄÇĞÏß
+	// è¿™é‡Œä¸ç”¨EBOï¼Œå› ä¸ºEBOå¯¹åº”å…¬å…±çš„é¡¶ç‚¹ä¸çŸ¥é“ç”¨æ˜¯å“ªä¸ªé¢çš„åˆ‡çº¿
 
-	// ¶¨Òå¶¥µãÊôĞÔµÄ½âÎö·½Ê½
+	// å®šä¹‰é¡¶ç‚¹å±æ€§çš„è§£ææ–¹å¼
 	glVertexAttribPointer(0, sizeof(((VertexNM*)0)->position) / sizeof(GL_FLOAT), GL_FLOAT, GL_FALSE, sizeof(VertexNM), (void*)(offsetof(VertexNM, position)));
 	glEnableVertexAttribArray(0);
-	//3 Íü¼Ç¼Ósizeof(GL_FLOAT)ÁË£¬ÅÅ²éÁË°ëÌì¡£¡£¡£ÒÔºó0Ò²Ğ´³É0 * sizeof(GL_FLOAT)µÄĞÎÊ½°É¡£¡£ÒÔÃâÎóµ¼±ğµÄ´úÂë
+	//3 å¿˜è®°åŠ sizeof(GL_FLOAT)äº†ï¼Œæ’æŸ¥äº†åŠå¤©ã€‚ã€‚ã€‚ä»¥å0ä¹Ÿå†™æˆ0 * sizeof(GL_FLOAT)çš„å½¢å¼å§ã€‚ã€‚ä»¥å…è¯¯å¯¼åˆ«çš„ä»£ç 
 	glVertexAttribPointer(1, sizeof(((VertexNM*)0)->normal) / sizeof(GL_FLOAT), GL_FLOAT, GL_FALSE, sizeof(VertexNM), (void*)(offsetof(VertexNM, normal)));
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(2, sizeof(((VertexNM*)0)->texCoord) / sizeof(GL_FLOAT), GL_FLOAT, GL_FALSE, sizeof(VertexNM), (void*)(offsetof(VertexNM, texCoord)));
@@ -215,19 +215,19 @@ void Mesh::SetupMeshNM()
 	glVertexAttribPointer(4, sizeof(((VertexNM*)0)->bitangent) / sizeof(GL_FLOAT), GL_FLOAT, GL_FALSE, sizeof(VertexNM), (void*)(offsetof(VertexNM, bitangent)));
 	glEnableVertexAttribArray(4);
 
-	// ½â°ó
-	glBindVertexArray(0);// ¹Ø±ÕVAOÉÏÏÂÎÄ
+	// è§£ç»‘
+	glBindVertexArray(0);// å…³é—­VAOä¸Šä¸‹æ–‡
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	//µ±Ä¿±êÊÇGL_ELEMENT_ARRAY_BUFFERµÄÊ±ºò£¬VAO»á´¢´æglBindBufferµÄº¯Êıµ÷ÓÃ¡£ÕâÒ²ÒâÎ¶×ÅËüÒ²»á´¢´æ½â°óµ÷ÓÃ£¬ËùÒÔÈ·±£ÄãÃ»ÓĞÔÚ½â°óVAOÖ®Ç°½â°óË÷ÒıÊı×é»º³å£¬·ñÔòËü¾ÍÃ»ÓĞÕâ¸öEBOÅäÖÃÁË
+	//å½“ç›®æ ‡æ˜¯GL_ELEMENT_ARRAY_BUFFERçš„æ—¶å€™ï¼ŒVAOä¼šå‚¨å­˜glBindBufferçš„å‡½æ•°è°ƒç”¨ã€‚è¿™ä¹Ÿæ„å‘³ç€å®ƒä¹Ÿä¼šå‚¨å­˜è§£ç»‘è°ƒç”¨ï¼Œæ‰€ä»¥ç¡®ä¿ä½ æ²¡æœ‰åœ¨è§£ç»‘VAOä¹‹å‰è§£ç»‘ç´¢å¼•æ•°ç»„ç¼“å†²ï¼Œå¦åˆ™å®ƒå°±æ²¡æœ‰è¿™ä¸ªEBOé…ç½®äº†
 	// remember: do NOT unbind the EBO while a VAO is active as the bound element buffer object IS stored in the VAO; keep the EBO bound.
 }
 
 void Mesh::DrawMesh(const Shader& shader, GLuint element, bool bInst)
 {
-	// ÉèÖÃÎÆÀíµ¥Ôª ÈÎºÎuniformÉèÖÃ²Ù×÷Ò»¶¨Òª·Åµ½¡¶¶ÔÓ¦µÄshader¡·Æô¶¯Ö®ºó£¡  --¡·²»Í¬µÄshaderÇĞ»»ÔËĞĞ£¬ÁíÒ»¸öshader»á¹Øµô£¬Ğ´µÄÊı¾İ»á¶ªÊ§Êı¾İ
-    // Ò²¾ÍÊÇËµÆô¶¯ÁËshaderÖ®ºóÓÖÆô¶¯ÁËshader_lamp£¬Ö®Ç°ÔÚshaderÉèÖÃµÄ¾ÍÎŞĞ§ÁË£¡ÕâÖÖÇé¿öÖ»ÄÜ·Åµ½äÖÈ¾Ñ­»·Àï£¬²»ÄÜ·ÅÑ­»·ÍâÃæ
-	glBindVertexArray(VAO); // draw²Ù×÷´ÓVAOÉÏÏÂÎÄ¶Á¶¥µãÊı¾İ    ¿É´úÌæVBO EBO attrpointµÄ°ó¶¨²Ù×÷£¬·½±ã¹ÜÀí
+	// è®¾ç½®çº¹ç†å•å…ƒ ä»»ä½•uniformè®¾ç½®æ“ä½œä¸€å®šè¦æ”¾åˆ°ã€Šå¯¹åº”çš„shaderã€‹å¯åŠ¨ä¹‹åï¼  --ã€‹ä¸åŒçš„shaderåˆ‡æ¢è¿è¡Œï¼Œå¦ä¸€ä¸ªshaderä¼šå…³æ‰ï¼Œå†™çš„æ•°æ®ä¼šä¸¢å¤±æ•°æ®
+    // ä¹Ÿå°±æ˜¯è¯´å¯åŠ¨äº†shaderä¹‹ååˆå¯åŠ¨äº†shader_lampï¼Œä¹‹å‰åœ¨shaderè®¾ç½®çš„å°±æ— æ•ˆäº†ï¼è¿™ç§æƒ…å†µåªèƒ½æ”¾åˆ°æ¸²æŸ“å¾ªç¯é‡Œï¼Œä¸èƒ½æ”¾å¾ªç¯å¤–é¢
+	glBindVertexArray(VAO); // drawæ“ä½œä»VAOä¸Šä¸‹æ–‡è¯»é¡¶ç‚¹æ•°æ®    å¯ä»£æ›¿VBO EBO attrpointçš„ç»‘å®šæ“ä½œï¼Œæ–¹ä¾¿ç®¡ç†
 	shader.Use();
 	uint diffuseN = 0;
 	uint specularN = 0;
@@ -249,7 +249,7 @@ void Mesh::DrawMesh(const Shader& shader, GLuint element, bool bInst)
 		{
 			//cout << "texture_diffuse" << endl;
 			diffuseN++;
-			shader.SetInt("material." + type + to_string(diffuseN), i);   // ²»Çå³şÕâÀïÒ»´ÎdrawÓĞ¶à¸öÌùÍ¼ÒªÔõÃ´¸ã£¬ÕâÀï´úÂë¹ÃÇÒ±£Áô
+			shader.SetInt("material." + type + to_string(diffuseN), i);   // ä¸æ¸…æ¥šè¿™é‡Œä¸€æ¬¡drawæœ‰å¤šä¸ªè´´å›¾è¦æ€ä¹ˆæï¼Œè¿™é‡Œä»£ç å§‘ä¸”ä¿ç•™
 		}
 		else if (type == "texture_specular")
 		{
@@ -314,13 +314,13 @@ void Mesh::DrawMesh(const Shader& shader, GLuint element, bool bInst)
 		else
 			glDrawArrays(GL_TRIANGLES, 0, verticesNM.size());
 	}
-	else if (!bNM) // ÊµÀı»¯Ôİ²»Ö§³Önormal map
+	else if (!bNM) // å®ä¾‹åŒ–æš‚ä¸æ”¯æŒnormal map
 	{
-		// ²»ĞèÒªset uniform £¬model×÷ÎªÊµÀı»¯Êı×éÊôĞÔ´«Èë
+		// ä¸éœ€è¦set uniform ï¼Œmodelä½œä¸ºå®ä¾‹åŒ–æ•°ç»„å±æ€§ä¼ å…¥
 		glDrawElementsInstanced(element, indices.size(), GL_UNSIGNED_INT, 0, ROCK_NUM);
 	}
 
-	// ½â°ó
+	// è§£ç»‘
 	diffuseN = 0;
 	specularN = 0;
 	reflectionN = 0;
@@ -335,7 +335,7 @@ void Mesh::DrawMesh(const Shader& shader, GLuint element, bool bInst)
 		{
 			//cout << "texture_diffuse" << endl;
 			diffuseN++;
-			shader.SetInt("material." + type + to_string(diffuseN), i);   // ²»Çå³şÕâÀïÒ»´ÎdrawÓĞ¶à¸öÌùÍ¼ÒªÔõÃ´¸ã£¬ÕâÀï´úÂë¹ÃÇÒ±£Áô
+			shader.SetInt("material." + type + to_string(diffuseN), i);   // ä¸æ¸…æ¥šè¿™é‡Œä¸€æ¬¡drawæœ‰å¤šä¸ªè´´å›¾è¦æ€ä¹ˆæï¼Œè¿™é‡Œä»£ç å§‘ä¸”ä¿ç•™
 		}
 		else if (type == "texture_specular")
 		{
@@ -434,12 +434,12 @@ void Mesh::AddTextures(const vector<Texture>& textures)
 
 void Mesh::SetInstMat4()
 {
-	/**************************** ÊµÀı»¯Êı×é ****************************/
-// ÒòÎªEBOÖ»ÊÇÖ¸¶¨ÁËË÷Òı¶¥µãµÄË³Ğò£¬ÊÇµ¥¶À´æÔÚµÄ£¬ËùÒÔEBO°ó¶¨ÆÚ¼ä²»»áÓ°Ïìµ½ VBO_Instances£¨»òÕßVBO£©
-// VBO°ó¶¨ÆÚ¼ä¸ü²»»áÓ°ÏìVBO_Instances£¬ÒòÎªVBO ºÍ VBO_InstancesÆ½¼¶²¢ĞĞµÄ
-// ËùÒÔÖ±½Ó½Ó×Å°ó¶¨VBO_Instances¼´¿É£¬ÕâÑùÊµÀı»¯Êı×é¾ÍºÍlayout location2¶ÔÓ¦ÁË
-// ´æ´¢ÊµÀı»¯Êı×éµ½ÏÔ´æVBO
-// Ö¸¶¨location2 Ã¿äÖÈ¾1¸öÊµÀı¸üĞÂ1´ÎinstanceArray£¬µÚ¶ş¸ö²ÎÊıÊÇ0µÄ»°µÈÓÚÃ»µ÷ÓÃ£¬¾ÍÊÇÃ¿äÖÈ¾Ò»¸ö¶¥µã¸üĞÂ1´ÎÊµÀıÊı×éÁË£¬»á³öbug
+	/**************************** å®ä¾‹åŒ–æ•°ç»„ ****************************/
+// å› ä¸ºEBOåªæ˜¯æŒ‡å®šäº†ç´¢å¼•é¡¶ç‚¹çš„é¡ºåºï¼Œæ˜¯å•ç‹¬å­˜åœ¨çš„ï¼Œæ‰€ä»¥EBOç»‘å®šæœŸé—´ä¸ä¼šå½±å“åˆ° VBO_Instancesï¼ˆæˆ–è€…VBOï¼‰
+// VBOç»‘å®šæœŸé—´æ›´ä¸ä¼šå½±å“VBO_Instancesï¼Œå› ä¸ºVBO å’Œ VBO_Instanceså¹³çº§å¹¶è¡Œçš„
+// æ‰€ä»¥ç›´æ¥æ¥ç€ç»‘å®šVBO_Instanceså³å¯ï¼Œè¿™æ ·å®ä¾‹åŒ–æ•°ç»„å°±å’Œlayout location2å¯¹åº”äº†
+// å­˜å‚¨å®ä¾‹åŒ–æ•°ç»„åˆ°æ˜¾å­˜VBO
+// æŒ‡å®šlocation2 æ¯æ¸²æŸ“1ä¸ªå®ä¾‹æ›´æ–°1æ¬¡instanceArrayï¼Œç¬¬äºŒä¸ªå‚æ•°æ˜¯0çš„è¯ç­‰äºæ²¡è°ƒç”¨ï¼Œå°±æ˜¯æ¯æ¸²æŸ“ä¸€ä¸ªé¡¶ç‚¹æ›´æ–°1æ¬¡å®ä¾‹æ•°ç»„äº†ï¼Œä¼šå‡ºbug
 
 	glGenBuffers(1, &VBO_InstMat4);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO_InstMat4);
@@ -462,7 +462,7 @@ void Mesh::SetInstMat4()
 	glVertexAttribDivisor(6, 1);
 }
 
-// ²ÎÊıverticesµÄ´óĞ¡±ØĞëÊÇÈı½ÇĞÎµÄ3¸ö¶¥µãĞÅÏ¢
+// å‚æ•°verticesçš„å¤§å°å¿…é¡»æ˜¯ä¸‰è§’å½¢çš„3ä¸ªé¡¶ç‚¹ä¿¡æ¯
 void Mesh::CalcTangent(const vector<Vertex>& vertices, vec3& tangent, vec3& bitangent)
 {
 	if (vertices.size() != 3)
@@ -471,7 +471,7 @@ void Mesh::CalcTangent(const vector<Vertex>& vertices, vec3& tangent, vec3& bita
 		return;
 	}
 
-	// È¡³ö¶¥µãºÍUVĞÅÏ¢
+	// å–å‡ºé¡¶ç‚¹å’ŒUVä¿¡æ¯
 	vec3 pos1 = vertices[0].position;
 	vec3 pos2 = vertices[1].position;
 	vec3 pos3 = vertices[2].position;
@@ -479,13 +479,13 @@ void Mesh::CalcTangent(const vector<Vertex>& vertices, vec3& tangent, vec3& bita
 	vec2 uv2 = vertices[1].texCoord;
 	vec2 uv3 = vertices[2].texCoord;
 
-	// 1 ¼ÆËã edge ºÍ deltaUV
+	// 1 è®¡ç®— edge å’Œ deltaUV
 	vec3 edge1 = pos2 - pos1;
 	vec3 edge2 = pos3 - pos1;
 	vec2 deltaUV1 = uv2 - uv1;
 	vec2 deltaUV2 = uv3 - uv1;
 
-	// 2 ¼ÆËãTangent ºÍ bitangent
+	// 2 è®¡ç®—Tangent å’Œ bitangent
 	GLfloat f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
 
 	tangent.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);

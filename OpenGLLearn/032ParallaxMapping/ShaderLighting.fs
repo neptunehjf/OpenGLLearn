@@ -1,4 +1,4 @@
-#version 330 core
+ï»¿#version 330 core
 
 in GS_OUT
 {
@@ -23,10 +23,10 @@ uniform float farPlane;
 uniform bool bDepthCubemapDebug;
 uniform float fBiasDirShadow;
 uniform float fBiasPtShadow;
-uniform bool bNormalMap;   // µ±Ç°Æ¬¶ÎÊÇ·ñÓ¦ÓÃÁË·¨ÏßÌùÍ¼
-uniform bool bParallaxMap; // µ±Ç°Æ¬¶ÎÊÇ·ñÓ¦ÓÃÁËÊÓ²îÌùÍ¼
+uniform bool bNormalMap;   // å½“å‰ç‰‡æ®µæ˜¯å¦åº”ç”¨äº†æ³•çº¿è´´å›¾
+uniform bool bParallaxMap; // å½“å‰ç‰‡æ®µæ˜¯å¦åº”ç”¨äº†è§†å·®è´´å›¾
 uniform float height_scale;
-uniform int iParaAlgo; // ÊÓ²î²ÉÑùËã·¨ÀàĞÍ
+uniform int iParaAlgo; // è§†å·®é‡‡æ ·ç®—æ³•ç±»å‹
 
 struct Material
 {
@@ -52,17 +52,17 @@ struct PointLight
 	vec3 ambient;
 	vec3 diffuse;
 	vec3 specular;
-	float constant;  // ¹âÔ´Ë¥¼õÄ£ĞÍµÄ³£Êı²¿·Ö£¬Í¨³£Îª1£¬ÎªÁË±£Ö¤·ÖÄ¸Ò»¶¨±È·Ö×Ó´ó£¬²»È»¿ÉÄÜ³öÏÖ¹âÕÕ·´¶ø±äÇ¿µÄÇé¿ö
-	float linear;    // Ò»´ÎÏîÏµÊı£¬¾àÀë½ÏĞ¡Ê±£¬Ò»´ÎÏîÓ°Ïì´ó¡£ÏµÊıÔ½Ğ¡Ë¥¼õÔ½Âı
-	float quadratic; // ¶ş´ÎÏîÏµÊı£¬¾àÀë½Ï´óÊ±£¬¶ş´ÎÏîÓ°Ïì´ó¡£ÏµÊıÔ½Ğ¡Ë¥¼õÔ½Âı
+	float constant;  // å…‰æºè¡°å‡æ¨¡å‹çš„å¸¸æ•°éƒ¨åˆ†ï¼Œé€šå¸¸ä¸º1ï¼Œä¸ºäº†ä¿è¯åˆ†æ¯ä¸€å®šæ¯”åˆ†å­å¤§ï¼Œä¸ç„¶å¯èƒ½å‡ºç°å…‰ç…§åè€Œå˜å¼ºçš„æƒ…å†µ
+	float linear;    // ä¸€æ¬¡é¡¹ç³»æ•°ï¼Œè·ç¦»è¾ƒå°æ—¶ï¼Œä¸€æ¬¡é¡¹å½±å“å¤§ã€‚ç³»æ•°è¶Šå°è¡°å‡è¶Šæ…¢
+	float quadratic; // äºŒæ¬¡é¡¹ç³»æ•°ï¼Œè·ç¦»è¾ƒå¤§æ—¶ï¼ŒäºŒæ¬¡é¡¹å½±å“å¤§ã€‚ç³»æ•°è¶Šå°è¡°å‡è¶Šæ…¢
 };
 
 struct SpotLight
 {
-	vec3 lightPos;    // ¾Û¹âÔ´Î»ÖÃ
-	vec3 direction;   // ¾Û¹âÔ´µÄÖá·½Ïò
-	float innerCos;   // ¾Û¹âÔ´×î´ó½Ç¶ÈµÄÄÚÈ¦cos
-	float outerCos;   // ¾Û¹âÔ´×î´ó½Ç¶ÈµÄÍâÈ¦cos
+	vec3 lightPos;    // èšå…‰æºä½ç½®
+	vec3 direction;   // èšå…‰æºçš„è½´æ–¹å‘
+	float innerCos;   // èšå…‰æºæœ€å¤§è§’åº¦çš„å†…åœˆcos
+	float outerCos;   // èšå…‰æºæœ€å¤§è§’åº¦çš„å¤–åœˆcos
 	vec3 ambient;
 	vec3 diffuse;
 	vec3 specular;
@@ -114,10 +114,10 @@ void main()
 	color += CalcSpotLight(diffuseColor, specularColor);
 	color += CalcReflectionLight(reflectionColor);
 
-	// ÒòÎªÏòÁ¿Ïà¼Ó»áÊ¹alpha³¬¹ı1´Ó¶øÊ§È¥ÒâÒå£¬ËùÒÔÒªÖØĞÂ¼ÆËã
+	// å› ä¸ºå‘é‡ç›¸åŠ ä¼šä½¿alphaè¶…è¿‡1ä»è€Œå¤±å»æ„ä¹‰ï¼Œæ‰€ä»¥è¦é‡æ–°è®¡ç®—
 	color.a = diffuseColor.a;
 
-	// ¸÷·ÖÁ¿ÑÕÉ«»ìºÏ
+	// å„åˆ†é‡é¢œè‰²æ··åˆ
 	fragColor = color;
 
 	if (bShadow && bDepthCubemapDebug)
@@ -140,17 +140,17 @@ vec4 CalcDirLight(vec4 diffuseColor, vec4 specularColor)
 {
 	vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
 
-	// »·¾³¹âÕÕambient
+	// ç¯å¢ƒå…‰ç…§ambient
 	vec4 ambient = vec4(dirLight.ambient, 1.0) * diffuseColor;
 
-	// Âş·´Éä¹âÕÕdiffuse
+	// æ¼«åå°„å…‰ç…§diffuse
 	vec3 norm = GetNormalFromTexture();
 
 	vec3 lightDir = normalize(-dirLight.direction);
 	float diff = max(dot(norm, lightDir), 0.0);
 	vec4 diffuse = diff * vec4(dirLight.diffuse, 1.0) * diffuseColor;
 	
-	// ¾µÃæ¹âÕÕspecular
+	// é•œé¢å…‰ç…§specular
 	vec3 viewDir = normalize(uni_viewPos - gs_in.fragPos);
 
 	float spec = 0.0f;
@@ -194,15 +194,15 @@ vec4 CalcPointLight(vec4 diffuseColor, vec4 specularColor)
 
 	for (int i = 0; i < POINT_LIGHT_NUM; i++)
 	{
-		// »·¾³¹âÕÕambient
+		// ç¯å¢ƒå…‰ç…§ambient
 	    vec4 ambient = vec4(pointLight[i].ambient, 1.0) * diffuseColor;
 
-		// Âş·´Éä¹âÕÕdiffuse
+		// æ¼«åå°„å…‰ç…§diffuse
 		vec3 lightDir = normalize(pointLight[i].lightPos - gs_in.fragPos);
 		float diff = max(dot(norm, lightDir), 0.0);
 		vec4 diffuse = diff * vec4(pointLight[i].diffuse, 1.0) * diffuseColor;
 	
-		// ¾µÃæ¹âÕÕspecular
+		// é•œé¢å…‰ç…§specular
 		float spec = 0.0f;
 		// Phong
 		if (light_model == 0)
@@ -218,22 +218,22 @@ vec4 CalcPointLight(vec4 diffuseColor, vec4 specularColor)
 		}
 		vec4 specular = spec * vec4(pointLight[i].specular, 1.0) * specularColor;
 
-		// Æ¬¶ÎÀë¹âÔ´µÄ¾àÀë
+		// ç‰‡æ®µç¦»å…‰æºçš„è·ç¦»
 		float distance = length(pointLight[i].lightPos - gs_in.fragPos);
-		// ¼ÆËã¹âÕÕË¥¼õ£¬ÕâÀïÊÇÒ»¸öµã¹âÔ´µÄË¥¼õÄ£ĞÍ¡£¾àÀë½ÏĞ¡Ê±Ë¥¼õµÃÂı£¨Ò»´ÎÏîÓ°Ïì´ó£©£»¾àÀë½Ï´óÊ±Ë¥¼õµÃ¿ì£¨¶ş´ÎÏîÓ°Ïì´ó£©£»È»ºó»ºÂı½Ó½ü0£¨·ÖÄ¸ÊÇÎŞÇî´ó£¬Ë¥¼õµ½0£©
+		// è®¡ç®—å…‰ç…§è¡°å‡ï¼Œè¿™é‡Œæ˜¯ä¸€ä¸ªç‚¹å…‰æºçš„è¡°å‡æ¨¡å‹ã€‚è·ç¦»è¾ƒå°æ—¶è¡°å‡å¾—æ…¢ï¼ˆä¸€æ¬¡é¡¹å½±å“å¤§ï¼‰ï¼›è·ç¦»è¾ƒå¤§æ—¶è¡°å‡å¾—å¿«ï¼ˆäºŒæ¬¡é¡¹å½±å“å¤§ï¼‰ï¼›ç„¶åç¼“æ…¢æ¥è¿‘0ï¼ˆåˆ†æ¯æ˜¯æ— ç©·å¤§ï¼Œè¡°å‡åˆ°0ï¼‰
 		float lightFade = 1.0;
 		if (atte_formula == 0)
 			lightFade = 1.0 / (pointLight[i].constant + pointLight[i].linear * distance + pointLight[i].quadratic * distance * distance);
 		else if (atte_formula == 1)
 			lightFade = 1.0 / (0.1 * distance);
 		else if (atte_formula == 2)
-			lightFade = 1.0 / (0.1 * distance * distance); // Èç¹û²»ÆôÓÃgammaĞ£Õı£¬lightFade¾­¹ıÏÔÊ¾Æ÷Êä³ö»á±ä³ÉlightFadeµÄ2.2´Î·½£¬Òò´ËËã·¨¾Í²»¶ÔÁË
-														   // ²»ÆôÓÃgammaĞ£Õı£¬ÔòÒòÎªÌùÍ¼×ÔÉíÓĞgammaĞ£ÕıÒ²¿ÉÒÔÕı³£ÏÔÊ¾£¬µ«Éæ¼°µ½¸´ÔÓËã·¨¾Í²»Ò»ÑùÁË
-														   // ²»ÆôÓÃgammaĞ£Õı£¬Ïàµ±ÓÚÖ»ÓĞÌùÍ¼gammaĞ£Õı£¬¹âÕÕËã·¨È´Ã»ÓĞgammaĞ£Õı£¬ÊÇ´íÎóµÄ
-														   // ÆôÓÃgammaĞ£Õı£¬ÌùÍ¼ºÍËã·¨Ò»ÆğÔÚ×îºógammaĞ£Õı£¬ÊÇÕıÈ·µÄ
-														   // Ëµ°×ÁË£¬¾ÍÊÇ¿Õ¼ä×ª»»ÓëËã·¨µÄÏÈºóÎÊÌâ£¬Ö®Ç°ÔÚ3D¿Õ¼ä½øĞĞ¾ØÕó¼ÆËãÒ²Óöµ½¹ı¡£
-														   // ÊÇÏÈ°ÑÌùÍ¼×ªÎª·ÇÏßĞÔ¿Õ¼ä£¬ÔÚ·ÇÏßĞÔ¿Õ¼ä½øĞĞ¹âÕÕËã·¨¼ÆËã£¬»¹ÊÇ°ÑÌùÍ¼×ª³ÉÏßĞÔ¿Õ¼ä£¬ÔÚÏßĞÔ¿Õ¼ä½øĞĞ¼ÆËã£¬×îºó×ª³É·ÇÏßĞÔ¿Õ¼ä(gammaĞ£Õı)
-		// Ó¦ÓÃ¹âÕÕË¥¼õ
+			lightFade = 1.0 / (0.1 * distance * distance); // å¦‚æœä¸å¯ç”¨gammaæ ¡æ­£ï¼ŒlightFadeç»è¿‡æ˜¾ç¤ºå™¨è¾“å‡ºä¼šå˜æˆlightFadeçš„2.2æ¬¡æ–¹ï¼Œå› æ­¤ç®—æ³•å°±ä¸å¯¹äº†
+														   // ä¸å¯ç”¨gammaæ ¡æ­£ï¼Œåˆ™å› ä¸ºè´´å›¾è‡ªèº«æœ‰gammaæ ¡æ­£ä¹Ÿå¯ä»¥æ­£å¸¸æ˜¾ç¤ºï¼Œä½†æ¶‰åŠåˆ°å¤æ‚ç®—æ³•å°±ä¸ä¸€æ ·äº†
+														   // ä¸å¯ç”¨gammaæ ¡æ­£ï¼Œç›¸å½“äºåªæœ‰è´´å›¾gammaæ ¡æ­£ï¼Œå…‰ç…§ç®—æ³•å´æ²¡æœ‰gammaæ ¡æ­£ï¼Œæ˜¯é”™è¯¯çš„
+														   // å¯ç”¨gammaæ ¡æ­£ï¼Œè´´å›¾å’Œç®—æ³•ä¸€èµ·åœ¨æœ€ågammaæ ¡æ­£ï¼Œæ˜¯æ­£ç¡®çš„
+														   // è¯´ç™½äº†ï¼Œå°±æ˜¯ç©ºé—´è½¬æ¢ä¸ç®—æ³•çš„å…ˆåé—®é¢˜ï¼Œä¹‹å‰åœ¨3Dç©ºé—´è¿›è¡ŒçŸ©é˜µè®¡ç®—ä¹Ÿé‡åˆ°è¿‡ã€‚
+														   // æ˜¯å…ˆæŠŠè´´å›¾è½¬ä¸ºéçº¿æ€§ç©ºé—´ï¼Œåœ¨éçº¿æ€§ç©ºé—´è¿›è¡Œå…‰ç…§ç®—æ³•è®¡ç®—ï¼Œè¿˜æ˜¯æŠŠè´´å›¾è½¬æˆçº¿æ€§ç©ºé—´ï¼Œåœ¨çº¿æ€§ç©ºé—´è¿›è¡Œè®¡ç®—ï¼Œæœ€åè½¬æˆéçº¿æ€§ç©ºé—´(gammaæ ¡æ­£)
+		// åº”ç”¨å…‰ç…§è¡°å‡
 		ambient  *= lightFade;
 		diffuse  *= lightFade;
 		specular *= lightFade;
@@ -257,26 +257,26 @@ vec4 CalcSpotLight(vec4 diffuseColor, vec4 specularColor)
 {
 	vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
 
-	// »·¾³¹âÕÕambient
+	// ç¯å¢ƒå…‰ç…§ambient
 	vec4 ambient = vec4(spotLight.ambient, 1.0) * diffuseColor;
 
-	// ¾Û¹âÔ´
+	// èšå…‰æº
 	vec4 diffuse = vec4(0.0, 0.0, 0.0, 1.0);
 	vec4 specular = vec4(0.0, 0.0, 0.0, 1.0);
 
-	vec3 lightDir = normalize(spotLight.lightPos - gs_in.fragPos); //Æ¬¶Îµ½spotlightµÄ·½Ïò
-	float theta = max(dot(-lightDir, normalize(spotLight.direction)), 0.0); //spotDirÓë¾Û¹âÔ´µÄÖá·½Ïò £¬×¢Òâµ÷ÓÃnormalize×ª³Éµ¥Î»ÏòÁ¿
+	vec3 lightDir = normalize(spotLight.lightPos - gs_in.fragPos); //ç‰‡æ®µåˆ°spotlightçš„æ–¹å‘
+	float theta = max(dot(-lightDir, normalize(spotLight.direction)), 0.0); //spotDirä¸èšå…‰æºçš„è½´æ–¹å‘ ï¼Œæ³¨æ„è°ƒç”¨normalizeè½¬æˆå•ä½å‘é‡
 
-	// ¼ÆËã±ßÔµµÄ¹âÕÕË¥¼õ
-	float intensity = clamp((theta - spotLight.outerCos) / (spotLight.innerCos - spotLight.outerCos), 0.0, 1.0); //ÓÃclamp¾Í²»ĞèÒªifelseÁË
+	// è®¡ç®—è¾¹ç¼˜çš„å…‰ç…§è¡°å‡
+	float intensity = clamp((theta - spotLight.outerCos) / (spotLight.innerCos - spotLight.outerCos), 0.0, 1.0); //ç”¨clampå°±ä¸éœ€è¦ifelseäº†
 
-	// Âş·´Éä¹âÕÕdiffuse
+	// æ¼«åå°„å…‰ç…§diffuse
 	vec3 norm = GetNormalFromTexture();
 
 	float diff = max(dot(norm, lightDir), 0.0);
 	diffuse = intensity * diff * vec4(spotLight.diffuse, 1.0) * diffuseColor;
 	
-	// ¾µÃæ¹âÕÕspecular
+	// é•œé¢å…‰ç…§specular
 	vec3 viewDir = normalize(uni_viewPos - gs_in.fragPos);
 	float spec = 0.0f;
 	// Phong
@@ -300,7 +300,7 @@ vec4 CalcSpotLight(vec4 diffuseColor, vec4 specularColor)
 
 vec4 CalcReflectionLight(vec4 reflectionColor)
 {
-	// ·´Éä¹âreflection
+	// åå°„å…‰reflection
 	vec3 I = normalize(gs_in.fragPos - uni_viewPos);
 	vec3 R = normalize(reflect(I, normalize(gs_in.normal)));
 	vec4 color = reflectionColor * vec4(texture(texture_cubemap1, R).rgb, 1.0);
@@ -312,19 +312,19 @@ float CalcDirLtShadow(vec3 norm, vec3 lightDir)
 {
 	// Direction Light Shadow Mapping
 	//
-	// ÒòÎª¹éÒ»»¯ÊÇÔÚ¸³ÖµglPosition²Å×öµÄ£¬ÕâÀïÃ»ÓĞ¾­¹ıglPosition£¬ËùÒÔÒªÊÖ¶¯¹éÒ»»¯µ½[-1, 1]
-	// ¶ÔÕı½»Í¶Ó°Ã»ÒâÒå£¬ÒòÎª±¾Éí¾ÍÊÇ[-1, 1]£¬wÒ²ÊÇÒ»Ö±1£»¶øÍ¸ÊÓÍ¶Ó°¹éÒ»»¯Ç°µÄ·¶Î§ÊÇ[-w, w]£¬ËùÒÔÒª³ıÒÔw
+	// å› ä¸ºå½’ä¸€åŒ–æ˜¯åœ¨èµ‹å€¼glPositionæ‰åšçš„ï¼Œè¿™é‡Œæ²¡æœ‰ç»è¿‡glPositionï¼Œæ‰€ä»¥è¦æ‰‹åŠ¨å½’ä¸€åŒ–åˆ°[-1, 1]
+	// å¯¹æ­£äº¤æŠ•å½±æ²¡æ„ä¹‰ï¼Œå› ä¸ºæœ¬èº«å°±æ˜¯[-1, 1]ï¼Œwä¹Ÿæ˜¯ä¸€ç›´1ï¼›è€Œé€è§†æŠ•å½±å½’ä¸€åŒ–å‰çš„èŒƒå›´æ˜¯[-w, w]ï¼Œæ‰€ä»¥è¦é™¤ä»¥w
 	vec3 projCoords = gs_in.fragPosLightSpace.xyz / gs_in.fragPosLightSpace.w;
-	// ¹éÒ»»¯×ø±ê[-1, 1] ×ª»¯³É ÆÁÄ»×ø±ê[0, 1]
+	// å½’ä¸€åŒ–åæ ‡[-1, 1] è½¬åŒ–æˆ å±å¹•åæ ‡[0, 1]
 	projCoords = projCoords * 0.5 + 0.5;
-	// È¡µÃÔÚ¹âÔ´ÊÓ½ÇÏÂÆÁÄ»×ø±êxyÎ»ÖÃÔÚdepthMap¶ÔÓ¦µÄÉî¶ÈÖµ
+	// å–å¾—åœ¨å…‰æºè§†è§’ä¸‹å±å¹•åæ ‡xyä½ç½®åœ¨depthMapå¯¹åº”çš„æ·±åº¦å€¼
 	float closestDepth = texture(depthMap, projCoords.xy).r;
-	// È¡µÃµ±Ç°Æ¬¶ÎÔÚ¹âÔ´ÊÓ½ÇÏÂµÄÉî¶ÈÖµ
+	// å–å¾—å½“å‰ç‰‡æ®µåœ¨å…‰æºè§†è§’ä¸‹çš„æ·±åº¦å€¼
 	float currentDepth = projCoords.z;
 
-	float bias = fBiasDirShadow; // bias¹ı´ó£¬¿ÉÄÜ»áµ¼ÖÂ¸ÃÓĞÒõÓ°µÄµØ·½Ã»ÒõÓ°ÁË£¬×î¾­µäµÄ¾ÍÊÇÈËÎïµÄ½ÅÃ»ÓĞÒõÓ°£¬Õâ¸ö¾ÍÊÇPeter-PanningÏÖÏó
+	float bias = fBiasDirShadow; // biasè¿‡å¤§ï¼Œå¯èƒ½ä¼šå¯¼è‡´è¯¥æœ‰é˜´å½±çš„åœ°æ–¹æ²¡é˜´å½±äº†ï¼Œæœ€ç»å…¸çš„å°±æ˜¯äººç‰©çš„è„šæ²¡æœ‰é˜´å½±ï¼Œè¿™ä¸ªå°±æ˜¯Peter-Panningç°è±¡
 	float shadow  = 0.0;
-	if (currentDepth > 1.0) // ³¬¹ıÊÓ×¶·¶Î§ÊÓÎªÎŞÒõÓ°
+	if (currentDepth > 1.0) // è¶…è¿‡è§†é”¥èŒƒå›´è§†ä¸ºæ— é˜´å½±
 		shadow  = 0.0;
 	else
 	{
@@ -333,7 +333,7 @@ float CalcDirLtShadow(vec3 norm, vec3 lightDir)
 		{
 			for(int y = -1; y <= 1; ++y)
 			{
-				// PCFËã·¨ Èá»¯ÒõÓ°¾â³İ
+				// PCFç®—æ³• æŸ”åŒ–é˜´å½±é”¯é½¿
 				float pcfDepth = texture(depthMap, projCoords.xy + vec2(x, y) * texelSize).r; 
 				shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;        
 			}    
@@ -349,7 +349,7 @@ float CalcPtLtShadow()
 	// Point Light Shadow Mapping
 	vec3 lightToFrag = gs_in.fragPos - PtLightPos;
 
-	// ÒªäÖÈ¾µÄÆ¬¶ÎµÄÉî¶È
+	// è¦æ¸²æŸ“çš„ç‰‡æ®µçš„æ·±åº¦
 	float currentDepth = length(lightToFrag);
 
 	float bias = fBiasPtShadow;
@@ -367,15 +367,15 @@ float CalcPtLtShadow()
 	   vec3( 0,  1,  1), vec3( 0, -1,  1), vec3( 0, -1, -1), vec3( 0,  1, -1)
 	);
 
-	if (currentDepth > 1.0 * farPlane) // ³¬¹ıÊÓ×¶·¶Î§ÊÓÎªÎŞÒõÓ°
+	if (currentDepth > 1.0 * farPlane) // è¶…è¿‡è§†é”¥èŒƒå›´è§†ä¸ºæ— é˜´å½±
 		shadow = 0.0;
 	else
 	{
 		for (int i = 0; i < samples; i++)
 		{
-			// Àë¹âÔ´×î½üµÄÆ¬¶ÎµÄÉî¶È
+			// ç¦»å…‰æºæœ€è¿‘çš„ç‰‡æ®µçš„æ·±åº¦
 			float closestDepth = texture(depthCubemap, lightToFrag + sampleOffsetDirections[i] * radius).r;
-			// ´Ó[0,1]µÄ·¶Î§×ª»¯³ÉÔ­À´µÄ·¶Î§
+			// ä»[0,1]çš„èŒƒå›´è½¬åŒ–æˆåŸæ¥çš„èŒƒå›´
 			closestDepth *= farPlane;
 			if (currentDepth - bias > closestDepth)
 				shadow += 1.0;
@@ -390,15 +390,15 @@ float CalcPtLtShadow()
 vec3 GetNormalFromTexture()
 {
 	vec3 norm;
-	// Èç¹ûÓĞ·¨ÏßÌùÍ¼£¬ÔòÓÃ·¨ÏßÌùÍ¼µÄ·¨Ïß
+	// å¦‚æœæœ‰æ³•çº¿è´´å›¾ï¼Œåˆ™ç”¨æ³•çº¿è´´å›¾çš„æ³•çº¿
 	if (bNormalMap)
 	{
 		norm = texture(material.texture_normal1, texCoord).rgb;
-		// ·¨ÏßÌùÍ¼µÄ·¨ÏßÊÇÒÔRGBĞÎÊ½´æ´¢µÄ£¬Ã¿¸ö·ÖÁ¿·¶Î§ÊÇ[0, 1], Òª×ª³É[-1, 1]µÄĞÎÊ½£¨ÒòÎªµ¥Î»ÏòÁ¿µÄ¸÷·ÖÁ¿µÄ·¶Î§ÊÇ[-1, 1]£©
-		norm = normalize(2 * (norm - 0.5)); //²»ÓÃÍü¼Çnormalize
+		// æ³•çº¿è´´å›¾çš„æ³•çº¿æ˜¯ä»¥RGBå½¢å¼å­˜å‚¨çš„ï¼Œæ¯ä¸ªåˆ†é‡èŒƒå›´æ˜¯[0, 1], è¦è½¬æˆ[-1, 1]çš„å½¢å¼ï¼ˆå› ä¸ºå•ä½å‘é‡çš„å„åˆ†é‡çš„èŒƒå›´æ˜¯[-1, 1]ï¼‰
+		norm = normalize(2 * (norm - 0.5)); //ä¸ç”¨å¿˜è®°normalize
 		norm = normalize(gs_in.TBN * norm);
 	}
-	// Èç¹ûÃ»ÓĞÓĞ·¨ÏßÌùÍ¼£¬ÔòÓÃ¶¥µãÊı¾İµÄ·¨Ïß
+	// å¦‚æœæ²¡æœ‰æœ‰æ³•çº¿è´´å›¾ï¼Œåˆ™ç”¨é¡¶ç‚¹æ•°æ®çš„æ³•çº¿
 	else
 		norm = normalize(gs_in.normal);
 
@@ -419,14 +419,14 @@ vec2 ParallaxMappingSimple(vec2 texCoord, vec3 viewDir)
 {
 	float height = texture(material.texture_disp1, texCoord).r;
 
-	// viewDir.xy / viewDir.z ÊÇxºÍy·½Ïò·Ö±ğÓëz·½ÏòµÄ¼Ğ½ÇµÄcosÖµ
-	// height ÊÇfragPos¾àÀëdispMapµÄÉî¶ÈµÄ´¹Ö±¾àÀë
-	// height_scale Ìá¹©Ò»Ğ©¶îÍâµÄ¿ØÖÆ
-	// p ÊÇ Êµ¼Ê²ÉÑùµÄÎÆÀí×ø±êÓëÔ­texCoordµÄÆ«ÒÆ
+	// viewDir.xy / viewDir.z æ˜¯xå’Œyæ–¹å‘åˆ†åˆ«ä¸zæ–¹å‘çš„å¤¹è§’çš„coså€¼
+	// height æ˜¯fragPosè·ç¦»dispMapçš„æ·±åº¦çš„å‚ç›´è·ç¦»
+	// height_scale æä¾›ä¸€äº›é¢å¤–çš„æ§åˆ¶
+	// p æ˜¯ å®é™…é‡‡æ ·çš„çº¹ç†åæ ‡ä¸åŸtexCoordçš„åç§»
 	vec2 p = (viewDir.xy / viewDir.z) * height * height_scale;
 
-	// ¼ÆËãÆ«ÒÆºóµÄÎÆÀí×ø±ê
-	// ÒòÎª¼ÆËã³öÀ´µÄp·½ÏòºÍviewDir·½ÏòÒ»ÖÂ£¬Êµ¼ÊÉÏÆ«ÒÆ·½ÏòÓ¦¸ÃºÍÊÓ½Ç·½ÏòÏà·´£¬ËùÒÔÊÇ¼õ·¨
+	// è®¡ç®—åç§»åçš„çº¹ç†åæ ‡
+	// å› ä¸ºè®¡ç®—å‡ºæ¥çš„pæ–¹å‘å’ŒviewDiræ–¹å‘ä¸€è‡´ï¼Œå®é™…ä¸Šåç§»æ–¹å‘åº”è¯¥å’Œè§†è§’æ–¹å‘ç›¸åï¼Œæ‰€ä»¥æ˜¯å‡æ³•
 	return texCoord - p;
 }
 
@@ -434,27 +434,27 @@ vec2 ParallaxMappingSteep(vec2 texCoord, vec3 viewDir)
 {
 	// currentLayer > currentDepth  return texCoord - delta
 
-	// ×ÜÉî¶È²ã¼¶Êı£¬Ô½´ó²ÉÑùÔ½¶à£¬Ô½¾«È·
+	// æ€»æ·±åº¦å±‚çº§æ•°ï¼Œè¶Šå¤§é‡‡æ ·è¶Šå¤šï¼Œè¶Šç²¾ç¡®
 	float layerNum = 10.0;
-	// Ã¿²ãµÄÉî¶È²î
+	// æ¯å±‚çš„æ·±åº¦å·®
 	float deltaLayer = 1.0  / layerNum;
-	// ²ÉÑùµÄÎÆÀí×ø±êµÄ×Ü·¶Î§¡£Êµ¼ÊviewDirÊÇµ¥Î»ÏòÁ¿£¬ËùÒÔxyÖ»±íÊ¾·½Ïò£¬³¤¶ÈÎŞÒâÒå¡£height_scaleÓÃÀ´´ú±í³¤¶È£¬¿ÉÒÔdebug³öÒ»¸öºÏÊÊµÄÖµ
+	// é‡‡æ ·çš„çº¹ç†åæ ‡çš„æ€»èŒƒå›´ã€‚å®é™…viewDiræ˜¯å•ä½å‘é‡ï¼Œæ‰€ä»¥xyåªè¡¨ç¤ºæ–¹å‘ï¼Œé•¿åº¦æ— æ„ä¹‰ã€‚height_scaleç”¨æ¥ä»£è¡¨é•¿åº¦ï¼Œå¯ä»¥debugå‡ºä¸€ä¸ªåˆé€‚çš„å€¼
 	vec2 p = viewDir.xy * height_scale;
-	// Ã¿²ãµÄ²ÉÑùµÄÎÆÀí×ø±êµÄ²î
+	// æ¯å±‚çš„é‡‡æ ·çš„çº¹ç†åæ ‡çš„å·®
 	vec2 deltaTexCoord = p / layerNum;
 
-	// µ±Ç°²ÉÑùµÄ²ã¼¶
+	// å½“å‰é‡‡æ ·çš„å±‚çº§
 	float currentLayer = 0.0;
-	// µ±Ç°²ÉÑùµÄÉî¶È
-	float currentDepth = texture(material.texture_disp1, texCoord).r; // Éî¶È±íÊ¾¸ß¶È
-	// µ±Ç°²ÉÑùµÄÎÆÀí×ø±ê
+	// å½“å‰é‡‡æ ·çš„æ·±åº¦
+	float currentDepth = texture(material.texture_disp1, texCoord).r; // æ·±åº¦è¡¨ç¤ºé«˜åº¦
+	// å½“å‰é‡‡æ ·çš„çº¹ç†åæ ‡
 	vec2 currentTexCoord = texCoord;
 
-	// ÕÒµ½²ã¼¶´óÓÚÉî¶ÈµÄ²ÉÑùµã
+	// æ‰¾åˆ°å±‚çº§å¤§äºæ·±åº¦çš„é‡‡æ ·ç‚¹
 	while(currentLayer < currentDepth)
 	{
 		currentLayer += deltaLayer;
-		currentTexCoord -= deltaTexCoord; // ×îÉÏ²ãµÄ²ÉÑùµã²»¿ÉÄÜÂú×ãÌõ¼ş£¬ËùÒÔ²»²ÉÑùÒ²¿ÉÒÔ
+		currentTexCoord -= deltaTexCoord; // æœ€ä¸Šå±‚çš„é‡‡æ ·ç‚¹ä¸å¯èƒ½æ»¡è¶³æ¡ä»¶ï¼Œæ‰€ä»¥ä¸é‡‡æ ·ä¹Ÿå¯ä»¥
 		currentDepth = texture(material.texture_disp1, currentTexCoord).r;
 	}
 
@@ -463,43 +463,43 @@ vec2 ParallaxMappingSteep(vec2 texCoord, vec3 viewDir)
 
 vec2 ParallaxMappingOcclusion(vec2 texCoord, vec3 viewDir)
 {
-	// ÇóÉî¶ÈÍ¼ÉÏÁÙ½çµÄÁ½¸öµãµÄÁ¬Ïß Óë ÊÓÏßµÄ½»²æµã£¬ÔÙÓÃÕâ¸ö½»²æµãµÄxy×ø±êÀ´²ÉÑù
+	// æ±‚æ·±åº¦å›¾ä¸Šä¸´ç•Œçš„ä¸¤ä¸ªç‚¹çš„è¿çº¿ ä¸ è§†çº¿çš„äº¤å‰ç‚¹ï¼Œå†ç”¨è¿™ä¸ªäº¤å‰ç‚¹çš„xyåæ ‡æ¥é‡‡æ ·
 
-	// ×ÜÉî¶È²ã¼¶Êı£¬Ô½´ó²ÉÑùÔ½¶à£¬Ô½¾«È·
+	// æ€»æ·±åº¦å±‚çº§æ•°ï¼Œè¶Šå¤§é‡‡æ ·è¶Šå¤šï¼Œè¶Šç²¾ç¡®
 	float layerNum = 10.0;
-	// Ã¿²ãµÄÉî¶È²î
+	// æ¯å±‚çš„æ·±åº¦å·®
 	float deltaLayer = 1.0  / layerNum;
-	// ²ÉÑùµÄÎÆÀí×ø±êµÄ×Ü·¶Î§¡£Êµ¼ÊviewDirÊÇµ¥Î»ÏòÁ¿£¬ËùÒÔxyÖ»±íÊ¾·½Ïò£¬³¤¶ÈÎŞÒâÒå¡£height_scaleÓÃÀ´´ú±í³¤¶È£¬¿ÉÒÔdebug³öÒ»¸öºÏÊÊµÄÖµ
+	// é‡‡æ ·çš„çº¹ç†åæ ‡çš„æ€»èŒƒå›´ã€‚å®é™…viewDiræ˜¯å•ä½å‘é‡ï¼Œæ‰€ä»¥xyåªè¡¨ç¤ºæ–¹å‘ï¼Œé•¿åº¦æ— æ„ä¹‰ã€‚height_scaleç”¨æ¥ä»£è¡¨é•¿åº¦ï¼Œå¯ä»¥debugå‡ºä¸€ä¸ªåˆé€‚çš„å€¼
 	vec2 p = viewDir.xy * height_scale;
-	// Ã¿²ãµÄ²ÉÑùµÄÎÆÀí×ø±êµÄ²î
+	// æ¯å±‚çš„é‡‡æ ·çš„çº¹ç†åæ ‡çš„å·®
 	vec2 deltaTexCoord = p / layerNum;
 
-	// µ±Ç°²ÉÑùµÄ²ã¼¶
+	// å½“å‰é‡‡æ ·çš„å±‚çº§
 	float currentLayer = 0.0;
-	// µ±Ç°²ÉÑùµÄÉî¶È
-	float currentDepth = texture(material.texture_disp1, texCoord).r; // Éî¶È±íÊ¾¸ß¶È
-	// µ±Ç°²ÉÑùµÄÎÆÀí×ø±ê
+	// å½“å‰é‡‡æ ·çš„æ·±åº¦
+	float currentDepth = texture(material.texture_disp1, texCoord).r; // æ·±åº¦è¡¨ç¤ºé«˜åº¦
+	// å½“å‰é‡‡æ ·çš„çº¹ç†åæ ‡
 	vec2 currentTexCoord = texCoord;
 
-	// ÕÒµ½²ã¼¶´óÓÚÉî¶ÈµÄ²ÉÑùµã
+	// æ‰¾åˆ°å±‚çº§å¤§äºæ·±åº¦çš„é‡‡æ ·ç‚¹
 	while(currentLayer < currentDepth)
 	{
 		currentLayer += deltaLayer;
-		currentTexCoord -= deltaTexCoord; // ×îÉÏ²ãµÄ²ÉÑùµã²»¿ÉÄÜÂú×ãÌõ¼ş£¬ËùÒÔ²»²ÉÑùÒ²¿ÉÒÔ
+		currentTexCoord -= deltaTexCoord; // æœ€ä¸Šå±‚çš„é‡‡æ ·ç‚¹ä¸å¯èƒ½æ»¡è¶³æ¡ä»¶ï¼Œæ‰€ä»¥ä¸é‡‡æ ·ä¹Ÿå¯ä»¥
 		currentDepth = texture(material.texture_disp1, currentTexCoord).r;
 	}
 
-	// ÇóÁÙ½çÇ°Ò»µãµÄÎÆÀí×ø±ê
+	// æ±‚ä¸´ç•Œå‰ä¸€ç‚¹çš„çº¹ç†åæ ‡
 	vec2 beforeTexCoord = currentTexCoord + deltaTexCoord;
 
-	// ÇóÁÙ½çÇ°Ò»µãµÄ depthÓëlayerµÄ²îµÄ¾ø¶ÔÖµ
+	// æ±‚ä¸´ç•Œå‰ä¸€ç‚¹çš„ depthä¸layerçš„å·®çš„ç»å¯¹å€¼
 	float beforeLayer = currentLayer - deltaLayer;
 	float beforeDiff = abs(beforeLayer - texture(material.texture_disp1, beforeTexCoord).r);
 
-	// ÇóÁÙ½çºóÒ»µãµÄ depthÓëlayerµÄ²îµÄ¾ø¶ÔÖµ
+	// æ±‚ä¸´ç•Œåä¸€ç‚¹çš„ depthä¸layerçš„å·®çš„ç»å¯¹å€¼
 	float afterDiff = abs(currentLayer - currentDepth);
 
-	// ¸ù¾İÁ½¸öÈı½ÇĞÎµÄ±ÈÀı¹ØÏµËã³ö
+	// æ ¹æ®ä¸¤ä¸ªä¸‰è§’å½¢çš„æ¯”ä¾‹å…³ç³»ç®—å‡º
 	vec2 finalTexCoord = currentTexCoord * (beforeDiff / (beforeDiff + afterDiff)) + beforeTexCoord * (afterDiff / (beforeDiff + afterDiff));
 
 	return finalTexCoord;

@@ -1,4 +1,4 @@
-#version 330 core
+ï»¿#version 330 core
 
 in VS_OUT
 {
@@ -32,17 +32,17 @@ struct PointLight
 	vec3 ambient;
 	vec3 diffuse;
 	vec3 specular;
-	float constant;  // ¹âÔ´Ë¥¼õÄ£ĞÍµÄ³£Êı²¿·Ö£¬Í¨³£Îª1£¬ÎªÁË±£Ö¤·ÖÄ¸Ò»¶¨±È·Ö×Ó´ó£¬²»È»¿ÉÄÜ³öÏÖ¹âÕÕ·´¶ø±äÇ¿µÄÇé¿ö
-	float linear;    // Ò»´ÎÏîÏµÊı£¬¾àÀë½ÏĞ¡Ê±£¬Ò»´ÎÏîÓ°Ïì´ó¡£ÏµÊıÔ½Ğ¡Ë¥¼õÔ½Âı
-	float quadratic; // ¶ş´ÎÏîÏµÊı£¬¾àÀë½Ï´óÊ±£¬¶ş´ÎÏîÓ°Ïì´ó¡£ÏµÊıÔ½Ğ¡Ë¥¼õÔ½Âı
+	float constant;  // å…‰æºè¡°å‡æ¨¡å‹çš„å¸¸æ•°éƒ¨åˆ†ï¼Œé€šå¸¸ä¸º1ï¼Œä¸ºäº†ä¿è¯åˆ†æ¯ä¸€å®šæ¯”åˆ†å­å¤§ï¼Œä¸ç„¶å¯èƒ½å‡ºç°å…‰ç…§åè€Œå˜å¼ºçš„æƒ…å†µ
+	float linear;    // ä¸€æ¬¡é¡¹ç³»æ•°ï¼Œè·ç¦»è¾ƒå°æ—¶ï¼Œä¸€æ¬¡é¡¹å½±å“å¤§ã€‚ç³»æ•°è¶Šå°è¡°å‡è¶Šæ…¢
+	float quadratic; // äºŒæ¬¡é¡¹ç³»æ•°ï¼Œè·ç¦»è¾ƒå¤§æ—¶ï¼ŒäºŒæ¬¡é¡¹å½±å“å¤§ã€‚ç³»æ•°è¶Šå°è¡°å‡è¶Šæ…¢
 };
 
 struct SpotLight
 {
-	vec3 lightPos;    // ¾Û¹âÔ´Î»ÖÃ
-	vec3 direction;   // ¾Û¹âÔ´µÄÖá·½Ïò
-	float innerCos;   // ¾Û¹âÔ´×î´ó½Ç¶ÈµÄÄÚÈ¦cos
-	float outerCos;   // ¾Û¹âÔ´×î´ó½Ç¶ÈµÄÍâÈ¦cos
+	vec3 lightPos;    // èšå…‰æºä½ç½®
+	vec3 direction;   // èšå…‰æºçš„è½´æ–¹å‘
+	float innerCos;   // èšå…‰æºæœ€å¤§è§’åº¦çš„å†…åœˆcos
+	float outerCos;   // èšå…‰æºæœ€å¤§è§’åº¦çš„å¤–åœˆcos
 	vec3 ambient;
 	vec3 diffuse;
 	vec3 specular;
@@ -78,9 +78,9 @@ void main()
 	color += calcSpotLight(diffuseColor, specularColor);
 	color += calcReflectionLight(reflectionColor);
 
-	// ÒòÎªÏòÁ¿Ïà¼Ó»áÊ¹alpha³¬¹ı1´Ó¶øÊ§È¥ÒâÒå£¬ËùÒÔÒªÖØĞÂ¼ÆËã
+	// å› ä¸ºå‘é‡ç›¸åŠ ä¼šä½¿alphaè¶…è¿‡1ä»è€Œå¤±å»æ„ä¹‰ï¼Œæ‰€ä»¥è¦é‡æ–°è®¡ç®—
 	color.a = diffuseColor.a;
-	// ¸÷·ÖÁ¿ÑÕÉ«»ìºÏ
+	// å„åˆ†é‡é¢œè‰²æ··åˆ
 	fragColor = color;
 }
 
@@ -88,16 +88,16 @@ vec4 calcDirLight(vec4 diffuseColor, vec4 specularColor)
 {
 	vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
 
-	// »·¾³¹âÕÕambient
+	// ç¯å¢ƒå…‰ç…§ambient
 	vec4 ambient = vec4(dirLight.ambient, 1.0) * diffuseColor;
 
-	// Âş·´Éä¹âÕÕdiffuse
+	// æ¼«åå°„å…‰ç…§diffuse
 	vec3 norm = normalize(vs_in.normal);
 	vec3 lightDir = normalize(-dirLight.direction);
 	float diff = max(dot(norm, lightDir), 0.0);
 	vec4 diffuse = diff * vec4(dirLight.diffuse, 1.0) * diffuseColor;
 	
-	// ¾µÃæ¹âÕÕspecular
+	// é•œé¢å…‰ç…§specular
 	vec3 viewDir = normalize(uni_viewPos - vs_in.fragPos);
 	vec3 reflectDir = normalize(reflect(-lightDir, norm));
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
@@ -116,24 +116,24 @@ vec4 calcPointLight(vec4 diffuseColor, vec4 specularColor)
 
 	for (int i = 0; i < POINT_LIGHT_NUM; i++)
 	{
-		// »·¾³¹âÕÕambient
+		// ç¯å¢ƒå…‰ç…§ambient
 	    vec4 ambient = vec4(pointLight[i].ambient, 1.0) * diffuseColor;
 
-		// Âş·´Éä¹âÕÕdiffuse
+		// æ¼«åå°„å…‰ç…§diffuse
 		vec3 lightDir = normalize(pointLight[i].lightPos - vs_in.fragPos);
 		float diff = max(dot(norm, lightDir), 0.0);
 		vec4 diffuse = diff * vec4(pointLight[i].diffuse, 1.0) * diffuseColor;
 	
-		// ¾µÃæ¹âÕÕspecular
+		// é•œé¢å…‰ç…§specular
 		vec3 reflectDir = normalize(reflect(-lightDir, norm));
 		float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
 		vec4 specular = spec * vec4(pointLight[i].specular, 1.0) * specularColor;
 
-		// Æ¬¶ÎÀë¹âÔ´µÄ¾àÀë
+		// ç‰‡æ®µç¦»å…‰æºçš„è·ç¦»
 		float distance = length(pointLight[i].lightPos - vs_in.fragPos);
-		// ¼ÆËã¹âÕÕË¥¼õ£¬ÕâÀïÊÇÒ»¸öµã¹âÔ´µÄË¥¼õÄ£ĞÍ¡£¾àÀë½ÏĞ¡Ê±Ë¥¼õµÃÂı£¨Ò»´ÎÏîÓ°Ïì´ó£©£»¾àÀë½Ï´óÊ±Ë¥¼õµÃ¿ì£¨¶ş´ÎÏîÓ°Ïì´ó£©£»È»ºó»ºÂı½Ó½ü0£¨·ÖÄ¸ÊÇÎŞÇî´ó£¬Ë¥¼õµ½0£©
+		// è®¡ç®—å…‰ç…§è¡°å‡ï¼Œè¿™é‡Œæ˜¯ä¸€ä¸ªç‚¹å…‰æºçš„è¡°å‡æ¨¡å‹ã€‚è·ç¦»è¾ƒå°æ—¶è¡°å‡å¾—æ…¢ï¼ˆä¸€æ¬¡é¡¹å½±å“å¤§ï¼‰ï¼›è·ç¦»è¾ƒå¤§æ—¶è¡°å‡å¾—å¿«ï¼ˆäºŒæ¬¡é¡¹å½±å“å¤§ï¼‰ï¼›ç„¶åç¼“æ…¢æ¥è¿‘0ï¼ˆåˆ†æ¯æ˜¯æ— ç©·å¤§ï¼Œè¡°å‡åˆ°0ï¼‰
 		float lightFade = 1 / (pointLight[i].constant + pointLight[i].linear * distance + pointLight[i].quadratic * distance * distance);
-		// Ó¦ÓÃ¹âÕÕË¥¼õ
+		// åº”ç”¨å…‰ç…§è¡°å‡
 		ambient  *= lightFade;
 		diffuse  *= lightFade;
 		specular *= lightFade;
@@ -147,25 +147,25 @@ vec4 calcSpotLight(vec4 diffuseColor, vec4 specularColor)
 {
 	vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
 
-	// »·¾³¹âÕÕambient
+	// ç¯å¢ƒå…‰ç…§ambient
 	vec4 ambient = vec4(spotLight.ambient, 1.0) * diffuseColor;
 
-	// ¾Û¹âÔ´
+	// èšå…‰æº
 	vec4 diffuse = vec4(0.0, 0.0, 0.0, 1.0);
 	vec4 specular = vec4(0.0, 0.0, 0.0, 1.0);
 
-	vec3 lightDir = normalize(spotLight.lightPos - vs_in.fragPos); //Æ¬¶Îµ½spotlightµÄ·½Ïò
-	float theta = max(dot(-lightDir, normalize(spotLight.direction)), 0.0); //spotDirÓë¾Û¹âÔ´µÄÖá·½Ïò £¬×¢Òâµ÷ÓÃnormalize×ª³Éµ¥Î»ÏòÁ¿
+	vec3 lightDir = normalize(spotLight.lightPos - vs_in.fragPos); //ç‰‡æ®µåˆ°spotlightçš„æ–¹å‘
+	float theta = max(dot(-lightDir, normalize(spotLight.direction)), 0.0); //spotDirä¸èšå…‰æºçš„è½´æ–¹å‘ ï¼Œæ³¨æ„è°ƒç”¨normalizeè½¬æˆå•ä½å‘é‡
 
-	// ¼ÆËã±ßÔµµÄ¹âÕÕË¥¼õ
-	float intensity = clamp((theta - spotLight.outerCos) / (spotLight.innerCos - spotLight.outerCos), 0.0, 1.0); //ÓÃclamp¾Í²»ĞèÒªifelseÁË
+	// è®¡ç®—è¾¹ç¼˜çš„å…‰ç…§è¡°å‡
+	float intensity = clamp((theta - spotLight.outerCos) / (spotLight.innerCos - spotLight.outerCos), 0.0, 1.0); //ç”¨clampå°±ä¸éœ€è¦ifelseäº†
 
-	// Âş·´Éä¹âÕÕdiffuse
+	// æ¼«åå°„å…‰ç…§diffuse
 	vec3 norm = normalize(vs_in.normal);
 	float diff = max(dot(norm, lightDir), 0.0);
 	diffuse = intensity * diff * vec4(spotLight.diffuse, 1.0) * diffuseColor;
 	
-	// ¾µÃæ¹âÕÕspecular
+	// é•œé¢å…‰ç…§specular
 	vec3 viewDir = normalize(uni_viewPos - vs_in.fragPos);
 	vec3 reflectDir = normalize(reflect(-lightDir, norm));
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
@@ -178,7 +178,7 @@ vec4 calcSpotLight(vec4 diffuseColor, vec4 specularColor)
 
 vec4 calcReflectionLight(vec4 reflectionColor)
 {
-	// ·´Éä¹âreflection
+	// åå°„å…‰reflection
 	vec3 I = normalize(vs_in.fragPos - uni_viewPos);
 	vec3 R = normalize(reflect(I, normalize(vs_in.normal)));
 	vec4 color = reflectionColor * vec4(texture(texture_cubemap1, R).rgb, 1.0);
