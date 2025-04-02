@@ -203,7 +203,7 @@ vec3 ToneMapping(vec3 color)
 vec3 BloomBlur()
 {
     // Gaussian blur
-    vec2 sample_offset = 1.0 / textureSize(material.texture_diffuse2, 0);
+    vec2 sample_offset = 2 * 1.0 / textureSize(material.texture_diffuse2, 0);
     float weight[9] = float[] (0.227027, 0.1945946, 0.1216216, 0.054054, 0.016216, 0.006216, 0.003216, 0.001216, 0.000216);
 
     // 中心サンプル点
