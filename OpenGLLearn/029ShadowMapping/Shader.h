@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -17,20 +17,24 @@
 class Shader
 {
 public:
-	//����ID 
+	//程序ID 
+	//プログラムID
 	GLuint ID = 0; 
 
 	Shader() {};
 
 	Shader(const char* vertexShaderPath, const char* fragmentShaderPath, const char* geometryShaderPath);
 
-	//ʹ��/�������
+	//使用/激活程序
+	// プログラムの使用/有効化
 	bool Use() const;
 
-	//ɾ��Shader����
+	//删除Shader程序
+	// シェーダープログラムを削除する
 	void Remove();
 
-	//uniform���ߺ���
+	//uniform工具函数
+	// uniformユーティリティ関数
 	void SetBool(const string &name, bool value) const;
 	void SetInt(const string& name, int value) const;
 	void SetFloat(const string& name, float value) const;
@@ -46,20 +50,24 @@ private:
 
 Shader::Shader(const char* vertexShaderPath, const char* fragmentShaderPath, const char* geometryShaderPath = NULL)
 {
-	// ������ɫ��
+	// 顶点着色器
+	// 頂点シェーダーのコンパイル
 	GLuint vertexShader = CompileShader(vertexShaderPath, GL_VERTEX_SHADER);
 
-	// ������ɫ��
+	// 几何着色器
+	// ジオメトリシェーダー（オプション）
 	GLuint geometryShader = 0;
 	if (geometryShaderPath)
 	{
 		geometryShader = CompileShader(geometryShaderPath, GL_GEOMETRY_SHADER);
 	}
 
-	// Ƭ����ɫ��
+	// 片段着色器
+	// フラグメントシェーダーのコンパイル
 	GLuint fragmentShader = CompileShader(fragmentShaderPath, GL_FRAGMENT_SHADER);
 
-	// ������ɫ������
+	// 链接着色器程序
+	// シェーダープログラムのリンク
 	ID = glCreateProgram();
 	if (ID == 0)
 	{
@@ -82,7 +90,8 @@ Shader::Shader(const char* vertexShaderPath, const char* fragmentShaderPath, con
 		glGetProgramInfoLog(ID, sizeof(infoLog), NULL, infoLog);
 		cout << "Shader program link failed!\n" << infoLog << endl;
 
-		//ID = 0; ���ﲻ����0����Ϊ�����Ͳ��ܰ�ID delete��
+		//ID = 0; 这里不能置0，因为这样就不能按ID delete了
+		// ここで0に設定してはいけない（IDを基にした削除処理ができなくなる）
 	}
 
 	glDeleteShader(vertexShader);
@@ -96,7 +105,7 @@ bool Shader::Use() const
 	if (ID == 0)
 		return false;
 	else
-		glUseProgram(ID);  // ������Խ�С���������������Ŀ���ظ���������Ҳ����
+		glUseProgram(ID);
 
 	return true;
 }
@@ -150,21 +159,27 @@ void Shader::SetVec4(const string& name, vec4 vector) const
 
 GLuint Shader::CompileShader(const char* shaderPath, GLuint shaderType)
 {
-	// 1.��Ӳ�̶�ȡshaderԴ��
+	// 1.从硬盘读取shader源码
+	// 1. ハードディスクからシェーダーソースコードを読み込む
 	string code;
 	ifstream shaderFile;
-	// �����׳��쳣����
+	// 设置抛出异常类型
+	// スロー例外型の指定
 	shaderFile.exceptions(ifstream::failbit | ifstream::badbit);
 	try
 	{
-		// ���ļ�
+		// 打开文件
+		// ファイルを開く
 		shaderFile.open(shaderPath);
-		// ��ȡ��������
+		// 读取到数据流
+		// データストリームに読み込む
 		stringstream shaderStream;
 		shaderStream << shaderFile.rdbuf();
-		// �ر��ļ���
+		// 关闭文件流
+		// ファイルストリームを閉じる
 		shaderFile.close();
-		// ��������ȡ��str
+		// 从数据流取出str
+		// データストリームから文字列を取得
 		code = shaderStream.str();
 	}
 	catch (ifstream::failure e)
@@ -174,16 +189,22 @@ GLuint Shader::CompileShader(const char* shaderPath, GLuint shaderType)
 		cerr << "Error code: " << e.code() << endl;
 	}
 
-	// ��ȡshaderԴ��
+	// 获取shader源码
+	// シェーダーソースコードを取得
 	const char* shaderSource = code.c_str();
 
 	int success = 0;
 	char infoLog[LOG_LENGTH] = "\0";
 
-	// ����shader����
+	// 编译shader代码
+	// シェーダーコードをコンパイル
 	GLuint shader = 0;
 	shader = glCreateShader(shaderType);
-	glShaderSource(shader, 1, &shaderSource, NULL);  // ������ֱ���� &code.c_str()������ ��Ϊcode.c_str()������ֵ��
+
+	// 在这里直接用 &vertexCode.c_str()报错， 因为vertexCode.c_str()不是左值。
+	// vertexCode.c_str()は左辺値ではないため、直接&演算子を適用するとコンパイルエラーが発生します
+	glShaderSource(shader, 1, &shaderSource, NULL);
+	
 	glCompileShader(shader);
 
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &success);

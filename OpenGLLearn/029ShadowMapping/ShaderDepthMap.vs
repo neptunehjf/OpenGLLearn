@@ -1,4 +1,4 @@
-#version 330 core
+Ôªø#version 330 core
 
 layout(location = 0) in vec3 aPos;
 layout(location = 1) in vec3 aNormal;
@@ -9,5 +9,5 @@ uniform mat4 dirLightSpace;
 
 void main()
 {
-  gl_Position = dirLightSpace * uni_model * vec4(aPos, 1.0);  // ◊¢“‚æÿ’Û±‰ªªµƒÀ≥–Ú «¥””“œÚ◊Û
+  gl_Position = dirLightSpace * uni_model * vec4(aPos, 1.0);
 }
