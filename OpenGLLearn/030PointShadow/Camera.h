@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -18,10 +18,12 @@ public:
 	vec3 camFront;
 	vec3 camUp;
 
-	float deltaTime; // µ±Ç°Ö¡ÓëÉÏÒ»Ö¡µÄÊ±¼ä²î
-	float lastFrame; // ÉÏÒ»Ö¡µÄÊ±¼ä
-	float currentFrame; //µ±Ç°Ö¡Ê±¼ä
-
+	float deltaTime; // å½“å‰å¸§ä¸ä¸Šä¸€å¸§çš„æ—¶é—´å·®
+					 // ãƒ•ãƒ¬ãƒ¼ãƒ é–“æ™‚é–“å·®
+	float lastFrame; // ä¸Šä¸€å¸§çš„æ—¶é—´
+					 // å‰ãƒ•ãƒ¬ãƒ¼ãƒ æ™‚åˆ»
+	float currentFrame; //å½“å‰å¸§æ—¶é—´
+						//ç¾åœ¨ãƒ•ãƒ¬ãƒ¼ãƒ æ™‚åˆ»
 	float lastX;
 	float lastY;
 	float pitchValue;
@@ -53,8 +55,8 @@ Camera::Camera(const vec3& camPos, const vec3& camFront, const vec3& camUp)
 
 	lastX = 0.0f;
 	lastY = 0.0f;
-	pitchValue = -22.0f;
-	yawValue = -32.0f; // Ä¬ÈÏ¾µÍ·³¯ÏòXÕı·½Ïò£¬ËùÒÔÏò×ó×ª90¶ÈĞ£Õı
+	pitchValue = -43.0f;
+	yawValue = 3.0f;
 	 
 	fov = 45.0f;
 
@@ -86,10 +88,15 @@ float Camera::getCamFov()
 
 void Camera::setCamFront()
 {
+	// ç›¸æœºæ—‹è½¬
+	// ã‚«ãƒ¡ãƒ©å›è»¢
+	// å¯¹äºyawï¼Œè®¾cameraåæ ‡ç³»çš„+Zä»+Xå¼€å§‹é€†æ—¶é’ˆæ—‹è½¬è®¡ç®—
+	// ãƒ¨ãƒ¼è§’è¨ˆç®—æ™‚ã€ã‚«ãƒ¡ãƒ©åº§æ¨™ç³»ã®+Zæ–¹å‘ã¯+Xè»¸ã‚’èµ·ç‚¹ã¨ã™ã‚‹åæ™‚è¨ˆå›ã‚Šå›è»¢ã¨ã—ã¦å®šç¾©ã•ã‚Œã¾ã™
+	// å‚ç…§Referrence/camera rotate.jpg Referrence/Euler Angle.png
 	vec3 front;
-	front.x = cos(radians(yawValue)) * cos(radians(pitchValue)); // ÒòÎªÊÓ½ÇÄ¬ÈÏ³¯ÏòXÖáÕı·½Ïò£¬ËùÒÔÓ¦¸ÃÓÃÓëXÖáÕı·½ÏòµÄ½Ç¶È¼ÆËãÆ«ÒÆ
+	front.x = cos(radians(yawValue)) * cos(radians(pitchValue));
 	front.y = sin(radians(pitchValue));
-	front.z = sin(radians(yawValue)) * cos(radians(pitchValue)); // ÒòÎªÊÓ½ÇÄ¬ÈÏ³¯ÏòXÖáÕı·½Ïò£¬ËùÒÔÓ¦¸ÃÓÃÓëXÖáÕı·½ÏòµÄ½Ç¶È¼ÆËãÆ«ÒÆ
+	front.z = sin(radians(yawValue)) * cos(radians(pitchValue));
 
 	camFront = normalize(front);
 }

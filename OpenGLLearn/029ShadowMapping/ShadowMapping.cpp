@@ -829,7 +829,7 @@ bool InitOpenGL()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_SAMPLES, MSAA_SAMPLE_NUM); // 和窗口绑定的采样点，显然，窗口对应的是默认帧缓冲
+	glfwWindowHint(GLFW_SAMPLES, MSAA_SAMPLE_NUM);
 
 	// ウィンドウを作成する
 	window = glfwCreateWindow(windowWidth, windowHeight, "koalahjf", NULL, NULL);
