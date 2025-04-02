@@ -1,4 +1,4 @@
-#include "glad/glad.h"
+ï»¿#include "glad/glad.h"
 #include "glfw/glfw3.h"
 
 #include <iostream>
@@ -47,35 +47,35 @@ Scene scene;
 Camera myCam(vec3(2.158f, 3.304f, -0.636f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f));
 GLFWwindow* window = NULL;
 
-// Ô­³¡¾°»º³å
-GLuint fbo_origin = 0; // ×Ô¶¨ÒåÖ¡»º³å¶ÔÏó
-GLuint tbo_origin[2] = {}; // ÎÆÀí»º³å¶ÔÏó£¨¸½¼ş£©
-GLuint rbo_origin = 0; // äÖÈ¾»º³å¶ÔÏó£¨¸½¼ş£©
+// åŸã‚·ãƒ¼ãƒ³ ãƒãƒƒãƒ•ã‚¡
+GLuint fbo_origin = 0;
+GLuint tbo_origin[2] = {}; 
+GLuint rbo_origin = 0;
 
-// ºóÊÓ¾µ»º³å
-GLuint fbo_mirror = 0; // ×Ô¶¨ÒåÖ¡»º³å¶ÔÏó
-GLuint tbo_mirror[1] = {}; // ÎÆÀí»º³å¶ÔÏó£¨¸½¼ş£©
-GLuint rbo_mirror = 0; // äÖÈ¾»º³å¶ÔÏó£¨¸½¼ş£©
+// ãƒãƒƒã‚¯ãƒŸãƒ©ãƒ¼ ãƒãƒƒãƒ•ã‚¡
+GLuint fbo_mirror = 0; 
+GLuint tbo_mirror[1] = {};
+GLuint rbo_mirror = 0; 
 
-// ÖĞ¼ä»º³å
-GLuint fbo_middle = 0; // ×Ô¶¨ÒåÖ¡»º³å¶ÔÏó
-GLuint tbo_middle[2] = {}; // ÎÆÀí»º³å¶ÔÏó£¨¸½¼ş£©
-GLuint rbo_middle = 0; // äÖÈ¾»º³å¶ÔÏó£¨¸½¼ş£©
+// ä¸­é—´ãƒãƒƒãƒ•ã‚¡
+GLuint fbo_middle = 0;
+GLuint tbo_middle[2] = {}; 
+GLuint rbo_middle = 0; 
 
-// depthmap»º³å
-GLuint fbo_depthmap = 0; // ×Ô¶¨ÒåÖ¡»º³å¶ÔÏó
-GLuint tbo_depthmap = 0; // ÎÆÀí»º³å¶ÔÏó£¨¸½¼ş£©
+// æ·±åº¦ãƒãƒƒãƒ•ã‚¡ ãƒ‡ã‚£ãƒ¬ã‚¯ã‚·ãƒ§ãƒŠãƒ«ãƒ©ã‚¤ãƒˆâ€Œã®å½±ã‚’æç”»ã®ãŸã‚
+GLuint fbo_depthmap = 0;
+GLuint tbo_depthmap = 0;
 
-// depthCubemap»º³å
-GLuint fbo_depthCubemap = 0; // ×Ô¶¨ÒåÖ¡»º³å¶ÔÏó
-GLuint tbo_depthCubemap = 0; // ÎÆÀí»º³å¶ÔÏó£¨¸½¼ş£©
+// æ·±åº¦Cubemapãƒãƒƒãƒ•ã‚¡  â€Œãƒã‚¤ãƒ³ãƒˆãƒ©ã‚¤ãƒˆâ€Œã®å½±ã‚’æç”»ã®ãŸã‚
+GLuint fbo_depthCubemap = 0;
+GLuint tbo_depthCubemap = 0;
 
-// Uniform»º³å
+// Uniformã€€ãƒãƒƒãƒ•ã‚¡
 GLuint ubo = 0;
 
-// pingpong»º³å
-GLuint fbo_pingpong[2] = {}; // ×Ô¶¨ÒåÖ¡»º³å¶ÔÏó
-GLuint tbo_pingpong[2] = {}; // äÖÈ¾»º³å¶ÔÏó£¨¸½¼ş£©
+// pingpong ãƒãƒƒãƒ•ã‚¡
+GLuint fbo_pingpong[2] = {}; 
+GLuint tbo_pingpong[2] = {}; 
 
 int main()
 {
@@ -98,47 +98,51 @@ int main()
 	scene.CreateShader();
 	//scene.CreateScene(&myCam);
 
-	// Ô­³¡¾°»º³å
+	// åŸã‚·ãƒ¼ãƒ³
 	CreateFrameBuffer_MSAA(fbo_origin, tbo_origin, rbo_origin, 2);
-	// ºóÊÓ¾µ»º³å
+	// ãƒãƒƒã‚¯ãƒŸãƒ©ãƒ¼
 	CreateFrameBuffer(fbo_mirror, tbo_mirror, rbo_mirror, 1);
-	// ÖĞ¼ä»º³å
+	// ä¸­é—´ãƒãƒƒãƒ•ã‚¡
 	CreateFrameBuffer(fbo_middle, tbo_middle, rbo_middle, 2);
-	// depthmap»º³å
+	// æ·±åº¦ãƒãƒƒãƒ•ã‚¡ å½±ã‚’æç”»ã®ãŸã‚
 	CreateFrameBuffer_Depthmap(fbo_depthmap, tbo_depthmap);
-	// depthCubemap»º³å
+	// depthCubemapãƒãƒƒãƒ•ã‚¡
 	CreateFrameBuffer_DepthCubemap(fbo_depthCubemap, tbo_depthCubemap);
 
-
-	// Uniform»º³å
-	// 
-	// ¸ù¾İUniformBlockIndex°ó¶¨¸÷shaderµÄuniformblockµ½binding point£¬ÔÚopengl 420ÒÔÉÏ°æ±¾¿ÉÒÔÖ±½ÓÓÃlayout(std140, binding = XXX)ÔÚshaderÖ±½ÓÖ¸¶¨ 
+	// Uniformã€€ãƒãƒƒãƒ•ã‚¡
+	// å‚ç…§ Referrence/uniform buffer binding.png
+	// è·å–shader uniform block indexï¼Œåœ¨opengl 420ä»¥ä¸Šç‰ˆæœ¬å¯ä»¥ç›´æ¥ç”¨layout(std140, binding = XXX)åœ¨shaderç›´æ¥æŒ‡å®š 
+	// shader uniform block indexã‚’å–å¾—ã€‚OpenGL 4.20ä»¥é™ã§ã¯ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼å†…ã§layout(std140, binding=XXX)ã‚’ç›´æ¥æŒ‡å®šå¯èƒ½
 	GLuint ubi_Lighting = glGetUniformBlockIndex(scene.lightShader.ID, "Matrix");
 	GLuint ubi_Cubemap = glGetUniformBlockIndex(scene.cubemapShader.ID, "Matrix");
 	GLuint ubi_Refract  = glGetUniformBlockIndex(scene.refractShader.ID, "Matrix");
 	GLuint ubi_Reflect  = glGetUniformBlockIndex(scene.reflectShader.ID, "Matrix");
 
+	// shader uniform block => binding point
 	glUniformBlockBinding(scene.lightShader.ID, ubi_Lighting, 0);
 	glUniformBlockBinding(scene.cubemapShader.ID, ubi_Cubemap, 0);
 	glUniformBlockBinding(scene.refractShader.ID, ubi_Refract, 0);
 	glUniformBlockBinding(scene.reflectShader.ID, ubi_Reflect, 0);
 
-	// ´´½¨Uniform»º³åÇø£¬²¢°ó¶¨µ½¶ÔÓ¦µÄbinding point
+	// uboã‚’ä½œæˆ
 	glGenBuffers(1, &ubo);
 	glBindBuffer(GL_UNIFORM_BUFFER, ubo);
-	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(mat4), NULL, GL_STATIC_DRAW); // Ö»ÓĞ4->16µÄÇé¿ö²ÅÒª¿¼ÂÇÄÚ´æ¶ÔÆë¡£NULL±íÊ¾Ö»·ÖÅäÄÚ´æ£¬²»Ğ´ÈëÊı¾İ¡£
+	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(mat4), NULL, GL_STATIC_DRAW); 
+	
+	// ubo => binding point
 	glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo);
 
 	bool bLastGamma = false; 
 	bool bLastNM = false;
 	bool bLastHDR = false;
 
-	//äÖÈ¾Ñ­»·
+	//ã€€ãƒ¬ãƒ³ãƒ€ãƒªãƒ³ã‚°ãƒ«ãƒ¼ãƒ—
 	while (!glfwWindowShouldClose(window))
 	{
 		if (bGammaCorrection)
 		{
-			glEnable(GL_FRAMEBUFFER_SRGB); //ÑÕÉ«Ğ´µ½Ö¡»º³åÖ®Ç°»á±»gammaĞ£Õı
+			glEnable(GL_FRAMEBUFFER_SRGB); // é¢œè‰²å†™åˆ°å¸§ç¼“å†²ä¹‹å‰ä¼šè¢«gammaæ ¡æ­£
+										   // ã‚«ãƒ©ãƒ¼å€¤ã¯ãƒ•ãƒ¬ãƒ¼ãƒ ãƒãƒƒãƒ•ã‚¡æ›¸ãè¾¼ã¿å‰ã«ã‚¬ãƒ³ãƒè£œæ­£ãŒé©ç”¨ã•ã‚Œã‚‹
 			if (!bLastGamma)
 				scene.CreateScene(&myCam);
 			bLastGamma = true;
@@ -175,7 +179,7 @@ int main()
 			bLastHDR = false;
 		}
 
-		//ÊäÈë
+		//å…¥åŠ›
 		processInput(window);
 		glfwPollEvents();
 
@@ -195,7 +199,8 @@ int main()
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
 		if (bMSAA)
-			glEnable(GL_MULTISAMPLE); // ºÜ¶àopenglÇı¶¯²»ĞèÒªÏÔÊ½µØµ÷ÓÃ£¬µ«ÊÇ»¹ÊÇµ÷ÓÃÒ»ÏÂ±£ÏÕÒ»µã
+			glEnable(GL_MULTISAMPLE); // å¾ˆå¤šopenglé©±åŠ¨ä¸éœ€è¦æ˜¾å¼åœ°è°ƒç”¨ï¼Œä½†æ˜¯è¿˜æ˜¯è°ƒç”¨ä¸€ä¸‹ä¿é™©ä¸€ç‚¹
+									  // å¤šãã®OpenGLãƒ‰ãƒ©ã‚¤ãƒã§ã¯æ˜ç¤ºçš„ãªæœ‰åŠ¹åŒ–ä¸è¦ã ãŒã€å¿µã®ãŸã‚å‘¼ã³å‡ºã—
 		else 
 			glDisable(GL_MULTISAMPLE);
 
@@ -203,7 +208,10 @@ int main()
 		deltaTime = curTime - preTime;
 		preTime = curTime;
 
-		/********************** ÏÈÓÃ×Ô¶¨ÒåÖ¡»º³å½øĞĞÀëÆÁäÖÈ¾ °ó¶¨µ½×Ô¶¨ÒåÖ¡»º³å£¬Ä¬ÈÏÖ¡»º³å²»ÔÙÆğ×÷ÓÃ **********************/
+		/********************** å…ˆç”¨è‡ªå®šä¹‰å¸§ç¼“å†²è¿›è¡Œç¦»å±æ¸²æŸ“ **********************/
+		/********************** ã‚«ã‚¹ã‚¿ãƒ ãƒ•ãƒ¬ãƒ¼ãƒ ãƒãƒƒãƒ•ã‚¡ã«ã‚ˆã‚‹ã‚ªãƒ•ã‚¹ã‚¯ãƒªãƒ¼ãƒ³ãƒ¬ãƒ³ãƒ€ãƒªãƒ³ã‚° **********************/
+		// ç»‘å®šåˆ°è‡ªå®šä¹‰å¸§ç¼“å†²ï¼Œå…³é—­å¯¹é»˜è®¤å¸§ç¼“å†²çš„è¯»å†™
+		// ã‚«ã‚¹ã‚¿ãƒ ãƒ•ãƒ¬ãƒ¼ãƒ ãƒãƒƒãƒ•ã‚¡ã«ãƒã‚¤ãƒ³ãƒ‰ï¼ˆãƒ‡ãƒ•ã‚©ãƒ«ãƒˆãƒ•ãƒ¬ãƒ¼ãƒ ãƒãƒƒãƒ•ã‚¡ã¸ã®èª­ã¿æ›¸ãã‚’ç„¡åŠ¹åŒ–ï¼‰
 		
 		if (bShadow)
 		{
@@ -211,25 +219,24 @@ int main()
 			DrawDepthCubemap(lampWithShadowPos);
 		}
 
-		// Ô­³¡¾°
+		// åŸã‚·ãƒ¼ãƒ³
 		glViewport(0, 0, windowWidth, windowHeight);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo_origin);
-
 		scene.DrawScene();
 
-		// ÓÃÖĞ¼äfboµÄ·½Ê½ÊµÏÖ£¬Êµ¼ÊÉÏÖĞ¼äFBO¾ÍÊÇÒ»¸öÖ»´ø1¸ö²ÉÑùµãµÄÆÕÍ¨Ö¡»º³å¡£ÓÃBlit²Ù×÷°ÑMSAA FBO¸´ÖÆ½øÈ¥£¬È»ºó¾Í¿ÉÒÔÓÃÖĞ¼äFBOµÄTBOÀ´ºóÆÚ´¦ÀíÁË¡£
-		// È±µãÊÇ£¬Èç¹ûÔÚ´Ë»ù´¡ÉÏ½øĞĞºó´¦ÀíÈ¥¼ÆËãÑÕÉ«£¬ÊÇÒÔ1¸ö²ÉÑùµãµÄÎÆÀíÎª»ù´¡À´¼ÆËãµÄ£¬¿ÉÄÜ»áÖØĞÂµ¼ÖÂ¾â³İ
+		// fbo_origin =>fbo_middle
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo_origin);
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo_middle);
 
-		// MSAAÎÆÀí±¾ÉíÆäÊµÒ²¿ÉÒÔÖ±½Ó´«µ½×ÅÉ«Æ÷½øĞĞ²ÉÑù£¬ÒòÎªMSAAÎÆÀí¸ñÊ½ºÍÆÕÍ¨ÎÆÀí²»Ò»Ñù£¬ËùÒÔ²»ÄÜÏñÆÕÍ¨ÎÆÀí¶ÔÏóÖ±½ÓÓÃ¡£
-		// ¿ÉÒÔÓÃsampler2DMSµÄ·½Ê½´«Èë£¬¿ÉÒÔ»ñÈ¡µ½Ã¿¸ö²ÉÑùµã£¬Ö÷ÒªÓÃÓÚ×Ô¶¨Òå¿¹¾â³İËã·¨
-		// Ö»ÊÇµ¥´¿äÖÈ¾³¡¾°µÄ»°£¬ÓÃglBlitFramebuffer¾Í¹»ÁË
+		// ã‚ªãƒªã‚¸ãƒŠãƒ«ç”»åƒç”¨
+		// tbo_origin[0] => tbo_middle[0]
 		glReadBuffer(GL_COLOR_ATTACHMENT0);
 		glDrawBuffer(GL_COLOR_ATTACHMENT0);
 		glBlitFramebuffer(0, 0, windowWidth, windowHeight, 0, 0, windowWidth, windowHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
+		// ãƒ–ãƒ«ãƒ¼ãƒ ç”¨é«˜è¼åº¦ãƒãƒƒãƒ—
+		// tbo_origin[1] => tbo_middle[1]
 		glReadBuffer(GL_COLOR_ATTACHMENT1);
 		glDrawBuffer(GL_COLOR_ATTACHMENT1);
 		glBlitFramebuffer(0, 0, windowWidth, windowHeight, 0, 0, windowWidth, windowHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
@@ -237,7 +244,7 @@ int main()
 		glReadBuffer(0);
 		glDrawBuffer(0);
 
-		// ºóÊÓ¾µ³¡¾°
+		// ãƒãƒƒã‚¯ãƒŸãƒ©ãƒ¼
 		myCam.yawValue += 180.0;
 		SetAllUniformValues();
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo_mirror); 
@@ -246,19 +253,19 @@ int main()
 		SetAllUniformValues();
 		myCam.yawValue = myCam.yawValue - ((int)myCam.yawValue / 360) * 360;
 
-		/********************** Ä¬ÈÏÖ¡»º³åÊä³öÇ°Ãæ»æÖÆÊ±Ğ´Èë **********************/
+		/********************** ç»‘å®šå›é»˜è®¤å¸§ç¼“å†² **********************/
+		/********************** ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆãƒ•ãƒ¬ãƒ¼ãƒ ãƒãƒƒãƒ•ã‚¡ã¸ã®å†ãƒã‚¤ãƒ³ãƒ‰ **********************/
 		DrawScreen();
 
-		glDisable(GL_FRAMEBUFFER_SRGB); //imgui½çÃæ²»ĞèÒªgammaĞ£Õı
-		// imguiÔÚÄ¬ÈÏ»º³åÖĞ»æÖÆ£¬ÒòÎªÎÒ²»ÏëimguiÒ²ÓĞºóÆÚ´¦ÀíĞ§¹û
+		glDisable(GL_FRAMEBUFFER_SRGB);
+		// imguiåœ¨é»˜è®¤ç¼“å†²ä¸­ç»˜åˆ¶ï¼Œå› ä¸ºæˆ‘ä¸æƒ³imguiä¹Ÿæœ‰åæœŸå¤„ç†æ•ˆæœ
+		// ImGUIã®ãƒ¬ãƒ³ãƒ€ãƒªãƒ³ã‚°ã¯ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆãƒ•ãƒ¬ãƒ¼ãƒ ãƒãƒƒãƒ•ã‚¡ã§è¡Œã†ï¼ˆãƒã‚¹ãƒˆãƒ—ãƒ­ã‚»ã‚¹åŠ¹æœã‚’é©ç”¨ã—ãªã„ãŸã‚ï¼‰
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-		// »º³åÇø½»»» ÂÖÑ¯ÊÂ¼ş
 		glfwSwapBuffers(window);
 	}
 
-	// ×ÊÔ´ÇåÀí
 	scene.DeleteScene();
 	glDeleteFramebuffers(1, &fbo_origin);
 	glDeleteFramebuffers(1, &fbo_mirror);
@@ -279,17 +286,19 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	windowWidth = width;
 	windowHeight = height;
 
-	// bugfix ´°¿Ú´óĞ¡±ä»¯ºó£¬ÎÆÀí»º³åµÄ´óĞ¡Ò²ÒªÏàÓ¦±ä»¯
-	// É¾³ıÒÑ´æÔÚµÄ»º³å
+	// bugfix çª—å£å¤§å°å˜åŒ–åï¼Œçº¹ç†ç¼“å†²çš„å¤§å°ä¹Ÿè¦ç›¸åº”å˜åŒ–
+	// åˆ é™¤å·²å­˜åœ¨çš„ç¼“å†²
+	// ãƒã‚°ä¿®æ­£: ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚µã‚¤ã‚ºå¤‰æ›´æ™‚ã«ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒãƒƒãƒ•ã‚¡ã®ãƒªã‚µã‚¤ã‚ºãŒå¿…è¦
+	// æ—¢å­˜ãƒãƒƒãƒ•ã‚¡ã®å‰Šé™¤
 	glDeleteFramebuffers(1, &fbo_origin);
 	glDeleteFramebuffers(1, &fbo_mirror);
 	glDeleteFramebuffers(1, &fbo_middle);
 
-	// Ô­³¡¾°»º³å
+	// åŸã‚·ãƒ¼ãƒ³
 	CreateFrameBuffer_MSAA(fbo_origin, tbo_origin, rbo_origin, 2);
-	// ºóÊÓ¾µ»º³å
+	// ãƒãƒƒã‚¯ãƒŸãƒ©ãƒ¼
 	CreateFrameBuffer(fbo_mirror, tbo_mirror, rbo_mirror, 1);
-	// ÖĞ¼ä»º³å
+	// ä¸­é—´ãƒãƒƒãƒ•ã‚¡
 	CreateFrameBuffer(fbo_middle, tbo_middle, rbo_middle, 2);
 
 	glViewport(0, 0, width, height);
@@ -297,7 +306,9 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 void processInput(GLFWwindow* window)
 {
-	/* Ïà»úÆ½ÒÆ */
+	/* ç›¸æœºå¹³ç§» */
+	// ã‚«ãƒ¡ãƒ©ç§»å‹•
+
 	myCam.currentFrame = glfwGetTime();
 	myCam.deltaTime = myCam.currentFrame - myCam.lastFrame;
 	myCam.lastFrame = myCam.currentFrame;
@@ -324,14 +335,15 @@ void processInput(GLFWwindow* window)
 
 void mouse_callback(GLFWwindow* window, double posX, double posY)
 {
-	/* Ïà»úÊÓ½Ç */
-
+	/* ç›¸æœºè§†è§’ */
+	// ã‚«ãƒ¡ãƒ©å›è»¢
 	float offsetX = posX - myCam.lastX;
 	float offsetY = myCam.lastY - posY;
 	myCam.lastX = posX;
 	myCam.lastY = posY;
 
-	// Êó±êÓÒ¼ü²»°´¾Í²»´¦Àí£¬ÒòÎªÊó±êÒªÓÃÀ´µãImgui
+	// æŒ‰ä½é¼ æ ‡å³é”®æ—¶æ‰ä¼šç§»åŠ¨ç›¸æœº
+	// ãƒã‚¦ã‚¹å³ãƒœã‚¿ãƒ³æŠ¼ä¸‹ä¸­ã®ã¿ã‚«ãƒ¡ãƒ©å›è»¢ã‚’è¨±å¯  
 	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) != GLFW_PRESS)
 	{
 		return;
@@ -351,13 +363,13 @@ void mouse_callback(GLFWwindow* window, double posX, double posY)
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	// Êó±êÓÒ¼ü²»°´¾Í²»´¦Àí£¬ÒòÎªÊó±êÒªÓÃÀ´µãImgui
+
 	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) != GLFW_PRESS)
 	{
 		return;
 	}
 
-	/* ¾µÍ·Ëõ·Å */
+	/* FOV */
 	if (myCam.fov >= 1.0f && myCam.fov <= 95.0f)
 		myCam.fov -= yoffset;
 	if (myCam.fov <= 1.0f)
@@ -380,14 +392,14 @@ void GetImguiValue()
 		myCam.camNear = imgui_camNear;
 
 		ImGui::SliderFloat("View Far", &imgui_camFar, 0.1f, 1000.0f);
-		myCam.camFar = imgui_camFar; // Èç¹ûÓÃÆäËû±äÁ¿½ÓÊÕimgui±äÁ¿£¬±ØĞë±£Ö¤Á½Õß³õÊ¼ÖµÒ»ÖÂ£¬ÒòÎªimguiÊÕÆğµÄ×´Ì¬ÊÇ²»´«ÖµµÄ¡£
+		myCam.camFar = imgui_camFar; 
 
 		ImGui::TreePop();
 	}
 
 	if (ImGui::TreeNodeEx("Lighting"))
 	{
-		// ¹âÕÕÄ£ĞÍ
+		// light model
 		const char* LightModels[] = { "Phong", "Blinn-Phong" };
 		ImGui::Combo("Light Model", &iLightModel, LightModels, IM_ARRAYSIZE(LightModels));
 
@@ -538,10 +550,11 @@ void GetImguiValue()
 
 void SetUniformToShader(Shader& shader)
 {
-	//¼¤»îlightShader³ÌĞò ÕâÀïÉæ¼°Á½¸öshader³ÌĞòµÄÇĞ»»£¬ËùÒÔÃ¿´ÎloopÀï¶¼ÒªÔÚ¶ÔÓ¦µÄÎ»ÖÃµ÷ÓÃ£¬²»ÄÜÖ»ÔÚ¿ªÊ¼µ÷ÓÃÒ»´Î
+	// è¿™é‡Œæ¶‰åŠä¸¤ä¸ªshaderç¨‹åºçš„åˆ‡æ¢ï¼Œæ‰€ä»¥æ¯æ¬¡loopé‡Œéƒ½è¦åœ¨å¯¹åº”çš„ä½ç½®è°ƒç”¨ï¼Œä¸èƒ½åªåœ¨å¼€å§‹è°ƒç”¨ä¸€æ¬¡
+	// 2ã¤ã®ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ãƒ—ãƒ­ã‚°ãƒ©ãƒ ã®åˆ‡ã‚Šæ›¿ãˆãŒå¿…è¦ãªãŸã‚ã€ãƒ«ãƒ¼ãƒ—æ¯ã«å¯¾å¿œä½ç½®ã§å‘¼ã³å‡ºã™ã“ã¨ï¼ˆåˆæœŸå‘¼ã³å‡ºã—ã®ã¿ä¸é©ï¼‰
 	shader.Use();
 
-	float constant = 1.0f; // Í¨³£±£³Ö1¾ÍĞĞÁË
+	float constant = 1.0f; 
 	float linear = 0.09f;
 	float quadratic = 0.032f;
 	switch (item)
@@ -577,7 +590,7 @@ void SetUniformToShader(Shader& shader)
 		}
 	}
 
-	//Ïà»úÎ»ÖÃÊÇÒªÊµÊ±¸üĞÂµÄ£¬¶øÇÒÆô¶¯ÁËshader1Ö®ºóÓÖÆô¶¯ÁËshader2£¬shader1µÄÉèÖÃ»áÎŞĞ§»¯
+
 	shader.SetVec3("uni_viewPos", myCam.camPos);
 	shader.SetVec3("dirLight.direction", dirLight_direction);
 	shader.SetVec3("dirLight.ambient", dirLight_ambient);
@@ -611,7 +624,6 @@ void SetUniformToShader(Shader& shader)
 	shader.SetBool("bBloom", bBloom);
 
 	// ShaderLightingInstance 
-	// ÒòÎªmodel¾ØÕó±ä»»ÊÇ»ùÓÚµ¥Î»¾ØÕó½øĞĞµÄ£¬ÏëÒªÔÚÒÑ¾­±ä»»ºóµÄmodel¾ØÕóµÄ»ù´¡ÉÏ£¬ÔÙ½øĞĞmodel¾ØÕó±ä»»ÓĞµãÀ§ÄÑ
 	mat4 model = mat4(1.0f);
 	//float angle = (float)i / (float)ROCK_NUM * 360.0f;
 	//model = translate(model, vec3(0.0f, 0.0f, 0.0f));
@@ -649,15 +661,18 @@ void SetUniformToShader(Shader& shader)
 	shader.SetFloat("pointLight[4].quadratic", quadratic);
 }
 
-//´´½¨×Ô¶¨ÒåÖ¡»º³å
+
 void CreateFrameBuffer(GLuint& fbo, GLuint* tbo, GLuint& rbo, GLuint tbo_num)
 {
-	// Ê×ÏÈ´´½¨Ò»¸öÖ¡»º³å¶ÔÏó £¨ÓÉcolor stencil depth×é³É¡£Ä¬ÈÏ»º³åÇøÒ²ÓĞ¡£Ö»²»¹ıÕâ´Î×Ô¼º´´½¨»º³åÇø£¬¿ÉÒÔÊµÏÖÒ»Ğ©ÓĞÒâË¼µÄ¹¦ÄÜ£©
-	// Ö»ÓĞÄ¬ÈÏ»º³å²ÅÄÜÊä³öÍ¼Ïñ(ÒòÎªºÍGLFW´°¿Ú°ó¶¨)£¬ÓÃ×Ô½¨µÄ»º³å²»»áÊä³öÈÎºÎÍ¼Ïñ£¬Òò´Ë¿ÉÒÔÓÃÀ´ÀëÆÁäÖÈ¾
+	// é¦–å…ˆåˆ›å»ºä¸€ä¸ªå¸§ç¼“å†²å¯¹è±¡ ï¼ˆç”±color stencil depthç»„æˆã€‚é»˜è®¤ç¼“å†²åŒºä¹Ÿæœ‰ã€‚åªä¸è¿‡è¿™æ¬¡è‡ªå·±åˆ›å»ºç¼“å†²åŒºï¼Œå¯ä»¥å®ç°ä¸€äº›æœ‰æ„æ€çš„åŠŸèƒ½ï¼‰
+	// ãƒ•ãƒ¬ãƒ¼ãƒ ãƒãƒƒãƒ•ã‚¡ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆï¼ˆFBOï¼‰ã®ç”Ÿæˆï¼ˆcolor stencil depthã‚’å«ã‚€ã€‚ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆãƒãƒƒãƒ•ã‚¡ã‚‚åŒæ§˜ã ãŒã€ç‹¬è‡ªãƒãƒƒãƒ•ã‚¡ã‚’ä½œæˆã™ã‚‹ã“ã¨ã§ç‰¹æ®ŠåŠ¹æœãŒå®Ÿç¾å¯èƒ½ï¼‰
+	// åªæœ‰é»˜è®¤ç¼“å†²æ‰èƒ½è¾“å‡ºå›¾åƒï¼Œç”¨è‡ªå»ºçš„ç¼“å†²ä¸ä¼šè¾“å‡ºä»»ä½•å›¾åƒï¼Œå› æ­¤å¯ä»¥ç”¨æ¥ç¦»å±æ¸²æŸ“
+	// ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆãƒãƒƒãƒ•ã‚¡ã®ã¿ãŒç”»é¢å‡ºåŠ›å¯èƒ½ã€‚è‡ªä½œãƒãƒƒãƒ•ã‚¡ã¯ç”»é¢è¡¨ç¤ºã•ã‚Œãªã„ãŸã‚ã€ã‚ªãƒ•ã‚¹ã‚¯ãƒªãƒ¼ãƒ³ãƒ¬ãƒ³ãƒ€ãƒªãƒ³ã‚°ã«æ´»ç”¨
 	glGenFramebuffers(1, &fbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 	
-	// Éú³ÉÎÆÀí¸½¼ş ¶ÔÓ¦color»º³å
+	// ç”Ÿæˆçº¹ç†é™„ä»¶ å¯¹åº”colorç¼“å†²
+	// ãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚¢ã‚¿ãƒƒãƒãƒ¡ãƒ³ãƒˆç”Ÿæˆï¼ˆã‚«ãƒ©ãƒ¼ãƒãƒƒãƒ•ã‚¡å¯¾å¿œï¼‰
 	glGenTextures(tbo_num, tbo);
 
 	for (uint i = 0; i < tbo_num; i++)
@@ -668,27 +683,30 @@ void CreateFrameBuffer(GLuint& fbo, GLuint* tbo, GLuint& rbo, GLuint tbo_num)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
-		// ÎÆÀí»º³å¶ÔÏó  ×÷ÎªÒ»¸öGL_COLOR_ATTACHMENT0¸½¼ş ¸½¼Óµ½ Ö¡»º³å¶ÔÏó
+	// çº¹ç†ç¼“å†²å¯¹è±¡  ä½œä¸ºä¸€ä¸ªGL_COLOR_ATTACHMENT0é™„ä»¶ é™„åŠ åˆ° å¸§ç¼“å†²å¯¹è±¡
+	// TBOã‚’GL_COLOR_ATTACHMENT0ã¨ã—ã¦FBOã«ã‚¢ã‚¿ãƒƒãƒ
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, tbo[i], 0);	
 	}
 
-	// Éú³ÉäÖÈ¾»º³å¶ÔÏó ¶ÔÓ¦stencil£¬depth»º³å
+	// ç”Ÿæˆæ¸²æŸ“ç¼“å†²å¯¹è±¡ å¯¹åº”stencilï¼Œdepthç¼“å†²
+	// ãƒ¬ãƒ³ãƒ€ãƒ¼ãƒãƒƒãƒ•ã‚¡ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ(RBO)ç”Ÿæˆï¼ˆã‚¹ãƒ†ãƒ³ã‚·ãƒ«ãƒ»æ·±åº¦ãƒãƒƒãƒ•ã‚¡å¯¾å¿œï¼‰
 	glGenRenderbuffers(1, &rbo);
 	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, windowWidth, windowHeight);
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
-	// äÖÈ¾»º³å¶ÔÏó ×÷ÎªÒ»¸öGL_DEPTH_STENCIL_ATTACHMENT¸½¼ş ¸½¼Óµ½ Ö¡»º³åÉÏ
+	// æ¸²æŸ“ç¼“å†²å¯¹è±¡ ä½œä¸ºä¸€ä¸ªGL_DEPTH_STENCIL_ATTACHMENTé™„ä»¶ é™„åŠ åˆ° å¸§ç¼“å†²ä¸Š
+	// RBOã‚’GL_DEPTH_STENCIL_ATTACHMENTã¨ã—ã¦FBOã«ã‚¢ã‚¿ãƒƒãƒ
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
 	
-	// Ö¸¶¨Ğ´ÈëµÄÑÕÉ«¸½¼ş
 	if (tbo_num == 2)
 	{
 		GLuint attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
 		glDrawBuffers(2, attachments);
 	}
 
-	// ¼ì²éÖ¡»º³å¶ÔÏóÍêÕûĞÔ
+	// æ£€æŸ¥å¸§ç¼“å†²å¯¹è±¡å®Œæ•´æ€§
+	// ãƒ•ãƒ¬ãƒ¼ãƒ ãƒãƒƒãƒ•ã‚¡ã®å®Œå…¨æ€§ãƒã‚§ãƒƒã‚¯
 	int chkFlag = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	if (chkFlag != GL_FRAMEBUFFER_COMPLETE)
 	{
@@ -699,18 +717,20 @@ void CreateFrameBuffer(GLuint& fbo, GLuint* tbo, GLuint& rbo, GLuint tbo_num)
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-//´´½¨×Ô¶¨ÒåÖ¡»º³å depthmap
+//ã€€for shadow mapping
 void CreateFrameBuffer_Depthmap(GLuint& fbo, GLuint& tbo)
 {
-	// Ê×ÏÈ´´½¨Ò»¸öÖ¡»º³å¶ÔÏó £¨ÓÉcolor stencil depth×é³É¡£Ä¬ÈÏ»º³åÇøÒ²ÓĞ¡£Ö»²»¹ıÕâ´Î×Ô¼º´´½¨»º³åÇø£¬¿ÉÒÔÊµÏÖÒ»Ğ©ÓĞÒâË¼µÄ¹¦ÄÜ£©
-	// Ö»ÓĞÄ¬ÈÏ»º³å²ÅÄÜÊä³öÍ¼Ïñ(ÒòÎªºÍGLFW´°¿Ú°ó¶¨)£¬ÓÃ×Ô½¨µÄ»º³å²»»áÊä³öÈÎºÎÍ¼Ïñ£¬Òò´Ë¿ÉÒÔÓÃÀ´ÀëÆÁäÖÈ¾
+	// é¦–å…ˆåˆ›å»ºä¸€ä¸ªå¸§ç¼“å†²å¯¹è±¡ ï¼ˆç”±color stencil depthç»„æˆã€‚é»˜è®¤ç¼“å†²åŒºä¹Ÿæœ‰ã€‚åªä¸è¿‡è¿™æ¬¡è‡ªå·±åˆ›å»ºç¼“å†²åŒºï¼Œå¯ä»¥å®ç°ä¸€äº›æœ‰æ„æ€çš„åŠŸèƒ½ï¼‰
+	// ãƒ•ãƒ¬ãƒ¼ãƒ ãƒãƒƒãƒ•ã‚¡ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆï¼ˆFBOï¼‰ã®ç”Ÿæˆï¼ˆcolor stencil depthã‚’å«ã‚€ã€‚ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆãƒãƒƒãƒ•ã‚¡ã‚‚åŒæ§˜ã ãŒã€ç‹¬è‡ªãƒãƒƒãƒ•ã‚¡ã‚’ä½œæˆã™ã‚‹ã“ã¨ã§ç‰¹æ®ŠåŠ¹æœãŒå®Ÿç¾å¯èƒ½ï¼‰
+	// åªæœ‰é»˜è®¤ç¼“å†²æ‰èƒ½è¾“å‡ºå›¾åƒï¼Œç”¨è‡ªå»ºçš„ç¼“å†²ä¸ä¼šè¾“å‡ºä»»ä½•å›¾åƒï¼Œå› æ­¤å¯ä»¥ç”¨æ¥ç¦»å±æ¸²æŸ“
+	// ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆãƒãƒƒãƒ•ã‚¡ã®ã¿ãŒç”»é¢å‡ºåŠ›å¯èƒ½ã€‚è‡ªä½œãƒãƒƒãƒ•ã‚¡ã¯ç”»é¢è¡¨ç¤ºã•ã‚Œãªã„ãŸã‚ã€ã‚ªãƒ•ã‚¹ã‚¯ãƒªãƒ¼ãƒ³ãƒ¬ãƒ³ãƒ€ãƒªãƒ³ã‚°ã«æ´»ç”¨
 	glGenFramebuffers(1, &fbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
-	// Éú³ÉÎÆÀí¸½¼ş ¶ÔÓ¦Depth»º³å
+	// GL_DEPTH_ATTACHMENTã®tboã‚’ç”Ÿæˆ
 	glGenTextures(1, &tbo);
 	glBindTexture(GL_TEXTURE_2D, tbo);
-	// Éî¶ÈÍ¼µÄÊı¾İÀàĞÍÓ¦¸ÃÊÇ GL_FLOAT
+	
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_RESOLUTION_WIDTH, SHADOW_RESOLUTION_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -720,14 +740,16 @@ void CreateFrameBuffer_Depthmap(GLuint& fbo, GLuint& tbo)
 	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	// ÎÆÀí»º³å¶ÔÏó  ×÷ÎªÒ»¸öGL_DEPTH_ATTACHMENT¸½¼ş ¸½¼Óµ½ Ö¡»º³å¶ÔÏó
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, tbo, 0);
 
-	// ÑÕÉ«»º³åµÄ¶ÀĞ´¶ÔÏó¸ÄÎªGL_NONE£¬Ò²¾ÍÊÇ²»»á¶ÁĞ´ÑÕÉ«»º³å
+	// æ²¡æœ‰GL_COLOR_ATTACHMENTä¼šå¯¼è‡´å¸§ç¼“å†²ä¸å®Œæ•´é”™è¯¯ è®¾ç½®ä¸è¯»å†™é¢œè‰²ç¼“å†²ï¼Œå°±å¯ä»¥å±è”½æ‰è¿™ä¸ªé”™è¯¯
+	// GL_COLOR_ATTACHMENTãŒãªã„ã¨ãƒ•ãƒ¬ãƒ¼ãƒ ãƒãƒƒãƒ•ã‚¡ä¸å®Œå…¨ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿ
+	// ã‚«ãƒ©ãƒ¼ãƒãƒƒãƒ•ã‚¡ã®èª­ã¿æ›¸ãã‚’ç„¡åŠ¹åŒ–ã™ã‚‹ã“ã¨ã§ã‚¨ãƒ©ãƒ¼ã‚’å›é¿
 	glDrawBuffer(GL_NONE);
 	glReadBuffer(GL_NONE);
 
-	// ¼ì²éÖ¡»º³å¶ÔÏóÍêÕûĞÔ
+	// æ£€æŸ¥å¸§ç¼“å†²å¯¹è±¡å®Œæ•´æ€§
+	// ãƒ•ãƒ¬ãƒ¼ãƒ ãƒãƒƒãƒ•ã‚¡ã®å®Œå…¨æ€§ãƒã‚§ãƒƒã‚¯
 	int chkFlag = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	if (chkFlag != GL_FRAMEBUFFER_COMPLETE)
 	{
@@ -738,20 +760,22 @@ void CreateFrameBuffer_Depthmap(GLuint& fbo, GLuint& tbo)
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-//´´½¨×Ô¶¨ÒåÖ¡»º³å depth cubemap
+
 void CreateFrameBuffer_DepthCubemap(GLuint& fbo, GLuint& tbo)
 {
-	// Ê×ÏÈ´´½¨Ò»¸öÖ¡»º³å¶ÔÏó £¨ÓÉcolor stencil depth×é³É¡£Ä¬ÈÏ»º³åÇøÒ²ÓĞ¡£Ö»²»¹ıÕâ´Î×Ô¼º´´½¨»º³åÇø£¬¿ÉÒÔÊµÏÖÒ»Ğ©ÓĞÒâË¼µÄ¹¦ÄÜ£©
-	// Ö»ÓĞÄ¬ÈÏ»º³å²ÅÄÜÊä³öÍ¼Ïñ(ÒòÎªºÍGLFW´°¿Ú°ó¶¨)£¬ÓÃ×Ô½¨µÄ»º³å²»»áÊä³öÈÎºÎÍ¼Ïñ£¬Òò´Ë¿ÉÒÔÓÃÀ´ÀëÆÁäÖÈ¾
+	// é¦–å…ˆåˆ›å»ºä¸€ä¸ªå¸§ç¼“å†²å¯¹è±¡ ï¼ˆç”±color stencil depthç»„æˆã€‚é»˜è®¤ç¼“å†²åŒºä¹Ÿæœ‰ã€‚åªä¸è¿‡è¿™æ¬¡è‡ªå·±åˆ›å»ºç¼“å†²åŒºï¼Œå¯ä»¥å®ç°ä¸€äº›æœ‰æ„æ€çš„åŠŸèƒ½ï¼‰
+	// ãƒ•ãƒ¬ãƒ¼ãƒ ãƒãƒƒãƒ•ã‚¡ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆï¼ˆFBOï¼‰ã®ç”Ÿæˆï¼ˆcolor stencil depthã‚’å«ã‚€ã€‚ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆãƒãƒƒãƒ•ã‚¡ã‚‚åŒæ§˜ã ãŒã€ç‹¬è‡ªãƒãƒƒãƒ•ã‚¡ã‚’ä½œæˆã™ã‚‹ã“ã¨ã§ç‰¹æ®ŠåŠ¹æœãŒå®Ÿç¾å¯èƒ½ï¼‰
+	// åªæœ‰é»˜è®¤ç¼“å†²æ‰èƒ½è¾“å‡ºå›¾åƒï¼Œç”¨è‡ªå»ºçš„ç¼“å†²ä¸ä¼šè¾“å‡ºä»»ä½•å›¾åƒï¼Œå› æ­¤å¯ä»¥ç”¨æ¥ç¦»å±æ¸²æŸ“
+	// ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆãƒãƒƒãƒ•ã‚¡ã®ã¿ãŒç”»é¢å‡ºåŠ›å¯èƒ½ã€‚è‡ªä½œãƒãƒƒãƒ•ã‚¡ã¯ç”»é¢è¡¨ç¤ºã•ã‚Œãªã„ãŸã‚ã€ã‚ªãƒ•ã‚¹ã‚¯ãƒªãƒ¼ãƒ³ãƒ¬ãƒ³ãƒ€ãƒªãƒ³ã‚°ã«æ´»ç”¨
 	glGenFramebuffers(1, &fbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
-	// Éú³ÉÎÆÀí¸½¼ş ¶ÔÓ¦depth»º³å
+	// GL_DEPTH_ATTACHMENTã®tboã‚’ç”Ÿæˆ
 	glGenTextures(1, &tbo);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, tbo);
 	for (uint i = 0; i < 6; i++)
 	{
-		// Éî¶ÈÍ¼µÄÊı¾İÀàĞÍÓ¦¸ÃÊÇ GL_FLOAT
+		
 		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, SHADOW_RESOLUTION_WIDTH, SHADOW_RESOLUTION_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 	}
 
@@ -762,14 +786,17 @@ void CreateFrameBuffer_DepthCubemap(GLuint& fbo, GLuint& tbo)
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 
-	// ÎÆÀí»º³å¶ÔÏó  ×÷ÎªÒ»¸öGL_DEPTH_ATTACHMENT¸½¼ş ¸½¼Óµ½ Ö¡»º³å¶ÔÏó
+
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, tbo, 0);
 
-	// ÑÕÉ«»º³åµÄ¶ÀĞ´¶ÔÏó¸ÄÎªGL_NONE£¬Ò²¾ÍÊÇ²»»á¶ÁĞ´ÑÕÉ«»º³å
+	// æ²¡æœ‰GL_COLOR_ATTACHMENTä¼šå¯¼è‡´å¸§ç¼“å†²ä¸å®Œæ•´é”™è¯¯ è®¾ç½®ä¸è¯»å†™é¢œè‰²ç¼“å†²ï¼Œå°±å¯ä»¥å±è”½æ‰è¿™ä¸ªé”™è¯¯
+	// GL_COLOR_ATTACHMENTãŒãªã„ã¨ãƒ•ãƒ¬ãƒ¼ãƒ ãƒãƒƒãƒ•ã‚¡ä¸å®Œå…¨ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿ
+	// ã‚«ãƒ©ãƒ¼ãƒãƒƒãƒ•ã‚¡ã®èª­ã¿æ›¸ãã‚’ç„¡åŠ¹åŒ–ã™ã‚‹ã“ã¨ã§ã‚¨ãƒ©ãƒ¼ã‚’å›é¿
 	glDrawBuffer(GL_NONE);
 	glReadBuffer(GL_NONE);
 
-	// ¼ì²éÖ¡»º³å¶ÔÏóÍêÕûĞÔ
+	// æ£€æŸ¥å¸§ç¼“å†²å¯¹è±¡å®Œæ•´æ€§
+	// ãƒ•ãƒ¬ãƒ¼ãƒ ãƒãƒƒãƒ•ã‚¡ã®å®Œå…¨æ€§ãƒã‚§ãƒƒã‚¯
 	int chkFlag = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	if (chkFlag != GL_FRAMEBUFFER_COMPLETE)
 	{
@@ -780,15 +807,16 @@ void CreateFrameBuffer_DepthCubemap(GLuint& fbo, GLuint& tbo)
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-//´´½¨×Ô¶¨ÒåÖ¡»º³åMSAA
 void CreateFrameBuffer_MSAA(GLuint& fbo, GLuint* tbo, GLuint& rbo, GLuint tbo_num)
 {
-	// Ê×ÏÈ´´½¨Ò»¸öÖ¡»º³å¶ÔÏó £¨ÓÉcolor stencil depth×é³É¡£Ä¬ÈÏ»º³åÇøÒ²ÓĞ¡£Ö»²»¹ıÕâ´Î×Ô¼º´´½¨»º³åÇø£¬¿ÉÒÔÊµÏÖÒ»Ğ©ÓĞÒâË¼µÄ¹¦ÄÜ£©
-	// Ö»ÓĞÄ¬ÈÏ»º³å²ÅÄÜÊä³öÍ¼Ïñ(ÒòÎªºÍGLFW´°¿Ú°ó¶¨)£¬ÓÃ×Ô½¨µÄ»º³å²»»áÊä³öÈÎºÎÍ¼Ïñ£¬Òò´Ë¿ÉÒÔÓÃÀ´ÀëÆÁäÖÈ¾
+	// é¦–å…ˆåˆ›å»ºä¸€ä¸ªå¸§ç¼“å†²å¯¹è±¡ ï¼ˆç”±color stencil depthç»„æˆã€‚é»˜è®¤ç¼“å†²åŒºä¹Ÿæœ‰ã€‚åªä¸è¿‡è¿™æ¬¡è‡ªå·±åˆ›å»ºç¼“å†²åŒºï¼Œå¯ä»¥å®ç°ä¸€äº›æœ‰æ„æ€çš„åŠŸèƒ½ï¼‰
+	// ãƒ•ãƒ¬ãƒ¼ãƒ ãƒãƒƒãƒ•ã‚¡ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆï¼ˆFBOï¼‰ã®ç”Ÿæˆï¼ˆcolor stencil depthã‚’å«ã‚€ã€‚ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆãƒãƒƒãƒ•ã‚¡ã‚‚åŒæ§˜ã ãŒã€ç‹¬è‡ªãƒãƒƒãƒ•ã‚¡ã‚’ä½œæˆã™ã‚‹ã“ã¨ã§ç‰¹æ®ŠåŠ¹æœãŒå®Ÿç¾å¯èƒ½ï¼‰
+	// åªæœ‰é»˜è®¤ç¼“å†²æ‰èƒ½è¾“å‡ºå›¾åƒ(å› ä¸ºå’ŒGLFWçª—å£ç»‘å®š)ï¼Œç”¨è‡ªå»ºçš„ç¼“å†²ä¸ä¼šè¾“å‡ºä»»ä½•å›¾åƒï¼Œå› æ­¤å¯ä»¥ç”¨æ¥ç¦»å±æ¸²æŸ“
 	glGenFramebuffers(1, &fbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
-	// Éú³ÉMSAAÎÆÀí¸½¼ş ¶ÔÓ¦color»º³å
+	// ç”ŸæˆMSAAçº¹ç†é™„ä»¶ å¯¹åº”colorç¼“å†²
+	// MSAAãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚¢ã‚¿ãƒƒãƒãƒ¡ãƒ³ãƒˆç”Ÿæˆï¼ˆã‚«ãƒ©ãƒ¼ãƒãƒƒãƒ•ã‚¡å¯¾å¿œï¼‰
 	glGenTextures(tbo_num, tbo);
 	
 	for (uint i = 0; i < tbo_num; i++)
@@ -797,28 +825,33 @@ void CreateFrameBuffer_MSAA(GLuint& fbo, GLuint* tbo, GLuint& rbo, GLuint tbo_nu
 		glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, MSAA_SAMPLE_NUM, GL_RGB16F, windowWidth, windowHeight, true);
 		glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
 
-		// MSAAÎÆÀí»º³å¶ÔÏó  ×÷ÎªÒ»¸öGL_COLOR_ATTACHMENT0¸½¼ş ¸½¼Óµ½ Ö¡»º³å¶ÔÏó
+		// MSAAçº¹ç†ç¼“å†²å¯¹è±¡  ä½œä¸ºä¸€ä¸ªGL_COLOR_ATTACHMENT0é™„ä»¶ é™„åŠ åˆ° å¸§ç¼“å†²å¯¹è±¡
+		// TBOã‚’GL_COLOR_ATTACHMENT0ã¨ã—ã¦FBOã«ã‚¢ã‚¿ãƒƒãƒ
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D_MULTISAMPLE, tbo[i], 0);
 	}
 
-	// Éú³ÉäÖÈ¾»º³å¶ÔÏó ¶ÔÓ¦stencil£¬depth»º³å
+	// ç”Ÿæˆæ¸²æŸ“ç¼“å†²å¯¹è±¡ å¯¹åº”stencilï¼Œdepthç¼“å†²
+	// ãƒ¬ãƒ³ãƒ€ãƒ¼ãƒãƒƒãƒ•ã‚¡ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ(RBO)ç”Ÿæˆï¼ˆã‚¹ãƒ†ãƒ³ã‚·ãƒ«ãƒ»æ·±åº¦ãƒãƒƒãƒ•ã‚¡å¯¾å¿œï¼‰
 	glGenRenderbuffers(1, &rbo);
 	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-	// stencil£¬depthºÍcolor»º³åÓ¦¸Ã¶¼Òª¶ÔÓ¦MSAA£¬Èç¹ûcolorÊÇ¶ÔÓ¦ÁËMSAA ¶østencil£¬depthÃ»ÓĞ¶ÔÓ¦MSAA£¬stencil depthºÍcolorÊÇ²»Æ¥ÅäµÄ£¬µ¼ÖÂ´íÎó
+	// stencilï¼Œdepthå’Œcolorç¼“å†²åº”è¯¥éƒ½è¦å¯¹åº”MSAAï¼Œå¦‚æœcoloræ˜¯å¯¹åº”äº†MSAA è€Œstencilï¼Œdepthæ²¡æœ‰å¯¹åº”MSAAï¼Œstencil depthå’Œcoloræ˜¯ä¸åŒ¹é…çš„ï¼Œå¯¼è‡´é”™è¯¯
+	// ã‚¹ãƒ†ãƒ³ã‚·ãƒ«ãƒ»æ·±åº¦ãƒ»ã‚«ãƒ©ãƒ¼ãƒãƒƒãƒ•ã‚¡ã¯å…¨ã¦ãƒãƒ«ãƒã‚µãƒ³ãƒ—ãƒ«å¯¾å¿œãŒå¿…è¦ã€‚ã‚«ãƒ©ãƒ¼ã®ã¿MSAAå¯¾å¿œã§ã‚¹ãƒ†ãƒ³ã‚·ãƒ«/æ·±åº¦ãŒéå¯¾å¿œã®å ´åˆã€ãƒãƒƒãƒ•ã‚¡é–“ã®ä¸ä¸€è‡´ãŒç”Ÿã˜ã¦æç”»ã‚¨ãƒ©ãƒ¼ã®åŸå› ã¨ãªã‚‹
 	glRenderbufferStorageMultisample(GL_RENDERBUFFER, MSAA_SAMPLE_NUM, GL_DEPTH24_STENCIL8, windowWidth, windowHeight); 
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
-	// äÖÈ¾»º³å¶ÔÏó ×÷ÎªÒ»¸öGL_DEPTH_STENCIL_ATTACHMENT¸½¼ş ¸½¼Óµ½ Ö¡»º³åÉÏ
+	// æ¸²æŸ“ç¼“å†²å¯¹è±¡ ä½œä¸ºä¸€ä¸ªGL_DEPTH_STENCIL_ATTACHMENTé™„ä»¶ é™„åŠ åˆ° å¸§ç¼“å†²ä¸Š
+	// RBOã‚’GL_DEPTH_STENCIL_ATTACHMENTã¨ã—ã¦FBOã«ã‚¢ã‚¿ãƒƒãƒ
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
 
-	// Ö¸¶¨Ğ´ÈëµÄÑÕÉ«¸½¼ş
+
 	if (tbo_num == 2)
 	{
 		GLuint attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
 		glDrawBuffers(2, attachments);
 	}
 
-	// ¼ì²éÖ¡»º³å¶ÔÏóÍêÕûĞÔ
+	// æ£€æŸ¥å¸§ç¼“å†²å¯¹è±¡å®Œæ•´æ€§
+	// ãƒ•ãƒ¬ãƒ¼ãƒ ãƒãƒƒãƒ•ã‚¡ã®å®Œå…¨æ€§ãƒã‚§ãƒƒã‚¯
 	int chkFlag = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	if (chkFlag != GL_FRAMEBUFFER_COMPLETE)
 	{
@@ -829,7 +862,7 @@ void CreateFrameBuffer_MSAA(GLuint& fbo, GLuint* tbo, GLuint& rbo, GLuint tbo_nu
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-//´´½¨Æ¹ÅÒÖ¡»º³å
+
 void CreateFrameBuffer_pingpong()
 {
 	glGenFramebuffers(2, fbo_pingpong);
@@ -850,7 +883,8 @@ void CreateFrameBuffer_pingpong()
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tbo_pingpong[i], 0);
 	}
 
-	// ¼ì²éÖ¡»º³å¶ÔÏóÍêÕûĞÔ
+	// æ£€æŸ¥å¸§ç¼“å†²å¯¹è±¡å®Œæ•´æ€§
+	// ãƒ•ãƒ¬ãƒ¼ãƒ ãƒãƒƒãƒ•ã‚¡ã®å®Œå…¨æ€§ãƒã‚§ãƒƒã‚¯
 	int chkFlag = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	if (chkFlag != GL_FRAMEBUFFER_COMPLETE)
 	{
@@ -863,19 +897,34 @@ void CreateFrameBuffer_pingpong()
 
 void SetUniformBuffer()
 {
-	// view¾ØÕó world -> view
+	// viewçŸ©é˜µ world -> view
+	// viewè¡Œåˆ—ï¼ˆè¦–ç‚¹å¤‰æ›è¡Œåˆ—ï¼‰
 	mat4 view;
 	myCam.setCamView();
 	view = myCam.getCamView();
 	
 	glBindBuffer(GL_UNIFORM_BUFFER, ubo);
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(mat4), value_ptr(view)); //µ÷ÓÃglBufferSubDataÌî³äÊı¾İÖ®Ç°ÒªÈ·±£ÒÑ¾­µ÷ÓÃglBufferData·ÖÅäÁËÄÚ´æ
 
-	// Í¶Ó°¾ØÕó view -> clip
+	//ã€€è°ƒç”¨glBufferSubDataå¡«å……æ•°æ®ä¹‹å‰è¦ç¡®ä¿å·²ç»è°ƒç”¨glBufferDataåˆ†é…äº†å†…å­˜
+	// glBufferSubDataã§ãƒ‡ãƒ¼ã‚¿ã‚’æ›¸ãè¾¼ã‚€å‰ã«ã€glBufferDataã«ã‚ˆã‚‹ãƒ¡ãƒ¢ãƒªç¢ºä¿ãŒå®Œäº†ã—ã¦ã„ã‚‹ã“ã¨ã‚’ç¢ºèª
+	// 
+	// std140 layout å¯¹é½åç§»é‡å¿…é¡»æ˜¯16çš„å€æ•° 
+	// std140ãƒ¬ã‚¤ã‚¢ã‚¦ãƒˆã«ãŠã‘ã‚‹ã‚¢ãƒ©ã‚¤ãƒ¡ãƒ³ãƒˆã‚ªãƒ•ã‚»ãƒƒãƒˆã¯16ã®å€æ•°ã§ãªã‘ã‚Œã°ãªã‚‰ãªã„
+	// 
+	// å‚ç…§ Referrence/std140 layout.png
+	// 
+	// ç”¨glBufferSubDataå†™æ•°æ®çš„æ—¶å€™è¦è€ƒè™‘std140 layout
+	// glBufferSubDataã§ãƒ‡ãƒ¼ã‚¿ã‚’æ›¸ãè¾¼ã‚€éš›ã¯std140ãƒ¬ã‚¤ã‚¢ã‚¦ãƒˆã‚’è€ƒæ…®ã™ã‚‹å¿…è¦ãŒã‚ã‚‹
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(mat4), value_ptr(view)); 
+
+	// æŠ•å½±çŸ©é˜µ view -> clip
+	// projectionè¡Œåˆ—ï¼ˆå°„å½±å¤‰æ›è¡Œåˆ—ï¼‰
 	mat4 projection;
 	float fov = myCam.getCamFov();
 
-	projection = perspective(radians(fov), (float)windowWidth / (float)windowHeight, myCam.camNear, myCam.camFar); // Ö®Ç°Ğ´³É(float)(WINDOW_WIDTH / WINDOW_HEIGHT)ÁË£¬¾«¶È¶ªÊ§£¬µ¼ÖÂ½á¹ûÊÇ1
+	// ä¹‹å‰å†™æˆ(float)(WINDOW_WIDTH / WINDOW_HEIGHT)äº†ï¼Œç²¾åº¦ä¸¢å¤±ï¼Œå¯¼è‡´ç»“æœæ˜¯1
+	// ä»¥å‰ã¯(float)(WINDOW_WIDTH / WINDOW_HEIGHT)ã¨è¨˜è¿°ã—ã¦ã„ãŸãŸã‚ã€æ•´æ•°é™¤ç®—ã§ç²¾åº¦ãŒå¤±ã‚ã‚ŒçµæœãŒ1ã«ãªã£ã¦ã„ãŸ
+	projection = perspective(radians(fov), (float)windowWidth / (float)windowHeight, myCam.camNear, myCam.camFar);
 	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(mat4), sizeof(mat4), value_ptr(projection));
 
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
@@ -883,14 +932,14 @@ void SetUniformBuffer()
 
 bool InitOpenGL()
 {
-	// ³õÊ¼»¯
+	// åˆæœŸåŒ–
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_SAMPLES, MSAA_SAMPLE_NUM); // ºÍ´°¿Ú°ó¶¨µÄ²ÉÑùµã£¬ÏÔÈ»£¬´°¿Ú¶ÔÓ¦µÄÊÇÄ¬ÈÏÖ¡»º³å
+	glfwWindowHint(GLFW_SAMPLES, MSAA_SAMPLE_NUM); // å’Œçª—å£ç»‘å®šçš„é‡‡æ ·ç‚¹ï¼Œæ˜¾ç„¶ï¼Œçª—å£å¯¹åº”çš„æ˜¯é»˜è®¤å¸§ç¼“å†²
 
-	// »æÖÆ´°¿Ú
+	// ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’ä½œæˆã™ã‚‹
 	window = glfwCreateWindow(windowWidth, windowHeight, "koalahjf", NULL, NULL);
 	if (window == NULL)
 	{
@@ -902,7 +951,7 @@ bool InitOpenGL()
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
 
-	// ²¶»ñÊó±ê
+	// ãƒã‚¦ã‚¹ã‚­ãƒ£ãƒ—ãƒãƒ£
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
@@ -920,7 +969,7 @@ bool InitOpenGL()
 
 void DrawDepthMap()
 {
-	// »æÖÆdepthmmap 
+	// ç»˜åˆ¶depthmmap 
 	// 
 	// view
 	mat4 view = lookAt(-dirLight_direction, vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
@@ -940,7 +989,10 @@ void DrawDepthMap()
 
 	if (bFrontFaceCulling)
 	{
-		glCullFace(GL_FRONT); //ÒòÎªshadow acneÖ»ÓĞÔÚÒ»¸ö±íÃæÄÜÍ¬Ê±±»ÎÒÃÇÑÛ¾¦ºÍ¹âÏß¿´µ½µÄÇé¿öÏÂ²Å¿ÉÄÜ·¢Éú£¬Òò´ËÖ±½Ó½«¹âÏß¿´µ½µÄ±íÃæÒıµ¼µ½ÆäËûÃæÈ¥£¬¾Í¿ÉÒÔ´Ó±¾ÖÊÉÏÔ¤·Àshadow acne¡£
+		//ã€€å‚ç…§Referrence/front face culling.png
+		// ç”¨è¡¨é¢å‰”é™¤å¯ä»¥ä½¿shadow acneè½¬ç§»åˆ°ç‰©ä½“å†…éƒ¨
+		// front face cullingã‚’ä½¿ç”¨ã™ã‚‹ã“ã¨ã§ã€shadow acneã‚’ç‰©ä½“å†…éƒ¨ã«ç§»è¡Œã•ã›ã‚‹
+		glCullFace(GL_FRONT);
 		scene.DrawScene(true, false);
 		glCullFace(GL_BACK);
 	}
@@ -958,8 +1010,6 @@ void DrawDepthMap()
 
 void DrawDepthCubemap(vec3 lightPos)
 {
-	// »æÖÆdepthCubemap 
-	// 
 	// projection
 	float aspect = (float)SHADOW_RESOLUTION_WIDTH / (float)SHADOW_RESOLUTION_HEIGHT;
 	float near = 1.0f;
@@ -994,7 +1044,7 @@ void DrawDepthCubemap(vec3 lightPos)
 
 	if (bFrontFaceCulling)
 	{
-		glCullFace(GL_FRONT); //ÒòÎªshadow acneÖ»ÓĞÔÚÒ»¸ö±íÃæÄÜÍ¬Ê±±»ÎÒÃÇÑÛ¾¦ºÍ¹âÏß¿´µ½µÄÇé¿öÏÂ²Å¿ÉÄÜ·¢Éú£¬Òò´ËÖ±½Ó½«¹âÏß¿´µ½µÄ±íÃæÒıµ¼µ½ÆäËûÃæÈ¥£¬¾Í¿ÉÒÔ´Ó±¾ÖÊÉÏÔ¤·Àshadow acne¡£
+		glCullFace(GL_FRONT);
 		scene.DrawScene(false, true);
 		glCullFace(GL_BACK);
 	}
@@ -1026,50 +1076,60 @@ void SetAllUniformValues()
 
 void DrawScreen()
 {
-	// ¹Øµô×Ô¶¨Òå»º³åµÄ¶ÁĞ´£¬¾ÍÇĞ»»³ÉÁËÄ¬ÈÏ»º³å
+	/********************** ç»‘å®šå›é»˜è®¤å¸§ç¼“å†² **********************/
+	/********************** ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆãƒ•ãƒ¬ãƒ¼ãƒ ãƒãƒƒãƒ•ã‚¡ã¸ã®å†ãƒã‚¤ãƒ³ãƒ‰ **********************/
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	glDisable(GL_DEPTH_TEST);
 
-	// Çå¿Õ¸÷¸ö»º³åÇø
-	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT); //ÀëÆÁäÖÈ¾²»ĞèÒªglClear(GL_COLOR_BUFFER_BIT);
 
-	// Ö÷ÆÁÄ»
+	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	// ã‚ªãƒªã‚¸ãƒŠãƒ«ç”»åƒç”¨
 	GLuint t_dummy = 0;
 	const vector<Texture> screenTexture =
 	{
 		{tbo_middle[0], "texture_diffuse"},
 		{t_dummy, "texture_specular"}
 	};
+
+	// ãƒ–ãƒ«ãƒ¼ãƒ ç”¨é«˜è¼åº¦ãƒãƒƒãƒ—
 	const vector<Texture> screenTextureBright =
 	{
 		{tbo_middle[1], "texture_diffuse"},
 		{t_dummy, "texture_specular"}
 	};
 
-
 	scene.screen.SetTextures(screenTexture);
 	scene.screen.AddTextures(screenTextureBright);
 
+	// å‡¦ç†æ–¹å‘ãƒ•ãƒ©ã‚°ï¼ˆæ°´å¹³/å‚ç›´ï¼‰
 	bool horizontal = true;
 
-	uint amount = 20;
+	// ãƒ–ãƒ«ãƒ¼ãƒ åŠ¹æœã®åå¾©å‡¦ç†å›æ•°
+	uint amount = 2;
+
 	for (uint i = 0; i < amount; i++)
 	{
-		// ±¾´ÎÑ­»·Í¼Æ¬Êä³öµ½ fbo_pingpong[horizontal]
+		// fbo_pingpong[horizontal]ã«å‡ºåŠ›
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo_pingpong[horizontal]);
 
-		// ÉèÖÃscreenShaderµÄhorizontal,ÅĞ¶Ïµ±Ç°Ó¦¸ÃÊÇºáÏò¼ÆËã»¹ÊÇ×İÏò¼ÆËã
+		// ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ã«ç¾åœ¨ã®å‡¦ç†æ–¹å‘ã‚’è¨­å®š
 		scene.screenShader.SetBool("horizontal", horizontal);
 
-		// µÚÒ»´ÎÓÃÔ­À´µÄÁÁ¶ÈÍ¼¼´¿É£¬Ö®ºó¶¼ÊÇÉÏÒ»´ÎÑ­»·µÄpingpongäÖÈ¾µÄÊä³ö½á¹ûÁË
+		// åˆå›ä»¥å¤–ã¯å‰å›ã®å‡¦ç†çµæœã‚’è»¢é€
 		if (i != 0)
 		{
-			// tbo_middle[1]²»±ä£¬Ö»²»¹ıÄÚÈİ±ä³ÉÉÏÒ»´ÎÑ­»·µÄpingpongäÖÈ¾µÄÊä³ö½á¹ûÁË
-			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo_pingpong[!horizontal]);
-			glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo_middle);
-			glReadBuffer(GL_COLOR_ATTACHMENT0);
+			// ãƒ•ãƒ¬ãƒ¼ãƒ ãƒãƒƒãƒ•ã‚¡é–“ã®ç”»åƒè»¢é€ï¼ˆå‰å›çµæœã‚’å…¥åŠ›ã«ä½¿ç”¨ï¼‰
+			glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo_pingpong[!horizontal]);
+			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo_middle);
+			if (horizontal)
+				glReadBuffer(GL_COLOR_ATTACHMENT0);
+			else
+				glReadBuffer(GL_COLOR_ATTACHMENT1);
+
+			// fbo_pingpongã‹ã‚‰ãƒ–ãƒ«ãƒ¼ãƒ ç”¨é«˜è¼åº¦ãƒãƒƒãƒ—ã«å…¥åŠ›
 			glDrawBuffer(GL_COLOR_ATTACHMENT1);
 			glBlitFramebuffer(0, 0, windowWidth, windowHeight, 0, 0, windowWidth, windowHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 		}
@@ -1079,14 +1139,12 @@ void DrawScreen()
 		horizontal = !horizontal;
 	}
 
-	// ¹Øµô×Ô¶¨Òå»º³åµÄ¶ÁĞ´£¬¾ÍÇĞ»»³ÉÁËÄ¬ÈÏ»º³å
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	scene.screen.DrawMesh(scene.screenShader, GL_TRIANGLES);
 
-
-	// ºóÊÓ¾µ
+	// ãƒãƒƒã‚¯ãƒŸãƒ©ãƒ¼
 	const vector<Texture> mirrorTexture =
 	{
 		{tbo_mirror[0], "texture_diffuse"},
