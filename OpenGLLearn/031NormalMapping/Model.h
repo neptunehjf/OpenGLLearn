@@ -13,7 +13,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb/stb_image.h"
 
-class Model : public Mesh //设置继承到的成员的《最大访问权限》为public,实际权限还是要以父类的权限为准
+class Model : public Mesh
 {
 public:
     Model()

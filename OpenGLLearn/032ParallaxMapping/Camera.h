@@ -19,9 +19,11 @@ public:
 	vec3 camUp;
 
 	float deltaTime; // 当前帧与上一帧的时间差
+					 // フレーム間時間差
 	float lastFrame; // 上一帧的时间
+					 // 前フレーム時刻
 	float currentFrame; //当前帧时间
-
+						//現在フレーム時刻
 	float lastX;
 	float lastY;
 	float pitchValue;
@@ -86,10 +88,15 @@ float Camera::getCamFov()
 
 void Camera::setCamFront()
 {
+	// 相机旋转
+	// カメラ回転
+	// 对于yaw，设camera坐标系的+Z从+X开始逆时针旋转计算
+	// ヨー角計算時、カメラ座標系の+Z方向は+X軸を起点とする反時計回り回転として定義されます
+	// 参照Referrence/camera rotate.jpg Referrence/Euler Angle.png
 	vec3 front;
-	front.x = cos(radians(yawValue)) * cos(radians(pitchValue)); // 因为视角默认朝向X轴正方向，所以应该用与X轴正方向的角度计算偏移
+	front.x = cos(radians(yawValue)) * cos(radians(pitchValue));
 	front.y = sin(radians(pitchValue));
-	front.z = sin(radians(yawValue)) * cos(radians(pitchValue)); // 因为视角默认朝向X轴正方向，所以应该用与X轴正方向的角度计算偏移
+	front.z = sin(radians(yawValue)) * cos(radians(pitchValue));
 
 	camFront = normalize(front);
 }

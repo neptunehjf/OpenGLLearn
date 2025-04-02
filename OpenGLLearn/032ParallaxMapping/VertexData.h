@@ -17,7 +17,7 @@ const vector<GLuint> g_planeIndices =
 };
 
 vector<VertexNM> g_planeVerticesNM = {
-    // positions                 // normal                  // texture Coords     // tangent初始化0		     // bitTangent初始化0
+    // positions                 // normal                  // texture Coords     // tangent		          // bitTangent
     {vec3(5.0f, 1.0f,  5.0f),    vec3(0.0f,  1.0f,  0.0f),  vec2(5.0f, 0.0f),     vec3(0.0f,  0.0f,  0.0f),   vec3(0.0f,  0.0f,  0.0f)},  // 0
     {vec3(-5.0f, 1.0f,  5.0f),   vec3(0.0f,  1.0f,  0.0f),  vec2(0.0f, 0.0f),     vec3(0.0f,  0.0f,  0.0f),   vec3(0.0f,  0.0f,  0.0f)},  // 1
     {vec3(-5.0f, 1.0f, -5.0f),   vec3(0.0f,  1.0f,  0.0f),  vec2(0.0f, 5.0f),     vec3(0.0f,  0.0f,  0.0f),   vec3(0.0f,  0.0f,  0.0f)},  // 2
@@ -27,10 +27,11 @@ vector<VertexNM> g_planeVerticesNM = {
     {vec3(5.0f, 1.0f, -5.0f),    vec3(0.0f,  1.0f,  0.0f),  vec2(5.0f, 5.0f),     vec3(0.0f,  0.0f,  0.0f),   vec3(0.0f,  0.0f,  0.0f)}   // 3
 };
 
-// 默认是面在法线方向上是逆时针的情况下，是正面。
+// 右手定则。默认情况下，顶点在法线方向上是逆时针的情况下，是正面。
+// 右手の法則。デフォルトでは法線方向に対して頂点が反時計回りに配置された面を表面と判定します。
 const vector<Vertex> g_3DPlaneVertices =
 {
-    //位置                         //法线                     //纹理坐标
+	//位置                         //法線                     //UV座標 
     // Back face
     {vec3(-0.5f, -0.5f, -0.5f),  vec3(0.0f, 0.0f, -1.0f),  vec2(0.0f, 0.0f)}, // Bottom-right
     {vec3(0.5f,  0.5f, -0.5f),  vec3(0.0f, 0.0f, -1.0f),  vec2(5.0f, 5.0f)},  // top-left
@@ -78,10 +79,11 @@ const vector<GLuint> g_3DPlaneIndices =
     20, 23, 21
 };
 
-// 默认是面在法线方向上是逆时针的情况下，是正面。
+// 右手定则。默认情况下，顶点在法线方向上是逆时针的情况下，是正面。
+// 右手の法則。デフォルトでは法線方向に対して頂点が反時計回りに配置された面を表面と判定します。
 const vector<Vertex> g_cubeVertices = 
 {
-	//位置                         //法线                     //纹理坐标
+	//位置                         //法線                     //UV座標 
     // Back face
     {vec3(-0.5f, -0.5f, -0.5f),  vec3(0.0f, 0.0f, -1.0f),  vec2(0.0f, 0.0f)}, // Bottom-right
     {vec3(0.5f,  0.5f, -0.5f),  vec3(0.0f, 0.0f, -1.0f),  vec2(1.0f, 1.0f)},  // top-left
@@ -142,6 +144,7 @@ const vector<GLuint> g_squareIndices =
 	0, 2, 3
 };
 
+
 // 这里normal没有意义，但是为了复用之前的代码，加了normal
 const vector<Vertex> g_screenVertices = {
     // positions                    // normal                  // texture Coords
@@ -158,6 +161,7 @@ const vector<GLuint> g_screenIndices =
 };
 
 // 这里normal没有意义，但是为了复用之前的代码，加了normal
+// このコンテキストにおけるnormal変数は意味を持たないが、既存コードの再利用性を維持するために追加されています
 const vector<Vertex> g_mirrorVertices = {
     // positions                    // normal(dummy)           // texture Coords(dummy) 
     {vec3(-0.2f,  1.0f, 0.0f),      vec3(0.0f,  0.0f,  1.0f),  vec2(0.0f, 1.0f)},
@@ -239,7 +243,7 @@ const vector<GLuint> g_particleIndices =
 };
 
 const vector<Vertex> g_GMTestVertices = {
-    // positions                   // color(暂时用normal来装color，后面看看有没有更好的方案)  // texture Coords(dummy)
+    // positions                   // color                                              // texture Coords(dummy)
     {vec3(-0.5f, 0.5f, 0.0f),      vec3(1.0f,  0.0f,  0.0f),                             vec2(0.0f, 1.0f)},
     {vec3(-0.5f, -0.5f, 0.0f),     vec3(0.0f,  1.0f,  0.0f),                             vec2(1.0f, 1.0f)},
     {vec3(0.5f, 0.5f, 0.0f),       vec3(0.0f,  0.0f,  1.0f),                             vec2(0.0f, 0.0f)},
@@ -252,7 +256,7 @@ const vector<GLuint> g_GMTestIndices =
 };
 
 const vector<float> g_InstanceTestV = {
-    // 位置           // 颜色
+    // 位置           // 色
   { -0.05f,  0.05f,  1.0f, 0.0f, 0.0f,
      0.05f, -0.05f,  0.0f, 1.0f, 0.0f,
     -0.05f, -0.05f,  0.0f, 0.0f, 1.0f,

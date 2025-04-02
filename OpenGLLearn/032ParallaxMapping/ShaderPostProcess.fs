@@ -18,13 +18,17 @@ void main()
     vec4 originColor = texture(texture_diffuse1, TexCoords);
 
     // 反相
+    // 色反転
     //FragColor = vec4(vec3(1.0 - texture(texture_diffuse1, TexCoords)), 1.0); 
 
     // 黑白
+    // グレースケール変換
     //FragColor = texture(texture_diffuse1, TexCoords);
     // 简单求平均数的方式，可能不够准确
+    // 単純な平均値算出方法（精度不足の可能性あり）
     //float average = (FragColor.r + FragColor.g + FragColor.b) / 3.0;
     // 人眼会对绿色更加敏感一些，而对蓝色不那么敏感，所以为了获取物理上更精确的效果，我们需要使用加权的(Weighted)通道
+    // 人間の視覚特性を考慮した加重平均（緑成分を重視）
     //float average = 0.2126 * FragColor.r + 0.7152 * FragColor.g + 0.0722 * FragColor.b;  
     //FragColor = vec4(average, average, average, 1.0); 
 
@@ -42,19 +46,21 @@ void main()
     vec2( sample_offset, -sample_offset)  // 右下
     );
 
-    // 初始化核，不起任何作用
+    // カーネル初期化（無変換）
     float kernel[9] = float[](
         0, 0, 0,
         0, 1, 0,
         0, 0, 0
     );
 
+    // シャープン用カーネル
     float sharpen[9] = float[](
         -1, -1, -1,
         -1,  9, -1,
         -1, -1, -1
     );
 
+    // エッジ検出用カーネル
     float edgeDetect[9] = float[](
          1,  1,  1,
          1, -8,  1,
@@ -62,6 +68,7 @@ void main()
     );
 
     // 加权之和等于1才是原来的颜色，大于或小于1的话，图像会变亮/变暗。所以这里每个加权值都要除以16.0
+    // ぼかし用カーネル（総和が1になるよう16で除算）
     float Blur[9] = float[](
          1.0 / 16.0,  2.0 / 16.0,  1.0 / 16.0,
          2.0 / 16.0,  4.0 / 16.0,  2.0 / 16.0,
@@ -72,7 +79,7 @@ void main()
     {
         case 0:
         {
-            //用默认核
+            // デフォルトカーネルを使用
             break;
         }
         case 1:
@@ -121,6 +128,7 @@ void main()
 }
 
 // 注意GLSL不支持指针操作（在显卡里当然不能访问内存了），只能通过返回值的方式返回数组
+// カーネル配列コピー関数（GLSLはポインタ操作不可のため値渡しで実現）
 float[9] CopyKernel(float src[9])
 {
     float dst[9] = float[](

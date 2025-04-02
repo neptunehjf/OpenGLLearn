@@ -9,5 +9,5 @@ uniform mat4 dirLightSpace;
 
 void main()
 {
-	gl_Position = dirLightSpace * uni_model * vec4(aPos, 1.0);  // 注意矩阵变换的顺序是从右向左
+  gl_Position = dirLightSpace * uni_model * vec4(aPos, 1.0);
 }
