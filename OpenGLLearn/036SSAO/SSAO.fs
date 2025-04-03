@@ -1,4 +1,4 @@
-#version 330 core
+ï»¿#version 330 core
 
 in vec2 TexCoords;
 out float FragColor;
@@ -22,56 +22,85 @@ uniform vec3 samples[256];
 uniform float window_width;
 uniform float window_height;
 uniform float fRadius;
+uniform int iSSAONoise;
 
-// ÓÃÓÚ·Å´óÎÆÀí×ø±ê£¬´ïµ½°ÑÔ­Í¼ÆÌÂúÆÁÄ»µÄĞ§¹û
-vec2 noiseScale = vec2(window_width / 4.0, window_height / 4.0);
+// ç”¨äºæ”¾å¤§çº¹ç†åæ ‡ï¼Œè¾¾åˆ°æŠŠåŸå›¾é“ºæ»¡å±å¹•çš„æ•ˆæœ
+// ãƒ†ã‚¯ã‚¹ãƒãƒ£åº§æ¨™ã‚’æ‹¡å¤§ã—ã€å…ƒç”»åƒã‚’ç”»é¢å…¨ä½“ã«ç¹°ã‚Šè¿”ã—ã§è¡¨ç¤ºã™ã‚‹åŠ¹æœã‚’å®Ÿç¾
+vec2 noiseScale = vec2(window_width / iSSAONoise, window_height / iSSAONoise);
 
 void main()
 {
-	// ´ÓG-BufferÊä³öµÄÍ¼Æ¬ÖĞÈ¡³ö¼ÆËãSSAOËùĞèµÄÖµ
+	// ä»G-Bufferè¾“å‡ºçš„å›¾ç‰‡ä¸­å–å‡ºè®¡ç®—SSAOæ‰€éœ€çš„å€¼
+	// Gãƒãƒƒãƒ•ã‚¡ã‹ã‚‰SSAOè¨ˆç®—ã«å¿…è¦ãªå€¤ã‚’å–å¾—
 	vec3 fragPos = texture(material.texture_diffuse1, TexCoords).rgb;
 	vec3 normal = texture(material.texture_diffuse2, TexCoords).rgb;
 	vec3 randomVec = texture(material.texture_diffuse3, TexCoords * noiseScale).rgb;
 
-	// ¼ÆËãTangent¿Õ¼ä
-	// ×¢ÒâÖ®Ç°ÔÚ¼ÆËã·¨ÏßÌùÍ¼µÄTBNµÄÊ±ºò£¬ÒòÎªÉæ¼°µÄ·¨ÏßµÄ·½Ïò£¬ÊÇĞèÒª°´¶¥µã¶ÔÆë¼ÆËãTBNµÄ£¬¼ÆËã·½·¨±È½Ï¸´ÔÓ  
-	// ¶øÕâÀïÖ»Ğè°´Ãæ¶ÔÆë¼´¿É£¬Òò´Ë¿ÉÒÔÖ±½ÓÓÃGramm-Schmidt´¦Àí£¬¿ÉÒÔÖ±½ÓµÃµ½Ò»¸ö·¨ÏßÊÇnormalµÃTBN×ø±êÏµ
-	// ÒòÎªrandomVecÊÇÒ»¸öËæ»úÖµ£¬ËùÒÔ¼ÆËã³öµÄTBNÊÇ°üº¬NoiseµÄ
-	// ÒòÎª·¨ÏßnormalÔÚ¹Û²ì¿Õ¼ä£¬ËùÒÔÒÔ´Ë¼ÆËã³öµÄTBN£¬ÊÇ»ùÓÚ¹Û²ì¿Õ¼äµÄTBN
-	// Ö®ºóÇĞÏß¿Õ¼äµÄsamplesºÍrandomVec ³ËÒÔ TBN£¬¾Í¿ÉÒÔ×ªµ½¹Û²ì¿Õ¼äÁË¡£
+	// è®¡ç®—Tangentç©ºé—´
+	// æ³¨æ„ä¹‹å‰åœ¨è®¡ç®—æ³•çº¿è´´å›¾çš„TBNçš„æ—¶å€™ï¼Œå› ä¸ºæ¶‰åŠçš„æ³•çº¿çš„æ–¹å‘ï¼Œæ˜¯éœ€è¦æŒ‰é¡¶ç‚¹å¯¹é½è®¡ç®—TBNçš„ï¼Œè®¡ç®—æ–¹æ³•æ¯”è¾ƒå¤æ‚  
+	// ä½†æ˜¯è¿™é‡Œä¸è¦ç²¾ç¡®åˆ°æŒ‰é¡¶ç‚¹å¯¹é½ï¼Œå› æ­¤å¯ä»¥ç›´æ¥ç”¨Gramm-Schmidtå¤„ç†ï¼Œå¯ä»¥ç›´æ¥å¾—åˆ°ä¸€ä¸ªæ³•çº¿æ˜¯normalçš„TBNåæ ‡ç³»
+	// å› ä¸ºrandomVecæ˜¯ä¸€ä¸ªéšæœºå€¼ï¼Œæ‰€ä»¥è®¡ç®—å‡ºçš„TBNæ˜¯åŒ…å«Noiseçš„
+	// å› ä¸ºæ³•çº¿normalåœ¨è§‚å¯Ÿç©ºé—´ï¼Œæ‰€ä»¥ä»¥æ­¤è®¡ç®—å‡ºçš„TBNï¼Œæ˜¯åŸºäºè§‚å¯Ÿç©ºé—´çš„TBN
+	// ä¹‹ååˆ‡çº¿ç©ºé—´çš„sampleså’ŒrandomVec ä¹˜ä»¥ TBNï¼Œå°±å¯ä»¥è½¬åˆ°è§‚å¯Ÿç©ºé—´äº†ã€‚
+	//
+	// æ¥ç©ºé–“(Tangent Space)ã®è¨ˆç®—
+    // æ³•ç·šãƒãƒƒãƒ—ç”¨TBNè¨ˆç®—ã§ã¯é ‚ç‚¹å˜ä½ã®æ­£ç¢ºãªè¨ˆç®—ãŒå¿…è¦ã ãŒã€
+    // ã“ã“ã§ã¯Gramm-Schmidtå‡¦ç†ã§ç°¡æ˜“çš„ã«æ³•ç·šnormalã«åŸºã¥ãTBNåº§æ¨™ç³»ã‚’ç”Ÿæˆ
+    // ãƒã‚¤ã‚ºã‚’å«ã‚€randomVecã«ã‚ˆã‚ŠTBNã«ãƒ©ãƒ³ãƒ€ãƒ æ€§ã‚’å°å…¥
+    // è¦³æ¸¬ç©ºé–“(view space)ãƒ™ãƒ¼ã‚¹ã®åº§æ¨™ç³»
+
+	// Gramm-Schmidt å†æ­£äº¤åŒ–ã€‚æ±‚å‡ºä¸normalå‚ç›´å¹¶ä¸”å—randomVecå½±å“çš„tangent
+	// Gramm-Schmidtç›´äº¤åŒ–ï¼šnormalã¨ç›´äº¤ã™ã‚‹tangentã‚’ç”Ÿæˆ
 	vec3 tangent = normalize(randomVec - normal * dot(randomVec, normal));
+
 	vec3 bitangent = cross(normal, tangent);
 	mat3 TBN = mat3(tangent, bitangent, normal);
 
-	// ¼ÆËãOcclusion
+	// Occlusionè®¡ç®—
 	float occlusion = 0.0;
 	for(int i = 0; i < samples_num; i++)
 	{
-		// »ñÈ¡Ñù±¾Î»ÖÃ£¨¹Û²ì¿Õ¼ä£©
-		vec3 sample = TBN * samples[i]; // ÇĞÏß->¹Û²ì¿Õ¼ä
+		// è·å–æ ·æœ¬ä½ç½® åˆ‡çº¿->è§‚å¯Ÿç©ºé—´
+		// ã‚µãƒ³ãƒ—ãƒ«ä½ç½® æ¥ç©ºé–“â†’è¦³æ¸¬ç©ºé–“
+		vec3 sample = TBN * samples[i];
 		sample = fragPos + sample * fRadius; 
 
-		// »ñÈ¡Ñù±¾Î»ÖÃ£¨ÆÁÄ»¿Õ¼ä£©
+		// è·å–æ ·æœ¬ä½ç½®ï¼ˆå±å¹•ç©ºé—´ï¼‰
+		// ã‚¹ã‚¯ãƒªãƒ¼ãƒ³ç©ºé–“ã¸ã®æŠ•å½±
 		vec4 offset = vec4(sample, 1.0);
-		offset = projection * offset;   // ¹Û²ì->²Ã¼ô¿Õ¼ä
-		offset.xyz /= offset.w; // Í¸ÊÓ»®·Ö£¨-1.0 µ½ 1.0£©
-		offset.xyz = offset.xyz * 0.5 + 0.5; // ±ä»»µ½0.0 - 1.0µÄÖµÓò
+		// è§‚å¯Ÿ->è£å‰ªç©ºé—´  
+		// è¦³æ¸¬â†’ã‚¯ãƒªãƒƒãƒ—ç©ºé–“
+		offset = projection * offset;  
+		 // é€è§†åˆ’åˆ†ï¼ˆ-1.0 åˆ° 1.0ï¼‰
+		 // ãƒ‘ãƒ¼ã‚¹ãƒšã‚¯ãƒ†ã‚£ãƒ–é™¤ç®—(-1.0ï½1.0)
+		offset.xyz /= offset.w;
+		// å˜æ¢åˆ°0.0 - 1.0çš„å€¼åŸŸ
+		// 0.0ï½1.0ç¯„å›²ã«å¤‰æ›
+		offset.xyz = offset.xyz * 0.5 + 0.5; 
 
-		// Óë²ÉÑùµã±È½ÏµÄÆ¬¶ÎÉî¶È (×ª»¯ºóµÄÏßĞÔÉî¶È)
+		// ä¸é‡‡æ ·ç‚¹æ¯”è¾ƒçš„ç‰‡æ®µæ·±åº¦ (è½¬åŒ–åçš„çº¿æ€§æ·±åº¦)
+		// æ¯”è¼ƒå¯¾è±¡ãƒ•ãƒ©ã‚°ãƒ¡ãƒ³ãƒˆã®æ·±åº¦å€¤(ç·šå½¢æ·±åº¦)
 		float fragDepth = texture(material.texture_diffuse1, offset.xy).a;
 		
-		// ²ÉÑùµãµÄÉî¶È £¨ÒòÎªsampleÊÇ¹Û²ì¿Õ¼äµÄ£¬ËùÒÔÒ²ÊÇÏßĞÔÉî¶È£©
-		// ×¢Òâ¹Û²ì¿Õ¼äµÄzÖµÊÇ¸ºÊı£¬ËùÒÔ×ªÎªÕıÊı¡£
+		// é‡‡æ ·ç‚¹çš„æ·±åº¦ ï¼ˆå› ä¸ºsampleæ˜¯è§‚å¯Ÿç©ºé—´çš„ï¼Œæ‰€ä»¥ä¹Ÿæ˜¯çº¿æ€§æ·±åº¦ï¼‰
+		// æ³¨æ„è§‚å¯Ÿç©ºé—´çš„zå€¼æ˜¯è´Ÿæ•°ï¼Œæ‰€ä»¥è½¬ä¸ºæ­£æ•°ã€‚
+		 // ã‚µãƒ³ãƒ—ãƒ«ç‚¹ã®æ·±åº¦å€¤(è¦³æ¸¬ç©ºé–“ã®ãŸã‚ã€€ç·šå½¢æ·±åº¦)(è¦³æ¸¬ç©ºé–“ã®zå€¤ã¯è² æ•°ã®ãŸã‚çµ¶å¯¾å€¤)
 		float sampleDepth = abs(sample.z);
 
-		// ÒıÈëÒ»¸öÆ½»¬²åÖµ£¬ÇúÏßÔÚ0.0µ½1.0Ö®¼ä
+		// è¾¹ç¼˜æ£€æµ‹ï¼Œæ’é™¤æ·±åº¦å·®åœ¨é‡‡æ ·èŒƒå›´å¤–çš„æƒ…å½¢
+		// ã‚¨ãƒƒã‚¸æ¤œå‡ºï¼šæ·±åº¦å·®ãŒã‚µãƒ³ãƒ—ãƒªãƒ³ã‚°ç¯„å›²å¤–ã®å ´åˆã‚’ãƒ•ã‚£ãƒ«ã‚¿ãƒªãƒ³ã‚°
+		// 
+		// å¼•å…¥ä¸€ä¸ªå¹³æ»‘æ’å€¼ï¼Œæ›²çº¿åœ¨0.0åˆ°1.0ä¹‹é—´ï¼Œè¿‡æ¸¡æ•ˆæœæ›´è‡ªç„¶
+		// 0.0ï½1.0ã®smoothstepè£œé–“ã§è‡ªç„¶ãªå¢ƒç•Œé·ç§»ã‚’å®Ÿç¾
 		float rangeCheck = smoothstep(0.0, 1.0, fRadius / abs(fragDepth - sampleDepth));
-		// ²ÉÑùµãÉî¶È´óÓÚÆ¬¶ÎÉî¶È£¬ÔòÔö¼Óocclusion factor
+
+		// å‚ç…§Referrence/SSAO sample.png
+		// é‡‡æ ·ç‚¹æ·±åº¦å¤§äºç‰‡æ®µæ·±åº¦ï¼Œåˆ™å¢åŠ occlusion factor
 		occlusion += (sampleDepth >= fragDepth ? 1.0 : 0.0) * rangeCheck;    
 	}
 
-	// ¼ÆËã¹âÕÕshader¿ÉÒÔÖ±½ÓÓÃµÄocclusion
+	 // æœ€çµ‚ã‚ªã‚¯ãƒ«ãƒ¼ã‚¸ãƒ§ãƒ³å€¤ã®æ­£è¦åŒ–
 	occlusion = 1.0 - (occlusion / samples_num);
-	// °ÑocclusionÖµÒÔÍ¼Æ¬ĞÎÊ½Êä³ö
+
 	FragColor = occlusion;
 }

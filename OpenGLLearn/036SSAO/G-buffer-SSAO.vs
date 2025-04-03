@@ -1,4 +1,4 @@
-#version 330 core
+ï»¿#version 330 core
 
 layout(location = 0) in vec3 aPos;
 layout(location = 1) in vec3 aNormal;
@@ -12,14 +12,15 @@ layout (std140) uniform Matrix
 
 uniform mat4 uni_model;
 
-// ÒòÎªºóÃæÒªÓÃµ½ÏßĞÔ¿Õ¼ä£¨¹Û²ì¿Õ¼ä£©µÄÉî¶ÈÖµ£¬ËùÒÔÕâÀïÌá¹©µÄFragPosºÍNormalÒ²ÒªÊÇ¹Û²ì¿Õ¼äµÄ£¬²ÅÄÜ²ÎÓëÔËËã¡£
+// å› ä¸ºåé¢è¦ç”¨åˆ°çº¿æ€§ç©ºé—´ï¼ˆè§‚å¯Ÿç©ºé—´ï¼‰çš„æ·±åº¦å€¼ï¼Œæ‰€ä»¥è¿™é‡Œæä¾›çš„FragPoså’ŒNormalä¹Ÿè¦æ˜¯è§‚å¯Ÿç©ºé—´çš„ï¼Œæ‰èƒ½å‚ä¸è¿ç®—ã€‚
+// ãƒ•ãƒ©ã‚°ãƒ¡ãƒ³ãƒˆã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ã¸ã®å‡ºåŠ›ï¼ˆview spaceã§è¨ˆç®—ï¼‰
 out vec3 FragPos;
 out vec3 Normal;
 out vec2 TexCoord;
 
 void main()
 {
-	gl_Position = uni_projection * uni_view * uni_model * vec4(aPos, 1.0);  // ×¢Òâ¾ØÕó±ä»»µÄË³ĞòÊÇ´ÓÓÒÏò×ó
+	gl_Position = uni_projection * uni_view * uni_model * vec4(aPos, 1.0);
 
 	FragPos = vec3(uni_view * uni_model * vec4(aPos, 1.0));
 

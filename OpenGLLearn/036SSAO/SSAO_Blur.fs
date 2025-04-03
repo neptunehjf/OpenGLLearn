@@ -1,4 +1,4 @@
-#version 330 core
+ï»¿#version 330 core
 
 in vec2 TexCoords;
 out float FragColor;
@@ -14,7 +14,8 @@ uniform int iSSAONoise;
 
 void main()
 {
-	// È¡³ö0Î¬µÄÎÆÀí´óĞ¡£¬Ò²¾ÍÊÇ¿í¶È£¬²¢ÒÔ¿í¶È¹¹Ôìvec2
+	// å–å‡ºçº¹ç†å®½åº¦ï¼Œå¹¶ä»¥å®½åº¦æ„é€ vec2
+	// ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®å¹…ã‚’å–å¾—ã—ã€ãã®å€¤ã‹ã‚‰vec2ã‚’ç”Ÿæˆ
 	vec2 texelSize = 1.0 / vec2(textureSize(material.texture_diffuse1, 0));
 
 	float result = 0.0;

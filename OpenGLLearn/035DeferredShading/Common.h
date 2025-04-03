@@ -128,6 +128,6 @@ bool bBloom = false;
 bool bDeferred = true;
 bool bCombined = false;
 bool bLightVolume = false;
-int iGPUPressure = 2;
+int iGPUPressure = 2; // GPU負荷テスト用
 /************** Imgui変数 **************/
 

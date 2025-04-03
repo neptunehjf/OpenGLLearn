@@ -334,15 +334,15 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	glDeleteFramebuffers(1, &fbo_G);
 	glDeleteFramebuffers(1, &fbo_deffered);
 
-	// 原场景缓冲
+
 	CreateFrameBuffer_MSAA(fbo_origin, tbo_origin, rbo_origin, 2);
-	// 后视镜缓冲
+
 	CreateFrameBuffer(fbo_mirror, tbo_mirror, rbo_mirror, 1);
-	// 中间缓冲
+
 	CreateFrameBuffer(fbo_middle, tbo_middle, rbo_middle, 2);
-	// G缓冲
+
 	CreateFrameBuffer_G();
-	// deferred shading 缓冲
+
 	CreateFrameBuffer(fbo_deffered, tbo_deffered, rbo_deffered, 2);
 
 	glViewport(0, 0, width, height);
@@ -1315,6 +1315,7 @@ void DrawSceneDeffered()
 	glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
+	// 参照 Refrrence/deferred shading.png
 	// 原シーンをtbo_G_position tbo_G_normal tbo_G_abdspecとして出力
 	const vector<Texture> gBufferTexture =
 	{
