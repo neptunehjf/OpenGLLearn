@@ -1,4 +1,4 @@
-#version 330 core
+ï»¿#version 330 core
 layout(location = 0) in vec3 aPos;
 layout(location = 1) in vec3 aNormal;
 layout(location = 2) in vec2 aTexCoord;
@@ -7,8 +7,6 @@ out vec2 TexCoords;
 
 void main()
 {
-    // gl_PositionÒªÇóÊÇ¹éÒ»»¯µÄ×ø±ê£¬Òò´ËÖ±½Ó´«-1µ½1Ö®¼äµÄÖµÊÇOKµÄ¡£»òÕßÍ¨¹ıÍ¸ÊÓ¾ØÕó±ä»»×ª³É¹éÒ»»¯×ø±ê
-    // ÔÚÀëÆÁäÖÈ¾µÄÊ±ºò¶¥µã×ÅÉ«Æ÷Í¨³£Ö±½Ó´«¹éÒ»»¯µÄÖµ¼´¿É£¬µ«ÒªÈ·±£¶¥µãÊı¾İaPosÈ·ÊµÊÇÔÚ-1µ½1Ö®¼ä
     gl_Position = vec4(aPos, 1.0);
     TexCoords = aTexCoord;    
 }

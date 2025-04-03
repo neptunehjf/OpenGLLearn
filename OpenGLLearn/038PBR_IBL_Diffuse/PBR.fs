@@ -1,4 +1,4 @@
-#version 330 core
+ï»¿#version 330 core
 out vec4 FragColor;
 in vec2 TexCoords;
 in vec3 WorldPos;
@@ -12,7 +12,7 @@ uniform float ao;
 uniform bool bIBL;
 
 // IBL
-uniform samplerCube texture_cubemap1; // ·øÕÕ¶Ècubemap
+uniform samplerCube texture_cubemap1; // è¾ç…§åº¦cubemap
 
 // lights
 uniform vec3 lightPositions[4];

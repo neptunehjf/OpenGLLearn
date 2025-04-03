@@ -1,11 +1,11 @@
-#version 330 core
+ï»¿#version 330 core
 out vec4 FragColor;
 
 in vec3 localPos;
 
-uniform samplerCube texture_cubemap1; // »·¾³cubemap
-uniform float roughness; // ´Ö²Ú¶È
-uniform float resolution; // »·¾³cubemap½âÎö¶È
+uniform samplerCube texture_cubemap1; // ç¯å¢ƒcubemap
+uniform float roughness; // ç²—ç³™åº¦
+uniform float resolution; // ç¯å¢ƒcubemapè§£æåº¦
 
 const float PI = 3.14159265359;
 
@@ -16,11 +16,11 @@ float DistributionGGX(vec3 N, vec3 H, float roughness);
 
 void main()
 {
-    // ÒòÎª¾µÃæ¹âÓëÊÓ½Ç·½ÏòÓĞ¹Ø£¬¶øÔ¤¼ÆËãÎŞ·¨ÖªµÀÊÓ½Ç·½Ïò¡£
-    // ÕÛÖÔµÄ·½°¸ÊÇ¼ÙÉèºê¹ÛÉÏV,N,IÔÚÍ¬Ò»ÌõÖ±ÏßÉÏ
-    vec3 N = normalize(localPos);    // ÕâÀïÆ¬¶ÎµÄºê¹Û·¨Ïß£¬ÕıºÃµÈÓÚ¾Ö²¿×ø±ê
-    vec3 I = N;                      // ºê¹ÛÈëÉäÏòÁ¿   
-    vec3 V = N;                      // ºê¹Û·´ÉäÏòÁ¿
+    // å› ä¸ºé•œé¢å…‰ä¸è§†è§’æ–¹å‘æœ‰å…³ï¼Œè€Œé¢„è®¡ç®—æ— æ³•çŸ¥é“è§†è§’æ–¹å‘ã€‚
+    // æŠ˜è¡·çš„æ–¹æ¡ˆæ˜¯å‡è®¾å®è§‚ä¸ŠV,N,Iåœ¨åŒä¸€æ¡ç›´çº¿ä¸Š
+    vec3 N = normalize(localPos);    // è¿™é‡Œç‰‡æ®µçš„å®è§‚æ³•çº¿ï¼Œæ­£å¥½ç­‰äºå±€éƒ¨åæ ‡
+    vec3 I = N;                      // å®è§‚å…¥å°„å‘é‡   
+    vec3 V = N;                      // å®è§‚åå°„å‘é‡
 
     vec3 prefilterColor = vec3(0.0);
     const uint samplesNum = 1024u;
@@ -28,35 +28,35 @@ void main()
 
     for (uint i = 0u; i < samplesNum; i++)
     {
-        // Éú³É¶şÎ¬Ëæ»ú²ÉÑùµã
+        // ç”ŸæˆäºŒç»´éšæœºé‡‡æ ·ç‚¹
         vec2 Xi = Hammersley(i, samplesNum);             
-        // Éú³ÉÎ¢¹Û±íÃæµÄ°ë³ÌÏòÁ¿£¬Í¨¹ıÖØÒªĞÔ²ÉÑù£¬Ö÷Òª¼¯ÖĞÓÚºê¹Û±íÃæµÄ·¨ÏßN¸½½ü
+        // ç”Ÿæˆå¾®è§‚è¡¨é¢çš„åŠç¨‹å‘é‡ï¼Œé€šè¿‡é‡è¦æ€§é‡‡æ ·ï¼Œä¸»è¦é›†ä¸­äºå®è§‚è¡¨é¢çš„æ³•çº¿Né™„è¿‘
         vec3 H = ImportanceSampleGGX(Xi, N, roughness);
-        // ¸ù¾İºê¹ÛµÄ·´Éä·½ÏòV ºÍ Î¢¹ÛµÄH£¬Ëã³öÎ¢¹ÛµÄÈëÉä·½ÏòµÄ·´ÏòÁ¿L£¬¼´ÓÃÓÚ²ÉÑù»·¾³cubemapµÄÏòÁ¿
-        // vec3 L  = normalize(2.0 * dot(V, H) * H - V); Ğ§¹ûÓ¦¸ÃÊÇÒ»ÑùµÄ 
+        // æ ¹æ®å®è§‚çš„åå°„æ–¹å‘V å’Œ å¾®è§‚çš„Hï¼Œç®—å‡ºå¾®è§‚çš„å…¥å°„æ–¹å‘çš„åå‘é‡Lï¼Œå³ç”¨äºé‡‡æ ·ç¯å¢ƒcubemapçš„å‘é‡
+        // vec3 L  = normalize(2.0 * dot(V, H) * H - V); æ•ˆæœåº”è¯¥æ˜¯ä¸€æ ·çš„ 
         vec3 L = normalize(reflect(-V, H)); 
 
-        // ÓÉÓÚHÊÇÖØÒªĞÔ²ÉÑùµÃµ½µÄ£¬Ëã³öµÄL¼¯ÖĞÔÚºê¹ÛÈëÉä½ÇI¸½½ü£¬ÕâÀïÔÙ´Î¸ù¾İ·½²î¶à´Î¼ÓÈ¨£¬¿ÉÒÔÌá¸ßÀëI½üµÄÑÕÉ«µÄÈ¨ÖØ
+        // ç”±äºHæ˜¯é‡è¦æ€§é‡‡æ ·å¾—åˆ°çš„ï¼Œç®—å‡ºçš„Lé›†ä¸­åœ¨å®è§‚å…¥å°„è§’Ié™„è¿‘ï¼Œè¿™é‡Œå†æ¬¡æ ¹æ®æ–¹å·®å¤šæ¬¡åŠ æƒï¼Œå¯ä»¥æé«˜ç¦»Iè¿‘çš„é¢œè‰²çš„æƒé‡
         float weight = max(dot(L, I), 0.0);
 
-        // Ëã³öµ±Ç°²ÉÑùµÄHµÄpdf
-        float D = DistributionGGX(N, H, roughness); // ·¨Ïß·Ö²¼ÂÊ
-        float NdotH = max(dot(N, H), 0.0);          // ÓëNÓëHµÄ¼Ğ½Ç³É·´±È
-        float HdotV = max(dot(H, V), 0.0);          // ÓëVÓëHµÄ¼Ğ½Ç³É·´±È
-        // unreal engine4 µÄpdf¼ÆËã¹«Ê½£¬²»ÊÇºÜÀí½âÊÇÔõÃ´À´µÄ£¬ÏÂÃæËµÒ»ÏÂ×Ô¼ºµÄÀí½â
-        // pdfÔÚDµÄ»ù´¡ÉÏ¼ÆËã£¬NdotH(N,H¼Ğ½Ç)¶îÍâÓ°ÏìÁËpdf£¬N,H¼Ğ½ÇÔ½Ğ¡£¬pdfÔ½´ó£¬µ«ÕâÔÚDistributionGGXÀïÒÑ¾­ÌåÏÖÁË£¬²»ÖªµÀÎªÊ²Ã´ÕâÀï»¹Òª¿¼ÂÇ
-        // HdotV(V,H¼Ğ½Ç)¶îÍâÓ°ÏìÁËpdf£¬Õâ¸ö¿ÉÄÜÊÇ¿¼ÂÇÁËFresnel·½³Ì£¬VÓëH¼Ğ½ÇÔ½´ó£¬·´ÉäÔ½Ç¿
-        // pdfÔ½´óºÍ·´ÉäÔ½Ç¿ÊÇµÈ¼ÛµÄ£¬ÒòÎªÖØÒªĞÔ²ÉÑùµÄÑù±¾¼¯ÖĞÔÚÄÜÈÃ·´Éä×îÇ¿µÄµØ·½
-        // ÁíÍâÓÉÓÚV == I == N£¬ÕâÀïÊµ¼Ê¾ÍÊÇ float pdf = D / 4.0 + 0.0001; ÒÔÏÂ¹«Ê½ÊÇÎªÁËÊÊÅä¸üÆÕÊÊµÄÇé¿ö
+        // ç®—å‡ºå½“å‰é‡‡æ ·çš„Hçš„pdf
+        float D = DistributionGGX(N, H, roughness); // æ³•çº¿åˆ†å¸ƒç‡
+        float NdotH = max(dot(N, H), 0.0);          // ä¸Nä¸Hçš„å¤¹è§’æˆåæ¯”
+        float HdotV = max(dot(H, V), 0.0);          // ä¸Vä¸Hçš„å¤¹è§’æˆåæ¯”
+        // unreal engine4 çš„pdfè®¡ç®—å…¬å¼ï¼Œä¸æ˜¯å¾ˆç†è§£æ˜¯æ€ä¹ˆæ¥çš„ï¼Œä¸‹é¢è¯´ä¸€ä¸‹è‡ªå·±çš„ç†è§£
+        // pdfåœ¨Dçš„åŸºç¡€ä¸Šè®¡ç®—ï¼ŒNdotH(N,Hå¤¹è§’)é¢å¤–å½±å“äº†pdfï¼ŒN,Hå¤¹è§’è¶Šå°ï¼Œpdfè¶Šå¤§ï¼Œä½†è¿™åœ¨DistributionGGXé‡Œå·²ç»ä½“ç°äº†ï¼Œä¸çŸ¥é“ä¸ºä»€ä¹ˆè¿™é‡Œè¿˜è¦è€ƒè™‘
+        // HdotV(V,Hå¤¹è§’)é¢å¤–å½±å“äº†pdfï¼Œè¿™ä¸ªå¯èƒ½æ˜¯è€ƒè™‘äº†Fresnelæ–¹ç¨‹ï¼ŒVä¸Hå¤¹è§’è¶Šå¤§ï¼Œåå°„è¶Šå¼º
+        // pdfè¶Šå¤§å’Œåå°„è¶Šå¼ºæ˜¯ç­‰ä»·çš„ï¼Œå› ä¸ºé‡è¦æ€§é‡‡æ ·çš„æ ·æœ¬é›†ä¸­åœ¨èƒ½è®©åå°„æœ€å¼ºçš„åœ°æ–¹
+        // å¦å¤–ç”±äºV == I == Nï¼Œè¿™é‡Œå®é™…å°±æ˜¯ float pdf = D / 4.0 + 0.0001; ä»¥ä¸‹å…¬å¼æ˜¯ä¸ºäº†é€‚é…æ›´æ™®é€‚çš„æƒ…å†µ
         float pdf = D * NdotH / (4.0 * HdotV) + 0.0001;  
 
         float saTexel  = 4.0 * PI / (6.0 * resolution * resolution);
         float saSample = 1.0 / (float(samplesNum) * pdf + 0.0001);
 
-        // ¸ù¾İpdfËã³ömipLevel£¬×¢ÒâËã³öµÄĞ¡Êı»áÔÚtextureLod×Ô¶¯ÏòÏÂÈ¡Õû
-        // Õâ¸ö¹«Ê½ÔİÊ±Ò²²»ÖªµÀÔõÃ´À´µÄ¡£
-        // Ä¿Ç°µÄÀí½âÀ´¿´£¬resolutionÔ½´ó£¬mipLevelÔ½´ó£¬¿ÉÄÜÊÇresolutionÔ½´óĞèÒª¸ü¶àµÄ²ÉÑùµã²ÅÄÜ¸üÇåÎú
-        // SAMPLE_COUNT»òÕßpdfÔ½´ó£¬mipLevelÔ½Ğ¡£¬Ô½ÇåÎú£¬Õâ¸öºÃÀí½â
+        // æ ¹æ®pdfç®—å‡ºmipLevelï¼Œæ³¨æ„ç®—å‡ºçš„å°æ•°ä¼šåœ¨textureLodè‡ªåŠ¨å‘ä¸‹å–æ•´
+        // è¿™ä¸ªå…¬å¼æš‚æ—¶ä¹Ÿä¸çŸ¥é“æ€ä¹ˆæ¥çš„ã€‚
+        // ç›®å‰çš„ç†è§£æ¥çœ‹ï¼Œresolutionè¶Šå¤§ï¼ŒmipLevelè¶Šå¤§ï¼Œå¯èƒ½æ˜¯resolutionè¶Šå¤§éœ€è¦æ›´å¤šçš„é‡‡æ ·ç‚¹æ‰èƒ½æ›´æ¸…æ™°
+        // SAMPLE_COUNTæˆ–è€…pdfè¶Šå¤§ï¼ŒmipLevelè¶Šå°ï¼Œè¶Šæ¸…æ™°ï¼Œè¿™ä¸ªå¥½ç†è§£
         float mipLevel = (roughness == 0.0 ? 0.0 : 0.5 * log2(saSample / saTexel)); 
         //float mipLevel = 0.0; 
 
@@ -64,14 +64,14 @@ void main()
         totalWeight += weight;
     }
 
-    // Çó¼ÓÈ¨ºóµÄÆ½¾ùÖµ
+    // æ±‚åŠ æƒåçš„å¹³å‡å€¼
     prefilterColor = prefilterColor / totalWeight;
 
     FragColor = vec4(prefilterColor, 1.0);
 }
 
 
-// Van Der Corput ĞòÁĞ Éú³ÉµÄÈÔÈ»ÊÇËæ»úÑù±¾£¬µ«Ñù±¾·Ö²¼¸ü¾ùÔÈ£¬·µ»ØÖµÊÇ¹éÒ»»¯µ½0µ½1Ö®¼äµÄĞ¡Êı
+// Van Der Corput åºåˆ— ç”Ÿæˆçš„ä»ç„¶æ˜¯éšæœºæ ·æœ¬ï¼Œä½†æ ·æœ¬åˆ†å¸ƒæ›´å‡åŒ€ï¼Œè¿”å›å€¼æ˜¯å½’ä¸€åŒ–åˆ°0åˆ°1ä¹‹é—´çš„å°æ•°
 float RadicalInverse_VdC(uint bits) 
 {
     bits = (bits << 16u) | (bits >> 16u);
@@ -83,35 +83,35 @@ float RadicalInverse_VdC(uint bits)
 }
 // ----------------------------------------------------------------------------
 
-// Hammersley ÒÔVan Der Corput ĞòÁĞÎª»ù´¡£¬¹¹ÔìÁËÒ»×é¶şÎ¬Ëæ»úÑù±¾
+// Hammersley ä»¥Van Der Corput åºåˆ—ä¸ºåŸºç¡€ï¼Œæ„é€ äº†ä¸€ç»„äºŒç»´éšæœºæ ·æœ¬
 vec2 Hammersley(uint i, uint num)
 {
     return vec2(float(i)/float(num), RadicalInverse_VdC(i));
 }
 
-// ÖØÒªĞÔ²ÉÑù£¬¸ù¾İHammersley¶şÎ¬Ëæ»úÑù±¾µÃ³öÒ»¸ö·ûºÏÄ¿±êpdf£¨Ö÷Òª¼¯ÖĞÔÚN¸½½ü£¬²¢ÊÜµ½roughnessÓ°Ïì£©µÄHÏòÁ¿
+// é‡è¦æ€§é‡‡æ ·ï¼Œæ ¹æ®HammersleyäºŒç»´éšæœºæ ·æœ¬å¾—å‡ºä¸€ä¸ªç¬¦åˆç›®æ ‡pdfï¼ˆä¸»è¦é›†ä¸­åœ¨Né™„è¿‘ï¼Œå¹¶å—åˆ°roughnesså½±å“ï¼‰çš„Hå‘é‡
 vec3 ImportanceSampleGGX(vec2 Xi, vec3 N, float roughness)
 {
-    // unreal engine4 ÓÃµÄÊÇ´Ö²Ú¶ÈµÄÆ½·½£¬Ğ§¹û¸üºÃ
+    // unreal engine4 ç”¨çš„æ˜¯ç²—ç³™åº¦çš„å¹³æ–¹ï¼Œæ•ˆæœæ›´å¥½
     float a = roughness * roughness;
 
-    // ´ÓHammersley·Ö²¼µÃµ½¶ÔÓ¦µÄTangent¿Õ¼äµÄÇòÃæ×ø±ê
-    // phiÓÉXi.x(Hammersley²ÉÑùÏÂ±ê)µÃµ½£¬Óë¸ÅÂÊÎŞ¹Ø
+    // ä»Hammersleyåˆ†å¸ƒå¾—åˆ°å¯¹åº”çš„Tangentç©ºé—´çš„çƒé¢åæ ‡
+    // phiç”±Xi.x(Hammersleyé‡‡æ ·ä¸‹æ ‡)å¾—åˆ°ï¼Œä¸æ¦‚ç‡æ— å…³
     float phi = 2 * PI * Xi.x;
 
-    // thetaÓÉXi.y(Hammersley²ÉÑùËæ»úÖµ) ºÍ roughnessµÃµ½
-    // roughnessÔ½´ó£¬thetaÔ½´ó£¬Ò²¾ÍÊÇHÓëNµÄ¼Ğ½ÇÔ½´ó£¬Õâ¸öÓë²ÄÖÊÓĞ¹Ø£¬Óë¸ÅÂÊÎŞ¹Ø
-    // Xi.y(Hammersley²ÉÑùËæ»úÖµ)Ô½´ó£¬thetaÔ½Ğ¡£¬Ò²¾ÍÊÇHÓëNµÄ¼Ğ½ÇÔ½Ğ¡£¬¿É¼û¸ÅÂÊ¸ßµÄ¶¼ÊÇ¼Ğ½ÇĞ¡µÄ£¬Õâ¾ÍÊÇÖØÒªĞÔ²ÉÑù
-    // ´Ë¹«Ê½µÄÍÆÀí±È½Ï¸´ÔÓ£¬ÓĞ¿ÕÔÙÑĞ¾¿Ò»ÏÂ
+    // thetaç”±Xi.y(Hammersleyé‡‡æ ·éšæœºå€¼) å’Œ roughnesså¾—åˆ°
+    // roughnessè¶Šå¤§ï¼Œthetaè¶Šå¤§ï¼Œä¹Ÿå°±æ˜¯Hä¸Nçš„å¤¹è§’è¶Šå¤§ï¼Œè¿™ä¸ªä¸æè´¨æœ‰å…³ï¼Œä¸æ¦‚ç‡æ— å…³
+    // Xi.y(Hammersleyé‡‡æ ·éšæœºå€¼)è¶Šå¤§ï¼Œthetaè¶Šå°ï¼Œä¹Ÿå°±æ˜¯Hä¸Nçš„å¤¹è§’è¶Šå°ï¼Œå¯è§æ¦‚ç‡é«˜çš„éƒ½æ˜¯å¤¹è§’å°çš„ï¼Œè¿™å°±æ˜¯é‡è¦æ€§é‡‡æ ·
+    // æ­¤å…¬å¼çš„æ¨ç†æ¯”è¾ƒå¤æ‚ï¼Œæœ‰ç©ºå†ç ”ç©¶ä¸€ä¸‹
     float theta = acos(sqrt((1.0 - Xi.y) / (1.0 + (a * a - 1.0) * Xi.y)));
 
-    // ÇòÃæ×ø±ê --¡·µÑ¿¨¶û×ø±ê
+    // çƒé¢åæ ‡ --ã€‹ç¬›å¡å°”åæ ‡
     vec3 H;
     H.x = sin(theta) * cos(phi);
     H.y = sin(theta) * sin(phi);
     H.z = cos(theta);
 
-    // ÇĞÏß×ø±ê --¡·ÊÀ½ç×ø±ê
+    // åˆ‡çº¿åæ ‡ --ã€‹ä¸–ç•Œåæ ‡
     vec3 up = vec3(0.0, 1.0, 0.0);
     vec3 tangent = normalize(cross(up, N));
     vec3 bitangent = normalize(cross(N, tangent));
@@ -122,7 +122,7 @@ vec3 ImportanceSampleGGX(vec2 Xi, vec3 N, float roughness)
     return sampleVec;
 }
 
-// Ëã³öµ±Ç°²ÉÑùµÄHµÄNDF
+// ç®—å‡ºå½“å‰é‡‡æ ·çš„Hçš„NDF
 float DistributionGGX(vec3 N, vec3 H, float roughness)
 {
     float a = roughness*roughness;

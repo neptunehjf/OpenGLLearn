@@ -1,4 +1,4 @@
-#version 330 core
+ï»¿#version 330 core
 
 layout(location = 0) out vec4 FragColor;
 
@@ -12,9 +12,9 @@ uniform int iFrenselMode;
 uniform bool bDirectLight;
 
 // IBL
-uniform samplerCube irradianceMap; // ·øÕÕ¶Ècubemap
+uniform samplerCube irradianceMap; // è¾ç…§åº¦cubemap
 uniform samplerCube prefilterMap; // prefilter cubemap
-uniform sampler2D brdfMap; // BRDFÍ¼
+uniform sampler2D brdfMap; // BRDFå›¾
 
 struct Material
 {  
@@ -26,7 +26,7 @@ struct Material
 };
 uniform Material material;
 
-vec3  albedo    = pow(texture(material.texture_diffuse1, TexCoords).rgb, vec3(2.2)); // ²ÄÖÊ×ª³ÉÏßĞÔ¿Õ¼ä
+vec3  albedo    = pow(texture(material.texture_diffuse1, TexCoords).rgb, vec3(2.2)); // æè´¨è½¬æˆçº¿æ€§ç©ºé—´
 float metallic  = texture(material.texture_diffuse2, TexCoords).r;
 float roughness = texture(material.texture_diffuse3, TexCoords).r;
 float ao        = texture(material.texture_diffuse4, TexCoords).r;
@@ -115,7 +115,7 @@ void main()
     vec3 diffuse = irradiance * albedo;
     vec3 ambient;
     if (bIBL)
-        ambient = (kD * diffuse + specular) * ao;  // specularÄÚ²¿¼ÆËãÒÑ¾­¿¼ÂÇKsÁË£¬ËùÒÔÕâÀï²»ÓÃÔÙ³Ë
+        ambient = (kD * diffuse + specular) * ao;  // specularå†…éƒ¨è®¡ç®—å·²ç»è€ƒè™‘Ksäº†ï¼Œæ‰€ä»¥è¿™é‡Œä¸ç”¨å†ä¹˜
     else
         ambient = vec3(0.03) * albedo * ao;
     
@@ -131,9 +131,9 @@ void main()
     FragColor = vec4(color , 1.0);
 }
 
-// N ¾ö¶¨ÁËµ±Ç°Î»ÖÃµÄÆ¬¶ÎµÄÎ¢±íÃæÓëHÒ»ÖÂµÄ¸ÅÂÊ£¬¸ÅÂÊÔ½¸ßµÄÆ¬¶Î£¬·´ÉäÔ½Ç¿£¬ÏÔÈ»NÓëHÔ½ÖØºÏ£¬¸ÅÂÊÔ½¸ß
-// ÕâÀïµÄ¸ÅÂÊÏÔÈ»²»ÊÇÍ³¼ÆÑ§²ÉÑùËã³öµÄ£¬¶øÊÇÒ»¸ö´óÖÂ¹ÀËã¡£ÒòÎªNºÍHÈ«¶¼ÊÇºê¹ÛµÄÏòÁ¿£¬²»Éæ¼°Î¢±íÃæ
-// roughness ¾ö¶¨ÁËÕûÌåÎ¢±íÃæµÄ·½ÏòµÄËæ»ú³Ì¶È£¬roughnessÔ½´ó£¬·´ÉäÓëÎŞ·´ÉäÇøÓòµÄ¹ı¶ÈÔ½Æ½»¬(ÈÃ¸ÅÂÊ´óµÄµØ·½¸ÅÂÊ¼õĞ¡£¬·´Ö®ÒàÈ»)
+// N å†³å®šäº†å½“å‰ä½ç½®çš„ç‰‡æ®µçš„å¾®è¡¨é¢ä¸Hä¸€è‡´çš„æ¦‚ç‡ï¼Œæ¦‚ç‡è¶Šé«˜çš„ç‰‡æ®µï¼Œåå°„è¶Šå¼ºï¼Œæ˜¾ç„¶Nä¸Hè¶Šé‡åˆï¼Œæ¦‚ç‡è¶Šé«˜
+// è¿™é‡Œçš„æ¦‚ç‡æ˜¾ç„¶ä¸æ˜¯ç»Ÿè®¡å­¦é‡‡æ ·ç®—å‡ºçš„ï¼Œè€Œæ˜¯ä¸€ä¸ªå¤§è‡´ä¼°ç®—ã€‚å› ä¸ºNå’ŒHå…¨éƒ½æ˜¯å®è§‚çš„å‘é‡ï¼Œä¸æ¶‰åŠå¾®è¡¨é¢
+// roughness å†³å®šäº†æ•´ä½“å¾®è¡¨é¢çš„æ–¹å‘çš„éšæœºç¨‹åº¦ï¼Œroughnessè¶Šå¤§ï¼Œåå°„ä¸æ— åå°„åŒºåŸŸçš„è¿‡åº¦è¶Šå¹³æ»‘(è®©æ¦‚ç‡å¤§çš„åœ°æ–¹æ¦‚ç‡å‡å°ï¼Œåä¹‹äº¦ç„¶)
 float DistributionGGX(vec3 N, vec3 H, float roughness)
 {
     float a = roughness*roughness;
@@ -179,7 +179,7 @@ vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
     return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0);
 }   
 
-// ¼ò»¯°æµÄÈ¡·¨Ïßº¯Êı£¬¾ßÌåÔ­ÀíµÈÓĞ¿ÕÁË½âÒ»ÏÂ
+// ç®€åŒ–ç‰ˆçš„å–æ³•çº¿å‡½æ•°ï¼Œå…·ä½“åŸç†ç­‰æœ‰ç©ºäº†è§£ä¸€ä¸‹
 vec3 GetNormalFromMap()
 {
     vec3 tangentNormal = texture(material.texture_diffuse5, TexCoords).xyz * 2.0 - 1.0;

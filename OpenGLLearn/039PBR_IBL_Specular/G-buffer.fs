@@ -1,4 +1,4 @@
-#version 330 core
+﻿#version 330 core
 
 layout(location = 0) out vec3 gPosition;
 layout(location = 1) out vec3 gNormal;
@@ -19,7 +19,8 @@ uniform Material material;
 
 void main()
 {
-	// ����3�������û��alpha���������Բ��ܿ���blend
+	// 这里3个输出都没有alpha分量，所以不能开启blend
+	// 3つの出力バッファにアルファ成分が存在しないため、ブレンド処理は不可
 	gPosition = FragPos;
 
 	gNormal = normalize(Normal); 

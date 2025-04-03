@@ -1,4 +1,4 @@
-#version 330 core
+ï»¿#version 330 core
 
 layout (triangles) in;
 layout (triangle_strip, max_vertices = 18) out;
@@ -11,11 +11,14 @@ void main()
 {   
     for (int face = 0; face < 6; face++)
     {
+        // ãƒ¬ã‚¤ãƒ¤ãƒ¼æŒ‡å®šï¼ˆã‚­ãƒ¥ãƒ¼ãƒ–ãƒžãƒƒãƒ—é¢ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ï¼‰
         gl_Layer = face;
         for (int i = 0; i < 3; i++)
         {
-            FragPos = gl_in[i].gl_Position; // ÎªÁËÔÚfragment shader¼ÆËãÉî¶ÈÖµ£¬Ò²¿ÉÒÔÈÃopengl×Ô¶¯¼ÆËãÉî¶È£¬µ«ÊÇ×Ô¼º¼ÆËã±È½ÏÖ±¹Û
-            gl_Position = ptLightSpace[face] * FragPos; //»á²Ã¼ôµôÊÓ×¶ÍâµÄÆ¬¶Î
+            FragPos = gl_in[i].gl_Position;
+
+            // ç¾åœ¨ã®é¢ç”¨ã®åº§æ¨™å¤‰æ›
+            gl_Position = ptLightSpace[face] * FragPos;
             EmitVertex();               
         }
         EndPrimitive();

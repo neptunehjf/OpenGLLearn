@@ -1,4 +1,4 @@
-#version 330 core
+ï»¿#version 330 core
 
 out vec4 FragColor;
 
@@ -15,7 +15,7 @@ struct Material
 };
 uniform Material material;
 
-// ²ÄÖÊ×ª³ÉÏßĞÔ¿Õ¼ä
+// æè´¨è½¬æˆçº¿æ€§ç©ºé—´
 vec3 albedo     = pow(texture(material.texture_diffuse1, TexCoords).rgb, vec3(2.2));
 float metallic  = texture(material.texture_diffuse2, TexCoords).r;
 float roughness = texture(material.texture_diffuse3, TexCoords).r;

@@ -1,4 +1,4 @@
-#version 330 core
+ï»¿#version 330 core
 
 in vec3 TexCoords;
 
@@ -11,10 +11,10 @@ void main()
 	vec3 color = texture(texture_cubemap1, TexCoords).rgb;
 
 	// HDR tonemap
-	// ·Åµ½postprocess shaderÀï´¦Àí
+	// postprocess shaderã§å‡¦ç†
 
-	// Gamma Correct ÒòÎªÒÑ¾­ÔÚCPU²àÉèÖÃÁËglEnable(GL_FRAMEBUFFER_SRGB); ÏÂÃæ´úÂë²»ĞèÒª
-    // color = pow(color, vec3(1.0/2.2)); 
+// glEnable(GL_FRAMEBUFFER_SRGB)è¨­ç½®æ¸ˆã¿ã®ã§ã€Gamma Correctä¸è¦;
+ // color = pow(color, vec3(1.0/2.2)); 
 
 	FragColor = vec4(color, 1.0);
 }

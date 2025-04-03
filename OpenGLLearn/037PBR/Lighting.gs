@@ -1,4 +1,4 @@
-#version 330 core
+ï»¿#version 330 core
 
 layout (triangles) in;
 layout (triangle_strip, max_vertices = 3) out;
@@ -6,7 +6,7 @@ layout (triangle_strip, max_vertices = 3) out;
 in VS_OUT
 {
 	vec3 fragPos;
-	vec3 normal;         //  ¼È¿ÉÒÔÖ±½ÓÓÃ¶¥µãÊı¾İµÄnormal£¬Ò²¿ÉÒÔÔÚ¼¸ºÎ×ÅÉ«Æ÷¼ÆËãnormal¡£Ö®Ç°Àí½â´íÁË
+	vec3 normal;
 	vec2 texCoord;
     vec4 position;
     mat4 view;
@@ -49,7 +49,8 @@ void main()
     //vec3 normal = GetNormal();                 
     vec3 normal = normalize(gs_in[1].normal);
 
-    // Èç¹ûÉæ¼°µ½ÔÚÌØ¶¨×ø±ê¿Õ¼ä½øĞĞ¼ÆËãµÄ£¬ÒªÈ·±£ÔÚ¶ÔÓ¦µÄ¿Õ¼ä¼ÆËãºó£¬È»ºóÔÙ½øĞĞÊ£ÏÂµÄ¾ØÕó±ä»»£¨view projectionÖ®ÀàµÄ£©
+    // å¦‚æœæ¶‰åŠåˆ°åœ¨ç‰¹å®šåæ ‡ç©ºé—´è¿›è¡Œè®¡ç®—çš„ï¼Œè¦ç¡®ä¿åœ¨å¯¹åº”çš„ç©ºé—´è®¡ç®—åï¼Œç„¶åå†è¿›è¡Œå‰©ä¸‹çš„çŸ©é˜µå˜æ¢ï¼ˆview projectionä¹‹ç±»çš„ï¼‰
+    // ç‰¹å®šåº§æ¨™ç©ºé–“ã«ãŠã‘ã‚‹è¨ˆç®—å‡¦ç†ã¯ã€å½“è©²ç©ºé–“ã§ã®æ¼”ç®—å®Œäº†ã‚’ç¢ºèªã—ã¦ã‹ã‚‰ãƒ“ãƒ¥ãƒ¼ãƒ»ãƒ—ãƒ­ã‚¸ã‚§ã‚¯ã‚·ãƒ§ãƒ³å¤‰æ›ãªã©ã®å¾Œç¶šè¡Œåˆ—æ¼”ç®—ã‚’é©ç”¨
     gl_Position = gs_in[0].projection * gs_in[0].view * explode(gs_in[0].position, normal);    // 1
     gs_out.fragPos = gs_in[0].fragPos;
     gs_out.normal = gs_in[0].normal;

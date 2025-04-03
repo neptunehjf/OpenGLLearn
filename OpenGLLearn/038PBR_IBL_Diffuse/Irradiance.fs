@@ -1,9 +1,9 @@
-#version 330 core
+ï»¿#version 330 core
 out vec4 FragColor;
 
 in vec3 localPos;
 
-uniform samplerCube texture_cubemap1; // »·¾³cubemap
+uniform samplerCube texture_cubemap1; // ç¯å¢ƒcubemap
 
 const float PI = 3.14159265359;
 
@@ -11,7 +11,7 @@ vec3 convolution(vec3 normal);
 
 void main()
 {
-	// Æ¬¶ÎµÄ·¨Ïß·½Ïò×÷Îª²ÉÑù·½Ïò
+	// ç‰‡æ®µçš„æ³•çº¿æ–¹å‘ä½œä¸ºé‡‡æ ·æ–¹å‘
 	vec3 normal = normalize(localPos);
 
 	vec3 irradiance = convolution(normal);
@@ -19,20 +19,20 @@ void main()
 	FragColor = vec4(irradiance, 1.0);
 }
 
-// ÓÃ¾í»ıËã³öÆ¬¶ÎµÄ·´Éä¹â
+// ç”¨å·ç§¯ç®—å‡ºç‰‡æ®µçš„åå°„å…‰
 vec3 convolution(vec3 normal)
 {
 	vec3 irradiance = vec3(0.0);
 	
-	// ÒÔnormalÎªzÖá¹¹ÔìÒ»¸öÕı½»×ø±êÏµ
-	// ÒòÎªnormalÊÇÒ»¸ö¾Ö²¿¿Õ¼äµÄ×ø±ê£¬ËùÒÔÒÔnormal¹¹ÔìµÄ×ø±êÏµÊÇÒ»¸ö¾Ö²¿¿Õ¼äµÄ×ø±êÏµ
+	// ä»¥normalä¸ºzè½´æ„é€ ä¸€ä¸ªæ­£äº¤åæ ‡ç³»
+	// å› ä¸ºnormalæ˜¯ä¸€ä¸ªå±€éƒ¨ç©ºé—´çš„åæ ‡ï¼Œæ‰€ä»¥ä»¥normalæ„é€ çš„åæ ‡ç³»æ˜¯ä¸€ä¸ªå±€éƒ¨ç©ºé—´çš„åæ ‡ç³»
 	vec3 up = vec3(0.0, 1.0, 0.0);
-	vec3 right = normalize(cross(up, normal)); // up³õÊ¼ÖµÊÇÊ²Ã´ÎŞËùÎ½£¬ÕâÀï¶¼ÄÜËã³öÒ»¸öºÍnormal´¹Ö±µÄÖµ
+	vec3 right = normalize(cross(up, normal)); // upåˆå§‹å€¼æ˜¯ä»€ä¹ˆæ— æ‰€è°“ï¼Œè¿™é‡Œéƒ½èƒ½ç®—å‡ºä¸€ä¸ªå’Œnormalå‚ç›´çš„å€¼
 	up = normalize(cross(normal, right));
 	mat3 TBN = mat3(right, up, normal);
 
-	// ÔÚ·´Éä¹âµÄ·½Ïò£¨²ÉÑù·½Ïò£©µÄ°ëÇòÄÚ£¬¾ùÔÈÑ¡È¡Èô¸ÉÀëÉ¢ÈëÉä¹â£¬È»ºó¼ÆËã¸÷×ÔµÄÆ½¾ùÖµ£¨ÀèÂüºÍ£©
-	// °ëÇò º½Ïò½Çphi:0~2PI  ¼«½Çtheta:0~0.5PI
+	// åœ¨åå°„å…‰çš„æ–¹å‘ï¼ˆé‡‡æ ·æ–¹å‘ï¼‰çš„åŠçƒå†…ï¼Œå‡åŒ€é€‰å–è‹¥å¹²ç¦»æ•£å…¥å°„å…‰ï¼Œç„¶åè®¡ç®—å„è‡ªçš„å¹³å‡å€¼ï¼ˆé»æ›¼å’Œï¼‰
+	// åŠçƒ èˆªå‘è§’phi:0~2PI  æè§’theta:0~0.5PI
 	int sampleNum = 0;
 	float sampleDelta = 0.025;
 
@@ -40,9 +40,9 @@ vec3 convolution(vec3 normal)
 	{
 		for (float theta = 0.0; theta < 0.5 * PI; theta += sampleDelta)
 		{
-			// tangent¿Õ¼ä ÇòÃæ×ø±ê -¡·µÑ¿¨¶û×ø±ê
+			// tangentç©ºé—´ çƒé¢åæ ‡ -ã€‹ç¬›å¡å°”åæ ‡
 			vec3 tangentSample = vec3(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
-			// tangent¿Õ¼ä -¡·local¿Õ¼ä
+			// tangentç©ºé—´ -ã€‹localç©ºé—´
 			vec3 sample = tangentSample * TBN;
 
 			irradiance += texture(texture_cubemap1, sample).rgb * cos(theta) * sin(theta); 
@@ -50,7 +50,7 @@ vec3 convolution(vec3 normal)
 		}
 	}
 
-	// c ºÍ Kd ·Åµ½¶ÔÓ¦ÆäÎïÀíÑ§ÒâÒåµÄµØ·½¼ÆËã£¬ÕâÀïÔİÇÒ²»¼ÆËã£¨Êµ¼ÊĞ§¹ûÃ»Çø±ğ£©
+	// c å’Œ Kd æ”¾åˆ°å¯¹åº”å…¶ç‰©ç†å­¦æ„ä¹‰çš„åœ°æ–¹è®¡ç®—ï¼Œè¿™é‡Œæš‚ä¸”ä¸è®¡ç®—ï¼ˆå®é™…æ•ˆæœæ²¡åŒºåˆ«ï¼‰
 	irradiance = PI * irradiance * (1.0 / (float(sampleNum))); 
 	
 	return irradiance;
