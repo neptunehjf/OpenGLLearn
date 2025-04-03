@@ -36,6 +36,8 @@ void main()
     if (bHDR || bBloom)
     {
         // Bloom 要在HDR Tone Mapping 之前，因为HDR下 才能brightness > 1.0，对亮度有更好的控制
+	// BloomはHDRトーンマッピング前に行う必要あり（HDR状態でのみbrightness > 1.0が可能なため、輝度制御が最適化される）
+
         if (bBloom)
         {
            vec3 bloomColor = BloomBlur();
@@ -49,6 +51,7 @@ void main()
     else
     {
         // PostProcess 要在 Tone Mapping之后，因为后期是基于LDR的
+	// ポストプロセス効果はトーンマッピング後適用（LDR空間での処理が前提となるため）
 
         // 反相
         // 色反転

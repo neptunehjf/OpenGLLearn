@@ -1,4 +1,4 @@
-#version 330 core
+ï»¿#version 330 core
 
 in vec2 TexCoords;
 
@@ -20,9 +20,12 @@ struct PointLight
 	vec3 ambient;
 	vec3 diffuse;
 	vec3 specular;
-	float constant;  // ¹âÔ´Ë¥¼õÄ£ĞÍµÄ³£Êı²¿·Ö£¬Í¨³£Îª1£¬ÎªÁË±£Ö¤·ÖÄ¸Ò»¶¨±È·Ö×Ó´ó£¬²»È»¿ÉÄÜ³öÏÖ¹âÕÕ·´¶ø±äÇ¿µÄÇé¿ö
-	float linear;    // Ò»´ÎÏîÏµÊı£¬¾àÀë½ÏĞ¡Ê±£¬Ò»´ÎÏîÓ°Ïì´ó¡£ÏµÊıÔ½Ğ¡Ë¥¼õÔ½Âı
-	float quadratic; // ¶ş´ÎÏîÏµÊı£¬¾àÀë½Ï´óÊ±£¬¶ş´ÎÏîÓ°Ïì´ó¡£ÏµÊıÔ½Ğ¡Ë¥¼õÔ½Âı
+	float constant;  // å…‰æºè¡°å‡æ¨¡å‹çš„å¸¸æ•°éƒ¨åˆ†ï¼Œé€šå¸¸ä¸º1ï¼Œä¸ºäº†ä¿è¯åˆ†æ¯ä¸€å®šæ¯”åˆ†å­å¤§ï¼Œä¸ç„¶å¯èƒ½å‡ºç°å…‰ç…§åè€Œå˜å¼ºçš„æƒ…å†µ
+//                    // æ¸›è¡°ãƒ¢ãƒ‡ãƒ«ã®å®šæ•°é …ï¼ˆé€šå¸¸1.0 åˆ†æ¯ãŒåˆ†å­ã‚’è¶…ãˆã‚‹ã‚ˆã†ã«ï¼‰
+	float linear;    // ä¸€æ¬¡é¡¹ç³»æ•°ï¼Œè·ç¦»è¾ƒå°æ—¶ï¼Œä¸€æ¬¡é¡¹å½±å“å¤§ã€‚ç³»æ•°è¶Šå°è¡°å‡è¶Šæ…¢
+//					ã€€//ã€€ä¸€æ¬¡æ¸›è¡°ä¿‚æ•° è¿‘è·é›¢ã§å½±éŸ¿å¤§ã€€ â€»ä¿‚æ•°å°=æ¸›è¡°é…ã„
+	float quadratic; // äºŒæ¬¡é¡¹ç³»æ•°ï¼Œè·ç¦»è¾ƒå¤§æ—¶ï¼ŒäºŒæ¬¡é¡¹å½±å“å¤§ã€‚ç³»æ•°è¶Šå°è¡°å‡è¶Šæ…¢
+//ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€ã€€//ã€€äºŒæ¬¡æ¸›è¡°ä¿‚æ•° é è·é›¢ã§å½±éŸ¿å¤§ã€€ â€»ä¿‚æ•°å°=æ¸›è¡°é…ã„
 	float radius;    // for light vomlume optimization
 };
 
@@ -43,22 +46,24 @@ vec4 CalcPointLight(vec3 fragPos, vec3 norm, vec3 diffuseColor, float specularCo
 
 void main()
 {   
-	// ´Óg-buffer»º³å»ñÈ¡µ½¶ÔÓ¦µÄĞÅÏ¢
+	// Gãƒãƒƒãƒ•ã‚¡ã‹ã‚‰å„æƒ…å ±ã‚’å–å¾—
     vec3 position  = texture(material.texture_diffuse1, TexCoords).rgb;
 	vec3 normal    = texture(material.texture_diffuse2, TexCoords).rgb;
     vec3 albedo    = texture(material.texture_diffuse3, TexCoords).rgb;
 	float specular = texture(material.texture_diffuse3, TexCoords).a;
 
-	// ÑÓ³ÙäÖÈ¾£¬Ö»ĞèÃ¿¸öÆÁÄ»ÏñËØäÖÈ¾Ò»´Î¾ÍºÃÁË£¬¿ÉÒÔÌáÉıºÜ¶àĞÔÄÜ
+	// å»¶è¿Ÿæ¸²æŸ“ï¼Œåªéœ€æ¯ä¸ªå±å¹•åƒç´ æ¸²æŸ“ä¸€æ¬¡å°±å¥½äº†ï¼Œå¯ä»¥æå‡å¾ˆå¤šæ€§èƒ½
+	// ãƒ‡ã‚£ãƒ•ã‚¡ãƒ¼ãƒ‰ãƒ¬ãƒ³ãƒ€ãƒªãƒ³ã‚°ã®æ ¸å¿ƒï¼šãƒ”ã‚¯ã‚»ãƒ«ã”ã¨ã«1å›ã®ã¿è¨ˆç®— â†’ ãƒ‘ãƒ•ã‚©ãƒ¼ãƒãƒ³ã‚¹æœ€é©åŒ–
 
-	// ÓÃiGPUPressureÀ´¸øGPUÑ¹Á¦¡£µ±È»Ò²¿É´«Èë´óÁ¿¹âÔ´£¬µ«ÊÇ±È½ÏÂé·³¡£
+	// ç”¨é‡å¤æ¸²æŸ“çš„æ–¹å¼æ¥ç»™GPUå‹åŠ›ï¼Œç”¨äºæµ‹è¯•å»¶è¿Ÿæ¸²æŸ“çš„ä¼˜åŒ–æ•ˆæœã€‚å½“ç„¶ä¹Ÿå¯ä»¥ç”¨ä¼ å…¥å¤§é‡å…‰æºçš„æ–¹å¼ï¼Œä½†æ˜¯æ¯”è¾ƒéº»çƒ¦ã€‚
+	// â€»æ„å›³çš„ãªGPUè² è·ãƒ†ã‚¹ãƒˆç”¨ãƒ«ãƒ¼ãƒ—ï¼ˆå®Ÿéš›ã®é–‹ç™ºã§ã¯å…‰æºæ•°åˆ¶å¾¡ãŒä¸€èˆ¬çš„ï¼‰
 	for (int i = 0; i < iGPUPressure; i++)
 	{
 		FragColor = vec4(1.0);
 		FragColor = CalcPointLight(position, normal, albedo, specular);
 	}
 
-	// HDRÓÃ
+	// HDRç”¨
 	float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
     if(brightness > 1.0)
         BrightColor = vec4(FragColor.rgb, 1.0);
@@ -73,20 +78,21 @@ vec4 CalcPointLight(vec3 fragPos, vec3 norm, vec3 diffuseColor, float specularCo
 
 	for (int i = 0; i < POINT_LIGHT_NUM; i++)
 	{
-		// ¹âÌå»ıÒÔÍâµÄÆ¬¶Î²»¼ÆËã¹âÕÕ
+		// å…‰ä½“ç§¯ä»¥å¤–çš„ç‰‡æ®µä¸è®¡ç®—å…‰ç…§
+		// ãƒ©ã‚¤ãƒˆãƒœãƒªãƒ¥ãƒ¼ãƒ å¤–ã®ãƒ•ãƒ©ã‚°ãƒ¡ãƒ³ãƒˆã¯ãƒ©ã‚¤ãƒ†ã‚£ãƒ³ã‚°è¨ˆç®—ã‚’ã‚¹ã‚­ãƒƒãƒ—ï¼ˆãƒ‘ãƒ•ã‚©ãƒ¼ãƒãƒ³ã‚¹æœ€é©åŒ–ï¼‰
 		float distance = length(pointLight[i].lightPos - fragPos);
         if(bLightVolume && distance > pointLight[i].radius)
 			continue;
 
-		// »·¾³¹âÕÕambient
+		// ambient
 	    vec4 ambient = vec4(pointLight[i].ambient * diffuseColor, 1.0);
 
-		// Âş·´Éä¹âÕÕdiffuse
+		// diffuse
 		vec3 lightDir = normalize(pointLight[i].lightPos - fragPos);
 		float diff = max(dot(norm, lightDir), 0.0);
 		vec4 diffuse = diff * vec4(pointLight[i].diffuse * diffuseColor, 1.0);
 	
-		// ¾µÃæ¹âÕÕspecular
+		// specular
 		float spec = 0.0f;
 		// Phong
 		if (light_model == 0)
@@ -102,20 +108,14 @@ vec4 CalcPointLight(vec3 fragPos, vec3 norm, vec3 diffuseColor, float specularCo
 		}
 		vec4 specular = spec * vec4(pointLight[i].specular, 1.0) * specularColor;
 
-		// ¼ÆËã¹âÕÕË¥¼õ£¬ÕâÀïÊÇÒ»¸öµã¹âÔ´µÄË¥¼õÄ£ĞÍ¡£¾àÀë½ÏĞ¡Ê±Ë¥¼õµÃÂı£¨Ò»´ÎÏîÓ°Ïì´ó£©£»¾àÀë½Ï´óÊ±Ë¥¼õµÃ¿ì£¨¶ş´ÎÏîÓ°Ïì´ó£©£»È»ºó»ºÂı½Ó½ü0£¨·ÖÄ¸ÊÇÎŞÇî´ó£¬Ë¥¼õµ½0£©
 		float lightFade = 1.0;
 		if (atte_formula == 0)
 			lightFade = 1.0 / (pointLight[i].constant + pointLight[i].linear * distance + pointLight[i].quadratic * distance * distance);
 		else if (atte_formula == 1)
 			lightFade = 1.0 / (0.1 * distance);
 		else if (atte_formula == 2)
-			lightFade = 1.0 / (0.1 * distance * distance); // Èç¹û²»ÆôÓÃgammaĞ£Õı£¬lightFade¾­¹ıÏÔÊ¾Æ÷Êä³ö»á±ä³ÉlightFadeµÄ2.2´Î·½£¬Òò´ËËã·¨¾Í²»¶ÔÁË
-														   // ²»ÆôÓÃgammaĞ£Õı£¬ÔòÒòÎªÌùÍ¼×ÔÉíÓĞgammaĞ£ÕıÒ²¿ÉÒÔÕı³£ÏÔÊ¾£¬µ«Éæ¼°µ½¸´ÔÓËã·¨¾Í²»Ò»ÑùÁË
-														   // ²»ÆôÓÃgammaĞ£Õı£¬Ïàµ±ÓÚÖ»ÓĞÌùÍ¼gammaĞ£Õı£¬¹âÕÕËã·¨È´Ã»ÓĞgammaĞ£Õı£¬ÊÇ´íÎóµÄ
-														   // ÆôÓÃgammaĞ£Õı£¬ÌùÍ¼ºÍËã·¨Ò»ÆğÔÚ×îºógammaĞ£Õı£¬ÊÇÕıÈ·µÄ
-														   // Ëµ°×ÁË£¬¾ÍÊÇ¿Õ¼ä×ª»»ÓëËã·¨µÄÏÈºóÎÊÌâ£¬Ö®Ç°ÔÚ3D¿Õ¼ä½øĞĞ¾ØÕó¼ÆËãÒ²Óöµ½¹ı¡£
-														   // ÊÇÏÈ°ÑÌùÍ¼×ªÎª·ÇÏßĞÔ¿Õ¼ä£¬ÔÚ·ÇÏßĞÔ¿Õ¼ä½øĞĞ¹âÕÕËã·¨¼ÆËã£¬»¹ÊÇ°ÑÌùÍ¼×ª³ÉÏßĞÔ¿Õ¼ä£¬ÔÚÏßĞÔ¿Õ¼ä½øĞĞ¼ÆËã£¬×îºó×ª³É·ÇÏßĞÔ¿Õ¼ä(gammaĞ£Õı)
-		// Ó¦ÓÃ¹âÕÕË¥¼õ
+			lightFade = 1.0 / (0.1 * distance * distance);
+
 		ambient  *= lightFade;
 		diffuse  *= lightFade;
 		specular *= lightFade;

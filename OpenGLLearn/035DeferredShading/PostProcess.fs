@@ -1,4 +1,4 @@
-#version 330 core
+ï»¿#version 330 core
 
 in vec2 TexCoords;
 out vec4 FragColor;
@@ -6,7 +6,7 @@ out vec4 FragColor;
 struct Material
 {
 	sampler2D texture_diffuse1;
-    sampler2D texture_diffuse2; // ÁÁÉ«Í¼
+    sampler2D texture_diffuse2; // ãƒ–ãƒ«ãƒ¼ãƒ ç”¨é«˜è¼åº¦ãƒãƒƒãƒ—
 };
 
 uniform Material material;
@@ -28,13 +28,14 @@ vec3 BloomBlur();
 
 void main()
 {   
-    // Ô­É«
+    // åŸè‰²
     vec3 originColor = texture(material.texture_diffuse1, TexCoords).rgb;
 
     vec3 color = originColor;
 
 
-    // Bloom ÒªÔÚHDR Tone Mapping Ö®Ç°£¬ÒòÎªHDRÏÂ ²ÅÄÜbrightness > 1.0£¬¶ÔÁÁ¶ÈÓĞ¸üºÃµÄ¿ØÖÆ
+    // Bloom è¦åœ¨HDR Tone Mapping ä¹‹å‰ï¼Œå› ä¸ºHDRä¸‹ æ‰èƒ½brightness > 1.0ï¼Œå¯¹äº®åº¦æœ‰æ›´å¥½çš„æ§åˆ¶
+    // Bloomã¯HDRãƒˆãƒ¼ãƒ³ãƒãƒƒãƒ”ãƒ³ã‚°å‰ã«è¡Œã†å¿…è¦ã‚ã‚Šï¼ˆHDRçŠ¶æ…‹ã§ã®ã¿brightness > 1.0ãŒå¯èƒ½ãªãŸã‚ã€è¼åº¦åˆ¶å¾¡ãŒæœ€é©åŒ–ã•ã‚Œã‚‹ï¼‰
     if (bBloom)
     {
         vec3 bloomColor = BloomBlur();
@@ -43,53 +44,61 @@ void main()
     // Reinhard Tone Mapping
     color = ToneMapping(color);
 
-    // PostProcess ÒªÔÚ Tone MappingÖ®ºó£¬ÒòÎªºóÆÚÊÇ»ùÓÚLDRµÄ
+    // PostProcess è¦åœ¨ Tone Mappingä¹‹åï¼Œå› ä¸ºåæœŸæ˜¯åŸºäºLDRçš„
+    // ãƒã‚¹ãƒˆãƒ—ãƒ­ã‚»ã‚¹åŠ¹æœã¯ãƒˆãƒ¼ãƒ³ãƒãƒƒãƒ”ãƒ³ã‚°å¾Œé©ç”¨ï¼ˆLDRç©ºé–“ã§ã®å‡¦ç†ãŒå‰æã¨ãªã‚‹ãŸã‚ï¼‰
 
-    // ·´Ïà
-    //FragColor = vec4(vec3(1.0 - texture(material.texture_diffuse1, TexCoords)), 1.0); 
+        // åç›¸
+        // è‰²åè»¢
+        //FragColor = vec4(vec3(1.0 - texture(material.texture_diffuse1, TexCoords)), 1.0); 
 
-    // ºÚ°×
-    //FragColor = texture(material.texture_diffuse1, TexCoords);
-    // ¼òµ¥ÇóÆ½¾ùÊıµÄ·½Ê½£¬¿ÉÄÜ²»¹»×¼È·
-    //float average = (FragColor.r + FragColor.g + FragColor.b) / 3.0;
-    // ÈËÑÛ»á¶ÔÂÌÉ«¸ü¼ÓÃô¸ĞÒ»Ğ©£¬¶ø¶ÔÀ¶É«²»ÄÇÃ´Ãô¸Ğ£¬ËùÒÔÎªÁË»ñÈ¡ÎïÀíÉÏ¸ü¾«È·µÄĞ§¹û£¬ÎÒÃÇĞèÒªÊ¹ÓÃ¼ÓÈ¨µÄ(Weighted)Í¨µÀ
-    //float average = 0.2126 * FragColor.r + 0.7152 * FragColor.g + 0.0722 * FragColor.b;  
-    //FragColor = vec4(average, average, average, 1.0); 
+        // é»‘ç™½
+    // ã‚°ãƒ¬ãƒ¼ã‚¹ã‚±ãƒ¼ãƒ«å¤‰æ›
+        //FragColor = texture(material.texture_diffuse1, TexCoords);
+        // ç®€å•æ±‚å¹³å‡æ•°çš„æ–¹å¼ï¼Œå¯èƒ½ä¸å¤Ÿå‡†ç¡®
+    // å˜ç´”ãªå¹³å‡å€¤ç®—å‡ºæ–¹æ³•ï¼ˆç²¾åº¦ä¸è¶³ã®å¯èƒ½æ€§ã‚ã‚Šï¼‰
+        //float average = (FragColor.r + FragColor.g + FragColor.b) / 3.0;
+        // äººçœ¼ä¼šå¯¹ç»¿è‰²æ›´åŠ æ•æ„Ÿä¸€äº›ï¼Œè€Œå¯¹è“è‰²ä¸é‚£ä¹ˆæ•æ„Ÿï¼Œæ‰€ä»¥ä¸ºäº†è·å–ç‰©ç†ä¸Šæ›´ç²¾ç¡®çš„æ•ˆæœï¼Œæˆ‘ä»¬éœ€è¦ä½¿ç”¨åŠ æƒçš„(Weighted)é€šé“
+    // äººé–“ã®è¦–è¦šç‰¹æ€§ã‚’è€ƒæ…®ã—ãŸåŠ é‡å¹³å‡ï¼ˆç·‘æˆåˆ†ã‚’é‡è¦–ï¼‰
+        //float average = 0.2126 * FragColor.r + 0.7152 * FragColor.g + 0.0722 * FragColor.b;  
+        //FragColor = vec4(average, average, average, 1.0); 
 
     float sample_offset = 1.0 / sample_offset_base;
 
     vec2 sample[9] = vec2[](
-    vec2(-sample_offset,  sample_offset), // ×óÉÏ
-    vec2( 0.0f,    sample_offset), // ÕıÉÏ
-    vec2( sample_offset,  sample_offset), // ÓÒÉÏ
-    vec2(-sample_offset,  0.0f),   // ×ó
-    vec2( 0.0f,    0.0f),   // ÖĞ
-    vec2( sample_offset,  0.0f),   // ÓÒ
-    vec2(-sample_offset, -sample_offset), // ×óÏÂ
-    vec2( 0.0f,   -sample_offset), // ÕıÏÂ
-    vec2( sample_offset, -sample_offset)  // ÓÒÏÂ
+    vec2(-sample_offset,  sample_offset), // å·¦ä¸Š
+    vec2( 0.0f,    sample_offset), // æ­£ä¸Š
+    vec2( sample_offset,  sample_offset), // å³ä¸Š
+    vec2(-sample_offset,  0.0f),   // å·¦
+    vec2( 0.0f,    0.0f),   // ä¸­
+    vec2( sample_offset,  0.0f),   // å³
+    vec2(-sample_offset, -sample_offset), // å·¦ä¸‹
+    vec2( 0.0f,   -sample_offset), // æ­£ä¸‹
+    vec2( sample_offset, -sample_offset)  // å³ä¸‹
     );
 
-    // ³õÊ¼»¯ºË£¬²»ÆğÈÎºÎ×÷ÓÃ
+    // ã‚«ãƒ¼ãƒãƒ«åˆæœŸåŒ–ï¼ˆç„¡å¤‰æ›ï¼‰
     float kernel[9] = float[](
         0, 0, 0,
         0, 1, 0,
         0, 0, 0
     );
 
+    // ã‚·ãƒ£ãƒ¼ãƒ—ãƒ³ç”¨ã‚«ãƒ¼ãƒãƒ«
     float sharpen[9] = float[](
         -1, -1, -1,
         -1,  9, -1,
         -1, -1, -1
     );
 
+    // ã‚¨ãƒƒã‚¸æ¤œå‡ºç”¨ã‚«ãƒ¼ãƒãƒ«
     float edgeDetect[9] = float[](
             1,  1,  1,
             1, -8,  1,
             1,  1,  1
     );
 
-    // ¼ÓÈ¨Ö®ºÍµÈÓÚ1²ÅÊÇÔ­À´µÄÑÕÉ«£¬´óÓÚ»òĞ¡ÓÚ1µÄ»°£¬Í¼Ïñ»á±äÁÁ/±ä°µ¡£ËùÒÔÕâÀïÃ¿¸ö¼ÓÈ¨Öµ¶¼Òª³ıÒÔ16.0
+    // åŠ æƒä¹‹å’Œç­‰äº1æ‰æ˜¯åŸæ¥çš„é¢œè‰²ï¼Œå¤§äºæˆ–å°äº1çš„è¯ï¼Œå›¾åƒä¼šå˜äº®/å˜æš—ã€‚æ‰€ä»¥è¿™é‡Œæ¯ä¸ªåŠ æƒå€¼éƒ½è¦é™¤ä»¥16.0
+    // ã¼ã‹ã—ç”¨ã‚«ãƒ¼ãƒãƒ«ï¼ˆç·å’ŒãŒ1ã«ãªã‚‹ã‚ˆã†16ã§é™¤ç®—ï¼‰
     float Blur[9] = float[](
             1.0 / 16.0,  2.0 / 16.0,  1.0 / 16.0,
             2.0 / 16.0,  4.0 / 16.0,  2.0 / 16.0,
@@ -100,7 +109,7 @@ void main()
     {
         case 0:
         {
-            //ÓÃÄ¬ÈÏºË
+            // ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã‚«ãƒ¼ãƒãƒ«ã‚’ä½¿ç”¨
             break;
         }
         case 1:
@@ -137,12 +146,12 @@ void main()
     }
 
 
-    //gl_FragCoord ¶ÔÓ¦µÄÊÇÊÓ¿Ú×ø±ê£¨ÏñËØ£© 
+    //gl_FragCoord å¯¹åº”çš„æ˜¯è§†å£åæ ‡ï¼ˆåƒç´ ï¼‰ 
     if ((gl_FragCoord.x < window_width / 2.0) && split_flag)
     {
         FragColor = vec4(originColor, 1.0);
     }
-    else if ((gl_FragCoord.x < window_width / 2.0 + 1.0) && split_flag) // gl_FragCoord.x == window_width / 2.0 ÒòÎªÎó²îµÄÔ­ÒòËã²»³öÀ´
+    else if ((gl_FragCoord.x < window_width / 2.0 + 1.0) && split_flag) // gl_FragCoord.x == window_width / 2.0 å› ä¸ºè¯¯å·®çš„åŸå› ç®—ä¸å‡ºæ¥
     {
         FragColor = vec4(0.0, 255.0, 0.0, 1.0);
     }
@@ -153,7 +162,8 @@ void main()
 
 }
 
-// ×¢ÒâGLSL²»Ö§³ÖÖ¸Õë²Ù×÷£¨ÔÚÏÔ¿¨Àïµ±È»²»ÄÜ·ÃÎÊÄÚ´æÁË£©£¬Ö»ÄÜÍ¨¹ı·µ»ØÖµµÄ·½Ê½·µ»ØÊı×é
+// æ³¨æ„GLSLä¸æ”¯æŒæŒ‡é’ˆæ“ä½œï¼ˆåœ¨æ˜¾å¡é‡Œå½“ç„¶ä¸èƒ½è®¿é—®å†…å­˜äº†ï¼‰ï¼Œåªèƒ½é€šè¿‡è¿”å›å€¼çš„æ–¹å¼è¿”å›æ•°ç»„
+// ã‚«ãƒ¼ãƒãƒ«é…åˆ—ã‚³ãƒ”ãƒ¼é–¢æ•°ï¼ˆGLSLã¯ãƒã‚¤ãƒ³ã‚¿æ“ä½œä¸å¯ã®ãŸã‚å€¤æ¸¡ã—ã§å®Ÿç¾ï¼‰
 float[9] CopyKernel(float src[9])
 {
     float dst[9] = float[](
@@ -175,13 +185,13 @@ vec3 ToneMapping(vec3 color)
         vec3 mappedColor;
         if (iHDRAlgro == 0)
         {
-            // ReinhardÉ«µ÷Ó³Éä
+            // Reinhard Tone Mapping
             mappedColor = color / (color + vec3(1.0));
         }
         else if (iHDRAlgro == 1)
         {
-            // ÆØ¹âÉ«µ÷Ó³Éä
-            mappedColor = vec3(1.0) - exp(-color * fExposure); //vec3(1.0) ¼õÈ¥ ×ÔÈ»³£ÊıeµÄ-color * fExposure´Î·½
+            // Exposure Tone Mapping
+            mappedColor = vec3(1.0) - exp(-color * fExposure); //vec3(1.0) å‡å» è‡ªç„¶å¸¸æ•°eçš„-color * fExposureæ¬¡æ–¹
         }
 
         return mappedColor;
@@ -194,14 +204,24 @@ vec3 ToneMapping(vec3 color)
 vec3 BloomBlur()
 {
     // Gaussian blur
-    vec2 sample_offset = 1.0 / textureSize(material.texture_diffuse2, 0);
+    vec2 sample_offset = 2 * 1.0 / textureSize(material.texture_diffuse2, 0);
     float weight[9] = float[] (0.227027, 0.1945946, 0.1216216, 0.054054, 0.016216, 0.006216, 0.003216, 0.001216, 0.000216);
 
-    // µ±Ç°fragment
+    // ä¸­å¿ƒã‚µãƒ³ãƒ—ãƒ«ç‚¹
     vec3 color = texture(material.texture_diffuse2, TexCoords).rgb * weight[0];
 
-    // ÒòÎªGaussian ²¨ĞÎÓĞxºÍyÎ¬¶È¿É·ÖÀëµÄÌØĞÔ£¬ËùÒÔÃ¿´ÎÖ»¼ÆËãÒ»¸öÎ¬¶È×éºÏÆğÀ´£¬±ÈÖ±½Ó¶şÎ¬¼ÆËãÒªĞ§ÂÊ¸ß
-    // ±ÈÈç 5 x 5 µÄ²ÉÑù·¶Î§£¬Ö±½Ó¶şÎ¬²ÉÑùÒª²ÉÑù5 * 5 = 25´Î£¬·ÖÀë¼ÆËãÖ»Òª 5 + 5 = 10´Î
+    // å› ä¸ºGaussian æ³¢å½¢æœ‰xå’Œyç»´åº¦å¯åˆ†ç¦»çš„ç‰¹æ€§ï¼Œæ‰€ä»¥æ¯æ¬¡åªè®¡ç®—ä¸€ä¸ªç»´åº¦ç»„åˆèµ·æ¥ï¼Œæ¯”ç›´æ¥äºŒç»´è®¡ç®—è¦æ•ˆç‡é«˜
+    // æ¯”å¦‚ 5 x 5 çš„é‡‡æ ·èŒƒå›´ï¼Œç›´æ¥äºŒç»´é‡‡æ ·è¦é‡‡æ ·5 X 5 = 25æ¬¡ï¼Œåˆ†ç¦»è®¡ç®—åªè¦ 5 + 5 = 10æ¬¡
+
+    // ã‚¬ã‚¦ã‚·ã‚¢ãƒ³é–¢æ•°ã®åˆ†é›¢å¯èƒ½ç‰¹æ€§ã‚’æ´»ç”¨ï¼š
+    // xè»¸ã¨yè»¸ã‚’å€‹åˆ¥ã«å‡¦ç†ã™ã‚‹ã“ã¨ã§è¨ˆç®—åŠ¹ç‡å‘ä¸Š
+    // ï¼ˆä¾‹ï¼‰5x5ã‚µãƒ³ãƒ—ãƒ«ã®å ´åˆï¼š
+    // é€šå¸¸   -> 25å›ã‚µãƒ³ãƒ—ãƒªãƒ³ã‚°
+    // åˆ†é›¢å‡¦ç† -> 10å›ã‚µãƒ³ãƒ—ãƒªãƒ³ã‚° (5+5)
+
+    // ä»¥ä¸‹ç”¨x yè½´äº¤æ›¿é‡‡æ ·çš„æ–¹å¼ï¼Œé‡‡æ ·æ•°æ˜¯(1 + 2 X 8) + (1 + 2 X 8) = 17 + 17 = 34
+    // ç¾åœ¨ã®å‡¦ç†æ–¹å‘ã«å¿œã˜ãŸã‚µãƒ³ãƒ—ãƒªãƒ³ã‚°ï¼ˆåˆè¨ˆ34ã‚µãƒ³ãƒ—ãƒ«ï¼‰
+
     if (horizontal)
     {
         for (int i = 1; i < 9; i++)
