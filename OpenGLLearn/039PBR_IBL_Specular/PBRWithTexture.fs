@@ -12,9 +12,9 @@ uniform int iFrenselMode;
 uniform bool bDirectLight;
 
 // IBL
-uniform samplerCube irradianceMap; // 辐照度cubemap
+uniform samplerCube irradianceMap; // 放射cubemap
 uniform samplerCube prefilterMap; // prefilter cubemap
-uniform sampler2D brdfMap; // BRDF图
+uniform sampler2D brdfMap;       // BRDf map
 
 struct Material
 {  
@@ -26,7 +26,7 @@ struct Material
 };
 uniform Material material;
 
-vec3  albedo    = pow(texture(material.texture_diffuse1, TexCoords).rgb, vec3(2.2)); // 材质转成线性空间
+vec3  albedo    = pow(texture(material.texture_diffuse1, TexCoords).rgb, vec3(2.2)); //線形に変換
 float metallic  = texture(material.texture_diffuse2, TexCoords).r;
 float roughness = texture(material.texture_diffuse3, TexCoords).r;
 float ao        = texture(material.texture_diffuse4, TexCoords).r;
@@ -114,8 +114,11 @@ void main()
     vec3 irradiance = texture(irradianceMap, N).rgb;
     vec3 diffuse = irradiance * albedo;
     vec3 ambient;
+    // specular内部计算已经考虑Ks了，所以这里不用再乘
+    // スペキュラ計算は内部でKsを考慮済みのため、ここで再乗算不要
+
     if (bIBL)
-        ambient = (kD * diffuse + specular) * ao;  // specular内部计算已经考虑Ks了，所以这里不用再乘
+        ambient = (kD * diffuse + specular) * ao;  
     else
         ambient = vec3(0.03) * albedo * ao;
     
@@ -131,9 +134,6 @@ void main()
     FragColor = vec4(color , 1.0);
 }
 
-// N 决定了当前位置的片段的微表面与H一致的概率，概率越高的片段，反射越强，显然N与H越重合，概率越高
-// 这里的概率显然不是统计学采样算出的，而是一个大致估算。因为N和H全都是宏观的向量，不涉及微表面
-// roughness 决定了整体微表面的方向的随机程度，roughness越大，反射与无反射区域的过度越平滑(让概率大的地方概率减小，反之亦然)
 float DistributionGGX(vec3 N, vec3 H, float roughness)
 {
     float a = roughness*roughness;
@@ -179,7 +179,6 @@ vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
     return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0);
 }   
 
-// 简化版的取法线函数，具体原理等有空了解一下
 vec3 GetNormalFromMap()
 {
     vec3 tangentNormal = texture(material.texture_diffuse5, TexCoords).xyz * 2.0 - 1.0;

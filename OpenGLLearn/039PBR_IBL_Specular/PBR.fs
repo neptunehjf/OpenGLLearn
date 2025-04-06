@@ -14,9 +14,9 @@ uniform int iFrenselMode;
 uniform bool bDirectLight;
 
 // IBL
-uniform samplerCube irradianceMap; // 辐照度cubemap
+uniform samplerCube irradianceMap; // 放射cubemap
 uniform samplerCube prefilterMap;  // prefilter cubemap
-uniform sampler2D   brdfMap;       // BRDF图
+uniform sampler2D brdfMap;         // BRDf map
 
 // lights
 uniform vec3 lightPositions[4];
@@ -100,7 +100,9 @@ void main()
     vec3 diffuse = irradiance * albedo;
     vec3 ambient;
     if (bIBL)
-        ambient = (kD * diffuse + specular) * ao;  // specular内部计算已经考虑Ks了，所以这里不用再乘
+        ambient = (kD * diffuse + specular) * ao; 
+    // specular内部计算已经考虑Ks了，所以这里不用再乘
+    // スペキュラ計算は内部でKsを考慮済みのため、ここで再乗算不要
     else
         ambient = vec3(0.03) * albedo * ao;
     
@@ -116,9 +118,6 @@ void main()
     FragColor = vec4(color , 1.0);
 }
 
-// N 决定了当前位置的片段的微表面与H一致的概率，概率越高的片段，反射越强，显然N与H越重合，概率越高
-// 这里的概率显然不是统计学采样算出的，而是一个大致估算。因为N和H全都是宏观的向量，不涉及微表面
-// roughness 决定了整体微表面的方向的随机程度，roughness越大，反射与无反射区域的过度越平滑(让概率大的地方概率减小，反之亦然)
 float DistributionGGX(vec3 N, vec3 H, float roughness)
 {
     float a = roughness*roughness;

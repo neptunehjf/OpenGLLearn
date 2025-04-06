@@ -15,7 +15,7 @@ struct Material
 };
 uniform Material material;
 
-// 材质转成线性空间
+//線形に変換
 vec3 albedo     = pow(texture(material.texture_diffuse1, TexCoords).rgb, vec3(2.2));
 float metallic  = texture(material.texture_diffuse2, TexCoords).r;
 float roughness = texture(material.texture_diffuse3, TexCoords).r;
