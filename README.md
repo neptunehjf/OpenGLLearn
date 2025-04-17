@@ -59,8 +59,8 @@ OpenGL APIを用いて実装されたレンダラーです。基礎的なライ�
 -   ‌**035DeferredShading** - 遅延シェーディングによるGPU負荷軽減（GPU負荷レベル2時：59fps→105fps）
 -   ‌**036SSAO** - 遅延シェーディングとSSAOアルゴリズムによるスクリーン空間アンビエントオクルージョンの実装
 -   ‌**037PBR** - マイクロサーフェスモデル／エネルギー保存則／Cook-Torrance BRDF に基づく物理ベースレンダリング（直接照明部分）
--   ‌**038PBR_IBL_Diffuse** -マイクロサーフェスモデル／エネルギー保存則／Cook-Torrance BRDF に基づく物理ベースレンダリング（イメージ・ベースト・ライティング（IBL）の拡散反射部分）
--   ‌**039PBR_IBL_Specular** - マイクロサーフェスモデル／エネルギー保存則／Cook-Torrance BRDF に基づく物理ベースレンダリング（イメージ・ベースト・ライティング（IBL）の鏡面反射部分）
+-   ‌**038PBR_IBL_Diffuse** -マイクロサーフェスモデル／エネルギー保存則／Cook-Torrance BRDF に基づく物理ベースレンダリング（イメージ・ベース・ライティング（IBL）の拡散反射部分）
+-   ‌**039PBR_IBL_Specular** - マイクロサーフェスモデル／エネルギー保存則／Cook-Torrance BRDF に基づく物理ベースレンダリング（イメージ・ベース・ライティング（IBL）の鏡面反射部分）
 
 ※ コード中のコメントは一応日本語化していますが、自分用のメモとして中国語のコメントも多く残っています。悪しからずご了承ください。
 
@@ -103,19 +103,19 @@ OpenGL APIを用いて実装されたレンダラーです。基礎的なライ�
 <br>
 <br>
 
--   PBRのイメージ・ベースト・ライティング（IBL）の環境1
+-   PBRのイメージ・ベース・ライティング（IBL）の環境1
 <img src="https://github.com/user-attachments/assets/cdf0da50-a6c3-429f-9061-5bb7713457ab" width="1024px" />
 <br>
 <br>
 <br>
 
--   ‌PBRのイメージ・ベースト・ライティング（IBL）の環境2
+-   ‌PBRのイメージ・ベース・ライティング（IBL）の環境2
 <img src="https://github.com/user-attachments/assets/4f05ce55-a2c5-43c7-97d0-726aed1d770c" width="1024px" />
 <br>
 <br>
 <br>
 
--   ‌PBRのイメージ・ベースト・ライティング（IBL）の環境2かつ直接照明
+-   ‌PBRのイメージ・ベース・ライティング（IBL）の環境2かつ直接照明
 <img src="https://github.com/user-attachments/assets/3e1e5eed-8e75-434f-996c-44ba92f25f9a" width="1024px" />
 <br>
 <br>
