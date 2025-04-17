@@ -46,37 +46,80 @@ OpenGL APIを用いて実装されたレンダラーです。基礎的なライ�
 -   ‌**022Cubemap** - キューブマップによるスカイボックスと反射/屈折効果
 -   ‌**023AdvancedGLSL** - 高度なGLSL機能（組み込み変数/インターフェースブロック/UBO）
 -   ‌**024GeometryShader** - ジオメトリシェーダー応用（法線可視化/爆発エフェクト）
--   ‌**025Instancing** - インスタンス化による大量オブジェクト描画の最適化（10万インスタンス/130fps）
+-   ‌**025Instancing** - インスタンス化による大量オブジェクト描画の最適化（10万インスタンス/127fps）
 -   ‌**026AntiAliasing** - MSAAアンチエイリアシングの有効化
 -   ‌**027AdvancedLighting** - Phong照明モデルからBlinn-Phongモデルへの移行（鏡面反射の品質改善）
 -   ‌**028GammaCorrection** - 線形空間に変換→照明計算→ガンマ補正のワークフローによる正確な色表現
 -   ‌**029ShadowMapping** - 深度マップを用いた平行光源の影生成
--   ‌**030PointShadow** - 深度キューブマップによるポイントライトの影生成
+-   ‌**030PointShadow** - 深度キューブマップによるポイントライトの影生成。シャドウバイアスのリアルタイム調整可能
 -   ‌**031NormalMapping** - 接空間計算と法線マッピングの実装
--   ‌**032ParallaxMapping** - 視差マッピング（3種のアルゴリズム比較対応）
+-   ‌**032ParallaxMapping** - 視差マッピング（3種のアルゴリズム比較可能）
 -   ‌**033HDR** - Reinhard/ExposureアルゴリズムによるHDRトーンマッピング
--   ‌**034Bloom** - ピンポンバッファ＆ガウスぼかしを用いたブルーム効果
+-   ‌**034Bloom** - ピンポンバッファとガウスぼかしを用いたブルーム効果
 -   ‌**035DeferredShading** - 遅延シェーディングによるGPU負荷軽減（GPU負荷レベル2時：59fps→105fps）
 -   ‌**036SSAO** - 遅延シェーディングとSSAOアルゴリズムによるスクリーン空間アンビエントオクルージョンの実装
 -   ‌**037PBR** - マイクロサーフェスモデル／エネルギー保存則／Cook-Torrance BRDF に基づく物理ベースレンダリング（直接照明部分）
--   ‌**038PBR_IBL_Diffuse** -マイクロサーフェスモデル／エネルギー保存則／Cook-Torrance BRDF に基づく物理ベースレンダリング（拡散反射部分）
--   ‌**039PBR_IBL_Specular** - マイクロサーフェスモデル／エネルギー保存則／Cook-Torrance BRDF に基づく物理ベースレンダリング（鏡面反射部分）
+-   ‌**038PBR_IBL_Diffuse** -マイクロサーフェスモデル／エネルギー保存則／Cook-Torrance BRDF に基づく物理ベースレンダリング（イメージ・ベースト・ライティング（IBL）の拡散反射部分）
+-   ‌**039PBR_IBL_Specular** - マイクロサーフェスモデル／エネルギー保存則／Cook-Torrance BRDF に基づく物理ベースレンダリング（イメージ・ベースト・ライティング（IBL）の鏡面反射部分）
 
 ※ コード中のコメントは一応日本語化していますが、自分用のメモとして中国語のコメントも多く残っています。悪しからずご了承ください。
 
 
 ‌**実行方法**‌  
-Visual Studio 2022で該当プロジェクトの`.sln`ファイルを開き、コンパイル後、VS 2022のデバッガーで実行します。
+-   ‌Visual Studio 2022で該当プロジェクトの`.sln`ファイルを開き、コンパイル後、VS 2022のデバッガーで実行
+-   ‌W、A、S、Dキー‌でカメラを移動
+-   ‌‌マウスの右ボタンを押したまま‌マウスを動かすとカメラの向きを変更
+-   ‌マウスホイール‌で視野角（FOV）を調整
+-   Imguiでリアルタイムパラメータ調整
 
-‌**成果画像の例**‌  
-<img src="https://github.com/user-attachments/assets/965ede98-de71-40a7-9c90-6b2770fc5a8c" width="1024px" />
+‌**成果の例**‌  
+-   ‌ポイントライトの影生成。シャドウバイアスのリアルタイム調整可能
+<img src="https://github.com/user-attachments/assets/965ede98-de71-40a7-9c90-6b2770fc5a8c" width="1024px"/>
+<br>
+<br>
+<br>
+
+-   視差マッピング。3種のアルゴリズム比較可能
 <img src="https://github.com/user-attachments/assets/ab5a578d-9328-4e9f-a1a7-95a2ddefa0df" width="1024px" />
+<br>
+<br>
+<br>
+
+-   ‌原図と後処理効果(Blur)を仕切り線で区切って表示。それにスカイボックス、反射・屈折効果、半透明効果
 <img src="https://github.com/user-attachments/assets/b6c83b43-ae63-406d-ba6a-417c9f45f5c3" width="1024px" />
+<br>
+<br>
+<br>
+
+-   ‌インスタンス化による大量オブジェクト描画の最適化（10万インスタンス/127fps）
 <img src="https://github.com/user-attachments/assets/fb819302-4bf3-49a7-967f-364b9eccefdd" width="1024px" />
+<br>
+<br>
+<br>
+
+-   ピンポンバッファとガウスぼかしを用いたブルーム効果
 <img src="https://github.com/user-attachments/assets/d7bd3ddd-e98a-4338-88b5-0a9c044a21cd" width="1024px" />
+<br>
+<br>
+<br>
+
+-   PBRのイメージ・ベースト・ライティング（IBL）の環境1
 <img src="https://github.com/user-attachments/assets/cdf0da50-a6c3-429f-9061-5bb7713457ab" width="1024px" />
+<br>
+<br>
+<br>
+
+-   ‌PBRのイメージ・ベースト・ライティング（IBL）の環境2
 <img src="https://github.com/user-attachments/assets/4f05ce55-a2c5-43c7-97d0-726aed1d770c" width="1024px" />
+<br>
+<br>
+<br>
+
+-   ‌PBRのイメージ・ベースト・ライティング（IBL）の環境2かつ直接照明
 <img src="https://github.com/user-attachments/assets/3e1e5eed-8e75-434f-996c-44ba92f25f9a" width="1024px" />
+<br>
+<br>
+<br>
 
 ‌**連絡先**‌  
 koalahjf@gmail.com
